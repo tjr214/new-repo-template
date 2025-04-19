@@ -49,7 +49,7 @@ fi
 execute_command "npm i -g task-master-ai" "Failed to install task-master-ai. Please check your npm installation and try again."
 
 # Display task-master-ai version
-echo -e "${MAGENTA}📊 task-master-ai version: ${BOLD}$(task-master-ai --version 2>/dev/null || echo 'Unable to determine version')${NC}"
+echo -e "${MAGENTA}📊 task-master-ai version: ${BOLD}$(task-master --version 2>/dev/null || echo 'Unable to determine version')${NC}"
 
 echo -e "${GREEN}${BOLD}✨ All done! task-master-ai has been installed successfully.${NC}"
 
