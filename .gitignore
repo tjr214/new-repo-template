@@ -14,7 +14,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -175,3 +174,6 @@ node_modules/
 
 # Aider Stuff
 .aider*
+
+# Comment if you actually have a `lib` folder
+lib/
