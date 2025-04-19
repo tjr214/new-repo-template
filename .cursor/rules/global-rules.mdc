@@ -1,0 +1,5 @@
+---
+description: Global Rules that we must always follow, no matter what. Every time.
+globs: 
+alwaysApply: true
+---
