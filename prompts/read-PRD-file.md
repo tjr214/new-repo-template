@@ -1,3 +1,3 @@
 ## Instruction
 
-Please parse our PRD at scripts/prd.txt.
+Please parse our PRD at `scripts/prd.txt`.
