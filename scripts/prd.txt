@@ -1,0 +1,83 @@
+<context>
+# Overview  
+The new-repo-template is a starter template designed to accelerate development of new projects by providing a pre-configured environment with best practices and development tools already set up. It includes Task Master integration for structured development workflows, allowing developers to break down projects into manageable tasks and track progress efficiently.
+
+# Core Features  
+1. Task Master Integration
+   - Provides task management and tracking capabilities
+   - Allows breaking down complex projects into manageable tasks
+   - Supports dependency management between tasks
+
+2. Pre-configured Development Environment
+   - Includes essential development tools and configurations
+   - Provides consistent setup across projects
+   - Reduces time spent on initial project setup
+
+3. Documentation Templates
+   - Includes templates for README, contribution guidelines, etc.
+   - Ensures consistent documentation across projects
+   - Makes it easier for new developers to onboard
+
+# User Experience  
+- Developer Personas:
+  - Project Leads: Need visibility into project progress and task assignments
+  - Individual Developers: Need clear task descriptions and priorities
+  - New Team Members: Need easy onboarding with clear documentation
+  
+- Key User Flows:
+  - Project initialization with Task Master
+  - Task creation and management
+  - Project structure navigation
+</context>
+<PRD>
+# Technical Architecture  
+- System Components:
+  - Task Master integration for task management
+  - MCP Server configuration for AI tool integration
+  - Custom Cursor rules for consistent development
+  
+- Directory Structure:
+  - scripts/ - Contains utility scripts and Task Master integration
+  - tasks/ - Generated task files (after PRD parsing)
+  - .cursor/rules/ - Custom rules for AI assistance
+  
+- Integration Points:
+  - Task Master CLI and MCP tools
+  - Cursor IDE integration
+
+# Development Roadmap  
+- MVP Requirements:
+  1. Basic repository structure with key directories
+  2. Task Master initialization and configuration
+  3. Example PRD and generated tasks
+  4. Basic documentation on how to use the template
+  
+- Future Enhancements:
+  1. Additional tooling integrations (linting, testing, etc.)
+  2. Project-specific templates for different types of applications
+  3. Enhanced documentation with tutorials
+  4. CI/CD pipeline templates
+
+# Logical Dependency Chain
+1. Set up basic repository structure
+2. Initialize Task Master integration
+3. Configure MCP Server for AI tool integration
+4. Create example PRD and documentation
+5. Generate initial tasks from PRD
+6. Add custom Cursor rules
+7. Test the complete workflow
+
+# Risks and Mitigations  
+- Technical Challenges:
+  - Complexity of Task Master integration: Provide detailed documentation
+  - Maintaining compatibility with different environments: Test on multiple platforms
+  
+- Scope Management:
+  - Feature creep: Focus on core functionality first, then expand
+  - Balance between flexibility and structure: Make customization points clear
+
+# Appendix  
+- Task Master Documentation Resources
+- Cursor AI Integration Guidelines
+- Best Practices for Repository Structure
+</PRD> 
