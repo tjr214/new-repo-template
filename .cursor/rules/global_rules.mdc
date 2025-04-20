@@ -35,6 +35,18 @@ Here we give a brief description of the tech stack we are working with. Have the
 - Always use the latest version of libraries and packages (do not pin versions) of the library.
 - When working with libraries and packages, always use the `context7` MCP tool to get the latest docs and example code snippets.
 
+### CRITICAL: Library Documentation Protocol
+
+- ANY mention of a library, package, framework, or module name (e.g., "React", "Better-Auth", "Express") MUST IMMEDIATELY trigger the use of context7 MCP tools.
+- ALWAYS use resolve_library_id followed by get_library_docs before providing ANY information about a library.
+- NEVER rely on general knowledge about libraries without first checking current documentation.
+
+Watch for these trigger patterns that ALWAYS require context7:
+* Any question containing a library name followed by words like "how to", "usage", "implement", etc.
+* Any question containing a library name preceeded by words like "use", etc.
+* Any request for examples, tutorials, or guidance with a specific library
+* Any troubleshooting question related to a library
+
 ## Planning
 
 - Take your time and always think things through.
