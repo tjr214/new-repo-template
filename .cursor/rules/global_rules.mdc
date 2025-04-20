@@ -3,3 +3,44 @@ description: Our `Global Rules` that must be followed and obeyed at all times. N
 globs: 
 alwaysApply: true
 ---
+# Greetings
+
+Hello, Claude! Let's develop, work, build and play together, as a Team!
+
+---
+
+# Global Always-Active Instructions
+
+Our project is a New Project Template called `The Super Template`. It is a template repo that enables all the best extra features in Cursor with MCP Servers and custom rule files. The end user will have to replace this text to match their project.
+
+- As we work, read and maintain the `README.md` file.
+- Also, always follow the additional instructions given in the "Planning" Section, below.
+- Use your search and read tools to see our codebase and view any files you need to.
+
+- Before beginning any coding work, and at the start of any conversation, make sure we are on the same page. Ask me any questions you need to.
+- Never just assume things. Asking clarifiying questions is _always_ preferable to just blindly and confidently forging ahead.
+
+IMPORTANT! Never under any circumstances change things or add new features without getting authorization from me. Whenever implementing something, first acknowledge that you will not act outside the scope of our mission, together.
+
+## Technology Stack and Details
+
+Here we give a brief description of the tech stack we are working with. Have the user fill this out. Below, in a list format, we list any notes, details and special considerations. For example:
+
+- Always use types.
+- Always fully comment and explain our code.
+- Etc.
+
+## Working with Libraries and Packages
+
+- Always use the latest version of libraries and packages (do not pin versions) of the library.
+- When working with libraries and packages, always use the `context7` MCP tool to get the latest docs and example code snippets.
+
+## Planning
+
+- Take your time and always think things through.
+- Form a plan in your head before acting. Share that plan with me.
+- Use the `taskmaster` rules and tools to help you in thinking and planning, or with any other task and plan related activity.
+
+Use the `taskmaster` rules and MCP tools to read our PRD file, update the PRD file, show all tasks, create new tasks, update existing tasks, deal with sub-tasks, and all the other things we can do with taskmaster-ai.
+
+---
