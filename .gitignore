@@ -197,7 +197,9 @@ dev-debug.log
 *.sw?
 # OS specific
 
-
 # Task files
 tasks.json
 tasks/ 
+
+# Cursor MCP file because they have API keys in them
+.cursor/mcp.json
