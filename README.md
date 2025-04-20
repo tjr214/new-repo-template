@@ -88,6 +88,24 @@ A comprehensive project template with pre-configured Task Master AI integration 
    - etc.
 5. **Update as you go**: Keep tasks up-to-date as your implementation evolves
 
+## Using Context7 for Library Documentation
+
+Context7 is integrated into the workflow to ensure you're always working with the most current library documentation:
+
+- **Automatic Documentation Lookup**: Whenever you mention a library, package, framework, or module in your conversations with the AI, Context7 automatically fetches up-to-date documentation.
+- **How It Works**: The system uses a two-step process:
+  1. First, it resolves the library name to a Context7-compatible library ID
+  2. Then it retrieves the latest documentation for that library
+- **Always Current Information**: This ensures you never work with outdated library knowledge or examples
+- **Trigger Patterns**: Context7 activates automatically when you:
+  - Ask how to use a specific library
+  - Request implementation examples
+  - Ask for troubleshooting help with a library
+  - Mention any library name in the context of implementation
+- **No Manual Activation Required**: You don't need to explicitly request documentation - just mention the library in your question or task
+
+This seamless integration helps maintain code quality and prevents issues caused by outdated implementation patterns or deprecated functions.
+
 ## Customization
 
 ### Task Master Configuration
