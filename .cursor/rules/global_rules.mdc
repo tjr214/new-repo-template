@@ -55,4 +55,6 @@ Watch for these trigger patterns that ALWAYS require context7:
 
 Use the `taskmaster` rules and MCP tools to read our PRD file, update the PRD file, show all tasks, create new tasks, update existing tasks, deal with sub-tasks, and all the other things we can do with taskmaster-ai.
 
+CRITICAL: Do not ever use the `initialize_project` taskmaster MCP tool! Our project comes with taskmaster pre-initialized and re-running the initialization process will mess things up!
+
 ---
