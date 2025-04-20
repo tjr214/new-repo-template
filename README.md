@@ -33,10 +33,17 @@ A comprehensive project template with pre-configured Task Master AI integration 
 
 3. **Install dependencies**:
 
+   Run the following scripts to install and update required packages:
+
    ```bash
-   npm install
-   # For Python components
-   pip install -r requirements.txt
+   # Install/update Task Master (MANDATORY)
+   ./update_packages.sh taskmaster
+
+   # Install/update npm packages (MANDATORY)
+   ./update_packages.sh npm
+
+   # Optional: For Python components (only if your project uses Python)
+   ./update_packages.sh python
    ```
 
 4. **Create your PRD**:
