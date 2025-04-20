@@ -37,6 +37,7 @@ display_usage() {
     echo -e "  ${BOLD}./update_packages.sh <package-type>${NC}"
     echo
     echo -e "${YELLOW}Available package types:${NC}"
+    echo -e "  ${GREEN}base${NC}       - REQ: Update Task Master CLI tool first, then npm packages"
     echo -e "  ${GREEN}npm${NC}        - Update npm packages using pnpm"
     echo -e "  ${GREEN}python${NC}     - Update Python packages using pip"
     echo -e "  ${GREEN}taskmaster${NC} - Update Task Master CLI tool"
@@ -68,9 +69,21 @@ update_packages() {
         "taskmaster")
             script_path="scripts/update_scripts/update_task_master.sh"
             ;;
+        "base")
+            # First run taskmaster update
+            echo -e "${MAGENTA}${BOLD}🚀 Running taskmaster update script...${NC}"
+            execute_command "./scripts/update_scripts/update_task_master.sh" "Failed to execute the taskmaster update script."
+            
+            # If successful, run npm update
+            echo -e "${MAGENTA}${BOLD}🚀 Running npm update script...${NC}"
+            execute_command "./scripts/update_scripts/update_npm_packages.sh" "Failed to execute the npm update script."
+            
+            # Return early as we've handled both scripts
+            return
+            ;;
         *)
             display_usage
-            handle_error "Invalid package type: ${package_type}. Please use 'npm', 'python', or 'taskmaster'."
+            handle_error "Invalid package type: ${package_type}. Please use 'npm', 'python', 'taskmaster', or 'base'."
             ;;
     esac
     
