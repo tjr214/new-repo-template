@@ -5,4 +5,4 @@
 .python-version
 checkpoint-git
 # file-map.txt
-tasks/
+tasks/task_*
