@@ -74,7 +74,7 @@ This document provides a detailed reference for interacting with Taskmaster, cov
 *   **CLI Command:** `task-master next [options]`
 *   **Description:** `Ask Taskmaster to show the next available task you can work on, based on status and completed dependencies.`
 *   **Key Parameters/Options:**
-    *   `file`: `Path to your Taskmaster 'tasks.json' file (default relies on auto-detection).` (CLI: `-f, --file <file>`)
+    *   `file`: `Path to your Taskmaster 'tasks.json' file (CRITICAL: you must always specify the FULL PATH for the tasks.json file using the `file parameter`. If you need to, use your search tool to find it in our project).` (CLI: `-f, --file <file>`)
 *   **Usage:** Identify what to work on next according to the plan.
 
 ### 5. Get Task Details (`get_task`)
@@ -342,12 +342,7 @@ Taskmaster's behavior can be customized via environment variables. These affect 
 *   **PERPLEXITY_API_KEY**: API key for Perplexity AI (for `--research` flags).
 *   **PERPLEXITY_MODEL**: Perplexity model to use (default: `sonar-medium-online`).
 
-Set these in your `.env` file in the project root or in your environment before running Taskmaster.
-
----
-
-For implementation details:
-*   CLI commands: See [`commands.mdc`](mdc:.cursor/rules/commands.mdc)
-*   MCP server: See [`mcp.mdc`](mdc:.cursor/rules/mcp.mdc)
-*   Task structure: See [`tasks.mdc`](mdc:.cursor/rules/tasks.mdc)
-*   Workflow: See [`dev_workflow.mdc`](mdc:.cursor/rules/dev_workflow.mdc)
+Set these in your `.env` fect root or in your e before running Taskmaste implementation detnds: See @`commands.mdc`
+*   MCP server: See @`mcp.mdc`
+*   Task structure: See @`tasks.mdc`
+*   Workflow: See @`dev_workflow.mdc`
