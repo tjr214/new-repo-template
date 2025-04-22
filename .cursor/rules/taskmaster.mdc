@@ -342,7 +342,12 @@ Taskmaster's behavior can be customized via environment variables. These affect 
 *   **PERPLEXITY_API_KEY**: API key for Perplexity AI (for `--research` flags).
 *   **PERPLEXITY_MODEL**: Perplexity model to use (default: `sonar-medium-online`).
 
-Set these in your `.env` fect root or in your e before running Taskmaste implementation detnds: See @`commands.mdc`
+Set these in your `.env` file in the project root or in your environment before running Taskmaster.
+
+---
+
+For implementation details:
+*   CLI commands: See @`commands.mdc`
 *   MCP server: See @`mcp.mdc`
 *   Task structure: See @`tasks.mdc`
 *   Workflow: See @`dev_workflow.mdc`
