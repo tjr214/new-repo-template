@@ -175,9 +175,6 @@ node_modules/
 # Aider Stuff
 .aider*
 
-# Comment if you actually have a `lib` folder
-lib/
-
 # Added by Claude Task Master
 # Logs
 logs
@@ -198,8 +195,11 @@ dev-debug.log
 # OS specific
 
 # Task files
-tasks.json
-tasks/ 
+# tasks.json
+# tasks/ 
 
 # Cursor MCP file because they have API keys in them
 .cursor/mcp.json
+
+# IMPORTANT: Comment below line if you actually have a `lib` folder
+lib/
