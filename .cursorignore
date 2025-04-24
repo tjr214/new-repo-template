@@ -1,7 +1,4 @@
-.aider.tags.cache.v3
-.aider.tags.cache.v4
-.aider.chat.history.md
-.aider.input.history
+.aider*
 .python-version
 checkpoint-git
 # file-map.txt
