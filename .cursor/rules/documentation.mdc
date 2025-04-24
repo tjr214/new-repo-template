@@ -1,0 +1,255 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Documentation Maintenance Guidelines
+
+This rule provides guidelines for maintaining the project's comprehensive documentation across all 7 documentation files in the `docs/` directory, ensuring they remain accurate and up-to-date as the codebase evolves.
+
+## Documentation Files Overview
+
+The project maintains 7 core documentation files that must be kept up-to-date:
+
+1. **[README.md](mdc:docs/README.md)** - Documentation index and navigation
+2. **[project-overview.md](mdc:docs/project-overview.md)** - High-level project description
+3. **[architecture.md](mdc:docs/architecture.md)** - Technical architecture and patterns
+4. **[development-guide.md](mdc:docs/development-guide.md)** - Developer setup and contribution guide
+5. **[components.md](mdc:docs/components.md)** - Component documentation
+6. **[development-log.md](mdc:docs/development-log.md)** - Chronological development history
+7. **[future-plans.md](mdc:docs/future-plans.md)** - Roadmap and upcoming features
+
+## When to Update Documentation
+
+-   **For Every Code Change:** Identify which documentation files need updating based on your changes
+-   **For Major Features:** Update all relevant documentation files
+-   **For Architecture Changes:** Update architecture.md and potentially others
+-   **For New Components:** Update components.md with detailed documentation
+-   **For Process Changes:** Update development-guide.md
+-   **For ALL Changes:** Always update development-log.md
+
+## File-Specific Update Guidelines
+
+### development-log.md
+
+The `development-log.md` file should be updated regularly with **every significant change**:
+
+-   **Format:** Add entries in reverse chronological order (newest first)
+-   **Content:** Document important decisions, challenges, solutions, and milestones
+-   **Structure:** Use the following entry format:
+
+```markdown
+### [YYYY-MM-DD] - [Feature/Change Name]
+
+-   Implemented [feature] using [technology]
+-   Resolved [challenge] by [solution]
+-   Made decision to use [approach] because [rationale]
+-   Current status: [status update]
+```
+
+-   **When to Update:**
+    -   After implementing a new feature
+    -   After making architectural decisions
+    -   After resolving significant technical challenges
+    -   After changing development processes
+    -   At major project milestones
+
+### architecture.md
+
+Update this file when:
+
+-   Adding new directories or changing the project structure
+-   Implementing new design patterns
+-   Changing data flow or state management approaches
+-   Modifying integration points with Obsidian API
+-   Refactoring core architectural components
+-   Adopting new libraries that impact architecture
+
+**Key Sections to Maintain:**
+
+-   Directory structure
+-   Core components and their responsibilities
+-   Design patterns
+-   Integration with Obsidian
+-   Data flow diagrams (described textually)
+
+### components.md
+
+Update this file when:
+
+-   Adding new React components
+-   Significantly modifying existing components
+-   Changing component hierarchy
+-   Adding new hooks related to components
+-   Changing component APIs
+-   Implementing new UI patterns
+
+**Component Documentation Format:**
+
+````markdown
+## ComponentName
+
+**Purpose:** Brief description of what the component does
+
+**Props:**
+
+-   `propName` (type): Description of the prop's purpose
+
+**Usage Example:**
+
+```tsx
+import { ComponentName } from "src/components/ComponentName";
+
+<ComponentName propName={value} />;
+```
+````
+
+**Implementation Notes:**
+
+-   Key implementation details
+-   Specific patterns or techniques used
+
+**Related Files:**
+
+-   [ComponentName.tsx](mdc:src/components/ComponentName.tsx)
+-   [useRelatedHook.ts](mdc:src/hooks/useRelatedHook.ts)
+
+```
+
+### development-guide.md
+
+Update this file when:
+
+- Changing the development environment setup
+- Modifying build or testing processes
+- Updating coding standards or conventions
+- Adopting new development tools or workflows
+- Changing the release process
+- Modifying contribution guidelines
+
+**Key Sections to Maintain:**
+- Development environment setup
+- Build and test processes
+- Coding standards
+- Debugging techniques
+- Contributing guidelines
+- Release process
+
+### future-plans.md
+
+Update this file when:
+
+- Adding new planned features
+- Completing planned features (move to implemented)
+- Changing priorities or the roadmap
+- Identifying new technical challenges
+- Setting new long-term goals
+- Adjusting timeline expectations
+
+**Key Sections to Maintain:**
+- Current development roadmap
+- Planned features
+- Long-term vision
+- Technical improvements planned
+- Potential challenges
+
+### project-overview.md
+
+Update this file when:
+
+- Changing the core purpose or functionality
+- Adding major new features
+- Updating project goals
+- Modifying the target user base
+- Changing the technical approach
+- Achieving significant project milestones
+
+**Key Sections to Maintain:**
+- Introduction and purpose
+- Core functionality
+- Key features
+- Technical approach
+- Current status
+- Project goals
+- Target users
+
+### README.md (docs directory)
+
+Update this file when:
+
+- Adding new documentation files
+- Changing the purpose or content of existing documentation
+- Modifying documentation maintenance guidelines
+- Reorganizing the documentation structure
+
+## Documentation Quality Guidelines
+
+When updating documentation, ensure it meets these quality standards:
+
+1. **✅ Accuracy:** Documentation must reflect the current state of the code
+   - Verify that all described features/components match implementation
+   - Remove documentation for removed features
+   - Update outdated technical descriptions
+
+2. **✅ Clarity:** Use clear, concise language
+   - Avoid jargon without explanation
+   - Use consistent terminology
+   - Structure content logically with headings
+   - Use bullet points for lists when appropriate
+
+3. **✅ Completeness:** Cover all important aspects
+   - Document both the "what" and the "why"
+   - Include implementation details where helpful
+   - Document limitations and edge cases
+   - Cover error handling and fallback behaviors
+
+4. **✅ Consistency:** Maintain consistent style
+   - Use consistent markdown formatting
+   - Keep consistent heading hierarchy
+   - Maintain consistent code example formatting
+   - Use the same terminology throughout
+
+5. **✅ Examples:** Include practical code examples
+   - Use actual code from the codebase, not theoretical examples
+   - Keep examples concise but complete
+   - Include comments in complex examples
+   - Update examples when the code changes
+
+6. **✅ Cross-References:** Link between documentation
+   - Use relative links between documentation files
+   - Reference related components and concepts
+   - Link to source files using `[filename](mdc:path/to/file)` syntax
+   - Keep links up-to-date when files move
+
+## Special Considerations for Obsidian AI Helper
+
+- **Obsidian API Integration:** When documenting integration with Obsidian's API, reference the official Obsidian API documentation and note any workarounds for limitations
+- **React in Obsidian:** Document the specific patterns used for integrating React within the Obsidian plugin environment
+- **AI Integration:** Clearly document the ethical considerations, limitations, and user expectations when working with AI components
+- **User Privacy:** Document how user data is handled, particularly with respect to AI features
+- **Performance Considerations:** Document performance implications of features, especially those involving large files or real-time analysis
+
+## Documentation Review Checklist
+
+Before committing documentation updates, verify:
+
+- [ ] Documentation accurately reflects the current code
+- [ ] All affected documentation files have been updated
+- [ ] Code examples are accurate and from the actual codebase
+- [ ] Style and formatting are consistent with existing documentation
+- [ ] Cross-references between files are correct
+- [ ] Documentation is readable for both new and experienced developers
+- [ ] Development log includes an entry for the recent changes
+- [ ] Any removed features are no longer documented (or marked as deprecated)
+- [ ] New features are fully documented
+
+## Implementation Best Practices
+
+- Update documentation alongside code in the same PR/commit
+- Write documentation as you code, not as an afterthought
+- For significant features, consider writing documentation before implementation
+- Use consistent markdown formatting across all documentation files
+- When in doubt about what to document, document more rather than less
+- Consider documentation part of the "Definition of Done" for any task
+```

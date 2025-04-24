@@ -1,0 +1,47 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# UI Component Development Guidelines
+
+- **ALWAYS Fetch Shadcn Rules When Working With UI Components**
+  - Before implementing or modifying any UI component, fetch the shadcn rules:
+  ```
+  fetch_rules(["shadcn"])
+  ```
+  - This is a mandatory step for all UI component work to ensure consistency
+  - No exceptions - even for seemingly simple component changes
+
+- **Component Location Standards**
+  - Base UI components go in `src/components/ui/`
+  - Composed/specialized components go in `src/components/`
+  - View-specific components go in `src/views/`
+
+- **UI Component Conventions**
+  - **Use TypeScript Types for All Props**
+    ```typescript
+    // ✅ DO: Define explicit interface for props
+    interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+      title?: string;
+      variant?: "default" | "outline";
+    }
+    
+    // ❌ DON'T: Use generic prop types
+    const Card = (props: any) => {
+      // ...
+    };
+    ```
+    
+  - **Follow Obsidian React Mount/Unmount Pattern**
+    - Use the createRoot and unmount pattern from React 18+
+    - Always clean up React components on unmount
+
+- **Component Testing**
+  - Create dedicated test views for new components
+  - Test all components in both light and dark mode
+  - Verify accessibility and keyboard navigation
+
+- **Related Rules**
+  - [shadcn.mdc](mdc:.cursor/rules/shadcn.mdc) for Shadcn UI component guidelines
+  - Follow React best practices from [global_rules.mdc](mdc:.cursor/rules/global_rules.mdc)

@@ -1,0 +1,118 @@
+---
+description: Guidelines for using Shadcn UI components: installation with pnpm dlx, best practices, customization, and organization
+globs: 
+alwaysApply: false
+---
+# Shadcn UI Components Guidelines
+
+- **Installation Process**
+  - Always use `pnpm dlx` to install Shadcn components
+  - Example: `pnpm dlx shadcn@latest add button`
+  - Never use npm or yarn for Shadcn component installation
+  - Do not manually copy component code from documentation
+
+- **Documentation References**
+  - Primary documentation: [Shadcn UI Docs](mdc:https:/ui.shadcn.com/docs)
+  - Use context7 for additional examples and component details:
+    ```
+    mcp_context7_resolve-library-id with libraryName="shadcn/ui"
+    mcp_context7_get-library-docs with context7CompatibleLibraryID="[returned ID]"
+    ```
+
+- **Component Usage Best Practices**
+  - Use components from `@/components/ui/` directory
+  - Import components using the project's path alias:
+    ```typescript
+    // ✅ DO: Use path aliases for imports
+    import { Button } from "@/components/ui/button"
+    
+    // ❌ DON'T: Use relative paths
+    import { Button } from "../../components/ui/button"
+    ```
+  - Follow React best practices with Shadcn components:
+    ```typescript
+    // ✅ DO: Use semantic variants and sizes
+    <Button variant="destructive" size="sm">Delete</Button>
+    
+    // ❌ DON'T: Use inline styles for styling
+    <Button style={{backgroundColor: 'red'}}>Delete</Button>
+    ```
+
+- **Customization Guidelines**
+  - Customize components by modifying their definition in `src/components/ui/`
+  - Use Tailwind classes for styling
+  - Maintain the component API when customizing
+  - For global theme changes, modify the Tailwind config
+  - Create composed components for repeated patterns:
+    ```typescript
+    // ✅ DO: Create composed components
+    export function SaveButton({ children, ...props }) {
+      return (
+        <Button variant="outline" {...props}>
+          <Save className="mr-2 h-4 w-4" />
+          {children || "Save"}
+        </Button>
+      )
+    }
+    ```
+
+- **Component Organization**
+  - Keep all Shadcn base components in `src/components/ui/`
+  - Create feature-specific composed components in appropriate feature directories
+  - Use consistent naming conventions:
+    - Base components: lowercase (e.g., `button.tsx`)
+    - Composed components: PascalCase (e.g., `UserCard.tsx`)
+
+- **Form Components**
+  - Use Shadcn's form components with React Hook Form
+  - Follow the controlled component pattern
+  - Example form setup:
+    ```typescript
+    // ✅ DO: Use Shadcn form components with React Hook Form
+    import { useForm } from "react-hook-form"
+    import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+    import { Input } from "@/components/ui/input"
+    import { Button } from "@/components/ui/button"
+    
+    // Form component usage
+    const form = useForm()
+    
+    return (
+      <Form {...form}>
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </Form>
+    )
+    ```
+
+- **Accessibility Considerations**
+  - Keep built-in accessibility features intact
+  - Always include proper ARIA attributes
+  - Maintain keyboard navigation support
+  - Ensure sufficient color contrast in customizations
+  - Test interactions with screen readers
+
+- **Performance Tips**
+  - Add components only as needed
+  - Consider code-splitting for larger components
+  - Avoid unnecessary re-renders by using `memo` when appropriate
+
+- **Dark Mode Support**
+  - Use the built-in dark mode support
+  - Test all components in both light and dark modes
+  - Follow the pattern for conditional dark mode styling:
+    ```html
+    <div className="bg-white dark:bg-slate-950">...</div>
+    ```
