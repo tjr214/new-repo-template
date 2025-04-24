@@ -15,4 +15,4 @@ Now that our project is initialized, the next step is to create the tasks by par
 ## Instruction
 
 If you see an attached `prd.txt` file then read that file with your tool and use it.
-If there is not a PRD attached, then let's create one, together.
+If there is not a PRD attached, then let's create one, together. When done, ask the USER if you should run the parse-prd tool to create the tasks.

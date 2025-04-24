@@ -6,4 +6,4 @@ It is unnecessary to reinitialize the project (`initialize_project`) to run the 
 
 CRITICAL: When calling the tool, you must specify the FULL PATH for the tasks.json file using the `file` parameter. If you need to, use your search tool to find it in our project.
 
-If there is are no `tasks/*.*` or a `tasks/tasks.json` file, then just let me know with an error message and then stop.
+If there is are no `tasks/*.*` or a `tasks/tasks.json` file, then just let me know with an error message, recommend parsing or creating the PRD file, and then STOP.

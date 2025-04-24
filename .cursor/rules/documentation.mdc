@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: true
 ---
 
@@ -222,13 +222,10 @@ When updating documentation, ensure it meets these quality standards:
    - Link to source files using `[filename](mdc:path/to/file)` syntax
    - Keep links up-to-date when files move
 
-## Special Considerations for Obsidian AI Helper
+## Special Considerations for This Project
 
-- **Obsidian API Integration:** When documenting integration with Obsidian's API, reference the official Obsidian API documentation and note any workarounds for limitations
-- **React in Obsidian:** Document the specific patterns used for integrating React within the Obsidian plugin environment
-- **AI Integration:** Clearly document the ethical considerations, limitations, and user expectations when working with AI components
-- **User Privacy:** Document how user data is handled, particularly with respect to AI features
-- **Performance Considerations:** Document performance implications of features, especially those involving large files or real-time analysis
+If you detect any special considerations that should be taken into account, add them to a list here:
+
 
 ## Documentation Review Checklist
 
