@@ -1,5 +1,7 @@
 .aider*
 .python-version
+.repomixignore
 checkpoint-git
-# file-map.txt
 tasks/task_*
+repomix-output.*
+repomix.config.json

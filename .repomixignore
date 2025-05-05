@@ -1,0 +1,25 @@
+# Add patterns to ignore here, one per line
+# Example:
+# *.log
+# tmp/
+.cursor/
+.repomixignore
+.cursorignore
+.gitignore
+checkpoint-git
+repomix-output.*
+repomix.config.json
+prompts/
+tasks/
+update_packages.sh
+scripts/update_scripts
+scripts/HOWTO*
+scripts/README*
+scripts/example_prd.*
+scripts/dev.js
+.env
+.env.sample
+.env.example
+package.json
+.python-version
+requirements.txt
