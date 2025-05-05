@@ -37,10 +37,11 @@ display_usage() {
     echo -e "  ${BOLD}./update_packages.sh <package-type>${NC}"
     echo
     echo -e "${YELLOW}Available package types:${NC}"
-    echo -e "  ${GREEN}base${NC}       - REQ: Update Task Master CLI tool first, then npm packages"
-    echo -e "  ${GREEN}npm${NC}        - Update npm packages using pnpm"
-    echo -e "  ${GREEN}python${NC}     - Update Python packages using pip"
-    echo -e "  ${GREEN}taskmaster${NC} - Update Task Master CLI tool"
+    echo -e "  ${GREEN}base${NC}         - REQ: Update Task Master CLI tool first, then npm packages"
+    echo -e "  ${GREEN}npm${NC}          - Update npm packages using pnpm"
+    echo -e "  ${GREEN}python${NC}       - Update Python packages using pip"
+    echo -e "  ${GREEN}taskmaster${NC}   - Update Task Master CLI tool"
+    echo -e "  ${GREEN}repomix${NC}      - Update Repomix CLI tool"
     echo
     echo -e "${YELLOW}Example:${NC}"
     echo -e "  ${BOLD}./update_packages.sh npm${NC}"
@@ -69,10 +70,17 @@ update_packages() {
         "taskmaster")
             script_path="scripts/update_scripts/update_task_master.sh"
             ;;
+        "repomix")
+            script_path="scripts/update_scripts/update_repomix.sh"
+            ;;
         "base")
             # First run taskmaster update
             echo -e "${MAGENTA}${BOLD}🚀 Running taskmaster update script...${NC}"
             execute_command "./scripts/update_scripts/update_task_master.sh" "Failed to execute the taskmaster update script."
+            
+            # If successful, run repomix update
+            echo -e "${MAGENTA}${BOLD}🚀 Running repomix update script...${NC}"
+            execute_command "./scripts/update_scripts/update_repomix.sh" "Failed to execute the repomix update script."
             
             # If successful, run npm update
             echo -e "${MAGENTA}${BOLD}🚀 Running npm update script...${NC}"
@@ -83,7 +91,7 @@ update_packages() {
             ;;
         *)
             display_usage
-            handle_error "Invalid package type: ${package_type}. Please use 'npm', 'python', 'taskmaster', or 'base'."
+            handle_error "Invalid package type: ${package_type}. Please use 'npm', 'python', 'taskmaster', 'repomix', or 'base'."
             ;;
     esac
     
