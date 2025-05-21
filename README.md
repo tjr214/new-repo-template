@@ -1,4 +1,4 @@
-# New Repository Template with Task Master AI & Context7
+# New Repository Template with Task Master AI & Context 7
 
 A comprehensive project template with pre-configured Task Master AI integration for structured, task-driven development. This template provides a fully set up environment to help you start new projects with an AI-assisted development workflow.
 
