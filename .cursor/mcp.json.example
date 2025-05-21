@@ -17,6 +17,12 @@
 		"context7": {
 			"command": "npx",
 			"args": ["-y", "@upstash/context7-mcp@latest"]
+		},
+		"Docs for Original Template": {
+			"url": "https://gitmcp.io/tjr214/new-repo-template"
+		},
+		"{repo} Docs": {
+			"url": "https://gitmcp.io/{owner}/{repo}"
 		}
 	}
 }
