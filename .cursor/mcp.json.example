@@ -18,6 +18,10 @@
 			"command": "npx",
 			"args": ["-y", "@upstash/context7-mcp@latest"]
 		},
+		"sequential-thinking": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+		},
 		"Docs for Original Template": {
 			"url": "https://gitmcp.io/tjr214/new-repo-template"
 		},
