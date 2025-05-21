@@ -25,7 +25,7 @@
 		"Docs for Original Template": {
 			"url": "https://gitmcp.io/tjr214/new-repo-template"
 		},
-		"{repo} Docs": {
+		"Current Project Docs": {
 			"url": "https://gitmcp.io/{owner}/{repo}"
 		}
 	}
