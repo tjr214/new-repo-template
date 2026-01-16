@@ -25,10 +25,10 @@ printf "\n"
 
 # Check if running from project root
 printf "${BLUE}Verifying execution directory...${NC}\n"
-if [ ! -f "install.sh" ] || [ ! -d ".template_scripts" ]; then
+if [ ! -d ".opencode" ] || [ ! -d ".template_scripts" ]; then
     printf "${RED}${BOLD}Error: Must be run from project root${NC}\n"
     printf "This script must be executed from the project root directory.\n"
-    printf "Expected files: install.sh, .template_scripts/\n"
+    printf "Expected files: .opencode/, .template_scripts/\n"
     exit 1
 fi
 printf "  ${GREEN}✓${NC} Running from project root\n"
