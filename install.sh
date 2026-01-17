@@ -15,10 +15,17 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Create a backup copy of the install script
-cp install.sh .template_scripts/install.sh
+cp -f install.sh .template_scripts/install.sh
 
 printf "${CYAN}${BOLD}Repository Setup Script${NC}\n"
 printf "${CYAN}=======================${NC}\n"
+printf "\n"
+
+# Reinitialize git repository
+printf "${BLUE}Reinitializing git repository...${NC}\n"
+rm -rf .git
+git init
+printf "  ${GREEN}✓${NC} Git repository initialized\n"
 printf "\n"
 
 # Create required directories
@@ -68,6 +75,14 @@ printf "\n"
 printf "${CYAN}=====================================${NC}\n"
 printf "${GREEN}${BOLD}Repository setup completed successfully!${NC}\n"
 printf "${CYAN}=====================================${NC}\n"
+
+# Create initial commit
+printf "\n"
+printf "${BLUE}Creating initial commit...${NC}\n"
+git add .
+git commit -m "Initial Commit"
+printf "  ${GREEN}✓${NC} Initial commit created\n"
+printf "\n"
 
 # Cleanup Install Script
 rm -rf install.sh
