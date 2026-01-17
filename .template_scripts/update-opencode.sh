@@ -17,6 +17,55 @@ NC='\033[0m' # No Color
 printf "${CYAN}${BOLD}OpenCode Installation/Update Script${NC}\n"
 printf "${CYAN}=====================================${NC}\n"
 
+# ============================================================================
+# Update uv first
+# ============================================================================
+printf "\n${CYAN}${BOLD}Checking uv...${NC}\n"
+
+# Check if uv is installed
+if command -v uv &> /dev/null; then
+    # Get current version
+    CURRENT_UV_VERSION=$(uv --version 2>/dev/null | tr -d '\n')
+    printf "${BLUE}uv is already installed ${NC}(Version: ${BOLD}%s${NC})\n" "$CURRENT_UV_VERSION"
+    printf "${YELLOW}Updating uv...${NC}\n"
+    
+    # Update uv
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    
+    # Get new version
+    if [ $? -eq 0 ]; then
+        NEW_UV_VERSION=$(uv --version 2>/dev/null | tr -d '\n')
+        if [ "$CURRENT_UV_VERSION" = "$NEW_UV_VERSION" ]; then
+            printf "${GREEN}uv is already up to date ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_UV_VERSION"
+        else
+            printf "${GREEN}${BOLD}uv updated successfully!${NC}\n"
+            printf "${BLUE}Previous version: ${NC}%s\n" "$CURRENT_UV_VERSION"
+            printf "${BLUE}Current version: ${NC}${BOLD}%s${NC}\n" "$NEW_UV_VERSION"
+        fi
+    else
+        printf "${RED}${BOLD}Error: uv update failed${NC}\n"
+        exit 1
+    fi
+else
+    printf "${YELLOW}uv not found. Installing...${NC}\n"
+    
+    # Install uv
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    
+    if [ $? -eq 0 ]; then
+        INSTALLED_UV_VERSION=$(uv --version 2>/dev/null | tr -d '\n')
+        printf "${GREEN}${BOLD}uv installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$INSTALLED_UV_VERSION"
+    else
+        printf "${RED}${BOLD}Error: uv installation failed${NC}\n"
+        exit 1
+    fi
+fi
+
+# ============================================================================
+# Update OpenCode
+# ============================================================================
+printf "\n${CYAN}${BOLD}Checking OpenCode...${NC}\n"
+
 # Check if opencode is installed
 if command -v opencode &> /dev/null; then
     # Get current version
