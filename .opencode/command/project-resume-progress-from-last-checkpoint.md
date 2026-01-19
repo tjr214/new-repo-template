@@ -2,7 +2,7 @@
 description: "Resume our work from the last checkpoint."
 ---
 
-Activate the BMAD Master Agent.
+Activate the BMAD Master Agent. Do not be confused by the "@" symbol. The BMAD Master agent persona file is located at `_bmad/core/agents/bmad-master.md` in the project root.
 
 Let's review the status of the project.
 
