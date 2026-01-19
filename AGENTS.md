@@ -11,7 +11,7 @@
 
 - When implementing, _ALWAYS use a TDD RED-GREEN-REFACTOR loop._ Ensure this is properly reflected in all Plans made and executed.
 
-- ALWAYS be updating the Living Documentation as we complete implementation sections. Ensure this is included in all Plans made and executed.
+- ALWAYS be updating the Living Documentation (`docs/LIVING_DOCS.md`) as we complete implementation sections. Ensure this is included in all Plans made and executed. This also includes updating the `docs/ARCHITECTURE.md` document, as well. All the docs must be kept up-to-date and in-sync at all times.
 
 - All of our unit and integration tests are to be stored in the `tests/` directory in the project root.
 
