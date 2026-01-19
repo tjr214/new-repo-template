@@ -49,7 +49,7 @@ Determine:
 
 - `PROGRESS.md` - Current sprint status
 - `docs/LIVING_DOCS.md` - Architecture overview
-- Previous `docs/SESSION_X_SUMMARY.md` - Last checkpoint
+- Previous `docs/SESSION_Y_SUMMARY.md` - Last checkpoint (There may be multiple SESSION_Y_SUMMARY.md files. We want the latest one. Every time we save a session, the session number `Y` will be incremented.)
 
 ---
 
@@ -116,9 +116,9 @@ _Last Context Window: Session X - [Sprint Name]_
 
 ### Step 4: Create Session Summary Document
 
-**Location**: `{project-root}/docs/SESSION_X_SUMMARY.md`
+**Location**: `{project-root}/docs/SESSION_Y_SUMMARY.md`
 
-Where X = current session number (increment from last session).
+Where `Y` = the current session. If the previous session was "4", then this session will be "5", etc.
 
 **Template**:
 
@@ -236,7 +236,7 @@ uv sync --all-extras  # or npm install, etc.
 - `PROGRESS.md` - Current sprint status
 - `docs/LIVING_DOCS.md` - The project's living and ever-updating documentation
 - `docs/ARCHITECTURE.md` - Project Architecture overview
-- `docs/SESSION_X_SUMMARY.md` - This file
+- `docs/SESSION_Y_SUMMARY.md` - This newly generated file representing this current session which is being saved
 
 ### 3. Continue with [Next Task]
 
@@ -254,7 +254,7 @@ Ask assistant:
 
 - `path/to/new/file1.py`
 - `path/to/new/file2.py`
-- `docs/SESSION_X_SUMMARY.md` (this file)
+- `docs/SESSION_Y_SUMMARY.md` (this newly created file)
 
 ### Modified Files:
 
@@ -360,7 +360,7 @@ git commit -m "feat: [Sprint X] [High-level summary]
 - Update documentation
   - PROGRESS.md: Sprint X status (XX% complete)
   - LIVING_DOCS.md: Updated implementation status
-  - SESSION_X_SUMMARY.md: Session checkpoint for resume
+  - SESSION_Y_SUMMARY.md: Session checkpoint for resume (with "bumped" session number)
 
 Tests: XX passing, X skipped
 Coverage: XX% (up from YY%)
@@ -412,7 +412,7 @@ Git Commit: [hash] - [commit message first line]
 Files Saved:
 - ✅ [file1] (XXX lines)
 - ✅ [file2] (XXX lines)
-- ✅ docs/SESSION_X_SUMMARY.md (complete resume guide)
+- ✅ docs/SESSION_Y_SUMMARY.md (complete resume guide)
 
 Test Status:
 ✅ XX tests passing
@@ -436,7 +436,7 @@ Or:
 
 I'll read:
 1. PROGRESS.md - Current sprint status
-2. docs/SESSION_X_SUMMARY.md - Detailed checkpoint
+2. docs/SESSION_Y_SUMMARY.md - Detailed checkpoint
 3. docs/LIVING_DOCS.md - Architecture overview
 
 And we'll pick up exactly where we left off!
@@ -462,7 +462,7 @@ This command is successful when:
 
 - ✅ All code changes are committed to git
 - ✅ PROGRESS.md accurately reflects current state
-- ✅ SESSION_X_SUMMARY.md provides complete resumption guide
+- ✅ SESSION_Y_SUMMARY.md provides complete resumption guide
 - ✅ LIVING_DOCS.md is up to date
 - ✅ All tests pass
 - ✅ Next steps are clearly documented
@@ -474,20 +474,20 @@ This command is successful when:
 
 **User says**:
 
-> "Save our progress so we can resume Sprint 3 from a fresh context window."
+> "Save our progress so we can resume from a fresh context window."
 
 **Assistant executes**:
 
 1. Checks git status
 2. Updates PROGRESS.md (Sprint 3 at 30%)
-3. Creates docs/SESSION_3_SUMMARY.md
+3. Creates docs/SESSION\_(Y+1)\_SUMMARY.md
 4. Updates docs/LIVING_DOCS.md
 5. Stages all changes
 6. Commits with detailed message
 7. Verifies tests (91 passing)
 8. Provides resume instructions
 
-**Result**: User can close this session and resume Sprint 3 in fresh context by reading the checkpoint documents.
+**Result**: User can close this session and resume the current Sprint in fresh context by reading the checkpoint documents.
 
 ---
 
