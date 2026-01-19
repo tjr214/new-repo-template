@@ -19,4 +19,6 @@
 
 - **DOUBLE CRITICAL**: You have to READ files before the system will allow you to edit, update or write to them.
 
+- **TRIPLE CRITICAL**: Do NOT add the user's personal information to the code, tests, documentation or anything else. Any of that personal information is only for use in conversation and dialogue with the user.
+
 - **IMPORTANT**: Python projects use Python 3.13+, and `uv` and `pyproject.toml` for project management. When adding libraries to the project, look up their latest version and use that version number for the pin with the `>=` operator.
