@@ -66,6 +66,8 @@ fi
 # ============================================================================
 printf "\n${CYAN}${BOLD}Checking OpenCode...${NC}\n"
 
+rm -rf ~/.cache/opencode/node_modules/opencode-antigravity-auth
+
 # Check if opencode is installed
 if command -v opencode &> /dev/null; then
     # Get current version
