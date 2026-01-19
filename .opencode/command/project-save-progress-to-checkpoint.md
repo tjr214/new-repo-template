@@ -229,7 +229,6 @@ project/
 ```bash
 cd /path/to/project
 uv sync --all-extras  # or npm install, etc.
-uv run pytest -v      # or npm test, etc.
 ````
 
 ### 2. Review Documentation
