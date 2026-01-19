@@ -13,3 +13,5 @@ Read and study `PROGRESS.md` in the project root. In addition, read and study al
 Where did we last leave off?
 
 Then, give me options for continuing the work.
+
+**CRITICAL**: NEVER OVERWRITE a `SESSION_X_SUMMARY.md` session summary file. _Always create a new session summary markdown file in the `docs/` directory!_
