@@ -6,9 +6,7 @@ Activate the BMAD Master Agent. **CRITICAL**: Do NOT be confused by the "@" symb
 
 Let's review the status of the project.
 
-Read and study `docs/LIVING_DOCS.md`.
-
-Read and study `PROGRESS.md` in the project root. In addition, read and study all of the documents listed in the "Review Documentation" section.
+Read and study `docs/LIVING_DOCS.md` and `PROGRESS.md` in the project root. Then locate the most recent session summary in `docs/` by finding the highest-numbered SESSION\_\*.md (latest by number or mtime), and read that summary. Also read all documents listed in the ‘Review Documentation’ section of the latest session summary.
 
 Where did we last leave off?
 
