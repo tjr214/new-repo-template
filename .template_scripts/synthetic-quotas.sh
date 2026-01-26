@@ -5,11 +5,15 @@ API_URL="https://api.synthetic.new/v2/quotas"
 
 usage() {
   cat <<'EOF'
-Usage: scripts/synthetic-quotas.sh
+Usage: .template_scripts/synthetic-quotas.sh [--watch [SECONDS]] [--no-clear]
 
 Requires:
   - SYNTHETIC_PLAN_API_KEY environment variable
   - curl and jq installed
+
+Options:
+  -w, --watch [SECONDS]  Refresh output every N seconds (default: 60)
+  --no-clear             Do not clear the screen between refreshes
 EOF
 }
 
@@ -57,6 +61,37 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   exit 0
 fi
 
+watch_interval="60"
+no_clear=false
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -w|--watch)
+      if [[ -n "${2:-}" && "$2" =~ ^[0-9]+$ ]]; then
+        watch_interval="$2"
+        shift 2
+      else
+        shift
+      fi
+      if [[ "$watch_interval" -le 0 ]]; then
+        fail "Invalid watch interval. Provide a positive integer of seconds."
+      fi
+      ;;
+    --no-clear)
+      no_clear=true
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      fail "Unknown option: $1"
+      ;;
+  esac
+done
+
+render_table() {
+
 require_cmd curl
 require_cmd jq
 
@@ -95,6 +130,7 @@ section_cyan=$(printf '\033[38;5;159m')
 green=$(printf '\033[32m')
 yellow=$(printf '\033[33m')
 bold_red=$(printf '\033[1;31m')
+white=$(printf '\033[37m')
 header_bg=$(printf '\033[48;5;52m')
 section_bg=$(printf '\033[48;5;18m')
 reset=$(printf '\033[0m')
@@ -120,8 +156,21 @@ remaining_color() {
 sub_remaining_color=$(remaining_color "$sub_requests" "$sub_limit")
 search_remaining_color=$(remaining_color "$search_requests" "$search_limit")
 
+sub_percent_used="0%"
+sub_percent_color="$white"
+if [[ "$sub_limit" =~ ^[0-9]+$ ]] && (( sub_limit > 0 )); then
+  sub_percent_value=$(( sub_requests * 100 / sub_limit ))
+  sub_percent_used="${sub_percent_value}%"
+  if (( sub_percent_value >= 80 )); then
+    sub_percent_color="$bold_red"
+  elif (( sub_percent_value >= 50 )); then
+    sub_percent_color="$yellow"
+  fi
+fi
+
 rows=(
   "section| • Agentic Coding (5-Hour)"
+  "row|Used|$sub_percent_used|$sub_percent_color"
   "row|Limit|$sub_limit|$green"
   "row|Used|$sub_requests|$yellow"
   "row|Remaining|$sub_remaining|$sub_remaining_color"
@@ -184,3 +233,16 @@ for entry in "${rows[@]}"; do
     "$label" "$label_pad" "" "$color" "$value" "$reset" "$value_pad" ""
 done
 printf "%s\n" "$border_bottom"
+}
+
+if [[ -n "$watch_interval" ]]; then
+  while true; do
+    if [[ "$no_clear" == false ]]; then
+      printf "\033[H\033[2J"
+    fi
+    render_table
+    sleep "$watch_interval"
+  done
+else
+  render_table
+fi
