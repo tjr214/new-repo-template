@@ -18,7 +18,8 @@ printf "${CYAN}${BOLD}BMAD Method Installation Script${NC}\n"
 printf "${CYAN}================================${NC}\n"
 
 # Check if npm/npx is installed
-if ! command -v npx &> /dev/null; then
+# if ! command -v npx &> /dev/null; then
+if ! command -v npx > /dev/null 2>&1; then
     printf "${RED}${BOLD}Error: npx is not installed${NC}\n"
     printf "${YELLOW}Please install Node.js and npm first${NC}\n"
     exit 1
