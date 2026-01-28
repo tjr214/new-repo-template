@@ -157,10 +157,12 @@ sub_remaining_color=$(remaining_color "$sub_requests" "$sub_limit")
 search_remaining_color=$(remaining_color "$search_requests" "$search_limit")
 
 sub_percent_used="0%"
+sub_percent_remaining="0%"
 sub_percent_color="$white"
 if [[ "$sub_limit" =~ ^[0-9]+([.][0-9]+)?$ ]] && [[ "$sub_requests" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
   sub_percent_value=$(awk -v u="$sub_requests" -v l="$sub_limit" 'BEGIN { if (l > 0) printf "%d", int((u * 100) / l); else printf "0" }')
   sub_percent_used=$(awk -v u="$sub_requests" -v l="$sub_limit" 'BEGIN { if (l > 0) printf "%.2f%%", (u * 100) / l; else printf "0%%" }')
+  sub_percent_remaining=$(awk -v u="$sub_requests" -v l="$sub_limit" 'BEGIN { if (l > 0) printf "%.2f%%", 100 - ((u * 100) / l); else printf "0%%" }')
   if (( sub_percent_value >= 80 )); then
     sub_percent_color="$bold_red"
   elif (( sub_percent_value >= 50 )); then
@@ -170,7 +172,7 @@ fi
 
 rows=(
   "section| • Agentic Coding (5-Hour)"
-  "row|Used|$sub_percent_used|$sub_percent_color"
+  "row|Used|${sub_percent_used} (${sub_percent_remaining} remaining)|$sub_percent_color"
   "row|Limit|$sub_limit|$green"
   "row|Used|$sub_requests|$yellow"
   "row|Remaining|$sub_remaining|$sub_remaining_color"
