@@ -1,9 +1,9 @@
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
-- [1. CRITICAL LEVEL INSTRUCTIONS2](#1-critical-level-instructions2)
+- [1. CRITICAL LEVEL INSTRUCTIONS](#1-critical-level-instructions)
 
-## 1. CRITICAL LEVEL INSTRUCTIONS2
+## 1. CRITICAL LEVEL INSTRUCTIONS
 
 **CRITICAL**:
 
