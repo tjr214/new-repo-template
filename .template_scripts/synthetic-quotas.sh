@@ -139,8 +139,8 @@ remaining_color() {
   local used="$1"
   local limit="$2"
   local percent
-  if [[ "$limit" =~ ^[0-9]+$ ]] && (( limit > 0 )); then
-    percent=$(( used * 100 / limit ))
+  if [[ "$limit" =~ ^[0-9]+([.][0-9]+)?$ ]] && [[ "$used" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    percent=$(awk -v u="$used" -v l="$limit" 'BEGIN { if (l > 0) printf "%d", int((u * 100) / l); else printf "0" }')
     if (( percent >= 80 )); then
       printf "%s" "$bold_red"
       return
@@ -158,9 +158,9 @@ search_remaining_color=$(remaining_color "$search_requests" "$search_limit")
 
 sub_percent_used="0%"
 sub_percent_color="$white"
-if [[ "$sub_limit" =~ ^[0-9]+$ ]] && (( sub_limit > 0 )); then
-  sub_percent_value=$(( sub_requests * 100 / sub_limit ))
-  sub_percent_used="${sub_percent_value}%"
+if [[ "$sub_limit" =~ ^[0-9]+([.][0-9]+)?$ ]] && [[ "$sub_requests" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+  sub_percent_value=$(awk -v u="$sub_requests" -v l="$sub_limit" 'BEGIN { if (l > 0) printf "%d", int((u * 100) / l); else printf "0" }')
+  sub_percent_used=$(awk -v u="$sub_requests" -v l="$sub_limit" 'BEGIN { if (l > 0) printf "%.2f%%", (u * 100) / l; else printf "0%%" }')
   if (( sub_percent_value >= 80 )); then
     sub_percent_color="$bold_red"
   elif (( sub_percent_value >= 50 )); then
