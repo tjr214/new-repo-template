@@ -24,7 +24,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/directory_of_project"]
+packages = ["src/directory_of_project"] # Update this with the correct project directory under `src/`
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
