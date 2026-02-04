@@ -1,0 +1,949 @@
+# Task Implementation Plan
+# This file contains the complete implementation blueprint for the agentic coding loop.
+# The agent reads this file, selects phases/steps to work on, implements per the instructions
+# using YELLOW-RED-GREEN-BLUE TDD methodology, and updates statuses upon completion (tests passing, LSP validation successful).
+#
+# YELLOW-RED-GREEN-BLUE TDD Loop:
+# - YELLOW: Search codebase and read files to understand context
+# - RED: Write failing tests first
+# - GREEN: Implement code to pass tests
+# - BLUE: Refactor and clean up
+
+metadata:
+  version: "1.0.0"
+  created_date: "2026-02-03"
+  last_updated: "2026-02-03"
+  author: "A Supreme Badass"
+  license: null # Set to license identifier if LICENSE.md exists (e.g., "MIT", "Apache-2.0")
+
+task:
+  name: "Build REST API Rate Limiter Middleware"
+  description: |
+    Implement a flexible, Redis-backed rate limiting middleware for FastAPI applications.
+
+    The rate limiter will support:
+    - Multiple rate limit strategies (fixed window, sliding window)
+    - Per-endpoint configuration via decorators
+    - Per-user rate limiting (authenticated requests)
+    - IP-based rate limiting (anonymous requests)
+    - Graceful degradation if Redis is unavailable
+    - Comprehensive metrics and monitoring
+
+    Architecture decisions:
+    - Use Redis for distributed rate limit state (supports horizontal scaling)
+    - Implement as FastAPI dependency injection for clean integration
+    - Follow the middleware pattern established in `middleware/base.py`
+    - Align with error handling conventions in PRD section 3.4
+
+    Success criteria:
+    - All unit tests pass (>90% coverage)
+    - Integration tests verify rate limiting behavior under load
+    - LSP validates with no type errors
+    - Performance: <5ms overhead per request
+  status: "active"
+  phases:
+    - id: "phase-1"
+      name: "Design & Data Modeling Phase"
+      description: |
+        Design the rate limiter architecture and data models.
+
+        This phase establishes:
+        - Redis data structures for tracking request counts
+        - Configuration schema for rate limit rules
+        - Interface contracts for rate limit strategies
+
+        All design decisions should support the scalability requirements
+        outlined in PRD section 2.3 (handle 10k req/sec).
+      status: "done"
+      steps:
+        - id: "step-1.1"
+          name: "Define Configuration Models"
+          description: "Create Pydantic models for rate limit configuration"
+          status: "done"
+
+          instructions:
+            - id: "instr-1.1.1"
+              content: |
+                **Create `models/rate_limit_config.py` (TDD YELLOW-RED-GREEN-BLUE)**
+
+                **Step 1 (YELLOW - Gather Context):**
+                Search and read relevant files:
+                - Check if `models/` directory exists and review any existing model patterns
+                - Read `tests/` structure to understand testing conventions
+                - Review project's Pydantic usage patterns if any exist
+
+                **Step 2 (RED - Write Tests First):**
+                Create `tests/models/test_rate_limit_config.py`:
+
+                ```python
+                import pytest
+                from pydantic import ValidationError
+                from models.rate_limit_config import RateLimitConfig, RateLimitStrategy
+
+                def test_rate_limit_config_valid():
+                    config = RateLimitConfig(
+                        max_requests=100,
+                        window_seconds=60,
+                        strategy=RateLimitStrategy.FIXED_WINDOW
+                    )
+                    assert config.max_requests == 100
+                    assert config.window_seconds == 60
+                    assert config.strategy == RateLimitStrategy.FIXED_WINDOW
+
+                def test_rate_limit_config_negative_requests_fails():
+                    with pytest.raises(ValidationError):
+                        RateLimitConfig(max_requests=-1, window_seconds=60)
+
+                def test_rate_limit_config_zero_window_fails():
+                    with pytest.raises(ValidationError):
+                        RateLimitConfig(max_requests=100, window_seconds=0)
+
+                def test_rate_limit_strategy_enum_values():
+                    assert RateLimitStrategy.FIXED_WINDOW.value == "fixed_window"
+                    assert RateLimitStrategy.SLIDING_WINDOW.value == "sliding_window"
+                ```
+
+                Run: `pytest tests/models/test_rate_limit_config.py -v`
+                Expected: All tests FAIL (module doesn't exist)
+
+                **Step 3 (GREEN - Implement to Pass Tests):**
+                Create `models/rate_limit_config.py`:
+
+                ```python
+                from enum import Enum
+                from pydantic import BaseModel, Field, field_validator
+
+                class RateLimitStrategy(str, Enum):
+                    """Rate limiting strategy type."""
+                    FIXED_WINDOW = "fixed_window"
+                    SLIDING_WINDOW = "sliding_window"
+
+                class RateLimitConfig(BaseModel):
+                    """Configuration for rate limiting rules."""
+                    max_requests: int = Field(..., gt=0, description="Maximum requests allowed in the window")
+                    window_seconds: int = Field(..., gt=0, description="Time window in seconds")
+                    strategy: RateLimitStrategy = Field(
+                        default=RateLimitStrategy.FIXED_WINDOW,
+                        description="Rate limiting strategy to use"
+                    )
+                    
+                    @field_validator('max_requests', 'window_seconds')
+                    @classmethod
+                    def validate_positive(cls, v: int, info) -> int:
+                        if v <= 0:
+                            raise ValueError(f"{info.field_name} must be positive")
+                        return v
+                    
+                    model_config = {
+                        "json_schema_extra": {
+                            "examples": [
+                                {
+                                    "max_requests": 100,
+                                    "window_seconds": 60,
+                                    "strategy": "fixed_window"
+                                }
+                            ]
+                        }
+                    }
+                ```
+
+                Run: `pytest tests/models/test_rate_limit_config.py -v`
+                Expected: All tests PASS
+
+                **Step 4 (BLUE - Refactor):**
+                - Verify LSP shows no type errors
+                - Run: `ruff check models/rate_limit_config.py`
+                - Ensure docstrings follow project style
+
+                **Completion Criteria:**
+                - All tests pass
+                - No LSP/linting errors
+                - Code coverage >90% for this module
+              status: "done"
+
+            - id: "instr-1.1.2"
+              content: |
+                **Create Rate Limit Key Builder Utility**
+
+                **File:** `utils/rate_limit_keys.py`
+
+                **YELLOW Phase:**
+                - Check `utils/` directory structure
+                - Review existing utility patterns if any
+
+                **RED Phase:**
+                Create `tests/utils/test_rate_limit_keys.py`:
+
+                ```python
+                import pytest
+                from uuid import uuid4
+                from utils.rate_limit_keys import build_rate_limit_key
+
+                def test_build_key_with_user_id():
+                    user_id = uuid4()
+                    endpoint = "/api/users"
+                    key = build_rate_limit_key(endpoint=endpoint, user_id=user_id)
+                    assert key == f"ratelimit:user:{user_id}:{endpoint}"
+
+                def test_build_key_with_ip():
+                    ip = "192.168.1.1"
+                    endpoint = "/api/public"
+                    key = build_rate_limit_key(endpoint=endpoint, ip_address=ip)
+                    assert key == f"ratelimit:ip:{ip}:{endpoint}"
+
+                def test_build_key_user_takes_precedence_over_ip():
+                    user_id = uuid4()
+                    ip = "192.168.1.1"
+                    endpoint = "/api/users"
+                    key = build_rate_limit_key(endpoint=endpoint, user_id=user_id, ip_address=ip)
+                    assert f"user:{user_id}" in key
+                    assert "ip:" not in key
+
+                def test_build_key_requires_user_or_ip():
+                    with pytest.raises(ValueError, match="Either user_id or ip_address must be provided"):
+                        build_rate_limit_key(endpoint="/api/test")
+                ```
+
+                Run: `pytest tests/utils/test_rate_limit_keys.py -v`
+                Expected: FAIL (function doesn't exist)
+
+                **GREEN Phase:**
+                Create `utils/rate_limit_keys.py`:
+
+                ```python
+                from typing import Optional
+                from uuid import UUID
+
+                def build_rate_limit_key(
+                    endpoint: str,
+                    user_id: Optional[UUID] = None,
+                    ip_address: Optional[str] = None
+                ) -> str:
+                    """
+                    Build a Redis key for rate limiting.
+                    
+                    User-based rate limits take precedence over IP-based limits.
+                    
+                    Args:
+                        endpoint: API endpoint path (e.g., "/api/users")
+                        user_id: Authenticated user ID (optional)
+                        ip_address: Client IP address (optional)
+                    
+                    Returns:
+                        Redis key string in format: "ratelimit:{type}:{identifier}:{endpoint}"
+                    
+                    Raises:
+                        ValueError: If neither user_id nor ip_address is provided
+                    """
+                    if user_id is None and ip_address is None:
+                        raise ValueError("Either user_id or ip_address must be provided")
+                    
+                    if user_id is not None:
+                        return f"ratelimit:user:{user_id}:{endpoint}"
+                    else:
+                        return f"ratelimit:ip:{ip_address}:{endpoint}"
+                ```
+
+                Run: `pytest tests/utils/test_rate_limit_keys.py -v`
+                Expected: PASS
+
+                **BLUE Phase (Refactor):**
+                - Check LSP for type errors
+                - Verify docstring completeness
+                - Run linter: `ruff check utils/rate_limit_keys.py`
+
+                **Completion Criteria:**
+                - All tests pass
+                - 100% code coverage for this utility
+                - No LSP/linting errors
+              status: "done"
+
+        - id: "step-1.2"
+          name: "Design Rate Limit Strategy Interface"
+          description: "Define abstract interface for rate limiting strategies"
+          status: "done"
+
+          instructions:
+            - id: "instr-1.2.1"
+              content: |
+                **Create Strategy Protocol (TDD)**
+
+                **File:** `strategies/base.py`
+
+                **YELLOW Phase:**
+                - Check if `strategies/` directory exists
+                - Review Python Protocol usage patterns in project
+
+                **RED Phase:**
+                Create `tests/strategies/test_base.py`:
+
+                ```python
+                import pytest
+                from strategies.base import RateLimitStrategy
+                from typing import Protocol, runtime_checkable
+
+                def test_rate_limit_strategy_is_protocol():
+                    assert issubclass(RateLimitStrategy, Protocol)
+
+                def test_rate_limit_strategy_is_runtime_checkable():
+                    # This allows isinstance() checks at runtime
+                    assert hasattr(RateLimitStrategy, '_is_protocol')
+                ```
+
+                Run: `pytest tests/strategies/test_base.py -v`
+                Expected: FAIL
+
+                **GREEN Phase:**
+                Create `strategies/base.py`:
+
+                ```python
+                from typing import Protocol, runtime_checkable
+                from redis.asyncio import Redis
+
+                @runtime_checkable
+                class RateLimitStrategy(Protocol):
+                    """
+                    Protocol defining the interface for rate limiting strategies.
+                    
+                    All rate limit strategies must implement these methods to be
+                    compatible with the rate limiter middleware.
+                    """
+                    
+                    async def is_allowed(
+                        self,
+                        redis: Redis,
+                        key: str,
+                        max_requests: int,
+                        window_seconds: int
+                    ) -> tuple[bool, dict]:
+                        """
+                        Check if a request should be allowed based on rate limits.
+                        
+                        Args:
+                            redis: Redis client instance
+                            key: Rate limit key (from build_rate_limit_key)
+                            max_requests: Maximum requests allowed in window
+                            window_seconds: Time window in seconds
+                        
+                        Returns:
+                            Tuple of (is_allowed, metadata):
+                            - is_allowed: True if request is allowed, False if rate limited
+                            - metadata: Dict with keys:
+                                - "remaining": Requests remaining in current window
+                                - "reset_at": Unix timestamp when window resets
+                                - "retry_after": Seconds until next allowed request (if rate limited)
+                        """
+                        ...
+                ```
+
+                Run: `pytest tests/strategies/test_base.py -v`
+                Expected: PASS
+
+                **BLUE Phase (Refactor):**
+                - Verify LSP recognizes Protocol correctly
+                - Ensure docstrings are comprehensive
+
+                **Completion Criteria:**
+                - Tests pass
+                - No LSP errors
+              status: "done"
+
+    - id: "phase-2"
+      name: "Core Implementation Phase"
+      description: |
+        Implement the rate limiting strategies and middleware.
+
+        This phase builds the actual rate limiting logic using Redis for state management.
+        All implementations must handle Redis connection failures gracefully (fail open).
+
+        Performance target: <5ms overhead per request (measured in integration tests).
+      status: "active"
+      sub_phases:
+        - id: "phase-2-sub-1"
+          name: "Strategy Implementations"
+          description: |
+            Implement concrete rate limiting strategies.
+            Start with Fixed Window (simpler), then Sliding Window (more accurate).
+          status: "active"
+          steps:
+            - id: "step-2-sub-1.1"
+              name: "Implement Fixed Window Strategy"
+              description: "Build fixed window rate limiting using Redis INCR and EXPIRE"
+              status: "active"
+
+              instructions:
+                - id: "instr-2-sub-1.1.1"
+                  content: |
+                    **Implement Fixed Window Rate Limiter (TDD)**
+
+                    **File:** `strategies/fixed_window.py`
+
+                    **Algorithm:**
+                    Fixed window divides time into fixed intervals. If max_requests=100 and
+                    window_seconds=60, then from 12:00:00-12:00:59 you get 100 requests,
+                    then from 12:01:00-12:01:59 you get another 100 (counter resets).
+
+                    Redis operations:
+                    1. `INCR key` - Increment request count
+                    2. `EXPIRE key window_seconds` - Set TTL on first request in window
+                    3. `TTL key` - Get remaining time in window
+
+                    **YELLOW Phase:**
+                    - Review `strategies/base.py` Protocol interface
+                    - Check Redis async client patterns in project
+                    - Read existing error handling patterns
+
+                    **RED Phase (Write Tests):**
+                    Create `tests/strategies/test_fixed_window.py`:
+
+                    ```python
+                    import pytest
+                    import time
+                    from redis.asyncio import Redis
+                    from strategies.fixed_window import FixedWindowRateLimiter
+
+                    @pytest.fixture
+                    async def redis_client():
+                        # Assumes Redis is running on localhost:6379 for testing
+                        # Use a test database (e.g., DB 15)
+                        client = Redis(host='localhost', port=6379, db=15, decode_responses=True)
+                        yield client
+                        await client.flushdb()  # Clean up after tests
+                        await client.close()
+
+                    @pytest.fixture
+                    def rate_limiter():
+                        return FixedWindowRateLimiter()
+
+                    @pytest.mark.asyncio
+                    async def test_first_request_is_allowed(redis_client, rate_limiter):
+                        key = "test:ratelimit:user:123:/api/test"
+                        allowed, metadata = await rate_limiter.is_allowed(
+                            redis_client, key, max_requests=10, window_seconds=60
+                        )
+                        assert allowed is True
+                        assert metadata["remaining"] == 9
+                        assert metadata["reset_at"] > time.time()
+
+                    @pytest.mark.asyncio
+                    async def test_requests_within_limit_allowed(redis_client, rate_limiter):
+                        key = "test:ratelimit:user:456:/api/test"
+                        
+                        # Make 5 requests (limit is 10)
+                        for i in range(5):
+                            allowed, metadata = await rate_limiter.is_allowed(
+                                redis_client, key, max_requests=10, window_seconds=60
+                            )
+                            assert allowed is True
+                            assert metadata["remaining"] == 10 - (i + 1)
+
+                    @pytest.mark.asyncio
+                    async def test_requests_exceeding_limit_denied(redis_client, rate_limiter):
+                        key = "test:ratelimit:user:789:/api/test"
+                        
+                        # Make exactly max_requests
+                        for _ in range(5):
+                            await rate_limiter.is_allowed(redis_client, key, max_requests=5, window_seconds=60)
+                        
+                        # Next request should be denied
+                        allowed, metadata = await rate_limiter.is_allowed(
+                            redis_client, key, max_requests=5, window_seconds=60
+                        )
+                        assert allowed is False
+                        assert metadata["remaining"] == 0
+                        assert "retry_after" in metadata
+                        assert metadata["retry_after"] > 0
+
+                    @pytest.mark.asyncio
+                    async def test_window_reset_allows_new_requests(redis_client, rate_limiter):
+                        key = "test:ratelimit:user:999:/api/test"
+                        
+                        # Exhaust limit with 1-second window
+                        for _ in range(3):
+                            await rate_limiter.is_allowed(redis_client, key, max_requests=3, window_seconds=1)
+                        
+                        # Should be denied
+                        allowed, _ = await rate_limiter.is_allowed(redis_client, key, max_requests=3, window_seconds=1)
+                        assert allowed is False
+                        
+                        # Wait for window to reset
+                        await asyncio.sleep(1.1)
+                        
+                        # Should be allowed again
+                        allowed, metadata = await rate_limiter.is_allowed(redis_client, key, max_requests=3, window_seconds=1)
+                        assert allowed is True
+                        assert metadata["remaining"] == 2
+                    ```
+
+                    Run: `pytest tests/strategies/test_fixed_window.py -v`
+                    Expected: FAIL (class doesn't exist)
+
+                    **GREEN Phase (Implement):**
+                    Create `strategies/fixed_window.py`:
+
+                    ```python
+                    import time
+                    from typing import Tuple, Dict
+                    from redis.asyncio import Redis
+                    from redis.exceptions import RedisError
+
+                    class FixedWindowRateLimiter:
+                        """
+                        Fixed window rate limiting strategy using Redis.
+                        
+                        Divides time into fixed intervals and counts requests per interval.
+                        Simple and efficient, but can allow bursts at window boundaries.
+                        """
+                        
+                        async def is_allowed(
+                            self,
+                            redis: Redis,
+                            key: str,
+                            max_requests: int,
+                            window_seconds: int
+                        ) -> Tuple[bool, Dict]:
+                            """Check if request is allowed under fixed window rate limit."""
+                            try:
+                                # Use pipeline for atomic operations
+                                pipe = redis.pipeline()
+                                
+                                # Increment counter
+                                pipe.incr(key)
+                                
+                                # Set expiry on first request
+                                pipe.expire(key, window_seconds, nx=True)
+                                
+                                # Get TTL to calculate reset time
+                                pipe.ttl(key)
+                                
+                                results = await pipe.execute()
+                                current_count = results[0]
+                                ttl = results[2]
+                                
+                                # Calculate metadata
+                                remaining = max(0, max_requests - current_count)
+                                reset_at = int(time.time()) + ttl
+                                
+                                is_allowed = current_count <= max_requests
+                                
+                                metadata = {
+                                    "remaining": remaining,
+                                    "reset_at": reset_at,
+                                }
+                                
+                                if not is_allowed:
+                                    metadata["retry_after"] = ttl
+                                
+                                return is_allowed, metadata
+                                
+                            except RedisError as e:
+                                # Fail open: allow request if Redis is unavailable
+                                # Log error for monitoring
+                                print(f"Redis error in rate limiter: {e}")
+                                return True, {
+                                    "remaining": max_requests,
+                                    "reset_at": int(time.time()) + window_seconds,
+                                }
+                        ```
+
+                    Add dependency: `uv add redis>=5.0.0`
+
+                    Run: `pytest tests/strategies/test_fixed_window.py -v`
+                    Expected: PASS
+
+                    **BLUE Phase (Refactor):**
+                    - Check LSP for async/await correctness
+                    - Verify error handling covers all RedisError cases
+                    - Run: `ruff check strategies/fixed_window.py`
+                    - Verify test coverage: `pytest --cov=strategies.fixed_window tests/strategies/test_fixed_window.py`
+
+                    **Completion Criteria:**
+                    - All tests pass
+                    - Coverage >95%
+                    - No LSP/linting errors
+                    - Redis pipeline used correctly (atomic operations)
+                  status: "active"
+
+                - id: "instr-2-sub-1.1.2"
+                  content: |
+                    **Add Performance Tests for Fixed Window Strategy**
+
+                    **File:** `tests/strategies/test_fixed_window_performance.py`
+
+                    Create performance benchmarks to ensure <5ms overhead:
+
+                    ```python
+                    import pytest
+                    import time
+                    import asyncio
+                    from redis.asyncio import Redis
+                    from strategies.fixed_window import FixedWindowRateLimiter
+
+                    @pytest.fixture
+                    async def redis_client():
+                        client = Redis(host='localhost', port=6379, db=15, decode_responses=True)
+                        yield client
+                        await client.flushdb()
+                        await client.close()
+
+                    @pytest.mark.asyncio
+                    async def test_single_request_latency(redis_client):
+                        """Single request should complete in <5ms."""
+                        limiter = FixedWindowRateLimiter()
+                        key = "perf:test:user:1:/api/test"
+                        
+                        start = time.perf_counter()
+                        await limiter.is_allowed(redis_client, key, max_requests=1000, window_seconds=60)
+                        elapsed_ms = (time.perf_counter() - start) * 1000
+                        
+                        assert elapsed_ms < 5.0, f"Request took {elapsed_ms}ms, expected <5ms"
+
+                    @pytest.mark.asyncio
+                    async def test_concurrent_requests_throughput(redis_client):
+                        """Should handle 100 concurrent requests efficiently."""
+                        limiter = FixedWindowRateLimiter()
+                        
+                        async def make_request(i: int):
+                            key = f"perf:test:user:{i}:/api/test"
+                            await limiter.is_allowed(redis_client, key, max_requests=1000, window_seconds=60)
+                        
+                        start = time.perf_counter()
+                        await asyncio.gather(*[make_request(i) for i in range(100)])
+                        elapsed_ms = (time.perf_counter() - start) * 1000
+                        
+                        # 100 requests should complete in <100ms (avg <1ms per request)
+                        assert elapsed_ms < 100, f"100 requests took {elapsed_ms}ms"
+                    ```
+
+                    Run: `pytest tests/strategies/test_fixed_window_performance.py -v`
+                    Expected: PASS (verifies performance requirements)
+
+                    **Completion Criteria:**
+                    - Performance tests pass
+                    - Latency consistently <5ms per request
+                  status: "pending"
+
+            - id: "step-2-sub-1.2"
+              name: "Implement Sliding Window Strategy"
+              description: "Build sliding window rate limiting using Redis sorted sets"
+              status: "blocked"
+              blocked_reason: |
+                Waiting for Fixed Window implementation to be complete and reviewed.
+                Sliding window builds on lessons learned from fixed window.
+                Also need to confirm with team if sliding window is required for v1.0
+                or can be deferred to v1.1 (current PRD is ambiguous on priority).
+
+              instructions:
+                - id: "instr-2-sub-1.2.1"
+                  content: |
+                    **Implement Sliding Window Rate Limiter (TDD)**
+
+                    **File:** `strategies/sliding_window.py`
+
+                    **Algorithm:**
+                    Sliding window uses a sorted set in Redis where:
+                    - Member: Unique request ID (e.g., timestamp + random)
+                    - Score: Request timestamp
+
+                    For each request:
+                    1. Remove expired entries: `ZREMRANGEBYSCORE key -inf (now - window_seconds)`
+                    2. Count current entries: `ZCARD key`
+                    3. If count < max_requests: Add new entry `ZADD key now request_id`
+                    4. Set TTL: `EXPIRE key window_seconds`
+
+                    This provides more accurate rate limiting than fixed window
+                    (no burst at boundaries) but requires more Redis operations.
+
+                    **[DETAILED TDD IMPLEMENTATION STEPS WOULD GO HERE]**
+
+                    **Completion Criteria:**
+                    - All tests pass (similar test structure to fixed window)
+                    - Performance: <8ms per request (slightly higher due to ZREMRANGEBYSCORE)
+                    - Coverage >95%
+                  status: "pending"
+
+        - id: "phase-2-sub-2"
+          name: "Middleware Integration"
+          description: |
+            Integrate rate limiting as FastAPI middleware and dependency.
+            Should support both global middleware and per-route decorators.
+          status: "pending"
+          steps:
+            - id: "step-2-sub-2.1"
+              name: "Create Rate Limit Dependency"
+              description: "FastAPI dependency for injecting rate limiting"
+              status: "pending"
+
+              instructions:
+                - id: "instr-2-sub-2.1.1"
+                  content: |
+                    **Create Rate Limit Dependency (TDD)**
+
+                    **File:** `middleware/rate_limit_dependency.py`
+
+                    **Usage Pattern:**
+                    ```python
+                    from fastapi import Depends, APIRouter
+                    from middleware.rate_limit_dependency import RateLimiter
+
+                    router = APIRouter()
+
+                    @router.get("/api/data", dependencies=[Depends(RateLimiter(max_requests=100, window_seconds=60))])
+                    async def get_data():
+                        return {"data": "..."}
+                    ```
+
+                    **[DETAILED TDD IMPLEMENTATION WOULD GO HERE]**
+
+                    Implementation should:
+                    - Extract user_id from request.state.user (if authenticated)
+                    - Fall back to client IP from request.client.host
+                    - Use build_rate_limit_key() utility
+                    - Apply configured strategy (from config or parameter)
+                    - Raise HTTPException(429) if rate limited with Retry-After header
+                    - Add X-RateLimit-* headers to response
+
+                    **Completion Criteria:**
+                    - Tests pass (unit + integration)
+                    - Works with both authenticated and anonymous requests
+                    - Proper HTTP headers set
+                  status: "pending"
+
+    - id: "phase-3"
+      name: "Testing & Validation Phase"
+      description: |
+        Comprehensive testing including integration tests, load tests, and edge cases.
+
+        Must verify:
+        - Rate limiting behavior under concurrent load
+        - Redis failure scenarios (fail-open behavior)
+        - Memory usage with many unique keys
+        - Accuracy of different strategies
+      status: "pending"
+      steps:
+        - id: "step-3.1"
+          name: "Integration Tests"
+          description: "End-to-end tests with real FastAPI app and Redis"
+          status: "pending"
+
+          instructions:
+            - id: "instr-3.1.1"
+              content: |
+                **Create Integration Test Suite**
+
+                **File:** `tests/integration/test_rate_limiter_e2e.py`
+
+                Set up test FastAPI app with rate limiting enabled:
+
+                ```python
+                import pytest
+                from fastapi import FastAPI, Depends
+                from fastapi.testclient import TestClient
+                from middleware.rate_limit_dependency import RateLimiter
+
+                @pytest.fixture
+                def app():
+                    app = FastAPI()
+                    
+                    @app.get("/limited", dependencies=[Depends(RateLimiter(max_requests=5, window_seconds=10))])
+                    async def limited_endpoint():
+                        return {"message": "success"}
+                    
+                    @app.get("/unlimited")
+                    async def unlimited_endpoint():
+                        return {"message": "success"}
+                    
+                    return app
+
+                @pytest.fixture
+                def client(app):
+                    return TestClient(app)
+
+                def test_rate_limit_enforced(client):
+                    # Make 5 requests (should all succeed)
+                    for i in range(5):
+                        response = client.get("/limited")
+                        assert response.status_code == 200
+                        assert int(response.headers["X-RateLimit-Remaining"]) == 5 - (i + 1)
+                    
+                    # 6th request should be rate limited
+                    response = client.get("/limited")
+                    assert response.status_code == 429
+                    assert "Retry-After" in response.headers
+
+                def test_unlimited_endpoint_not_affected(client):
+                    # Unlimited endpoint should work regardless
+                    for _ in range(100):
+                        response = client.get("/unlimited")
+                        assert response.status_code == 200
+
+                # [MORE INTEGRATION TESTS...]
+                ```
+
+                **Completion Criteria:**
+                - All integration tests pass
+                - Tests cover authenticated and anonymous scenarios
+                - Redis connection handling tested
+              status: "pending"
+
+        - id: "step-3.2"
+          name: "Load Testing"
+          description: "Verify performance under realistic load"
+          status: "pending"
+
+          instructions:
+            - id: "instr-3.2.1"
+              content: |
+                **Create Load Test with Locust**
+
+                **File:** `tests/load/locustfile.py`
+
+                ```python
+                from locust import HttpUser, task, between
+
+                class RateLimitUser(HttpUser):
+                    wait_time = between(0.1, 0.5)
+                    
+                    @task
+                    def test_limited_endpoint(self):
+                        self.client.get("/limited", name="/limited")
+                    
+                    @task(3)  # 3x more traffic to unlimited
+                    def test_unlimited_endpoint(self):
+                        self.client.get("/unlimited", name="/unlimited")
+                ```
+
+                Install: `uv add --dev locust>=2.0.0`
+
+                Run load test:
+                ```bash
+                locust -f tests/load/locustfile.py --host=http://localhost:8000 --users=100 --spawn-rate=10 --run-time=60s --headless
+                ```
+
+                **Success Criteria:**
+                - Handle 1000 req/sec with <5ms p99 latency for rate limiter overhead
+                - No errors under sustained load
+                - Memory usage stable (no leaks)
+
+                **Completion Criteria:**
+                - Load tests pass success criteria
+                - Results documented in test output
+              status: "pending"
+
+    - id: "phase-4"
+      name: "Documentation & Deployment Phase"
+      description: |
+        Finalize documentation, update living docs, and prepare for deployment.
+
+        Must update:
+        - API documentation with rate limit headers
+        - Living docs with architecture decisions
+        - README with usage examples
+      status: "pending"
+      steps:
+        - id: "step-4.1"
+          name: "Update Living Documentation"
+          description: "Document rate limiter architecture and usage"
+          status: "pending"
+
+          instructions:
+            - id: "instr-4.1.1"
+              content: |
+                **Update `docs/LIVING_DOCS.md`**
+
+                Add section under "Middleware" heading:
+
+                ```markdown
+                ### Rate Limiting Middleware
+
+                **Overview:**
+                Redis-backed rate limiting for API endpoints. Supports per-user and per-IP limits.
+
+                **Architecture:**
+                - Strategy: Fixed Window (default), Sliding Window (optional)
+                - Storage: Redis (fail-open if unavailable)
+                - Performance: <5ms overhead per request
+
+                **Usage:**
+
+                Per-route rate limiting:
+                ```python
+                from middleware.rate_limit_dependency import RateLimiter
+
+                @router.get("/api/data", dependencies=[Depends(RateLimiter(max_requests=100, window_seconds=60))])
+                async def get_data():
+                    return {"data": "..."}
+                ```
+
+                **Configuration:**
+                Set in `config/settings.py`:
+                - `REDIS_URL`: Redis connection string
+                - `RATE_LIMIT_STRATEGY`: "fixed_window" or "sliding_window"
+
+                **Monitoring:**
+                - Metric: `rate_limit_requests_total{status="allowed|denied"}`
+                - Metric: `rate_limit_latency_seconds`
+
+                **Design Decisions:**
+                - Chose Redis over in-memory: Supports horizontal scaling
+                - Fail-open pattern: Availability > strict rate limiting
+                - Fixed window default: Performance over accuracy for most use cases
+                ```
+
+                Also update `docs/ARCHITECTURE.md` with Redis dependency diagram.
+
+                **Completion Criteria:**
+                - Living docs updated
+                - Architecture diagram includes rate limiter
+                - No broken links or formatting issues
+              status: "pending"
+
+        - id: "step-4.2"
+          name: "Create Usage Examples"
+          description: "Add practical examples to README"
+          status: "pending"
+
+          instructions:
+            - id: "instr-4.2.1"
+              content: |
+                **Update `README.md`**
+
+                Add "Rate Limiting" section with examples:
+
+                ```markdown
+                ## Rate Limiting
+
+                This API uses rate limiting to ensure fair usage.
+
+                ### Rate Limit Headers
+
+                All responses include rate limit information:
+
+                ```
+                X-RateLimit-Limit: 100
+                X-RateLimit-Remaining: 95
+                X-RateLimit-Reset: 1704672000
+                ```
+
+                ### Rate Limit Response
+
+                When rate limited, you'll receive a `429 Too Many Requests` response:
+
+                ```json
+                {
+                  "detail": "Rate limit exceeded. Try again in 45 seconds.",
+                  "retry_after": 45
+                }
+                ```
+
+                ### Default Limits
+
+                - Authenticated users: 1000 requests per hour
+                - Anonymous users: 100 requests per hour
+                - Specific endpoints may have different limits (see API docs)
+                ```
+
+                **Completion Criteria:**
+                - README updated with clear examples
+                - No markdown formatting errors
+              status: "pending"

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling>=1.26.3"]
+build-backend = "hatchling.build"
+
+[project]
+name = "new-project-sandbox" # Replace with name of actual project
+version = "0.1.0"
+description = "New Project Sandbox" # Also replace this with name of actual project
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "coverage[toml]>=7.13.2",
+  "jsonschema>=4.26.0",
+  "mypy>=1.19.1",
+  "pre-commit>=4.5.1",
+  "pytest>=9.0.2",
+  "pytest-cov>=7.0.0",
+  "pyyaml>=6.0.3",
+  "ruff>=0.14.14",
+  "types-requests>=2.32.4.20260107",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/directory_of_project"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
