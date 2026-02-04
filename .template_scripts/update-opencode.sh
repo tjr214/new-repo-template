@@ -44,7 +44,7 @@ if command -v uv &> /dev/null; then
         fi
     else
         printf "${RED}${BOLD}Error: uv update failed${NC}\n"
-        exit 1
+        # exit 1
     fi
 else
     printf "${YELLOW}uv not found. Installing...${NC}\n"
@@ -57,7 +57,7 @@ else
         printf "${GREEN}${BOLD}uv installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$INSTALLED_UV_VERSION"
     else
         printf "${RED}${BOLD}Error: uv installation failed${NC}\n"
-        exit 1
+        # exit 1
     fi
 fi
 
@@ -134,7 +134,7 @@ if npm list -g opencode-antigravity-auth --depth=0 &> /dev/null; then
         fi
     else
         printf "${RED}${BOLD}Error: Plugin update failed${NC}\n"
-        exit 0
+        # exit 0
     fi
 else
     printf "${YELLOW}Antigravity OAuth Plugin not found. Installing...${NC}\n"
@@ -147,8 +147,159 @@ else
         printf "${GREEN}${BOLD}Antigravity OAuth Plugin installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$INSTALLED_PLUGIN_VERSION"
     else
         printf "${RED}${BOLD}Error: Plugin installation failed${NC}\n"
-        exit 0
+        # exit 0
     fi
 fi
+
+# ============================================================================
+# Install/Update ripgrep
+# ============================================================================
+printf "\n${CYAN}${BOLD}Checking ripgrep...${NC}\n"
+
+# Detect OS
+OS_TYPE=$(uname -s)
+OS_ARCH=$(uname -m)
+
+# Check if ripgrep is already installed
+if command -v rg &> /dev/null; then
+    # Get current version
+    CURRENT_RG_VERSION=$(rg --version 2>/dev/null | head -n1 | awk '{print $2}' | tr -d '\n')
+    printf "${BLUE}ripgrep is already installed ${NC}(Version: ${BOLD}%s${NC})\n" "$CURRENT_RG_VERSION"
+    printf "${YELLOW}Checking for updates...${NC}\n"
+else
+    printf "${YELLOW}ripgrep not found. Installing...${NC}\n"
+    CURRENT_RG_VERSION=""
+fi
+
+# Install/Update based on OS
+case "$OS_TYPE" in
+    Darwin)
+        # macOS - Use Homebrew (official method)
+        if command -v brew &> /dev/null; then
+            if [ -z "$CURRENT_RG_VERSION" ]; then
+                # Install
+                brew install ripgrep
+            else
+                # Update
+                brew upgrade ripgrep 2>/dev/null || printf "${GREEN}ripgrep is already up to date${NC}\n"
+            fi
+            
+            if [ $? -eq 0 ]; then
+                NEW_RG_VERSION=$(rg --version 2>/dev/null | head -n1 | awk '{print $2}' | tr -d '\n')
+                if [ -z "$CURRENT_RG_VERSION" ]; then
+                    printf "${GREEN}${BOLD}ripgrep installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_RG_VERSION"
+                elif [ "$CURRENT_RG_VERSION" = "$NEW_RG_VERSION" ]; then
+                    printf "${GREEN}ripgrep is already up to date ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_RG_VERSION"
+                else
+                    printf "${GREEN}${BOLD}ripgrep updated successfully!${NC}\n"
+                    printf "${BLUE}Previous version: ${NC}%s\n" "$CURRENT_RG_VERSION"
+                    printf "${BLUE}Current version: ${NC}${BOLD}%s${NC}\n" "$NEW_RG_VERSION"
+                fi
+            else
+                printf "${RED}${BOLD}Error: ripgrep installation/update failed${NC}\n"
+            fi
+        else
+            printf "${RED}${BOLD}Error: Homebrew not found. Please install Homebrew first: https://brew.sh${NC}\n"
+            # exit 1
+        fi
+        ;;
+    
+    Linux)
+        # Detect Linux distribution
+        if [ -f /etc/os-release ]; then
+            . /etc/os-release
+            DISTRO=$ID
+        else
+            DISTRO="unknown"
+        fi
+        
+        case "$DISTRO" in
+            ubuntu|debian)
+                # Ubuntu/Debian - Use apt (official method)
+                printf "${YELLOW}Installing/updating via apt...${NC}\n"
+                sudo apt update
+                sudo apt install -y ripgrep
+                
+                if [ $? -eq 0 ]; then
+                    NEW_RG_VERSION=$(rg --version 2>/dev/null | head -n1 | awk '{print $2}' | tr -d '\n')
+                    if [ -z "$CURRENT_RG_VERSION" ]; then
+                        printf "${GREEN}${BOLD}ripgrep installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_RG_VERSION"
+                    else
+                        printf "${GREEN}${BOLD}ripgrep updated successfully!${NC}\n"
+                        printf "${BLUE}Current version: ${NC}${BOLD}%s${NC}\n" "$NEW_RG_VERSION"
+                    fi
+                else
+                    printf "${RED}${BOLD}Error: ripgrep installation/update failed${NC}\n"
+                fi
+                ;;
+            
+            fedora|rhel|centos)
+                # Fedora/RHEL/CentOS - Use dnf (official method)
+                printf "${YELLOW}Installing/updating via dnf...${NC}\n"
+                sudo dnf install -y ripgrep
+                
+                if [ $? -eq 0 ]; then
+                    NEW_RG_VERSION=$(rg --version 2>/dev/null | head -n1 | awk '{print $2}' | tr -d '\n')
+                    if [ -z "$CURRENT_RG_VERSION" ]; then
+                        printf "${GREEN}${BOLD}ripgrep installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_RG_VERSION"
+                    else
+                        printf "${GREEN}${BOLD}ripgrep updated successfully!${NC}\n"
+                        printf "${BLUE}Current version: ${NC}${BOLD}%s${NC}\n" "$NEW_RG_VERSION"
+                    fi
+                else
+                    printf "${RED}${BOLD}Error: ripgrep installation/update failed${NC}\n"
+                fi
+                ;;
+            
+            arch|manjaro)
+                # Arch Linux - Use pacman (official method)
+                printf "${YELLOW}Installing/updating via pacman...${NC}\n"
+                sudo pacman -Sy --noconfirm ripgrep
+                
+                if [ $? -eq 0 ]; then
+                    NEW_RG_VERSION=$(rg --version 2>/dev/null | head -n1 | awk '{print $2}' | tr -d '\n')
+                    if [ -z "$CURRENT_RG_VERSION" ]; then
+                        printf "${GREEN}${BOLD}ripgrep installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_RG_VERSION"
+                    else
+                        printf "${GREEN}${BOLD}ripgrep updated successfully!${NC}\n"
+                        printf "${BLUE}Current version: ${NC}${BOLD}%s${NC}\n" "$NEW_RG_VERSION"
+                    fi
+                else
+                    printf "${RED}${BOLD}Error: ripgrep installation/update failed${NC}\n"
+                fi
+                ;;
+            
+            opensuse*|suse)
+                # openSUSE - Use zypper (official method)
+                printf "${YELLOW}Installing/updating via zypper...${NC}\n"
+                sudo zypper install -y ripgrep
+                
+                if [ $? -eq 0 ]; then
+                    NEW_RG_VERSION=$(rg --version 2>/dev/null | head -n1 | awk '{print $2}' | tr -d '\n')
+                    if [ -z "$CURRENT_RG_VERSION" ]; then
+                        printf "${GREEN}${BOLD}ripgrep installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_RG_VERSION"
+                    else
+                        printf "${GREEN}${BOLD}ripgrep updated successfully!${NC}\n"
+                        printf "${BLUE}Current version: ${NC}${BOLD}%s${NC}\n" "$NEW_RG_VERSION"
+                    fi
+                else
+                    printf "${RED}${BOLD}Error: ripgrep installation/update failed${NC}\n"
+                fi
+                ;;
+            
+            *)
+                printf "${YELLOW}${BOLD}Unsupported Linux distribution: $DISTRO${NC}\n"
+                printf "${YELLOW}Please install ripgrep manually from: https://github.com/BurntSushi/ripgrep${NC}\n"
+                ;;
+        esac
+        ;;
+    
+    *)
+        printf "${RED}${BOLD}Unsupported operating system: $OS_TYPE${NC}\n"
+        printf "${YELLOW}Please install ripgrep manually from: https://github.com/BurntSushi/ripgrep${NC}\n"
+        ;;
+esac
+
+# ---------------------------------------------------------------------------
 
 printf "\n${GREEN}Done.${NC}\n"
