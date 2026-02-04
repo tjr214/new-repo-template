@@ -36,8 +36,8 @@ printf "${BLUE}Creating project directories...${NC}\n"
 # mkdir -p docs/tasks
 # printf "  ${GREEN}✓${NC} docs/tasks/\n"
 
-# mkdir -p scripts
-# printf "  ${GREEN}✓${NC} scripts/\n"
+mkdir -p scripts
+printf "  ${GREEN}✓${NC} scripts/\n"
 
 mkdir -p tests
 printf "  ${GREEN}✓${NC} tests/\n"
