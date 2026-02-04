@@ -21,7 +21,7 @@
 
 - **DOUBLE CRITICAL**: You have to READ files before the system will allow you to edit, update or write to them.
 
-- **TRIPLE CRITICAL**: Do NOT add the user's personal information to the code, tests, documentation or anything else. Any of that personal information is only for use in conversation and dialogue with the user.
+- **TRIPLE CRITICAL**: Do NOT add the user's personal information to the code, tests, documentation or anything else. Any of that personal information is only for use in conversation and dialogue with the user. Only the files and directories in the project directory are backed up and protected by Git. Therefore, in order to access, write, delete, modify, or do ANYTHING with files/directories OUTSIDE the project you must first get EXPLICIT PERMISSION from the user before proceeding. Otherwise, you may cause irreversible damage to the user's system without even realizing you have done anything at all!
 
 ### 1.1 CRITICAL PYTHON INSTRUCTIONS
 
