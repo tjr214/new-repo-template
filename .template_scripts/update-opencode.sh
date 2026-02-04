@@ -134,7 +134,7 @@ if npm list -g opencode-antigravity-auth --depth=0 &> /dev/null; then
         fi
     else
         printf "${RED}${BOLD}Error: Plugin update failed${NC}\n"
-        exit 1
+        exit 0
     fi
 else
     printf "${YELLOW}Antigravity OAuth Plugin not found. Installing...${NC}\n"
