@@ -100,11 +100,13 @@ def validate_template(template_path: str, schema_path: str) -> bool:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python validate_template.py <task-template.yaml> [schema.json]")
+        print(
+            "Usage: python validate_template.py <task-template.yaml> [schema.json]")
         sys.exit(1)
 
     template_path = sys.argv[1]
-    schema_path = sys.argv[2] if len(sys.argv) > 2 else "task-template-schema.json"
+    schema_path = sys.argv[2] if len(
+        sys.argv) > 2 else ".template_scripts/task-template-schema.json"
 
     if not Path(template_path).exists():
         print(f"❌ Template file not found: {template_path}")
