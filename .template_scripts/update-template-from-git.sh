@@ -120,43 +120,43 @@ copy_directory() {
 }
 
 # Step 1: Update .claude/settings.json
-printf "${CYAN}${BOLD}Step 1/8: Updating .claude/settings.json${NC}\n"
+printf "${CYAN}${BOLD}Step 1/11: Updating .claude/settings.json${NC}\n"
 printf "${CYAN}------------------------------------------${NC}\n"
 copy_file "$CLONE_DIR/.claude/settings.json" ".claude/settings.json"
 printf "\n"
 
 # Step 2: Update .claude/statusline-script.sh
-printf "${CYAN}${BOLD}Step 2/8: Updating .claude/statusline-script.sh${NC}\n"
+printf "${CYAN}${BOLD}Step 2/11: Updating .claude/statusline-script.sh${NC}\n"
 printf "${CYAN}----------------------------------------------${NC}\n"
 copy_file "$CLONE_DIR/.claude/statusline-script.sh" ".claude/statusline-script.sh"
 printf "\n"
 
 # Step 3: Update .claude/commands/repo/
-printf "${CYAN}${BOLD}Step 3/8: Updating .claude/commands/repo/${NC}\n"
+printf "${CYAN}${BOLD}Step 3/11: Updating .claude/commands/repo/${NC}\n"
 printf "${CYAN}------------------------------------------${NC}\n"
 copy_directory "$CLONE_DIR/.claude/commands/repo" ".claude/commands/repo"
 printf "\n"
 
 # Step 4: Update AGENTS.md
-printf "${CYAN}${BOLD}Step 4/8: Updating AGENTS.md${NC}\n"
+printf "${CYAN}${BOLD}Step 4/11: Updating AGENTS.md${NC}\n"
 printf "${CYAN}----------------------------${NC}\n"
 copy_file "$CLONE_DIR/AGENTS.md" "AGENTS.md"
 printf "\n"
 
 # Step 5: Update CLAUDE.md
-printf "${CYAN}${BOLD}Step 5/8: Updating CLAUDE.md${NC}\n"
+printf "${CYAN}${BOLD}Step 5/11: Updating CLAUDE.md${NC}\n"
 printf "${CYAN}----------------------------${NC}\n"
 copy_file "$CLONE_DIR/CLAUDE.md" "CLAUDE.md"
 printf "\n"
 
 # Step 6: Update repomix.config.json
-printf "${CYAN}${BOLD}Step 6/8: Updating repomix.config.json${NC}\n"
+printf "${CYAN}${BOLD}Step 6/11: Updating repomix.config.json${NC}\n"
 printf "${CYAN}--------------------------------------${NC}\n"
 copy_file "$CLONE_DIR/repomix.config.json" "repomix.config.json"
 printf "\n"
 
 # Step 7: Update .template_scripts/
-printf "${CYAN}${BOLD}Step 7/8: Updating .template_scripts/${NC}\n"
+printf "${CYAN}${BOLD}Step 7/11: Updating .template_scripts/${NC}\n"
 printf "${CYAN}-------------------------------------${NC}\n"
 if [ ! -d "$CLONE_DIR/.template_scripts" ]; then
     printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
@@ -175,7 +175,7 @@ done
 printf "\n"
 
 # Step 8: Update .opencode/command/ markdown files
-printf "${CYAN}${BOLD}Step 8/8: Updating .opencode/command/*.md${NC}\n"
+printf "${CYAN}${BOLD}Step 8/11: Updating .opencode/command/*.md${NC}\n"
 printf "${CYAN}------------------------------------------${NC}\n"
 if [ ! -d "$CLONE_DIR/.opencode/command" ]; then
     printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
@@ -197,6 +197,30 @@ done
 if [ $MD_FILE_COUNT -eq 0 ]; then
     printf "${YELLOW}Warning: No markdown files found in template .opencode/command/${NC}\n"
 fi
+printf "\n"
+
+# Step 9: Ensure docs/tasks directory exists
+printf "${CYAN}${BOLD}Step 9/11: Ensuring docs/tasks directory exists${NC}\n"
+printf "${CYAN}------------------------------------------------${NC}\n"
+if [ ! -d "docs/tasks" ]; then
+    mkdir -p "docs/tasks"
+    printf "  ${GREEN}✓${NC} Created docs/tasks directory\n"
+else
+    printf "  ${GREEN}✓${NC} docs/tasks directory exists\n"
+fi
+printf "\n"
+
+# Step 10: Update task template files
+printf "${CYAN}${BOLD}Step 10/11: Updating task template files${NC}\n"
+printf "${CYAN}----------------------------------------${NC}\n"
+copy_file "$CLONE_DIR/docs/tasks/task-template.yaml" "docs/tasks/task-template.yaml"
+copy_file "$CLONE_DIR/docs/tasks/task-template-example.yaml" "docs/tasks/task-template-example.yaml"
+printf "\n"
+
+# Step 11: Update docs/workflows/
+printf "${CYAN}${BOLD}Step 11/11: Updating docs/workflows/${NC}\n"
+printf "${CYAN}------------------------------------${NC}\n"
+copy_directory "$CLONE_DIR/docs/workflows" "docs/workflows"
 printf "\n"
 
 # Cleanup
