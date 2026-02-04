@@ -54,7 +54,8 @@ def print_status_summary(data: dict):
         f"   Status: {status_icon} {STATUS_NAMES.get(task.get('status', 'pending'), 'UNKNOWN')}"
     )
     if task.get("status") == "blocked":
-        print(f"   ⚠️  Blocked: {task.get('blocked_reason', 'No reason provided')}")
+        print(
+            f"   ⚠️  Blocked: {task.get('blocked_reason', 'No reason provided')}")
 
 
 def count_statuses_in_phase(phase: dict) -> Dict[str, int]:
@@ -199,8 +200,8 @@ def visualize_plan(filepath: str):
         for phase in task.get("phases", []):
             print_phase(phase)
 
-        print("\n" + "=" * 80)
-        print("\n✨ Visualization complete!\n")
+        # print("\n" + "=" * 80)
+        # print("\n✨ Visualization complete!\n")
 
     except FileNotFoundError:
         print(f"❌ File not found: {filepath}")
