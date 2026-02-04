@@ -147,7 +147,7 @@ else
         printf "${GREEN}${BOLD}Antigravity OAuth Plugin installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$INSTALLED_PLUGIN_VERSION"
     else
         printf "${RED}${BOLD}Error: Plugin installation failed${NC}\n"
-        exit 1
+        exit 0
     fi
 fi
 
