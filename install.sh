@@ -39,8 +39,8 @@ printf "${BLUE}Creating project directories...${NC}\n"
 mkdir -p docs/tasks/completed
 printf "  ${GREEN}✓${NC} docs/tasks/completed/\n"
 
-mkdir -p scripts
-printf "  ${GREEN}✓${NC} scripts/\n"
+# mkdir -p scripts
+# printf "  ${GREEN}✓${NC} scripts/\n"
 
 mkdir -p tests
 printf "  ${GREEN}✓${NC} tests/\n"
@@ -50,7 +50,7 @@ printf "${GREEN}${BOLD}Directories created successfully!${NC}\n"
 printf "\n"
 
 # Update OpenCode
-printf "${CYAN}${BOLD}Step 1/2: Checking OpenCode...${NC}\n"
+printf "${CYAN}${BOLD}Step 1/2: Installing / Updating OpenCode and some support tools...${NC}\n"
 printf "${CYAN}------------------------------${NC}\n"
 if [ -f ".template_scripts/update-opencode.sh" ]; then
     sh .template_scripts/update-opencode.sh
@@ -65,7 +65,7 @@ fi
 printf "\n"
 
 # Update BMAD Method
-printf "${CYAN}${BOLD}Step 2/2: Checking BMAD Method...${NC}\n"
+printf "${CYAN}${BOLD}Step 2/2: Installing BMAD Method...${NC}\n"
 printf "${CYAN}----------------------------------${NC}\n"
 if [ -f ".template_scripts/update-bmad-method.sh" ]; then
     sh .template_scripts/update-bmad-method.sh
