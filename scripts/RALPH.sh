@@ -5,7 +5,7 @@
 AGENT="build"
 
 # Default model
-DEFAULT_MODEL="synthetic/hf:moonshotai/Kimi-K2.5"
+DEFAULT_MODEL="synthetic/hf:nvidia/Kimi-K2.5-NVFP4"
 
 # ANSI styles
 RESET="\033[0m"
@@ -22,16 +22,13 @@ select_model() {
     local models
     models=(
         "synthetic/hf:moonshotai/Kimi-K2.5"
+        "synthetic/hf:nvidia/Kimi-K2.5-NVFP4"
         "synthetic/hf:zai-org/GLM-4.7"
         "synthetic/hf:deepseek-ai/DeepSeek-V3.2"
         "synthetic/hf:MiniMaxAI/MiniMax-M2.1"
-        "openai/gpt-5.2-codex"
-        "google/antigravity-gemini-3-flash"
-        "google/antigravity-gemini-3-pro"
-        "google/antigravity-claude-sonnet-4-5"
+        "openai/gpt-5.3-codex"
         "opencode/kimi-k2.5-free"
-        "opencode/glm-4.7-free"
-        "opencode/minimax-m2.1-free"
+        "opencode/minimax-m2.5-free"
     )
 
     echo "" >&2
