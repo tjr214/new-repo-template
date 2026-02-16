@@ -110,46 +110,46 @@ fi
 # ============================================================================
 # Install/Update Antigravity OAuth Plugin
 # ============================================================================
-printf "\n${CYAN}${BOLD}Checking Antigravity OAuth Plugin...${NC}\n"
+# printf "\n${CYAN}${BOLD}Checking Antigravity OAuth Plugin...${NC}\n"
 
-# Check if the plugin is already installed
-if npm list -g opencode-antigravity-auth --depth=0 &> /dev/null; then
-    # Get current version
-    CURRENT_PLUGIN_VERSION=$(npm list -g opencode-antigravity-auth --depth=0 2>/dev/null | grep opencode-antigravity-auth | sed 's/.*@//' | tr -d '\n')
-    printf "${BLUE}Antigravity OAuth Plugin is already installed ${NC}(Version: ${BOLD}%s${NC})\n" "$CURRENT_PLUGIN_VERSION"
-    printf "${YELLOW}Updating Antigravity OAuth Plugin...${NC}\n"
+# # Check if the plugin is already installed
+# if npm list -g opencode-antigravity-auth --depth=0 &> /dev/null; then
+#     # Get current version
+#     CURRENT_PLUGIN_VERSION=$(npm list -g opencode-antigravity-auth --depth=0 2>/dev/null | grep opencode-antigravity-auth | sed 's/.*@//' | tr -d '\n')
+#     printf "${BLUE}Antigravity OAuth Plugin is already installed ${NC}(Version: ${BOLD}%s${NC})\n" "$CURRENT_PLUGIN_VERSION"
+#     printf "${YELLOW}Updating Antigravity OAuth Plugin...${NC}\n"
     
-    # Update plugin
-    npm install -g opencode-antigravity-auth@beta
+#     # Update plugin
+#     npm install -g opencode-antigravity-auth@beta
     
-    # Get new version
-    if [ $? -eq 0 ]; then
-        NEW_PLUGIN_VERSION=$(npm list -g opencode-antigravity-auth --depth=0 2>/dev/null | grep opencode-antigravity-auth | sed 's/.*@//' | tr -d '\n')
-        if [ "$CURRENT_PLUGIN_VERSION" = "$NEW_PLUGIN_VERSION" ]; then
-            printf "${GREEN}Antigravity OAuth Plugin is already up to date ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_PLUGIN_VERSION"
-        else
-            printf "${GREEN}${BOLD}Antigravity OAuth Plugin updated successfully!${NC}\n"
-            printf "${BLUE}Previous version: ${NC}%s\n" "$CURRENT_PLUGIN_VERSION"
-            printf "${BLUE}Current version: ${NC}${BOLD}%s${NC}\n" "$NEW_PLUGIN_VERSION"
-        fi
-    else
-        printf "${RED}${BOLD}Error: Plugin update failed${NC}\n"
-        # exit 0
-    fi
-else
-    printf "${YELLOW}Antigravity OAuth Plugin not found. Installing...${NC}\n"
+#     # Get new version
+#     if [ $? -eq 0 ]; then
+#         NEW_PLUGIN_VERSION=$(npm list -g opencode-antigravity-auth --depth=0 2>/dev/null | grep opencode-antigravity-auth | sed 's/.*@//' | tr -d '\n')
+#         if [ "$CURRENT_PLUGIN_VERSION" = "$NEW_PLUGIN_VERSION" ]; then
+#             printf "${GREEN}Antigravity OAuth Plugin is already up to date ${NC}(Version: ${BOLD}%s${NC})\n" "$NEW_PLUGIN_VERSION"
+#         else
+#             printf "${GREEN}${BOLD}Antigravity OAuth Plugin updated successfully!${NC}\n"
+#             printf "${BLUE}Previous version: ${NC}%s\n" "$CURRENT_PLUGIN_VERSION"
+#             printf "${BLUE}Current version: ${NC}${BOLD}%s${NC}\n" "$NEW_PLUGIN_VERSION"
+#         fi
+#     else
+#         printf "${RED}${BOLD}Error: Plugin update failed${NC}\n"
+#         # exit 0
+#     fi
+# else
+#     printf "${YELLOW}Antigravity OAuth Plugin not found. Installing...${NC}\n"
     
-    # Install plugin
-    npm install -g opencode-antigravity-auth@beta
+#     # Install plugin
+#     npm install -g opencode-antigravity-auth@beta
     
-    if [ $? -eq 0 ]; then
-        INSTALLED_PLUGIN_VERSION=$(npm list -g opencode-antigravity-auth --depth=0 2>/dev/null | grep opencode-antigravity-auth | sed 's/.*@//' | tr -d '\n')
-        printf "${GREEN}${BOLD}Antigravity OAuth Plugin installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$INSTALLED_PLUGIN_VERSION"
-    else
-        printf "${RED}${BOLD}Error: Plugin installation failed${NC}\n"
-        # exit 0
-    fi
-fi
+#     if [ $? -eq 0 ]; then
+#         INSTALLED_PLUGIN_VERSION=$(npm list -g opencode-antigravity-auth --depth=0 2>/dev/null | grep opencode-antigravity-auth | sed 's/.*@//' | tr -d '\n')
+#         printf "${GREEN}${BOLD}Antigravity OAuth Plugin installed successfully!${NC} ${NC}(Version: ${BOLD}%s${NC})\n" "$INSTALLED_PLUGIN_VERSION"
+#     else
+#         printf "${RED}${BOLD}Error: Plugin installation failed${NC}\n"
+#         # exit 0
+#     fi
+# fi
 
 # ============================================================================
 # Install/Update ripgrep
