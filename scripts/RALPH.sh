@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Which agent should OpenCode use to do the work?
-# AGENT="bmad-master"
-AGENT="build"
+AGENT="bmad-master"
+# AGENT="build"
 BMAD_AGENT="bmad-master"
 
 # Default model
 DEFAULT_MODEL="synthetic/hf:nvidia/Kimi-K2.5-NVFP4"
 
 # Maximum number of iterations
-MAX_ITERATIONS=5
+MAX_ITERATIONS=20
 
 # ANSI styles
 RESET="\033[0m"
@@ -25,14 +25,17 @@ MAGENTA="\033[35m"
 select_model() {
     local models
     models=(
-        "synthetic/hf:moonshotai/Kimi-K2.5"
+        "openai/gpt-5.3-codex"
         "synthetic/hf:nvidia/Kimi-K2.5-NVFP4"
+        "synthetic/hf:moonshotai/Kimi-K2.5"
         "synthetic/hf:zai-org/GLM-4.7"
+        # "synthetic/hf:zai-org/GLM-5"
         "synthetic/hf:deepseek-ai/DeepSeek-V3.2"
         "synthetic/hf:MiniMaxAI/MiniMax-M2.1"
-        "openai/gpt-5.3-codex"
+        "synthetic/hf:Qwen/Qwen3-Coder-480B-A35B-Instruct"
         "opencode/kimi-k2.5-free"
         "opencode/minimax-m2.5-free"
+        "opencode/glm-5-free"
     )
 
     echo "" >&2
@@ -197,15 +200,23 @@ build_closeout_prompt() {
     local task_name="$1"
     local timestamp="$2"
     local task_visualization="$3"
+    local task_file="$4"
 
     cat <<EOF
+CH. Load the Bmad-Master.
+
 You are running the automated closeout phase for a completed implementation plan.
 
 Context:
 - Timestamp: ${timestamp}
 - Task name: ${task_name}
+- Task file: ${task_file}
+
+Read and study ${task_file} in full before executing closeout actions.
 
 ${task_visualization}
+
+---
 
 MANDATORY CLOSEOUT CONTRACT
 1) BMAD epic and story artifacts are source-of-truth. Keep them intact.
@@ -213,30 +224,80 @@ MANDATORY CLOSEOUT CONTRACT
 3) If product/architecture context is needed, read BMAD markdown files by path.
 4) Reconcile implementation state back into BMAD tracking.
 
-Closeout Checklist (execute in order):
-1. Verify completion state
-   - Read the task status visualization provided above and confirm task/phases/steps/instructions are all "done".
-   - Confirm no items are "blocked".
+Strict Closeout Sequence (execute in exact order):
+1. Verify task completion state
+   - Read the task status visualization and the task YAML.
+   - Confirm task/phases/steps/instructions are all "done".
+   - Confirm no item is "blocked".
+   - If any item is not done, stop closeout and report exactly which IDs are incomplete.
 
 2. Synchronize BMAD execution records
-   - Ensure story statuses are aligned with completed implementation.
-   - Ensure epic status is aligned for this exported epic.
-   - Ensure _bmad-output/implementation-artifacts/sprint-status.yaml reflects final story/epic states.
+   - Align story statuses with implementation reality.
+   - Align epic status for this exported epic.
+   - Update _bmad-output/implementation-artifacts/sprint-status.yaml to final story/epic states.
+   - Do not make assumption-based status changes; every status update must be evidence-driven.
 
 3. Update checkpoint documentation
    - Update PROGRESS.md.
    - Update docs/LIVING_DOCS.md.
    - Update docs/ARCHITECTURE.md if implementation changed architecture details.
-   - Create a NEW session summary file (do not overwrite any existing SESSION_X_SUMMARY.md).
+   - Create a NEW session summary file (never overwrite any existing SESSION_X_SUMMARY.md).
 
-4. Validate project state
+4. Validate integrity gates
+   - Validate task YAML with .template_scripts/validate_template.py.
    - Run relevant test/lint/build checks used by this repo.
+   - If any validation fails, do not claim closeout complete; report concrete failures and required follow-up.
+
+5. Final consistency check
+   - Confirm BMAD statuses, documentation updates, and validation/test outcomes are all in sync.
+   - Only then report closeout complete.
 
 Important constraints:
 - No destructive cleanup of BMAD artifacts.
+- No cleanup actions during closeout (delete/move/archive/rename are forbidden).
 - No placeholders; use concrete file paths and concrete updates.
 - Keep responses concise and action-oriented.
 EOF
+}
+
+# Prompt to archive completed task file
+archive_completed_task_file() {
+    local task_file="$1"
+    local completed_dir="docs/tasks/completed"
+    local archive_choice
+
+    if [[ "$task_file" == "$completed_dir"/* ]]; then
+        echo -e "${DIM}Task file is already in ${completed_dir}.${RESET}"
+        return 0
+    fi
+
+    read -r -p "Archive completed task file to ${completed_dir}? [y/N]: " archive_choice
+
+    if [[ ! "$archive_choice" =~ ^([Yy]|[Yy][Ee][Ss])$ ]]; then
+        echo -e "${DIM}Task file left in place:${RESET} ${YELLOW}${task_file}${RESET}"
+        return 0
+    fi
+
+    mkdir -p "$completed_dir"
+
+    local task_basename
+    task_basename=$(basename "$task_file")
+
+    local target_path="$completed_dir/$task_basename"
+    if [ -e "$target_path" ]; then
+        local timestamp_suffix
+        timestamp_suffix=$(date "+%Y%m%d-%H%M%S")
+        target_path="$completed_dir/${task_basename%.yaml}-${timestamp_suffix}.yaml"
+        echo -e "${YELLOW}Existing archive detected. Using:${RESET} ${target_path}"
+    fi
+
+    if mv "$task_file" "$target_path"; then
+        echo -e "${GREEN}Archived task file:${RESET} ${YELLOW}${target_path}${RESET}"
+        TASK_FILE="$target_path"
+    else
+        echo -e "${RED}Failed to archive task file:${RESET} ${YELLOW}${task_file}${RESET}"
+        return 1
+    fi
 }
 
 # Build the prompt for each iterative loop
@@ -244,15 +305,65 @@ build_prompt() {
     local task_name="$1"
     local timestamp="$2"
     local task_visualization="$3"
+    local task_file="$4"
 
     cat <<EOF
-You are running...
+CH. First, load the Bmad-Master.
 
-Context:
-- Timestamp: ${timestamp}
-- Task name: ${task_name}
+1) Task Context (The Who)
+You are the implementation agent operating inside of a Ralph agentic coding loop-harness.
+Your mission is to execute the task plan safely and incrementally while keeping task status and BMAD tracking aligned.
 
-${task_visualization}
+2) Background Data / Context
+<timestamp>${timestamp}</timestamp>
+<task_name>${task_name}</task_name>
+<task_file>${task_file}</task_file>
+<task_yaml_instruction>Read and study ${task_file} in full before any implementation work.</task_yaml_instruction>
+<task_visualization>${task_visualization}
+</task_visualization>
+<bmad_context_paths>
+- _bmad-output/implementation-artifacts/sprint-status.yaml
+- _bmad-output/implementation-artifacts/*.md
+- _bmad-output/planning-artifacts/*epic*.md
+- _bmad-output/planning/*epic*.md
+- _bmad-output/planning-artifacts/prd.md
+- _bmad-output/planning/prd.md
+- _bmad-output/planning-artifacts/architecture.md
+- _bmad-output/planning/architecture.md
+</bmad_context_paths>
+<bmad_rules>
+- BMAD epic and story artifacts are source-of-truth.
+- Do not delete, move, archive, or rename BMAD artifacts.
+- Use BMAD PRD and architecture markdown as direct read-only context.
+</bmad_rules>
+
+3) Detailed Task Description
+- Execute with strict YELLOW-RED-GREEN-BLUE TDD discipline.
+- Deterministic work selection:
+  - If any instruction is active, work the lowest instruction ID first.
+  - Else pick the first eligible pending instruction by ID order and set it to active.
+  - Process exactly one instruction per loop iteration unless blocked.
+- Status transition rules (strict):
+  - pending -> active before implementation begins.
+  - active -> done only after tests pass, acceptance criteria are satisfied, and validations pass.
+  - pending or active -> blocked only with a concrete blocked_reason that includes dependency, evidence, and next action.
+  - Never skip directly from pending -> done.
+- Blocked discipline:
+  - Do not force work on blocked instructions.
+  - Do not clear blocked status without concrete evidence that the blocker is resolved.
+- YELLOW: read all directly relevant code/tests/config before writing changes.
+- RED: create or update tests first and confirm expected failures when applicable.
+- GREEN: implement only what is required for current tests and acceptance criteria.
+- BLUE: refactor safely, rerun validations, and verify no regressions.
+- Keep task status fields in ${task_file} accurate at instruction/step/phase/task levels.
+- Validate ${task_file} after status updates with .template_scripts/validate_template.py.
+- Preserve project conventions and do not introduce placeholders. Output full code blocks for search/replace operations.
+
+4) Thinking Directive (Measure Twice, Cut Once)
+Take all the time you need to think through dependencies and sequencing before acting.
+Before writing or modifying any code, complete a full context pass by reading everything required: the task YAML, the visualization context, BMAD epic/story artifacts, sprint status, and relevant PRD/architecture documents.
+If YELLOW discovery identifies additional directly related files, read those too before implementing.
+Do not start implementation until the read-and-study pass is complete.
 
 EOF
 }
@@ -296,10 +407,13 @@ while :; do
     echo "$VISUALIZATION_OUTPUT"
 
     # Build the Prompts
-    # TODO -- write the build_prompt() function and use it here. Assign the output to PROMPT instead of what we have below:
-    PROMPT=$(build_prompt "$TASK_NAME" "$TIMESTAMP" "$VISUALIZATION_OUTPUT")
+    PROMPT=$(build_prompt "$TASK_NAME" "$TIMESTAMP" "$VISUALIZATION_OUTPUT" "$TASK_FILE")
+    CLOSEOUT_PROMPT=$(build_closeout_prompt "$TASK_NAME" "$TIMESTAMP" "$VISUALIZATION_OUTPUT" "$TASK_FILE")
 
-    CLOSEOUT_PROMPT=$(build_closeout_prompt "$TASK_NAME" "$TIMESTAMP" "$VISUALIZATION_OUTPUT")
+    # echo "PROMPT: $PROMPT"
+    # echo "----------------------------------------------------------------"
+    # echo "CLOSEOUT_PROMPT: $CLOSEOUT_PROMPT"
+    # break
     
     # Check if task is done
     if [ "$TASK_STATUS" = "done" ]; then
@@ -308,8 +422,9 @@ while :; do
         echo -e "${BOLD}${GREEN}🎉 Task completed:${RESET} $TASK_NAME"
         echo -e "${BOLD}${GREEN}==========================================${RESET}"
         echo ""
-        # TODO: build closeout prompt and run the agent to sync back up with the BMad System.
+        # Run the agent to re-sync our work with the Bmad System
         opencode run -m "$MODEL" --title "RALPH: $TASK_NAME [CLOSEOUT PHASE]" --agent "$BMAD_AGENT" "$CLOSEOUT_PROMPT"
+        archive_completed_task_file "$TASK_FILE"
         break
     fi
     
@@ -319,7 +434,7 @@ while :; do
     echo -e "${GREEN}Selected Model:${RESET} ${YELLOW}${MODEL}${RESET}"
 
     # Run opencode with current session title
-    # opencode run -m "$MODEL" --title "RALPH: $TASK_NAME [$ITERATION_COUNTER]" --agent "$AGENT" $PROMPT
+    opencode run -m "$MODEL" --title "RALPH: $TASK_NAME [$ITERATION_COUNTER]" --agent "$AGENT" $PROMPT
     echo ""
     echo -e "${DIM}----------------------------------------------------------${RESET}"
     echo ""
