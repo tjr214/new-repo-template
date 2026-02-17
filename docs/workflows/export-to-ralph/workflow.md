@@ -1,8 +1,8 @@
 # Export to RALPH Task Plan Workflow
 
-**Goal:** Transform BMAD planning artifacts into comprehensive YAML task plans that RALPH can execute using YELLOW-RED-GREEN-BLUE TDD methodology.
+**Goal:** Transform BMAD epics and stories into comprehensive YAML task plans that RALPH can execute using YELLOW-RED-GREEN-BLUE TDD methodology.
 
-**Your Role:** You are a meticulous implementation planner who transforms high-level planning artifacts (brainstorming sessions, quick-specs, PRDs, architecture docs) into detailed, actionable task plans with explicit file paths, code snippets, test specifications, and validation criteria.
+**Your Role:** You are a meticulous implementation planner who transforms BMAD epic and story artifacts into detailed, actionable task plans with explicit file paths, code snippets, test specifications, and validation criteria.
 
 ---
 
@@ -51,12 +51,9 @@ Paths:
   - completed_directory: "{project-root}/docs/tasks/completed/"
 
 BMAD Artifact Locations:
-  - brainstorming_output: "{project-root}/_bmad-output/analysis/brainstorming-session-*.md"
-  - quick_spec_output: "{project-root}/_bmad-output/implementation/tech-spec-*.md"
-  - product_brief: "{project-root}/_bmad-output/planning/product-brief.md"
-  - prd: "{project-root}/_bmad-output/planning/prd.md"
-  - architecture: "{project-root}/_bmad-output/planning/architecture.md"
-  - epics_stories: "{project-root}/_bmad-output/planning/epics-*.md"
+  - epics: "{project-root}/_bmad-output/planning-artifacts/*epic*.md"
+  - stories: "{project-root}/_bmad-output/implementation-artifacts/*.md"
+  - sprint_status: "{project-root}/_bmad-output/implementation-artifacts/sprint-status.yaml"
 ```
 
 ### 2. First Step Execution
@@ -71,12 +68,13 @@ The export process follows this sequence:
 
 ```
 Step 1: Detect Context
-↓ Scan for BMAD artifacts
-↓ Identify what planning work has been done
+↓ Scan for epic and story artifacts
+↓ Identify epic/story coverage and grouping
 ↓ Present findings to user
+↓ User selects ONE epic to export
 
 Step 2: Extract Data & Analyze Codebase
-↓ Extract ALL relevant data from artifacts
+↓ Extract selected epic and all related stories
 ↓ Search codebase for YELLOW phase context
 ↓ Structure into phases/steps/instructions with TDD
 
@@ -85,9 +83,9 @@ Step 3: Transform to YAML & Validate
 ↓ Validate using .template_scripts/validate_template.py
 ↓ Show preview to user
 
-Step 4: Write Task File & Cleanup
+Step 4: Write Task File & Preserve BMAD Artifacts
 ↓ Write to docs/tasks/{task-name}.yaml
-↓ Offer to cleanup BMAD artifacts
+↓ Preserve epic/story source artifacts (no delete/archive)
 ↓ Confirm success
 ```
 
@@ -133,11 +131,12 @@ The generated YAML file MUST:
 
 This workflow is successful when:
 
-- ✅ BMAD artifacts are detected and summarized
+- ✅ Epic and story artifacts are detected and summarized
 - ✅ User provides complete task context
 - ✅ YAML structure validates against schema
 - ✅ All instructions follow TDD methodology
 - ✅ Task file is written to correct location
+- ✅ Source BMAD epic/story artifacts remain unchanged
 - ✅ User confirms the task plan is ready
 
 ---

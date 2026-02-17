@@ -2,65 +2,62 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- 🔍 **DETECTIVE WORK**: Scan the project for BMAD planning artifacts
+- 🔍 **DETECTIVE WORK**: Scan the project for BMAD epic and story artifacts
 - 📊 **REPORT FINDINGS**: Present what was found to the user
 - 🚫 **NO ASSUMPTIONS**: Only report what actually exists
-- ⏸️ **WAIT FOR CONFIRMATION**: User must confirm which artifacts to use
+- ⏸️ **WAIT FOR CONFIRMATION**: User must confirm which epic to export
 
 ---
 
 ## YOUR TASK:
 
-Scan the project for BMAD planning artifacts and present findings to the user. This gives context about what planning work has already been done.
+Scan the project for BMAD epics and stories and present findings to the user. This identifies which epic should be exported into a single RALPH task YAML.
 
 ---
 
 ## EXECUTION SEQUENCE:
 
-### 1. Scan for BMAD Artifacts
+### 1. Scan for Epic and Story Artifacts
 
-Search for planning artifacts in these locations:
+Search for implementation-planning artifacts in these locations:
 
-**Check for brainstorming sessions:**
+**Check for epic files (primary path):**
+
 ```bash
-find _bmad-output/analysis -name "brainstorming-session-*.md" 2>/dev/null | head -10
+find _bmad-output/planning-artifacts -name "*epic*.md" 2>/dev/null
 ```
 
-**Check for quick-spec tech-specs:**
+**Check for epic files (legacy fallback path):**
+
 ```bash
-find _bmad-output/implementation -name "tech-spec-*.md" 2>/dev/null | head -10
+find _bmad-output/planning -name "*epic*.md" 2>/dev/null
 ```
 
-**Check for product briefs:**
+**Check for story files:**
+
 ```bash
-find _bmad-output/planning -name "product-brief.md" 2>/dev/null
+find _bmad-output/implementation-artifacts -name "*.md" 2>/dev/null
 ```
 
-**Check for PRDs:**
-```bash
-find _bmad-output/planning -name "prd.md" 2>/dev/null
-```
+**Check for sprint status (optional context):**
 
-**Check for architecture docs:**
 ```bash
-find _bmad-output/planning -name "architecture.md" 2>/dev/null
-```
-
-**Check for epics and stories:**
-```bash
-find _bmad-output/planning -name "epics-*.md" 2>/dev/null | head -10
+find _bmad-output/implementation-artifacts -name "sprint-status.yaml" 2>/dev/null
 ```
 
 ---
 
-### 2. Analyze Findings
+### 2. Analyze Findings and Group by Epic
 
 For each artifact found, extract key information:
 
 - **File name** and **path**
 - **Last modified date** (use `ls -lh` or `stat`)
 - **Brief summary** (read first 50 lines, extract title/description)
-- **Relevant sections** (requirements, features, decisions)
+- **Epic/story identifiers**:
+  - Epic from headings like `## Epic 2` or filename hints
+  - Story keys like `2-1-story-name.md`
+- **Grouping**: map each discovered story to its epic number
 
 ---
 
@@ -69,91 +66,76 @@ For each artifact found, extract key information:
 Report what was found in a structured format:
 
 ```markdown
-## 🔍 BMAD Artifacts Detected
+## 🔍 BMAD Epic/Story Artifacts Detected
 
-### Brainstorming Sessions:
-- [X] Found: brainstorming-session-2026-02-03.md
-  - Topic: [extracted topic]
-  - Date: 2026-02-03
-  - Ideas generated: [count if available]
-  
-### Quick-Spec Documents:
-- [X] Found: tech-spec-logging-feature.md
-  - Feature: [extracted feature name]
-  - Date: 2026-02-02
-  - Status: [extracted status]
+### Epics:
 
-### Product Requirements:
-- [ ] Product Brief: Not found
-- [X] PRD: prd.md (Last updated: 2026-01-28)
-- [X] Architecture: architecture.md (Last updated: 2026-01-29)
+- [x] Found: epics-platform-foundation.md
+  - Path: \_bmad-output/planning-artifacts/epics-platform-foundation.md
+  - Last modified: [timestamp]
+  - Epics detected in file: [count/list]
 
-### Epics & Stories:
-- [X] Found: epics-sprint-1.md, epics-sprint-2.md
-  - Total epics: [count]
-  
+### Stories:
+
+- [x] Found story files in \_bmad-output/implementation-artifacts/
+  - Total stories: [count]
+  - Grouped by epic:
+    - Epic 1: [count]
+    - Epic 2: [count]
+
+### Sprint Status:
+
+- [x] sprint-status.yaml found (optional context)
+- [ ] sprint-status.yaml not found
+
 ---
 
 ## 📋 Summary
 
-Found **[N]** planning artifacts total:
-- Brainstorming: [count]
-- Specs: [count]
-- Planning docs: [count]
-- Epics: [count]
+Found **[N]** relevant artifacts total:
+
+- Epic files: [count]
+- Story files: [count]
+- Sprint status file: [found/not found]
 ```
 
 ---
 
-### 4. Ask User Which Artifacts to Use
+### 4. Ask User Which Epic to Export
 
-Present a menu for the user to select:
+Present a menu for the user to select a single epic for export:
 
 ```markdown
-**Which planning artifacts should inform the task plan?**
+**Which epic should be exported to a RALPH task plan?**
 
-Select all that apply (you can choose multiple):
+Select ONE:
 
-[1] Brainstorming session: {name} (Most recent ideation)
-[2] Quick-Spec: {name} (Implementation spec)
-[3] Product Brief (High-level vision)
-[4] PRD (Detailed requirements)
-[5] Architecture Doc (Technical decisions)
-[6] Epics & Stories (User stories and acceptance criteria)
-[7] None - I'll provide details directly during extraction
-[8] All of the above
+[1] Epic 1 - {epic_title_1} ({story_count_1} stories)
+[2] Epic 2 - {epic_title_2} ({story_count_2} stories)
+[3] Epic 3 - {epic_title_3} ({story_count_3} stories)
+[a] Export all epics as separate YAML files
+[x] Cancel workflow
 
-**Enter selections** (comma-separated, e.g., "2,4,5" or "8" for all):
+**Enter selection** (e.g., "2" or "a"):
 ```
 
 ---
 
-### 5. Load Selected Artifacts
+### 5. Load Selected Epic and Related Stories
 
-Based on user selection, read the chosen artifact files:
+Based on user selection, load:
 
-- Use the Read tool to load full contents
-- Extract relevant sections (requirements, features, decisions, test criteria)
-- Store in memory for use in Step 2 (Extract & Analyze)
+- The selected epic section/file
+- All related story files for that epic (matching story prefix like `{epic_num}-*.md`)
+- `sprint-status.yaml` if available (for status context only)
 
-**Example extraction:**
+Use the Read tool to load full contents and store in memory for Step 2.
 
-From Quick-Spec:
-- Task name/feature name
-- Requirements and acceptance criteria
-- File paths mentioned
-- Test specifications
-- Performance targets
+**Important rules:**
 
-From PRD:
-- Feature descriptions
-- Success criteria
-- Constraints
-
-From Architecture:
-- Technical decisions
-- Patterns to follow
-- Integration points
+- One YAML output should represent one epic and all its stories
+- Do not load unrelated epics unless user selected `a`
+- Preserve source BMAD artifacts unchanged
 
 ---
 
@@ -163,11 +145,12 @@ From Architecture:
 ✅ **Context Loaded Successfully**
 
 Loaded artifacts:
-- [Artifact 1]: {summary}
-- [Artifact 2]: {summary}
-- [Artifact 3]: {summary}
 
-This context will be used to pre-fill task plan details in Step 2.
+- [Epic]: {epic_file_or_section_summary}
+- [Stories]: {story_count} files loaded for epic {epic_num}
+- [Sprint Status]: {loaded_or_not_found}
+
+This context will be used to generate a RALPH task plan for the selected epic in Step 2.
 
 **Ready to proceed to extraction?**
 [c] Continue to Step 2
@@ -180,14 +163,17 @@ This context will be used to pre-fill task plan details in Step 2.
 ### 7. Handle User Selection
 
 **If user selects 'c' (Continue):**
+
 - Load and execute `{project-root}/docs/workflows/export-to-ralph/steps/step-02-extract.md`
 - Pass loaded artifact context to Step 2
 
 **If user selects 'r' (Re-scan):**
+
 - Re-execute Step 1 from the beginning
 - Allow different artifact selection
 
 **If user selects 'x' (Cancel):**
+
 - Exit workflow gracefully
 - Confirm cancellation with user
 
@@ -200,38 +186,36 @@ When loading Step 2, ensure these are in memory:
 ```yaml
 loaded_artifacts:
   - name: "{artifact_name}"
-    type: "brainstorming|quick-spec|prd|architecture|epics"
+    type: "epic|story|sprint-status"
     path: "{full_path}"
     key_sections:
-      task_name: "{extracted_name}"
-      description: "{extracted_description}"
-      requirements: ["{req1}", "{req2}"]
-      technical_decisions: ["{decision1}", "{decision2}"]
-      file_paths: ["{path1}", "{path2}"]
-      test_criteria: ["{criteria1}", "{criteria2}"]
-      performance_targets: ["{target1}", "{target2}"]
+      epic_number: "{extracted_epic_number}"
+      epic_title: "{extracted_epic_title}"
+      story_keys: ["{story1_key}", "{story2_key}"]
+      acceptance_criteria: ["{criteria1}", "{criteria2}"]
+      dependencies: ["{dependency1}", "{dependency2}"]
 ```
 
 ---
 
 ## SUCCESS CRITERIA:
 
-✅ All BMAD artifact directories scanned  
+✅ Epic and story artifact directories scanned  
 ✅ Found artifacts presented to user clearly  
-✅ User selects which artifacts to use  
-✅ Selected artifacts loaded into memory  
+✅ User selects epic scope to export  
+✅ Selected epic and its stories loaded into memory  
 ✅ Context prepared for Step 2 extraction  
-✅ User confirms ready to continue  
+✅ User confirms ready to continue
 
 ---
 
 ## FAILURE MODES TO AVOID:
 
-❌ Not checking if _bmad-output directory exists  
+❌ Not checking if \_bmad-output directory exists  
 ❌ Assuming artifacts exist without verifying  
-❌ Loading all artifacts without user confirmation  
+❌ Loading unrelated epics without user confirmation  
 ❌ Missing key sections during extraction  
-❌ Not passing context to Step 2  
+❌ Not passing context to Step 2
 
 ---
 

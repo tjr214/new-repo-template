@@ -1,11 +1,10 @@
-# Step 4: Write Task File and Cleanup Artifacts
+# Step 4: Write Task File and Finalize Export
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
 - 📝 **WRITE FILE**: Save validated YAML to docs/tasks/
 - ✅ **VERIFY SUCCESS**: Confirm file was written correctly
-- 🧹 **CLEANUP ARTIFACTS**: Offer to delete/archive used BMAD artifacts
-- 🔒 **SAFETY CHECK**: Verify artifacts aren't needed by BMAD workflows
+- 🔒 **PRESERVE BMAD SOURCES**: Never delete/archive epic and story artifacts during export
 - 🎉 **COMPLETE**: Confirm workflow success
 
 ---
@@ -33,7 +32,7 @@ loaded_artifacts: # From Step 1
 
 ## YOUR TASK:
 
-Write the validated YAML task file, verify success, and offer to cleanup BMAD artifacts that were used to generate the task.
+Write the validated YAML task file, verify success, and confirm that BMAD epic/story artifacts remain unchanged.
 
 ---
 
@@ -173,215 +172,25 @@ RALPH can now execute this task plan using:
 
 ---
 
-### 7. Check BMAD Workflow Dependencies
+### 7. Preserve BMAD Artifacts
 
-Before offering cleanup, check if any BMAD workflows reference the artifacts:
+Do not modify, delete, move, or archive any BMAD epic/story artifacts.
 
-```bash
-# Search BMAD workflows for references to artifacts
-cd _bmad
-for artifact_path in {loaded_artifact_paths}; do
-  artifact_name=$(basename "$artifact_path")
-  echo "Checking for references to: $artifact_name"
-
-  # Search workflow files
-  rg -l "$artifact_name" . 2>/dev/null || echo "No references found"
-done
-cd ..
-```
-
-**Safety determination:**
-
-- ✅ **SAFE TO DELETE** if no references found
-- ⚠️ **CAUTION** if references exist (show which workflows reference them)
-
----
-
-### 8. Offer Artifact Cleanup
+Confirm preservation explicitly:
 
 ```markdown
----
+✅ **BMAD Source Artifacts Preserved**
 
-## 🧹 Cleanup BMAD Artifacts
+The export workflow does not perform cleanup.
+Epic and story source files remain in place for BMAD tracking and future updates.
 
-The following artifacts were used to generate this task plan:
-
-{For each artifact:}
-
-- 📄 `{artifact_path}`
-  - Type: {artifact_type}
-  - Size: {file_size}
-  - Last modified: {mod_date}
-  - References: {workflow_references or "None found"}
-
-### Cleanup Options:
-
-**[d] Delete all artifacts**
-
-- Permanently remove the files listed above
-- Safe because task plan now contains all information
-- Cleanup status: {SAFE or CAUTION}
-
-**[a] Archive artifacts**
-
-- Move to `_bmad-output/archive/{date}/`
-- Preserves artifacts for future reference
-- Recommended if workflows reference them
-
-**[k] Keep artifacts**
-
-- Leave files as-is
-- Good for manual review/verification
-
-**[s] Selective cleanup**
-
-- Choose which artifacts to delete/archive
-
-**[x] Skip cleanup**
-
-- Don't modify any artifacts
-
-**Your choice:**
+Preserved artifacts:
+{list loaded artifact paths}
 ```
 
 ---
 
-### 9. Handle Cleanup Selection
-
-#### **If user selects 'd' (Delete):**
-
-**If CAUTION status:**
-
-```markdown
-⚠️ **Warning: Some workflows may reference these artifacts!**
-
-References found:
-
-- {workflow_1} references {artifact_name}
-- {workflow_2} references {artifact_name}
-
-**Are you sure you want to delete?**
-[y] Yes, delete anyway
-[n] No, choose different option
-```
-
-**If user confirms or SAFE status:**
-
-```bash
-# Delete artifacts
-for artifact_path in {loaded_artifact_paths}; do
-  echo "Deleting: $artifact_path"
-  rm "$artifact_path"
-
-  if [ ! -f "$artifact_path" ]; then
-    echo "✅ Deleted successfully"
-  else
-    echo "❌ Failed to delete: $artifact_path"
-  fi
-done
-```
-
-```markdown
-✅ **Artifacts deleted successfully**
-
-Removed {count} files totaling {total_size}
-
-The task plan in `docs/tasks/{filename}.yaml` contains all the information from these artifacts.
-```
-
----
-
-#### **If user selects 'a' (Archive):**
-
-```bash
-# Create archive directory with timestamp
-ARCHIVE_DIR="_bmad-output/archive/$(date +%Y-%m-%d-%H%M%S)"
-mkdir -p "$ARCHIVE_DIR"
-
-# Move artifacts to archive
-for artifact_path in {loaded_artifact_paths}; do
-  echo "Archiving: $artifact_path"
-  mv "$artifact_path" "$ARCHIVE_DIR/"
-
-  if [ -f "$ARCHIVE_DIR/$(basename $artifact_path)" ]; then
-    echo "✅ Archived successfully"
-  else
-    echo "❌ Failed to archive: $artifact_path"
-  fi
-done
-
-# Create archive manifest
-cat > "$ARCHIVE_DIR/MANIFEST.md" << EOF
-# BMAD Artifacts Archive
-
-**Date:** $(date)
-**Task:** {task_name}
-**Task File:** docs/tasks/{filename}.yaml
-
-## Archived Files:
-
-{list each artifact with metadata}
-
-## Reason:
-These artifacts were used to generate the task plan. They have been archived for reference but are no longer needed for implementation.
-EOF
-```
-
-```markdown
-✅ **Artifacts archived successfully**
-
-**Archive location:** `{archive_dir}/`
-
-Contains:
-{list archived files}
-
-A manifest file has been created documenting the archive.
-```
-
----
-
-#### **If user selects 'k' (Keep):**
-
-```markdown
-✅ **Artifacts preserved**
-
-BMAD artifacts will remain in their current locations:
-{list artifact paths}
-
-You can manually review or cleanup later.
-```
-
----
-
-#### **If user selects 's' (Selective):**
-
-```markdown
-**Select artifacts to delete or archive:**
-
-{For each artifact:}
-[{index}] `{artifact_path}`
-Type: {type}, Size: {size}
-References: {count}
-[d] Delete [a] Archive [k] Keep
-
-**Enter selections** (e.g., "1d 2a 3k" or "all-d"):
-```
-
-Process user selections individually.
-
----
-
-#### **If user selects 'x' (Skip):**
-
-```markdown
-✅ **Cleanup skipped**
-
-All BMAD artifacts remain unchanged.
-```
-
----
-
-### 10. Final Summary
+### 8. Final Summary
 
 ````markdown
 ---
@@ -402,28 +211,26 @@ All BMAD artifacts remain unchanged.
 - **Instructions:** {count}
 - **Estimated complexity:** {calculated from instruction count}
 
-### 🧹 Artifact Cleanup:
+### 🔒 Artifact Handling:
 
-- **Action taken:** {deleted/archived/kept/selective}
-- **Files affected:** {count}
+- **Action taken:** preserved (no cleanup)
+- **Files affected:** 0
 
 ### 🚀 Next Steps:
 
-2. **Execute with the Ralph Loop:**
+1. **Execute with the Ralph Loop:**
    ```bash
    ./scripts/RALPH.sh docs/tasks/{filename}.yaml
    ```
-````
 
-3. **Track progress:**
-   - RALPH.sh will update status fields as work progresses
-   - Completed tasks are moved to `docs/tasks/completed/` by the script
+2. **Track progress:**
+    - RALPH.sh will update status fields as work progresses
+    - Completed tasks are moved to `docs/tasks/completed/` by the script
 
 ---
 
 **Workflow complete!** 🧙
-
-```
+````
 
 ---
 
@@ -432,8 +239,7 @@ All BMAD artifacts remain unchanged.
 ✅ YAML file written to docs/tasks/
 ✅ File validates against schema
 ✅ User informed of success
-✅ Cleanup options presented
-✅ User's cleanup choice executed
+✅ BMAD artifacts preserved unchanged
 ✅ Final summary provided
 ✅ Clear next steps given
 
@@ -443,8 +249,7 @@ All BMAD artifacts remain unchanged.
 
 ❌ File not written correctly
 ❌ Validation fails on written file
-❌ Deleting artifacts without user confirmation
-❌ Not checking workflow dependencies before deletion
+❌ Deleting or archiving BMAD epic/story artifacts
 ❌ Missing final summary
 
 ---
@@ -456,4 +261,7 @@ After presenting the final summary, the Export to RALPH workflow is complete!
 The user now has a comprehensive, validated task plan ready for RALPH to execute.
 
 🎉 **Well done!** 🧙
+
+```
+
 ```

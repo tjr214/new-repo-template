@@ -3,9 +3,13 @@
 # Which agent should OpenCode use to do the work?
 # AGENT="bmad-master"
 AGENT="build"
+BMAD_AGENT="bmad-master"
 
 # Default model
 DEFAULT_MODEL="synthetic/hf:nvidia/Kimi-K2.5-NVFP4"
+
+# Maximum number of iterations
+MAX_ITERATIONS=5
 
 # ANSI styles
 RESET="\033[0m"
@@ -174,19 +178,89 @@ except Exception as e:
 EOF
 }
 
+# Function to generate task visualization
+generate_visualization() {
+    local task_file="$1"
+    local visualization_output
+
+    visualization_output=$(python3 .template_scripts/visualize_plan.py "$task_file")
+    local status=$?
+    if [ "$status" -ne 0 ]; then
+        return "$status"
+    fi
+
+    printf '%s' "$visualization_output"
+}
+
+# Build the one-time closeout prompt used after task completion.
+build_closeout_prompt() {
+    local task_name="$1"
+    local timestamp="$2"
+    local task_visualization="$3"
+
+    cat <<EOF
+You are running the automated closeout phase for a completed implementation plan.
+
+Context:
+- Timestamp: ${timestamp}
+- Task name: ${task_name}
+
+${task_visualization}
+
+MANDATORY CLOSEOUT CONTRACT
+1) BMAD epic and story artifacts are source-of-truth. Keep them intact.
+2) DO NOT delete, move, archive, or rename BMAD epic/story artifacts.
+3) If product/architecture context is needed, read BMAD markdown files by path.
+4) Reconcile implementation state back into BMAD tracking.
+
+Closeout Checklist (execute in order):
+1. Verify completion state
+   - Read the task status visualization provided above and confirm task/phases/steps/instructions are all "done".
+   - Confirm no items are "blocked".
+
+2. Synchronize BMAD execution records
+   - Ensure story statuses are aligned with completed implementation.
+   - Ensure epic status is aligned for this exported epic.
+   - Ensure _bmad-output/implementation-artifacts/sprint-status.yaml reflects final story/epic states.
+
+3. Update checkpoint documentation
+   - Update PROGRESS.md.
+   - Update docs/LIVING_DOCS.md.
+   - Update docs/ARCHITECTURE.md if implementation changed architecture details.
+   - Create a NEW session summary file (do not overwrite any existing SESSION_X_SUMMARY.md).
+
+4. Validate project state
+   - Run relevant test/lint/build checks used by this repo.
+
+Important constraints:
+- No destructive cleanup of BMAD artifacts.
+- No placeholders; use concrete file paths and concrete updates.
+- Keep responses concise and action-oriented.
+EOF
+}
+
+# Build the prompt for each iterative loop
+build_prompt() {
+    local task_name="$1"
+    local timestamp="$2"
+    local task_visualization="$3"
+
+    cat <<EOF
+You are running...
+
+Context:
+- Timestamp: ${timestamp}
+- Task name: ${task_name}
+
+${task_visualization}
+
+EOF
+}
+
 # Choose model (with default)
 MODEL=$(select_model)
 echo ""
 echo -e "${GREEN}Selected model:${RESET} ${YELLOW}${MODEL}${RESET}"
-echo ""
-echo -e "${DIM}----------------------------------------------------------${RESET}"
-# Run the visualization script
-VISUALIZATION_OUTPUT=$(python3 .template_scripts/visualize_plan.py "$TASK_FILE")
-echo "$VISUALIZATION_OUTPUT"
-if [ $? -ne 0 ]; then
-    echo -e "${RED}Task visualization failed${RESET}"
-    exit 1
-fi
 echo ""
 echo -e "${DIM}----------------------------------------------------------${RESET}"
 
@@ -197,12 +271,35 @@ ITERATION_COUNTER=1
 
 # Main loop - keep running until task is done
 while :; do
+    if [ "$ITERATION_COUNTER" -gt "$MAX_ITERATIONS" ]; then
+        echo ""
+        echo -e "${YELLOW}Maximum iterations reached (${MAX_ITERATIONS}). Stopping loop.${RESET}"
+        break
+    fi
+
     # Extract current YAML data
     YAML_DATA=$(extract_yaml_data)
     
     # Parse JSON output using jq
     TASK_NAME=$(echo "$YAML_DATA" | jq -r '.task_name')
     TASK_STATUS=$(echo "$YAML_DATA" | jq -r '.task_status')
+
+    # Generate timestamp in YYYY-MM-DD-HH:MM AM/PM format
+    TIMESTAMP=$(date "+%Y-%m-%d-%I:%M %p")
+
+    # Run the visualization script, get the variable, display the output
+    VISUALIZATION_OUTPUT=$(generate_visualization "$TASK_FILE")
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Task visualization failed${RESET}"
+        exit 1
+    fi
+    echo "$VISUALIZATION_OUTPUT"
+
+    # Build the Prompts
+    # TODO -- write the build_prompt() function and use it here. Assign the output to PROMPT instead of what we have below:
+    PROMPT=$(build_prompt "$TASK_NAME" "$TIMESTAMP" "$VISUALIZATION_OUTPUT")
+
+    CLOSEOUT_PROMPT=$(build_closeout_prompt "$TASK_NAME" "$TIMESTAMP" "$VISUALIZATION_OUTPUT")
     
     # Check if task is done
     if [ "$TASK_STATUS" = "done" ]; then
@@ -211,23 +308,18 @@ while :; do
         echo -e "${BOLD}${GREEN}🎉 Task completed:${RESET} $TASK_NAME"
         echo -e "${BOLD}${GREEN}==========================================${RESET}"
         echo ""
+        # TODO: build closeout prompt and run the agent to sync back up with the BMad System.
+        opencode run -m "$MODEL" --title "RALPH: $TASK_NAME [CLOSEOUT PHASE]" --agent "$BMAD_AGENT" "$CLOSEOUT_PROMPT"
         break
     fi
     
-    # Generate timestamp in YYYY-MM-DD-HH:MM AM/PM format
-    TIMESTAMP=$(date "+%Y-%m-%d-%I:%M %p")
-
-    # Build the Prompt
-    # TODO -- write the build_prompt() function and use it here. Assign the output to PROMPT instead of what we have below:
-    PROMPT="Have Bmad-Master say hello"
-    
     echo ""
-    echo -e "${BOLD}${CYAN}Attempt Number:${RESET} ${YELLOW}${ITERATION_COUNTER}${RESET}"
+    echo -e "${BOLD}${CYAN}Loop Number:${RESET} ${YELLOW}${ITERATION_COUNTER}${RESET}"
     echo -e "${GREEN}Active Task:${RESET} ${YELLOW}${TASK_NAME}${RESET} (${MAGENTA}${TASK_FILE}${RESET})"
     echo -e "${GREEN}Selected Model:${RESET} ${YELLOW}${MODEL}${RESET}"
 
     # Run opencode with current session title
-    opencode run -m "$MODEL" --title "RALPH: $TASK_NAME [$ITERATION_COUNTER]" --agent "$AGENT" $PROMPT
+    # opencode run -m "$MODEL" --title "RALPH: $TASK_NAME [$ITERATION_COUNTER]" --agent "$AGENT" $PROMPT
     echo ""
     echo -e "${DIM}----------------------------------------------------------${RESET}"
     echo ""

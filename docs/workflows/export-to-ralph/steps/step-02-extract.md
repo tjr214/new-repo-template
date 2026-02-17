@@ -2,30 +2,33 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- 📊 **COMPREHENSIVE EXTRACTION**: Pull ALL relevant data from artifacts (not type-limited)
+- 📊 **COMPREHENSIVE EXTRACTION**: Pull ALL relevant data from selected epic and story artifacts
 - 🔍 **USE EXPLORE SUB-AGENT**: Leverage Task tool with explore sub-agent for codebase analysis
 - 🏗️ **INTELLIGENT STRUCTURING**: Map extracted data to phases/steps/instructions
 - ✅ **TDD ENRICHMENT**: Add YELLOW-RED-GREEN-BLUE phases to all instructions
 - 🚫 **NO GAPS**: Every instruction must be complete and actionable
 - 🎯 **SPECIFIC YELLOW PHASES**: Use explore findings to create precise context-gathering instructions
+- 📌 **EPIC/STORY SOURCE OF TRUTH**: Build the YAML from epic and story artifacts only
+- 🔗 **EXTERNAL DOCS BY REFERENCE**: If PRD/architecture are needed, include file path references only (do not embed their full content)
 
 ---
 
 ## CONTEXT FROM STEP 1:
 
 You have loaded artifacts from Step 1:
+
 ```yaml
 loaded_artifacts:
   - name: "..."
     path: "..."
-    type: "..."
+    type: "epic|story|sprint-status"
 ```
 
 ---
 
 ## YOUR TASK:
 
-Extract all relevant implementation data from BMAD artifacts and use the explore sub-agent to analyze the codebase, generating comprehensive, specific task instructions with detailed YELLOW phases.
+Extract all relevant implementation data from the selected epic and its related stories, then use the explore sub-agent to analyze the codebase and generate comprehensive, specific task instructions with detailed YELLOW phases.
 
 ---
 
@@ -46,31 +49,31 @@ Store full content in memory for extraction.
 
 ### 2. Extract ALL Relevant Data
 
-**From the artifacts, extract EVERYTHING relevant:**
+**From the selected epic and related stories, extract EVERYTHING relevant:**
 
 #### **Task-Level Information:**
-- ✅ Task/feature name
-- ✅ Complete description with business context
-- ✅ Why this is being built (rationale)
-- ✅ Success criteria
-- ✅ Overall constraints
+
+- ✅ Epic name and number
+- ✅ Epic objective and business outcome
+- ✅ Story inventory for the epic
+- ✅ Story execution order and dependencies
+- ✅ Epic-level success criteria
 
 #### **Requirements & Acceptance Criteria:**
-- ✅ Functional requirements
-- ✅ Non-functional requirements (performance, security, etc.)
-- ✅ User stories
-- ✅ Acceptance criteria (Given/When/Then format)
-- ✅ Edge cases to handle
+
+- ✅ Story requirements and acceptance criteria
+- ✅ Functional requirements derived from stories
+- ✅ Non-functional requirements stated in stories
+- ✅ Edge cases and constraints called out by stories
 
 #### **Architecture & Technical Decisions:**
-- ✅ Technology choices and rationale
-- ✅ Patterns to follow
-- ✅ Integration points
-- ✅ Data models and schemas
-- ✅ API contracts
-- ✅ Design decisions
+
+- ✅ Technical decisions explicitly documented in epic/story content
+- ✅ Integration points called out in stories
+- ✅ Data/API expectations present in story acceptance criteria
 
 #### **Implementation Details:**
+
 - ✅ File paths mentioned
 - ✅ Code snippets or examples
 - ✅ Dependencies to install
@@ -78,6 +81,7 @@ Store full content in memory for extraction.
 - ✅ Environment setup
 
 #### **Testing & Validation:**
+
 - ✅ Test specifications
 - ✅ Test scenarios
 - ✅ Performance targets (latency, throughput, etc.)
@@ -85,10 +89,11 @@ Store full content in memory for extraction.
 - ✅ Validation criteria
 
 #### **Context & References:**
+
 - ✅ Existing files to reference
 - ✅ Patterns used elsewhere in codebase
 - ✅ Similar implementations
-- ✅ Documentation references
+- ✅ Documentation references by path only (e.g., PRD/architecture files read during YELLOW)
 
 ---
 
@@ -139,6 +144,7 @@ Example queries:
 #### **D. Consolidate Explore Results:**
 
 After explore sub-agent completes, consolidate findings:
+
 - File paths discovered
 - Purpose (what pattern/implementation it demonstrates)
 - Relevance (why RALPH should read it during YELLOW phase)
@@ -154,18 +160,21 @@ After explore sub-agent completes, consolidate findings:
 **Common phase patterns:**
 
 **For new features:**
+
 1. Design & Data Modeling
 2. Core Implementation
 3. Testing & Validation
 4. Documentation
 
 **For refactoring:**
+
 1. Analysis & Planning
 2. Incremental Refactoring
 3. Validation & Regression Testing
 4. Cleanup & Documentation
 
 **For integrations:**
+
 1. Setup & Configuration
 2. Integration Layer
 3. Error Handling & Resilience
@@ -182,6 +191,7 @@ After explore sub-agent completes, consolidate findings:
 **Example extraction logic:**
 
 If artifact mentions "Create Redis-backed rate limiter":
+
 - Step 1: Define configuration models
 - Step 2: Implement rate limit strategy
 - Step 3: Create middleware/dependency
@@ -197,57 +207,57 @@ If artifact mentions "Create Redis-backed rate limiter":
 
 #### **Instruction Template:**
 
-```yaml
+````yaml
 - id: "instr-{N}.{M}.{P}"
   content: |
     **File:** {explicit_file_path}
-    
+
     **YELLOW Phase (Gather Context):**
     {SPECIFIC codebase reading instructions generated from analysis}
-    
+
     - Read `{specific_file_1}` to understand {specific_pattern}
     - Read `{specific_file_2}` for {test_conventions}
     - Search for {specific_usage}: `rg "{search_pattern}" src/`
     - Review `{config_file}` for {configuration_pattern}
-    
+
     **RED Phase (Write Tests First):**
     {Test specifications extracted from artifact}
-    
+
     Create `{test_file_path}`:
-    
+
     ```python
     {complete_test_code_from_artifact_or_inferred}
     ```
-    
+
     Run: `pytest {test_file_path} -v`
     Expected: FAIL (code doesn't exist yet)
-    
+
     **GREEN Phase (Implement to Pass Tests):**
     {Implementation guidance from artifact}
-    
+
     Create `{implementation_file_path}`:
-    
+
     ```python
     {implementation_code_from_artifact_or_skeleton}
     ```
-    
+
     Install dependencies: `uv add {package}>=X.Y.Z`
-    
+
     Run: `pytest {test_file_path} -v`
     Expected: PASS
-    
+
     **BLUE Phase (Refactor and Clean Up):**
     - Verify LSP shows no type errors
     - Run linter: `ruff check {file_path}`
     - Check coverage: `pytest --cov={module} {test_file_path}`
     - Ensure docstrings follow project style
-    
+
     **Context References:**
     {From artifact and codebase analysis}
     - Follow pattern from `{existing_file}`
     - Align with {architectural_decision}
     - Use error handling from `{error_handler_file}`
-    
+
     **Completion Criteria:**
     {From artifact}
     - All tests pass
@@ -255,21 +265,24 @@ If artifact mentions "Create Redis-backed rate limiter":
     - No LSP/linting errors
     - Performance target: <{latency}ms
   status: "pending"
-```
+````
 
 ---
 
 ### 7. Example: Generating Specific YELLOW Instructions Using Explore Results
 
 **Given artifact content:**
+
 > "Implement rate limiting middleware using Redis, following the existing middleware pattern"
 
 **Use explore sub-agent:**
+
 ```
 Task: "Find middleware patterns, Redis usage, and test conventions in the codebase. Be very thorough."
 ```
 
 **Explore sub-agent discovers:**
+
 ```
 - src/middleware/base_middleware.py (middleware pattern)
 - tests/test_auth_middleware.py (test conventions)
@@ -278,6 +291,7 @@ Task: "Find middleware patterns, Redis usage, and test conventions in the codeba
 ```
 
 **Generated YELLOW phase:**
+
 ```yaml
 **YELLOW Phase (Gather Context):**
 - Read `src/middleware/base_middleware.py` to understand the BaseMiddleware class pattern
@@ -319,18 +333,22 @@ Show user what was extracted:
 ## 📊 Extraction Complete
 
 ### Task Overview:
-- **Name:** {extracted_task_name}
+
+- **Epic:** Epic {epic_number} - {extracted_task_name}
 - **Description:** {brief_excerpt}
 
 ### Phases Identified: {count}
+
 {List each phase with step count}
 
 ### Total Scope:
+
 - Phases: {count}
 - Steps: {count}
 - Instructions: {count}
 
 ### Explore Sub-Agent Analysis Results:
+
 - Explore sessions launched: {count}
 - Files identified for YELLOW phase: {count}
 - Patterns discovered: {count}
@@ -338,6 +356,7 @@ Show user what was extracted:
 - Code examples found: {count}
 
 ### Sample Instruction (Step 1.1.1):
+
 {Show first instruction with specific YELLOW phase}
 
 ---
@@ -356,23 +375,25 @@ Show user what was extracted:
 ### 10. Handle User Response
 
 **If user selects 'c' (Continue):**
+
 - Pass complete extracted structure to Step 3
 - Load `{project-root}/docs/workflows/export-to-ralph/steps/step-03-transform.md`
 
 **If user selects 'm' (Missing info):**
+
 ```markdown
 **What information is missing?**
 
 Please describe what's missing from the BMAD artifacts.
 
 Common issues:
-- Incomplete requirements
-- Missing architecture decisions
-- No test specifications
-- Unclear implementation approach
-- Missing performance targets
 
-**Recommendation:** Go back and improve the BMAD artifacts (Brainstorming/Quick-Spec/PRD/etc.) before re-running export.
+- Incomplete epic or story acceptance criteria
+- Missing story breakdown for the selected epic
+- No test expectations in stories
+- Unclear story sequencing or dependencies
+
+**Recommendation:** Go back and improve BMAD epic/story artifacts before re-running export.
 
 **Would you like to:**
 [1] Exit workflow to improve artifacts
@@ -382,6 +403,7 @@ Common issues:
 **If user selects [1]:** Exit gracefully, provide guidance on what to add to artifacts
 
 **If user selects 'e' (Edit):**
+
 - Ask which section to refine
 - Allow manual adjustments
 - Re-present summary
@@ -397,8 +419,8 @@ task_plan_structure:
     created_date: "{today YYYY-MM-DD}"
     last_updated: "{today YYYY-MM-DD}"
     author: "{from config or 'Tim'}"
-    license: null  # or extracted from artifact
-  
+    license: null # or extracted from artifact
+
   task:
     name: "{extracted_task_name}"
     description: |
@@ -422,7 +444,7 @@ task_plan_structure:
                 status: "pending"
 
 explore_analysis:
-  sessions_launched: [{session_1_description}, {session_2_description}, ...]
+  sessions_launched: [{ session_1_description }, { session_2_description }, ...]
   files_for_context: ["{file1}", "{file2}", ...]
   patterns_found: ["{pattern1}", "{pattern2}", ...]
   integration_points: ["{point1}", "{point2}", ...]
@@ -440,7 +462,7 @@ explore_analysis:
 ✅ Steps are discrete and actionable  
 ✅ ALL instructions have specific YELLOW-RED-GREEN-BLUE  
 ✅ No placeholder or incomplete content  
-✅ User confirms completeness  
+✅ User confirms completeness
 
 ---
 
