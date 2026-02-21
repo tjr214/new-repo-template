@@ -73,23 +73,41 @@ center_text() {
     printf "%*s%s%*s" "$LEFT_PAD" "" "$TEXT" "$RIGHT_PAD" ""
 }
 
+repeat_char() {
+    CHAR="$1"
+    COUNT="$2"
+    OUT=""
+    I=0
+
+    while [ "$I" -lt "$COUNT" ]; do
+        OUT="${OUT}${CHAR}"
+        I=$((I + 1))
+    done
+
+    printf "%s" "$OUT"
+}
+
 print_results_table() {
     HEADER_TOOL=$(center_text "Tools" 10)
     HEADER_STATUS=$(center_text "Status" 11)
     HEADER_DETAILS=$(center_text "Details" 56)
+    FULL_HORIZONTAL=$(repeat_char "─" 85)
+    COL1_HORIZONTAL=$(repeat_char "─" 12)
+    COL2_HORIZONTAL=$(repeat_char "─" 13)
+    COL3_HORIZONTAL=$(repeat_char "─" 58)
 
-    printf "${TABLE_COLOR}+------------+-------------+----------------------------------------------------------+${NC}\n"
+    printf "${TABLE_COLOR}┌%s┐${NC}\n" "$FULL_HORIZONTAL"
     CENTERED_TITLE=$(center_text "Update Results" 85)
-    printf "${TABLE_COLOR}|${BOLD_RED}${BG_YELLOW}%-85s${NC}${TABLE_COLOR}|${NC}\n" "$CENTERED_TITLE"
-    printf "${TABLE_COLOR}+------------+-------------+----------------------------------------------------------+${NC}\n"
-    printf "${TABLE_COLOR}| %s | %s | %s |${NC}\n" "$HEADER_TOOL" "$HEADER_STATUS" "$HEADER_DETAILS"
-    printf "${TABLE_COLOR}+------------+-------------+----------------------------------------------------------+${NC}\n"
+    printf "${TABLE_COLOR}│${BOLD_RED}${BG_YELLOW}%-85s${NC}${TABLE_COLOR}│${NC}\n" "$CENTERED_TITLE"
+    printf "${TABLE_COLOR}├%s┬%s┬%s┤${NC}\n" "$COL1_HORIZONTAL" "$COL2_HORIZONTAL" "$COL3_HORIZONTAL"
+    printf "${TABLE_COLOR}│ %s │ %s │ %s │${NC}\n" "$HEADER_TOOL" "$HEADER_STATUS" "$HEADER_DETAILS"
+    printf "${TABLE_COLOR}├%s┼%s┼%s┤${NC}\n" "$COL1_HORIZONTAL" "$COL2_HORIZONTAL" "$COL3_HORIZONTAL"
     print_result_row "uv" "$UV_STATUS" "$UV_DETAIL"
     print_result_row "bun" "$BUN_STATUS" "$BUN_DETAIL"
     print_result_row "OpenCode" "$OPENCODE_STATUS" "$OPENCODE_DETAIL"
     print_result_row "btca" "$BTCA_STATUS" "$BTCA_DETAIL"
     print_result_row "ripgrep" "$RG_STATUS" "$RG_DETAIL"
-    printf "${TABLE_COLOR}+------------+-------------+----------------------------------------------------------+${NC}\n"
+    printf "${TABLE_COLOR}└%s┴%s┴%s┘${NC}\n" "$COL1_HORIZONTAL" "$COL2_HORIZONTAL" "$COL3_HORIZONTAL"
 }
 
 print_result_row() {
@@ -122,9 +140,9 @@ print_result_row() {
         STATUS_COLOR="${BOLD}${GREEN}"
     fi
 
-    printf "${TABLE_COLOR}| ${YELLOW}%-10s${TABLE_COLOR} | " "$TOOL_NAME"
+    printf "${TABLE_COLOR}│ ${YELLOW}%-10s${TABLE_COLOR} │ " "$TOOL_NAME"
     printf "${STATUS_COLOR}%-11s${NC}" "$TOOL_STATUS"
-    printf "${TABLE_COLOR} | ${MAGENTA}%-56s${TABLE_COLOR} |${NC}\n" "$TOOL_DETAIL"
+    printf "${TABLE_COLOR} │ ${MAGENTA}%-56s${TABLE_COLOR} │${NC}\n" "$TOOL_DETAIL"
 }
 
 UV_STATUS="PENDING"
