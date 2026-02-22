@@ -1,7 +1,7 @@
 {
-	"$schema": "https://btca.dev/btca.schema.json",
-	"dataDirectory": ".btca",
-	"resources": [],
-	"model": "gpt-5.3-codex-spark",
-	"provider": "openai"
+  "$schema": "https://btca.dev/btca.schema.json",
+  "dataDirectory": ".btca",
+  "resources": [],
+  "model": "gpt-5.3-codex",
+  "provider": "openai"
 }
