@@ -23,7 +23,7 @@
 
 - **ALWAYS** be updating the Living Documentation (`docs/LIVING_DOCS.md`) as we complete implementation sections. Ensure this is included in all Plans made and executed. This also includes updating the `PROGRESS.md` tracker in the project root and the `docs/ARCHITECTURE.md` document, as well. All the docs must be kept up-to-date and in-sync at all times.
 
-- IMPORTANT: NEVER OVERWRITE A `SESSION_X_SUMMARY.md` file. _Always create a new session summary!_
+- IMPORTANT: NEVER OVERWRITE A `docs/session-summaries/SESSION_X_SUMMARY.md` file. _Always create a new session summary!_
 
 - All of our unit and integration tests are to be stored in the `tests/` directory in the project root.
 
