@@ -329,13 +329,13 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add explicit auth selection prompt (`clerk` or `better-auth`)
 - [ ] Scaffold auth-specific wiring and env templates
 - [ ] Add shared package integration where appropriate
-- [ ] Implement credentialless CI-safe checks for Convex cloud-first scaffolds.
+- [x] Implement credentialless CI-safe checks for Convex cloud-first scaffolds.
 
 ### RED Tests
 
 - [x] `fullstack + clerk` scaffold contract test
 - [x] `fullstack + better-auth` scaffold contract test
-- [ ] Convex codegen and startup command smoke checks
+- [x] Convex codegen and startup command smoke checks
 - [x] Auth-required env template assertions
 - [x] Auth-required behavior tests for non-interactive mode (error when omitted).
 - [x] Mixed `web` + `backend` presets require explicit auth and pass in both auth variants.
@@ -347,7 +347,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Local dev flow works for cloud Convex mode
 - [ ] Native Windows backend dev/test commands pass in CI
 - [ ] Docs updated with fullstack setup and auth decision flow
-- [ ] Required CI path remains secret-free for baseline checks.
+- [x] Required CI path remains secret-free for baseline checks.
 
 ---
 
@@ -478,10 +478,10 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### 9.1 Convex Cloud-First Testability (No Credentials Required in Baseline CI)
 
-- [ ] Baseline CI uses scaffold contract tests and static wiring checks only.
-- [ ] Baseline CI does not require Convex login, `CONVEX_DEPLOY_KEY`, or third-party auth credentials.
+- [x] Baseline CI uses scaffold contract tests and static wiring checks only.
+- [x] Baseline CI does not require Convex login, `CONVEX_DEPLOY_KEY`, or third-party auth credentials.
 - [ ] Credential-dependent smoke tests are optional and separately gated.
-- [ ] Generated repos include `.env.example` placeholders for required Convex/auth variables.
+- [x] Generated repos include `.env.example` placeholders for required Convex/auth variables.
 
 ### 9.2 Python Lane First-Class Contract
 

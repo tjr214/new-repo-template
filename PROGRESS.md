@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 05:08:04 PM
-**Current Phase:** M1/M2 GREEN/BLUE slice (`fullstack auth-variant concrete wiring contracts`)
+**Last Updated:** 2026-03-01 05:17:35 PM
+**Current Phase:** M2 GREEN/BLUE slice (`Convex codegen/dev credentialless smoke checks`)
 
 ---
 
@@ -198,6 +198,18 @@
 - [x] Added new snapshot templates for concrete fullstack files under `src/new_repo_template/snapshot_assets/templates/fullstack/`.
 - [x] Updated M2/contract checklist status in `PLAN.md` for completed fullstack auth variant tests and related auth behavior/env assertions.
 - [x] Verified full suite GREEN after fullstack wiring contract expansion (`uv run pytest`: 86 passed).
+- [x] Ran YELLOW BTCA lookup for credentialless Convex CLI smoke command behavior (`convex codegen --help`, `convex dev --help`) in CI contexts.
+- [x] Added RED Convex backend smoke contract at `tests/contracts/test_convex_backend_smoke_contract.py` to validate scaffolded backend command viability for:
+  - [x] `bun run convex:codegen`
+  - [x] `bun run convex:dev`
+  - [x] credentialless help-command execution path after `bun install --frozen-lockfile`
+- [x] Updated backend workspace manifest template (`src/new_repo_template/snapshot_assets/templates/workspace_packages/backend_package.json`) with:
+  - [x] `convex` dependency pin (`^1.32.0`)
+  - [x] `convex:codegen` and `convex:dev` smoke scripts
+- [x] Expanded CI cross-platform smoke contract step to include Convex backend smoke test (`tests/contracts/test_convex_backend_smoke_contract.py`).
+- [x] Expanded CI workflow contract assertions in `tests/contracts/test_ci_versions_guardrail_contract.py` for Convex smoke step wiring.
+- [x] Updated `PLAN.md` status for M2 Convex smoke and credentialless CI baseline checklist items.
+- [x] Verified full suite GREEN after Convex smoke slice (`uv run pytest`: 87 passed).
 
 ## In Progress
 
@@ -228,7 +240,7 @@
 
 ## Next Up
 
-- [ ] Add Convex codegen/startup command smoke contracts for scaffolded backend lane.
+- [ ] Add cloud-first local dev flow contracts for Convex lane (`convex dev` workflow expectations) without requiring credentials in baseline CI.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 

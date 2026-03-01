@@ -90,3 +90,5 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - User-facing bootstrap guidance in `README.md` now explicitly documents global `nurt` flow and labels `install.sh` as legacy/maintainer-only path.
 - Fullstack auth-variant contract coverage is now concrete: `tests/contracts/test_fullstack_auth_wiring_contract.py` validates TanStack-style web files and Convex-style backend files for both Clerk and Better Auth outputs, plus dry-run path visibility.
 - Scaffolded `web+backend` outputs now include concrete framework baseline files (`apps/web/src/main.tsx`, `router.tsx`, route files; `apps/backend/convex/http.ts`, `schema.ts`) instead of auth-only placeholder wiring.
+- Convex backend command-smoke coverage is now active in `tests/contracts/test_convex_backend_smoke_contract.py`: generated backend workspaces expose `convex:codegen` and `convex:dev` scripts that run credentialless CLI help commands for CI-safe smoke validation.
+- Cross-platform CI smoke contract step now includes Convex backend smoke checks, preserving baseline secret-free validation while increasing fullstack wiring confidence.

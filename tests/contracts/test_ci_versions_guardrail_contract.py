@@ -18,6 +18,7 @@ def test_ci_workflow_runs_versions_guardrail_and_cross_platform_smokes() -> None
     assert "oven-sh/setup-bun@v2" in workflow_text
     assert "Run cross-platform command smoke contracts" in workflow_text
     assert "test_bun_workspace_install_contract.py" in workflow_text
+    assert "test_convex_backend_smoke_contract.py" in workflow_text
     assert "test_turbo_command_smoke_contract.py" in workflow_text
     assert "test_python_target_scaffold_runs_baseline_commands" in workflow_text
     assert "nurt versions check --check-lockfiles --check-latest" in workflow_text
