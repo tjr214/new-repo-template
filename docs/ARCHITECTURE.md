@@ -63,6 +63,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Required preset-combination matrix coverage is now implemented for all `PLAN.md` Section 2.1 combinations in `tests/contracts/test_required_preset_matrix_contract.py`, including both auth variants and all-target (python-inclusive) sanity passes.
 - Root workspace scaffold now emits `package.json` and `turbo.json` at repository root for all outputs, with Bun workspaces (`apps/*`, `packages/*`) and Turbo-routed root scripts (`dev`, `build`, `test`, `lint`, `typecheck`).
 - Root workspace contract coverage now verifies dry-run visibility and scaffolded workspace/task wiring in `tests/contracts/test_root_workspace_contract.py`.
+- JS app targets now scaffold workspace-local `package.json` manifests (`apps/web`, `apps/backend`, `apps/desktop`, `apps/mobile`, `apps/tv`) with baseline script placeholders for Turbo/Bun wiring.
+- Bun workspace install viability coverage is now active in `tests/contracts/test_bun_workspace_install_contract.py` and verifies generated `web+backend` output supports both `bun install` and `bun install --frozen-lockfile`.
 - Version baseline metadata/workflow is implemented with `version-baseline.json` and native `nurt versions check/update` commands in `src/new_repo_template/version_baseline.py`.
 - Version baseline workflow now includes lockfile lifecycle controls: update-time regeneration (with dry-run/summaries) and check-time lockfile presence validation.
 - CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest` and runs test matrix jobs on native Linux/macOS/Windows runners.
@@ -96,6 +98,8 @@ Current contract coverage:
   - Contract intent: full required preset matrix from `PLAN.md` Section 2.1 scaffolds successfully with root `pyproject.toml` invariant, expected target directories, python-lane pyproject inclusion when selected, and auth-variant wiring assertions.
 - `tests/contracts/test_root_workspace_contract.py`
   - Contract intent: root workspace config files (`package.json`, `turbo.json`) are present in dry-run/scaffold output and include baseline cross-platform script/task wiring for `dev`, `build`, `test`, `lint`, and `typecheck`.
+- `tests/contracts/test_bun_workspace_install_contract.py`
+  - Contract intent: JS workspace manifests are scaffolded for `web+backend` outputs and generated workspace installs remain viable via `bun install` and `bun install --frozen-lockfile`.
 - `tests/contracts/test_security_baseline_contract.py`
   - Contract intent: root `.gitignore` secret/env protections and per-target `.env.example` placeholder generation.
 - `tests/contracts/test_installer_scripts_dry_run_contract.py`

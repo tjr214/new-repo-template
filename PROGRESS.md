@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 04:33:46 PM
-**Current Phase:** M1 GREEN/BLUE slice (`root workspace config + cross-platform script contract wiring`)
+**Last Updated:** 2026-03-01 04:38:21 PM
+**Current Phase:** M1 GREEN/BLUE slice (`Bun workspace install viability + JS app manifests`)
 
 ---
 
@@ -158,6 +158,18 @@
   - [x] `src/new_repo_template/snapshot_assets/templates/root_turbo.json`
   - [x] `src/new_repo_template/scaffold.py` now emits both files for all scaffold outputs
 - [x] Verified full suite GREEN after workspace/script slice (`uv run pytest`: 79 passed).
+- [x] Ran YELLOW BTCA lookup for Bun workspace install verification semantics in CI (`bun install --frozen-lockfile`).
+- [x] Added RED Bun workspace install viability contracts at `tests/contracts/test_bun_workspace_install_contract.py` for:
+  - [x] dry-run visibility of JS app workspace manifests (`apps/web/package.json`, `apps/backend/package.json`)
+  - [x] generated `web+backend` scaffold supports `bun install` and `bun install --frozen-lockfile`
+- [x] Added initial JS app workspace package manifest templates for selectable JS targets:
+  - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`
+  - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/backend_package.json`
+  - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/desktop_package.json`
+  - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/mobile_package.json`
+  - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/tv_package.json`
+- [x] Updated scaffold path planning + write flow to emit app-level `package.json` files for JS targets.
+- [x] Verified full suite GREEN after Bun install viability slice (`uv run pytest`: 81 passed).
 
 ## In Progress
 
@@ -166,6 +178,8 @@
 - [ ] M1 foundation implementation:
   - [x] Add root workspace config (`package.json` workspaces + `turbo.json`) to scaffold output.
   - [x] Add initial cross-platform root script wiring (`dev/build/test/lint/typecheck`) via Turbo commands.
+  - [x] Add initial JS app workspace package manifests for selected JS targets.
+  - [x] Add Bun workspace install viability contract coverage.
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
   - [x] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
   - [x] Implement transactional/failure-atomic scaffold write path.
@@ -183,7 +197,7 @@
 ## Next Up
 
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
-- [ ] Add Bun workspace install viability contract coverage once initial JS app package manifests are scaffolded.
+- [ ] Add contract coverage for Turbo-run command viability (`dev/build/test/lint/typecheck`) on a minimal JS preset scaffold.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 

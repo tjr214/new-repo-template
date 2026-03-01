@@ -1,0 +1,12 @@
+{
+  "name": "@generated/mobile",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "bun --version",
+    "build": "bun --version",
+    "test": "bun --version",
+    "lint": "bun --version",
+    "typecheck": "bun --version"
+  }
+}

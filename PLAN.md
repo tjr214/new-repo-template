@@ -295,7 +295,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 - [x] Generated repo always has monorepo root shape
 - [x] Turbo tasks are wired for selected targets
-- [ ] Bun workspace install works
+- [x] Bun workspace install works
 - [ ] Python-selected target scaffolds expected files and runs baseline checks
 - [x] Root `pyproject.toml` exists for every generated preset, including JS-only and TV-only outputs.
 - [x] Invalid flag combinations fail with deterministic error messages.

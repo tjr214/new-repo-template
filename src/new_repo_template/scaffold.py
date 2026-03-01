@@ -46,6 +46,22 @@ APP_TARGET_DIRS: dict[str, str] = {
     "tv": "apps/tv/",
 }
 
+APP_TARGET_PACKAGE_PATHS: dict[str, str] = {
+    "web": "apps/web/package.json",
+    "backend": "apps/backend/package.json",
+    "desktop": "apps/desktop/package.json",
+    "mobile": "apps/mobile/package.json",
+    "tv": "apps/tv/package.json",
+}
+
+APP_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
+    "web": "workspace_packages/web_package.json",
+    "backend": "workspace_packages/backend_package.json",
+    "desktop": "workspace_packages/desktop_package.json",
+    "mobile": "workspace_packages/mobile_package.json",
+    "tv": "workspace_packages/tv_package.json",
+}
+
 PYTHON_PATHS: tuple[str, ...] = (
     "apps/python/",
     "apps/python/pyproject.toml",
@@ -183,6 +199,8 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
     for target in targets:
         if target in APP_TARGET_DIRS:
             paths.append(APP_TARGET_DIRS[target])
+        if target in APP_TARGET_PACKAGE_PATHS:
+            paths.append(APP_TARGET_PACKAGE_PATHS[target])
         if target == "python":
             paths.extend(PYTHON_PATHS)
         if target in TARGET_ENV_EXAMPLE_PATHS:
@@ -279,6 +297,11 @@ def scaffold_app_targets(*, output_root: Path, targets: tuple[str, ...]) -> None
     for target in targets:
         if target in APP_TARGET_DIRS:
             (output_root / APP_TARGET_DIRS[target]).mkdir(parents=True, exist_ok=True)
+        package_path = APP_TARGET_PACKAGE_PATHS.get(target)
+        if package_path is None:
+            continue
+        package_template = load_template_text(APP_TARGET_PACKAGE_TEMPLATE_FILES[target])
+        (output_root / package_path).write_text(package_template, encoding="utf-8")
 
 
 def scaffold_target_env_examples(
