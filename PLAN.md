@@ -581,4 +581,5 @@ The program is complete when:
 - [x] Add snapshot asset generation command + metadata manifest scaffolding and tests.
 - [x] Replace script-wrapper behavior inside `nurt tools sync` / `nurt template-assets sync` with native Python command implementations.
 - [x] Implement polished Rich/Textual interactive UI for `nurt new` (Rich table/panel prompt layer with deterministic plain fallback).
+- [x] Wire CI guardrail execution for `nurt versions check --check-lockfiles --check-latest` in GitHub Actions.
 - [ ] Keep documentation synchronized continuously during implementation.

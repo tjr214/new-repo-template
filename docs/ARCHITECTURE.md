@@ -62,6 +62,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Mixed-combo validation coverage now includes additional unsupported auth/target combinations in mixed presets.
 - Version baseline metadata/workflow is implemented with `version-baseline.json` and native `nurt versions check/update` commands in `src/new_repo_template/version_baseline.py`.
 - Version baseline workflow now includes lockfile lifecycle controls: update-time regeneration (with dry-run/summaries) and check-time lockfile presence validation.
+- CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest` and runs test matrix jobs on native Linux/macOS/Windows runners.
 - Interactive prompt rendering now includes Rich/Textual-aware UI infrastructure in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback behavior.
 
 ## Validation Model
@@ -98,3 +99,5 @@ Current contract coverage:
   - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation.
 - `tests/contracts/test_version_baseline_contract.py`
   - Contract intent: codified version baseline metadata validation and maintainer update/check workflow behavior (including stale detection, lockfile regeneration/check guardrails, and dry-run non-destructive updates).
+- `tests/contracts/test_ci_versions_guardrail_contract.py`
+  - Contract intent: CI workflow includes required `nurt versions check --check-lockfiles --check-latest` guardrail command.

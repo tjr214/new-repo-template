@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 03:44:19 PM
-**Current Phase:** M0/M1 GREEN/BLUE slice (`version baseline lockfile regeneration + lockfile checks`)
+**Last Updated:** 2026-03-01 03:55:27 PM
+**Current Phase:** M0/M1 GREEN/BLUE slice (`CI versions + lockfile governance wiring`)
 
 ---
 
@@ -129,6 +129,11 @@
   - [x] lockfile regeneration path on update
   - [x] dry-run non-destructive lockfile planning
 - [x] Verified full suite GREEN after lockfile workflow expansion (`uv run pytest`: 50 passed).
+- [x] Added GitHub Actions CI workflow at `.github/workflows/ci.yml` with required native OS matrix (`ubuntu`, `macOS`, `windows`).
+- [x] Wired CI guardrail command execution: `uv run nurt versions check --check-lockfiles --check-latest`.
+- [x] Added CI workflow contract test at `tests/contracts/test_ci_versions_guardrail_contract.py`.
+- [x] Ran YELLOW BTCA lookup for Bun CI lockfile-consistency command semantics (`bun ci`) while finalizing governance checks.
+- [x] Verified full suite GREEN after CI guardrail wiring (`uv run pytest`: 51 passed).
 
 ## In Progress
 
@@ -155,7 +160,6 @@
 
 - [ ] Add remaining required preset-combination matrix contracts from `PLAN.md` Section 2.1.
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
-- [ ] Add CI wiring to run `nurt versions check --check-lockfiles --check-latest` in required validation paths.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 
