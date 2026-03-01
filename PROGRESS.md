@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 01:17:45 PM
-**Current Phase:** M1 GREEN/BLUE slice (auth variant env contracts + duplicate-target validation) complete
+**Last Updated:** 2026-03-01 01:22:41 PM
+**Current Phase:** M1 GREEN/BLUE slice (auth wiring placeholders + deeper auth contracts) complete
 
 ---
 
@@ -52,6 +52,12 @@
 - [x] Implemented deterministic duplicate-target validation error handling.
 - [x] Updated auth-variant `.env.example` generation to include Vite/Convex/Clerk/Better Auth placeholder keys expected by contract tests.
 - [x] Verified full suite GREEN after auth-variant contract expansion (`uv run pytest`: 16 passed).
+- [x] Added RED auth-wiring placeholder contract tests for Clerk and Better Auth variants in `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- [x] Implemented auth-wiring placeholder scaffold outputs:
+  - [x] `apps/backend/convex/auth.config.ts`
+  - [x] `apps/web/src/auth-provider.ts` for Clerk
+  - [x] `apps/web/src/auth-client.ts` for Better Auth
+- [x] Verified full suite GREEN after auth-wiring slice (`uv run pytest`: 18 passed).
 
 ## In Progress
 
@@ -65,11 +71,12 @@
   - [x] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
   - [x] Implement transactional/failure-atomic scaffold write path.
   - [ ] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
+  - [x] Add auth-variant env placeholder scaffolding + minimal wiring placeholder files for `web+backend`.
 
 ## Next Up
 
 - [ ] Expand RED tests for remaining unsupported mixed-combo cases and future interactive fallback semantics.
-- [ ] Add deeper auth-variant output contract tests beyond env files (target-specific config/wiring placeholders).
+- [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
 - [ ] Define version baseline metadata and maintainer update/check workflow.
 - [ ] Add security baseline docs for `.env.example`/secret handling and CI secret scan expectations.
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.

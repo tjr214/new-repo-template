@@ -50,6 +50,16 @@ WEB_BACKEND_ENV_PATHS: tuple[str, ...] = (
     "apps/backend/.env.example",
 )
 
+CLERK_WIRING_PATHS: tuple[str, ...] = (
+    "apps/backend/convex/auth.config.ts",
+    "apps/web/src/auth-provider.ts",
+)
+
+BETTER_AUTH_WIRING_PATHS: tuple[str, ...] = (
+    "apps/backend/convex/auth.config.ts",
+    "apps/web/src/auth-client.ts",
+)
+
 ROOT_PYPROJECT_BASE = (
     "[build-system]\n"
     'requires = ["hatchling>=1.26.3"]\n'
@@ -165,6 +175,10 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
     has_web_backend = "web" in targets and "backend" in targets
     if has_web_backend and auth is not None:
         paths.extend(WEB_BACKEND_ENV_PATHS)
+        if auth == "clerk":
+            paths.extend(CLERK_WIRING_PATHS)
+        if auth == "better-auth":
+            paths.extend(BETTER_AUTH_WIRING_PATHS)
 
     return tuple(paths)
 
@@ -279,6 +293,39 @@ def scaffold_web_backend_env_examples(
     )
 
 
+def scaffold_web_backend_auth_wiring(
+    *, output_root: Path, auth: str | None, targets: tuple[str, ...]
+) -> None:
+    has_web_backend = "web" in targets and "backend" in targets
+    if not has_web_backend or auth is None:
+        return
+
+    backend_convex_dir = output_root / "apps" / "backend" / "convex"
+    backend_convex_dir.mkdir(parents=True, exist_ok=True)
+
+    web_src_dir = output_root / "apps" / "web" / "src"
+    web_src_dir.mkdir(parents=True, exist_ok=True)
+
+    backend_auth_config = f'export const authConfig = {{\n  provider: "{auth}",\n}}\n'
+    (backend_convex_dir / "auth.config.ts").write_text(
+        backend_auth_config,
+        encoding="utf-8",
+    )
+
+    if auth == "clerk":
+        (web_src_dir / "auth-provider.ts").write_text(
+            'export const authProvider = {\n  name: "clerk",\n}\n',
+            encoding="utf-8",
+        )
+        return
+
+    if auth == "better-auth":
+        (web_src_dir / "auth-client.ts").write_text(
+            'export const authClient = {\n  provider: "better auth",\n}\n',
+            encoding="utf-8",
+        )
+
+
 def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_foundation_core(
         output_root=plan.output,
@@ -290,6 +337,11 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
         scaffold_python_lane(output_root=plan.output)
 
     scaffold_web_backend_env_examples(
+        output_root=plan.output,
+        auth=plan.auth,
+        targets=plan.targets,
+    )
+    scaffold_web_backend_auth_wiring(
         output_root=plan.output,
         auth=plan.auth,
         targets=plan.targets,

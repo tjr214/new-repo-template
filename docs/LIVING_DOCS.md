@@ -61,4 +61,5 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Failure-atomic scaffold slice complete: generator now stages output in a temp directory and atomically moves it into place; failure-path contract confirms no partial output remains.
 - Target matrix slice complete for current scaffold breadth: CLI now accepts `foundation/python/web/backend/desktop/mobile/tv`, enforces auth for `web+backend`, enforces foundation-standalone behavior, and verifies distinct `mobile` + `tv` app output contracts.
 - Auth variant env contract slice complete: duplicate target selections now fail deterministically, and `web+backend` auth variants scaffold explicit `.env.example` placeholders for Clerk and Better Auth flows.
+- Auth wiring placeholder slice complete: `web+backend` auth variants now scaffold minimal placeholder wiring files for frontend/backend auth integration points (`apps/backend/convex/auth.config.ts`, plus auth-specific web wiring stubs).
 - Current blocker/caveat: intermittent BTCA `bun` resource clone/fetch failures; cache reset via `btca clear` helps transiently but needs follow-up hardening guidance.

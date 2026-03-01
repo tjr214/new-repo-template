@@ -293,3 +293,85 @@ def test_web_backend_better_auth_env_examples_include_required_placeholders(
     assert "VITE_SITE_URL=" in web_env
     assert "CONVEX_DEPLOYMENT=" in backend_env
     assert "SITE_URL=" in backend_env
+
+
+def test_web_backend_clerk_scaffolds_auth_wiring_placeholders(tmp_path: Path) -> None:
+    """RED: Clerk variant should scaffold frontend/backend auth wiring placeholders."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-backend-clerk-wiring"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--auth",
+            "clerk",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected web+backend+clerk scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    backend_wiring = output_dir / "apps" / "backend" / "convex" / "auth.config.ts"
+    frontend_wiring = output_dir / "apps" / "web" / "src" / "auth-provider.ts"
+
+    assert backend_wiring.exists()
+    assert frontend_wiring.exists()
+
+    backend_text = backend_wiring.read_text(encoding="utf-8")
+    frontend_text = frontend_wiring.read_text(encoding="utf-8")
+
+    assert 'provider: "clerk"' in backend_text
+    assert "clerk" in frontend_text.lower()
+
+
+def test_web_backend_better_auth_scaffolds_auth_wiring_placeholders(
+    tmp_path: Path,
+) -> None:
+    """RED: Better Auth variant should scaffold frontend/backend auth wiring placeholders."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-backend-better-auth-wiring"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--auth",
+            "better-auth",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected web+backend+better-auth scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    backend_wiring = output_dir / "apps" / "backend" / "convex" / "auth.config.ts"
+    frontend_wiring = output_dir / "apps" / "web" / "src" / "auth-client.ts"
+
+    assert backend_wiring.exists()
+    assert frontend_wiring.exists()
+
+    backend_text = backend_wiring.read_text(encoding="utf-8")
+    frontend_text = frontend_wiring.read_text(encoding="utf-8")
+
+    assert 'provider: "better-auth"' in backend_text
+    assert "better auth" in frontend_text.lower()
