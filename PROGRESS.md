@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 04:38:21 PM
-**Current Phase:** M1 GREEN/BLUE slice (`Bun workspace install viability + JS app manifests`)
+**Last Updated:** 2026-03-01 04:49:26 PM
+**Current Phase:** M1 GREEN/BLUE slice (`minimal preset Turbo command smoke viability`)
 
 ---
 
@@ -170,6 +170,12 @@
   - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/tv_package.json`
 - [x] Updated scaffold path planning + write flow to emit app-level `package.json` files for JS targets.
 - [x] Verified full suite GREEN after Bun install viability slice (`uv run pytest`: 81 passed).
+- [x] Added root workspace toolchain metadata to scaffolded `package.json` template (`packageManager: bun@1.3.10`, `devDependencies.turbo: ^2.8.12`) so Turbo commands resolve after install.
+- [x] Added RED command-smoke contract at `tests/contracts/test_turbo_command_smoke_contract.py` for selected minimal JS preset (`web+backend+clerk`) covering:
+  - [x] install viability via `bun install --frozen-lockfile`
+  - [x] root script viability for `bun run dev`, `build`, `test`, `lint`, and `typecheck`
+- [x] Verified focused workspace/smoke contracts GREEN (`uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_bun_workspace_install_contract.py tests/contracts/test_turbo_command_smoke_contract.py`: 5 passed).
+- [x] Verified full suite GREEN after minimal command-smoke slice (`uv run pytest`: 82 passed).
 
 ## In Progress
 
@@ -180,6 +186,7 @@
   - [x] Add initial cross-platform root script wiring (`dev/build/test/lint/typecheck`) via Turbo commands.
   - [x] Add initial JS app workspace package manifests for selected JS targets.
   - [x] Add Bun workspace install viability contract coverage.
+  - [x] Add selected minimal preset command-smoke contract coverage for `dev/build/test/lint/typecheck`.
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
   - [x] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
   - [x] Implement transactional/failure-atomic scaffold write path.
@@ -197,7 +204,7 @@
 ## Next Up
 
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
-- [ ] Add contract coverage for Turbo-run command viability (`dev/build/test/lint/typecheck`) on a minimal JS preset scaffold.
+- [ ] Add Python-selected target command execution contract for baseline checks (`uv sync --group dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 

@@ -312,7 +312,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### DoD Gates
 
 - [x] Foundation scaffold tests pass
-- [ ] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
+- [x] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
 - [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
 - [x] CLI behavior contract tests pass for interactive and non-interactive paths.
 - [x] Root `pyproject.toml` invariant is enforced by tests across required matrix combinations.
@@ -507,7 +507,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Mobile scaffold tests
 - [ ] TV scaffold tests
 - [x] Python lane scaffold tests
-- [ ] Cross-platform command smoke tests
+- [x] Cross-platform command smoke tests
 - [x] Required preset-combination matrix tests (Section 2.1)
 - [x] CLI behavior contract tests (`--no-interactive`, invalid combos, auth-required flow)
 - [x] Matrix tests must include auth variants for every preset containing both `web` and `backend`.
