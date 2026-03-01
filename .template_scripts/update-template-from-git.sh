@@ -121,29 +121,29 @@ copy_directory() {
 
 # Helper function to copy directory contents without deleting destination
 copy_directory_contents() {
-    SOURCE="$1"
-    DEST="$2"
+    SRC_DIR="$1"
+    DEST_ROOT="$2"
 
-    if [ ! -d "$SOURCE" ]; then
+    if [ ! -d "$SRC_DIR" ]; then
         printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
-        printf "Expected: ${SOURCE}\n"
+        printf "Expected: ${SRC_DIR}\n"
         printf "The template repository may be incomplete or corrupted.\n"
         exit 1
     fi
 
-    if [ ! -d "$DEST" ]; then
-        mkdir -p "$DEST"
-        printf "  ${GREEN}✓${NC} Created ${DEST} directory\n"
+    if [ ! -d "$DEST_ROOT" ]; then
+        mkdir -p "$DEST_ROOT"
+        printf "  ${GREEN}✓${NC} Created ${DEST_ROOT} directory\n"
     fi
 
     FILE_LIST=$(mktemp)
-    find "$SOURCE" -type f > "$FILE_LIST"
+    find "$SRC_DIR" -type f > "$FILE_LIST"
 
     COPIED_FILE_COUNT=0
     while IFS= read -r SOURCE_FILE; do
         if [ -f "$SOURCE_FILE" ]; then
-            REL_PATH=${SOURCE_FILE#$SOURCE/}
-            DEST_FILE="$DEST/$REL_PATH"
+            REL_PATH=${SOURCE_FILE#$SRC_DIR/}
+            DEST_FILE="$DEST_ROOT/$REL_PATH"
             DEST_DIR=$(dirname "$DEST_FILE")
 
             if [ ! -d "$DEST_DIR" ]; then
@@ -158,7 +158,7 @@ copy_directory_contents() {
     rm -f "$FILE_LIST"
 
     if [ $COPIED_FILE_COUNT -eq 0 ]; then
-        printf "${YELLOW}Warning: No files found in template ${SOURCE}${NC}\n"
+        printf "${YELLOW}Warning: No files found in template ${SRC_DIR}${NC}\n"
     fi
 }
 
