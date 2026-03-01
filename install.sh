@@ -14,6 +14,50 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
+DRY_RUN=0
+
+for ARG in "$@"; do
+    case "$ARG" in
+        --dry-run|-n)
+            DRY_RUN=1
+            ;;
+        *)
+            printf "${RED}${BOLD}Error: Unknown argument: %s${NC}\n" "$ARG"
+            printf "Usage: sh install.sh [--dry-run]\n"
+            exit 2
+            ;;
+    esac
+done
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    printf "${CYAN}${BOLD}Repository Setup Script (DRY RUN)${NC}\n"
+    printf "${CYAN}=================================${NC}\n\n"
+
+    printf "${YELLOW}DRY RUN: no filesystem or git changes will be made.${NC}\n\n"
+    printf "${BLUE}Planned actions:${NC}\n"
+    printf "  - Backup install script to .template_scripts/install.sh\n"
+    printf "  - Reinitialize git repository (.git removal + git init)\n"
+    printf "  - Ensure docs/tasks/completed and tests directories exist\n"
+    printf "  - Run .template_scripts/update-opencode.sh (tool updates)\n"
+    printf "  - Run .template_scripts/update-bmad-method.sh\n"
+    printf "  - Create initial commit and remove install.sh\n\n"
+
+    if [ -f ".template_scripts/update-opencode.sh" ]; then
+        printf "${BLUE}Would run:${NC} sh .template_scripts/update-opencode.sh --dry-run\n"
+    else
+        printf "${YELLOW}Would skip:${NC} .template_scripts/update-opencode.sh not found\n"
+    fi
+
+    if [ -f ".template_scripts/update-bmad-method.sh" ]; then
+        printf "${BLUE}Would run:${NC} sh .template_scripts/update-bmad-method.sh\n"
+    else
+        printf "${YELLOW}Would skip:${NC} .template_scripts/update-bmad-method.sh not found\n"
+    fi
+
+    printf "\n${GREEN}Dry run completed.${NC}\n"
+    exit 0
+fi
+
 # Create a backup copy of the install script
 cp -f install.sh .template_scripts/install.sh
 

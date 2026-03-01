@@ -16,6 +16,7 @@
 - [x] **Version policy**: template tracks latest known-good versions; generated repos lock to that snapshot on install.
 - [x] **Root `pyproject.toml` invariant**: always present in generated repos, even when Python target is not selected.
 - [x] **Python lane pyproject boundary**: root `pyproject.toml` remains repo/tooling-level; Python target also scaffolds a lane-local `pyproject.toml` under the Python app directory.
+- [x] **Installer dry-run support**: `install.sh` and `.template_scripts/update-opencode.sh` support `--dry-run` for non-destructive validation.
 
 ---
 
@@ -248,10 +249,12 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Implement selectable targets model (always monorepo, selected app types only)
 - [x] Preserve first-class Python lane support in monorepo selection
 - [ ] Add contract tests for foundation scaffold shape and scripts
+- [x] Add contract tests for foundation scaffold shape and scripts
 - [ ] Ensure root `pyproject.toml` is generated for every preset combination (including non-Python selections).
 - [x] Implement non-interactive/CI mode behavior and deterministic validation errors.
 - [x] Implement `--dry-run` behavior for preflight resolution.
 - [x] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
+- [x] Add `--dry-run` mode to `install.sh` and `.template_scripts/update-opencode.sh` for non-destructive script validation.
 
 ### RED Tests (must fail first)
 
@@ -264,6 +267,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Non-interactive mode missing required choices fails without prompts.
 - [x] Any `web` + `backend` selection without auth fails with deterministic validation error.
 - [x] Simulated mid-generation failure leaves no partial repo artifacts.
+- [x] Installer and updater dry-run modes execute successfully without mutating repository state.
 
 ### DoD Gates
 

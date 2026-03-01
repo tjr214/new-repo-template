@@ -46,7 +46,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Failure-atomic RED/GREEN slice is complete with `tests/contracts/test_failure_atomicity_contract.py`.
 - Target-matrix RED/GREEN slice is complete with `tests/contracts/test_target_matrix_and_auth_contract.py`.
 - Security baseline RED/GREEN slice is complete with `tests/contracts/test_security_baseline_contract.py` and `docs/SECURITY_BASELINE.md`.
+- Installer/updater script RED/GREEN slice is complete with `tests/contracts/test_installer_scripts_dry_run_contract.py`.
 - Current scaffold implementation supports `foundation`, `python`, `web`, `backend`, `desktop`, `mobile`, and `tv` targets with non-interactive mode, dry-run support, deterministic auth validation for `web+backend`, duplicate-target validation, auth-variant env placeholders, minimal auth wiring placeholders, root `.gitignore` secret guards, and transactional scaffold writes.
+- Installer tooling now supports non-destructive script-level dry-runs and includes turborepo (`turbo`) update/install in the updater workflow.
 
 ## Validation Model
 
@@ -74,3 +76,5 @@ Current contract coverage:
   - Contract intent: multi-target validation/auth rules, duplicate target rejection, auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
 - `tests/contracts/test_security_baseline_contract.py`
   - Contract intent: root `.gitignore` secret/env protections and per-target `.env.example` placeholder generation.
+- `tests/contracts/test_installer_scripts_dry_run_contract.py`
+  - Contract intent: non-destructive `--dry-run` behavior for installer/updater scripts and turborepo updater visibility.

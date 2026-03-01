@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 01:32:49 PM
-**Current Phase:** M1 BLUE slice (gitignore source-of-truth correction) complete
+**Last Updated:** 2026-03-01 01:43:52 PM
+**Current Phase:** M1 GREEN/BLUE slice (installer/updater dry-run + turborepo tool update) complete
 
 ---
 
@@ -66,6 +66,11 @@
 - [x] Verified full suite GREEN after security baseline slice (`uv run pytest`: 20 passed).
 - [x] Corrected `.gitignore` strategy: scaffold now copies the repository root `.gitignore` baseline instead of synthesizing a new file.
 - [x] Expanded repository root `.gitignore` baseline with `.env.*`, `!.env.example`, `*.pem`, and `*.key` guards.
+- [x] Added `--dry-run` support to `.template_scripts/update-opencode.sh` with a non-destructive status table path.
+- [x] Added turborepo tool management to `.template_scripts/update-opencode.sh` (`bun add -g turbo`).
+- [x] Added `--dry-run` support to `install.sh` with explicit non-destructive plan output.
+- [x] Added contract tests for installer/updater dry-run behaviors in `tests/contracts/test_installer_scripts_dry_run_contract.py`.
+- [x] Verified full suite GREEN after script dry-run + turborepo slice (`uv run pytest`: 22 passed).
 
 ## In Progress
 
@@ -79,6 +84,7 @@
   - [x] Implement transactional/failure-atomic scaffold write path.
   - [ ] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
   - [x] Add auth-variant env placeholder scaffolding + minimal wiring placeholder files for `web+backend`.
+  - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
 
 ## Next Up
 
