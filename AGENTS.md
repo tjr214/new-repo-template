@@ -71,8 +71,8 @@
   - Multi-resource query: `btca ask -r <res1> -r <res2> -q "<question>"`
   - Cleaner output for agent pipelines: add `--sub-agent` (optionally `--no-thinking --no-tools`) to strip the additional output from the CLI
 - Resource management:
-  - Add: `btca add -n <name> -t <git|npm|local> [reference]`
-  - Remove: `btca remove <name>`
+  - Add: `btca add -n <name> -t <git|npm|local> [reference]` (and then update `docs/BTCA_RESOURCES.md`)
+  - Remove: `btca remove <name>` (also update `docs/BTCA_RESOURCES.md`)
   - Validate: `btca resources` and `btca status`
 
 #### 1.3.3 Standard Workflow for Adding/Updating BTCA Resources
