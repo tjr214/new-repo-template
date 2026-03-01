@@ -155,6 +155,8 @@ def test_nurt_template_assets_sync_dry_run_reports_action(tmp_path: Path) -> Non
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
     assert "template-assets sync" in combined_output
+    assert "update-template-from-git.sh" not in combined_output
+    assert "template source repo" in combined_output
 
 
 def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
@@ -169,7 +171,14 @@ def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
-    assert "update-opencode.sh --dry-run" in combined_output
+    assert "tool sync plan" in combined_output
+    assert "uv" in combined_output
+    assert "bun" in combined_output
+    assert "turbo" in combined_output
+    assert "opencode" in combined_output
+    assert "btca" in combined_output
+    assert "ripgrep" in combined_output
+    assert "update-opencode.sh" not in combined_output
 
 
 def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) -> None:

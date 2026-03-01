@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 02:48:03 PM
-**Current Phase:** M1 GREEN/BLUE slice (`nurt` interactive flow + snapshot asset pipeline)
+**Last Updated:** 2026-03-01 03:15:25 PM
+**Current Phase:** M1 GREEN/BLUE slice (`nurt` native sync migration)
 
 ---
 
@@ -91,6 +91,10 @@
 - [x] Expanded `nurt` contract tests to cover interactive wizard and snapshot dry-run behavior.
 - [x] Updated hatch build config to include snapshot assets in wheel/sdist.
 - [x] Verified full suite GREEN after interactive/snapshot slice (`uv run pytest`: 33 passed).
+- [x] Added native Python sync operations module at `src/new_repo_template/sync_ops.py` for toolchain and template-asset update flows.
+- [x] Replaced script-wrapper behavior in `nurt tools sync` and `nurt template-assets sync` with native Python implementations.
+- [x] Expanded `nurt` dry-run contract assertions to verify script-free native sync planning output.
+- [x] Verified full suite GREEN after native sync migration (`uv run pytest`: 33 passed).
 
 ## In Progress
 
@@ -108,7 +112,7 @@
 
 - [ ] Nurt migration implementation:
   - [x] Introduce `nurt` CLI entrypoint and command router.
-  - [ ] Migrate installer/update orchestration into `nurt` subcommands beyond script-wrapper behavior.
+  - [x] Migrate installer/update orchestration into `nurt` subcommands beyond script-wrapper behavior.
   - [x] Implement mandatory startup update-check and `nurt update` flow.
   - [x] Implement snapshot asset generation + packaged asset loading path.
   - [ ] Implement polished Rich/Textual interactive UI layer for `nurt new` (current prompt wizard baseline is in place).
@@ -117,7 +121,7 @@
 
 - [ ] Expand RED tests for remaining unsupported mixed-combo cases and future interactive fallback semantics.
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
-- [ ] Replace script-wrapper behavior in `nurt tools sync` and `nurt template-assets sync` with native Python implementations.
+- [ ] Add non-dry-run contract coverage for native `nurt tools sync` / `nurt template-assets sync` validation and failure messaging.
 - [ ] Define version baseline metadata and maintainer update/check workflow.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.

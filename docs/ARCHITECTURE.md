@@ -56,6 +56,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - `nurt new` now includes interactive prompt-based target/auth resolution path.
 - Snapshot assets are bundled under `src/new_repo_template/snapshot_assets/` and loaded at runtime via `importlib.resources`.
 - Snapshot generation command path is implemented at `nurt template-assets snapshot` using manifest-driven source entries and metadata hashing.
+- Script-wrapper migration slice is complete for sync commands: `nurt tools sync` and `nurt template-assets sync` now call native Python operations in `src/new_repo_template/sync_ops.py`.
 
 ## Validation Model
 

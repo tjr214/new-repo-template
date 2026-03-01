@@ -214,7 +214,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [x] `nurt new --dry-run` is non-destructive and validates full scaffold plan resolution.
 - [ ] Existing template governance/workflow assets remain in generated repos; scaffold output overlays app/runtime files only.
 - [x] `nurt template-assets sync` replaces template asset sync script behavior with one cohesive command.
-- [ ] `nurt tools sync` consolidates tool update/install behavior currently spread across scripts.
+- [x] `nurt tools sync` consolidates tool update/install behavior currently spread across scripts.
 
 ### 4.3 Snapshot Asset Packaging Contract (for `nurt`)
 
@@ -575,6 +575,6 @@ The program is complete when:
 - [x] Add first RED tests for `nurt new` parity with current scaffold contracts.
 - [x] Add RED tests for `nurt` startup update-check behavior and `nurt update` execution path.
 - [x] Add snapshot asset generation command + metadata manifest scaffolding and tests.
-- [ ] Replace script-wrapper behavior inside `nurt tools sync` / `nurt template-assets sync` with native Python command implementations.
+- [x] Replace script-wrapper behavior inside `nurt tools sync` / `nurt template-assets sync` with native Python command implementations.
 - [ ] Implement polished Rich/Textual interactive UI for `nurt new` (current prompt wizard is functional baseline).
 - [ ] Keep documentation synchronized continuously during implementation.

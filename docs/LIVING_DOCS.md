@@ -67,7 +67,8 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Installer/tooling script slice complete: `install.sh` and `.template_scripts/update-opencode.sh` now support `--dry-run`, and updater flow now includes turborepo (`turbo`) install/update handling.
 - Installer orchestration is now aligned with clone-and-run paradigm: `install.sh` forwards target/auth inputs to scaffold planning/apply flows while preserving existing template governance assets.
 - New strategic direction: migrate fully to global `nurt` command model (`new`, `update`, `tools sync`, `template-assets sync`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
-- `nurt` bootstrap implementation is now in place with command routing and startup update-check hook; current `tools sync` and `template-assets sync` paths still wrap existing scripts while deeper migration work continues.
+- `nurt` bootstrap implementation is now in place with command routing and startup update-check hook.
 - `nurt new` now supports interactive target/auth prompt flow when flags are omitted.
 - Snapshot asset pipeline is now active: scaffold content is loaded from bundled package templates, and `nurt template-assets snapshot` can regenerate packaged assets + metadata.
+- `nurt tools sync` and `nurt template-assets sync` now execute native Python operations (no script wrapper dependency in CLI command handlers).
 - Current blocker/caveat: intermittent BTCA `bun` resource clone/fetch failures; cache reset via `btca clear` helps transiently but needs follow-up hardening guidance.

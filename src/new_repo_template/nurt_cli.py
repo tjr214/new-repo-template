@@ -8,6 +8,7 @@ from pathlib import Path
 
 from new_repo_template import scaffold
 from new_repo_template.snapshot_builder import build_snapshot_assets
+from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
 
 
 AUTH_CHOICES: tuple[str, str] = ("clerk", "better-auth")
@@ -204,43 +205,11 @@ def handle_update(args: argparse.Namespace) -> int:
 
 
 def handle_tools_sync(args: argparse.Namespace) -> int:
-    script_path = Path.cwd() / ".template_scripts" / "update-opencode.sh"
-    if args.dry_run:
-        print("DRY RUN: tools sync")
-        print(
-            "DRY RUN: would execute `sh .template_scripts/update-opencode.sh --dry-run`"
-        )
-        return 0
-
-    if not script_path.exists():
-        print(
-            "Error: tools sync script not found at .template_scripts/update-opencode.sh",
-            file=sys.stderr,
-        )
-        return 1
-
-    result = subprocess.run(["sh", str(script_path)], check=False)
-    return result.returncode
+    return run_tools_sync(dry_run=args.dry_run)
 
 
 def handle_template_assets_sync(args: argparse.Namespace) -> int:
-    script_path = Path.cwd() / ".template_scripts" / "update-template-from-git.sh"
-    if args.dry_run:
-        print("DRY RUN: template-assets sync")
-        print(
-            "DRY RUN: would execute `sh .template_scripts/update-template-from-git.sh`"
-        )
-        return 0
-
-    if not script_path.exists():
-        print(
-            "Error: template-assets sync script not found at .template_scripts/update-template-from-git.sh",
-            file=sys.stderr,
-        )
-        return 1
-
-    result = subprocess.run(["sh", str(script_path)], check=False)
-    return result.returncode
+    return run_template_assets_sync(dry_run=args.dry_run, project_root=Path.cwd())
 
 
 def handle_template_assets_snapshot(args: argparse.Namespace) -> int:
