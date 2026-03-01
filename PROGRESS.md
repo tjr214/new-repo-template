@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 01:43:52 PM
-**Current Phase:** M1 GREEN/BLUE slice (installer/updater dry-run + turborepo tool update) complete
+**Last Updated:** 2026-03-01 01:53:11 PM
+**Current Phase:** M1 GREEN/BLUE slice (installer scaffold orchestration alignment) complete
 
 ---
 
@@ -71,6 +71,10 @@
 - [x] Added `--dry-run` support to `install.sh` with explicit non-destructive plan output.
 - [x] Added contract tests for installer/updater dry-run behaviors in `tests/contracts/test_installer_scripts_dry_run_contract.py`.
 - [x] Verified full suite GREEN after script dry-run + turborepo slice (`uv run pytest`: 22 passed).
+- [x] Wired `install.sh` to invoke the scaffold engine (`src/new_repo_template/scaffold.py`) for both dry-run planning and non-dry apply flows.
+- [x] Added installer dry-run contract coverage for forwarding target/auth options into scaffold planning output.
+- [x] Updated `PLAN.md` with explicit clone -> `install.sh` orchestration contract semantics.
+- [x] Verified full suite GREEN after installer orchestration alignment (`uv run pytest`: 23 passed).
 
 ## In Progress
 

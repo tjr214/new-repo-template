@@ -194,6 +194,18 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [x] Generator writes are failure-atomic: no partial scaffold output remains on failure.
 - [x] Implement transactional write strategy (stage temp output then atomic move) or guaranteed cleanup-on-failure.
 
+### 4.2 Installation Orchestration Contract (Clone -> `install.sh`)
+
+- [x] Primary execution flow remains: clone template repo, then run `sh install.sh`.
+- [x] `install.sh` is the entrypoint that orchestrates scaffold selection and setup tasks.
+- [x] `install.sh` supports scaffold selection flags (`--target` repeatable, optional `--auth`) and forwards them to the scaffold engine.
+- [x] If no targets are provided to `install.sh`, default scaffold selection is `foundation`.
+- [x] Installer dry-run mode (`--dry-run`) is non-destructive and validates scaffold resolution plus updater dry-run flow.
+- [x] Non-dry installer flow applies scaffold output in-place before repo reinitialization.
+- [x] Existing template governance/workflow assets remain in generated repos; scaffold output overlays app/runtime files only.
+- [x] Updater script (`.template_scripts/update-opencode.sh`) includes turborepo (`turbo`) install/update handling.
+- [x] Updater dry-run mode (`--dry-run`) is non-destructive and suitable for RED-phase script validation.
+
 ---
 
 ## 5) Execution Method (Required)
@@ -248,13 +260,13 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Implement generator CLI: flags + interactive wizard fallback
 - [x] Implement selectable targets model (always monorepo, selected app types only)
 - [x] Preserve first-class Python lane support in monorepo selection
-- [ ] Add contract tests for foundation scaffold shape and scripts
 - [x] Add contract tests for foundation scaffold shape and scripts
 - [ ] Ensure root `pyproject.toml` is generated for every preset combination (including non-Python selections).
 - [x] Implement non-interactive/CI mode behavior and deterministic validation errors.
 - [x] Implement `--dry-run` behavior for preflight resolution.
 - [x] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
 - [x] Add `--dry-run` mode to `install.sh` and `.template_scripts/update-opencode.sh` for non-destructive script validation.
+- [x] Integrate scaffold engine invocation into installer flow while preserving existing template assets.
 
 ### RED Tests (must fail first)
 
