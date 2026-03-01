@@ -19,6 +19,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Convex workflow: cloud-first
 - CI platform: GitHub Actions
 - Platform support policy: native macOS + Linux + Windows (WSL optional supplemental only)
+- Version policy: latest known-good baseline in template, deterministic lockfile state in generated repos
+- Scaffold contract: explicit preset-combination matrix and deterministic non-interactive CLI behavior
 
 ## Planned Topology
 
@@ -35,3 +37,5 @@ Implementation follows a strict YELLOW-RED-GREEN-BLUE loop:
 - BLUE: refactor and harden
 
 DoD is enforced by contract tests under `tests/` plus CI matrix checks across Linux/macOS/Windows.
+
+Baseline CI is credentialless for cloud-first Convex wiring checks; credential-dependent deployment tests are optional and separately gated.

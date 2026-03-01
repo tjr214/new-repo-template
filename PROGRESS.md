@@ -11,6 +11,7 @@
 - [x] Finalized core stack decisions (Turbo + Bun, cloud-first Convex, Electron Forge, Expo TV path).
 - [x] Defined CI direction (GitHub Actions with required native Windows checks).
 - [x] Created comprehensive execution plan at `PLAN.md`.
+- [x] Incorporated plan guardrails: upfront version policy, preset matrix, CLI behavior contract, secret-free Convex CI strategy, Python lane contract, security baseline, BTCA governance logging.
 
 ## In Progress
 

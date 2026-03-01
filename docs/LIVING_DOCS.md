@@ -26,9 +26,12 @@ The canonical execution checklist is in `PLAN.md`.
 - Mobile: Expo with AndroidTV path
 - CI: GitHub Actions with required native Windows checks
 - Signing: deferred to hardening; unsigned internal builds allowed in early phases
+- Versioning: template tracks latest known-good versions, generated repos lock deterministic install state via lockfiles
+- Convex CI baseline: credentialless wiring checks only (no external secrets required)
 
 ## Known Constraints
 
 - BTCA project resources are approved and must be added/synced before implementation research begins in earnest.
 - Native Windows validation must not be replaced by WSL-only checks.
 - AndroidTV support includes emulator automation plus manual Shield checklist.
+- Fullstack auth choice has no default and must be explicitly selected in non-interactive runs.
