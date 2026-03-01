@@ -20,6 +20,7 @@
 ## 0) Purpose
 
 Build an always-monorepo template that supports:
+
 - Fullstack web: TanStack Start + Convex
 - Auth options for Convex apps: Clerk or Better Auth (explicit prompt, no default)
 - Desktop frontend: Electron (dedicated desktop app)
@@ -52,11 +53,13 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 ## 2) Platform Support Policy (DoD Scope)
 
 ### Runtime/Dev Scope
+
 - [ ] Native macOS support
 - [ ] Native Linux support
 - [ ] Native Windows support (no WSL dependency for core JS/TS flow)
 
 ### Windows Clarification
+
 - [ ] Windows CI validates native Windows behavior for Bun scripts, TypeScript tooling, TanStack app flows, Convex CLI flows, and Electron packaging.
 - [ ] WSL checks (if added later) are non-blocking supplemental validation.
 
@@ -78,11 +81,13 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [ ] Add `better-auth-core` (git: `better-auth/better-auth`)
 
 ### 3.2 BTCA Sync Requirements
+
 - [ ] Ensure project-level resources in `btca.config.jsonc` match `docs/BTCA_RESOURCES.md`
 - [ ] Validate with `btca resources` and `btca status`
 - [ ] Keep `docs/BTCA_RESOURCES.md` fully in-sync at each resource change
 
 ### 3.3 YELLOW Lookup Checklist (must be completed before implementation of each milestone)
+
 - [ ] Ask Turborepo best practices for Bun workspaces, caching, and pipeline design.
 - [ ] Ask TanStack Start project structure, SSR/runtime expectations, and monorepo guidance.
 - [ ] Ask Convex cloud-first workflow expectations and codegen/versioning guidance.
@@ -113,16 +118,18 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 ## 5) Execution Method (Required)
 
 For each implementation unit, follow:
+
 - [ ] **YELLOW**: scan/read all relevant files + run BTCA resource-specific asks before coding.
 - [ ] **RED**: add failing tests first (contract/integration-first for template scaffolding).
 - [ ] **GREEN**: implement minimum code required to pass RED tests.
 - [ ] **BLUE**: refactor/harden while preserving passing tests.
 
 Documentation must be updated continuously during GREEN/BLUE:
+
 - [ ] `docs/LIVING_DOCS.md`
 - [ ] `docs/ARCHITECTURE.md`
 - [ ] `PROGRESS.md`
-- [ ] New `SESSION_X_SUMMARY.md` (never overwrite existing summaries)
+- [ ] New `docs/session-summaries/SESSION_X_SUMMARY.md` (never overwrite existing summaries)
 
 ---
 
@@ -131,6 +138,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## M0 - Planning Baseline + BTCA Foundation
 
 ### Tasks
+
 - [ ] Add approved BTCA resources (1-10)
 - [ ] Create/seed missing docs: `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`
 - [ ] Expand `PROGRESS.md` from template placeholder to active tracker
@@ -138,6 +146,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Define generator contract test scaffolding under `tests/`
 
 ### DoD Gates
+
 - [ ] `btca status` and `btca resources` are valid
 - [ ] `docs/BTCA_RESOURCES.md` matches project resources exactly
 - [ ] Planning docs exist and are internally consistent
@@ -148,6 +157,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## M1 - Always-On Monorepo Foundation
 
 ### Tasks
+
 - [ ] Add root workspace config (`package.json` workspaces, `turbo.json`, Bun setup)
 - [ ] Add cross-platform-safe scripts (avoid bash-only assumptions for core commands)
 - [ ] Implement generator CLI: flags + interactive wizard fallback
@@ -156,12 +166,14 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add contract tests for foundation scaffold shape and scripts
 
 ### RED Tests (must fail first)
+
 - [ ] Generated repo always has monorepo root shape
 - [ ] Turbo tasks are wired for selected targets
 - [ ] Bun workspace install works
 - [ ] Python-selected target scaffolds expected files and runs baseline checks
 
 ### DoD Gates
+
 - [ ] Foundation scaffold tests pass
 - [ ] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
 - [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
@@ -171,6 +183,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## M2 - Fullstack Web Preset (TanStack Start + Convex + Auth Choice)
 
 ### Tasks
+
 - [ ] Scaffold `apps/web` for TanStack Start
 - [ ] Scaffold `apps/backend` for Convex cloud workflow
 - [ ] Add explicit auth selection prompt (`clerk` or `better-auth`)
@@ -178,12 +191,14 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add shared package integration where appropriate
 
 ### RED Tests
+
 - [ ] `fullstack + clerk` scaffold contract test
 - [ ] `fullstack + better-auth` scaffold contract test
 - [ ] Convex codegen and startup command smoke checks
 - [ ] Auth-required env template assertions
 
 ### DoD Gates
+
 - [ ] Both auth presets pass contract tests
 - [ ] Local dev flow works for cloud Convex mode
 - [ ] Native Windows backend dev/test commands pass in CI
@@ -194,6 +209,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## M3 - Desktop Preset (Electron via Forge)
 
 ### Tasks
+
 - [ ] Scaffold dedicated `apps/desktop`
 - [ ] Integrate Electron Forge with monorepo/Turbo tasks
 - [ ] Reuse shared UI/util packages with web where practical
@@ -201,11 +217,13 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add internal distribution guidance for unsigned artifacts
 
 ### RED Tests
+
 - [ ] Desktop scaffold contract test
 - [ ] Electron app starts in dev mode
 - [ ] Desktop packaging smoke tests per OS (unsigned)
 
 ### DoD Gates
+
 - [ ] Desktop dev/build/package passes in CI (macOS/Linux/Windows)
 - [ ] Native Windows Electron packaging passes
 - [ ] No signing required for milestone completion
@@ -216,6 +234,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## M4 - Mobile + AndroidTV Preset (Expo)
 
 ### Tasks
+
 - [ ] Scaffold `apps/mobile` with Expo baseline
 - [ ] Add AndroidTV-ready configuration path
 - [ ] Wire TV-related config/plugin conventions
@@ -223,11 +242,13 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add focus/navigation baseline patterns checklist
 
 ### RED Tests
+
 - [ ] Mobile scaffold contract test
 - [ ] TV config contract test (plugin/config presence and expected wiring)
 - [ ] Android build profile checks for TV mode
 
 ### DoD Gates
+
 - [ ] Expo mobile baseline passes lint/typecheck/tests
 - [ ] AndroidTV emulator validation checklist completed
 - [ ] Manual Shield checklist completed and logged
@@ -238,6 +259,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## M5 - Hardening, CI Maturity, and Release Readiness
 
 ### Tasks
+
 - [ ] Expand GitHub Actions matrix and cache strategy
 - [ ] Add branch protection guidance (required status checks)
 - [ ] Add regression suite across preset combinations
@@ -245,6 +267,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add optional signing pipeline design (disabled by default)
 
 ### DoD Gates
+
 - [ ] Required CI jobs green on PRs
 - [ ] Preset combination matrix passes
 - [ ] `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, `PROGRESS.md` fully synced
@@ -256,11 +279,13 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## 7) GitHub Actions CI Design (Initial)
 
 ### 7.1 Workflow Files
+
 - [ ] `.github/workflows/ci.yml` (required)
 - [ ] `.github/workflows/release.yml` (later)
 - [ ] `.github/workflows/nightly.yml` (optional)
 
 ### 7.2 Required CI Matrix (initial)
+
 - [ ] OS matrix: `ubuntu-latest`, `macos-latest`, `windows-latest`
 - [ ] Foundation tasks: install, lint, typecheck, tests
 - [ ] Scaffold contract tests for selected presets
@@ -268,6 +293,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Windows-native Electron package smoke check
 
 ### 7.3 Non-Blocking/Deferred CI
+
 - [ ] Signing/notarization jobs (run only if secrets exist)
 - [ ] iOS packaging (macOS + signing assets) deferred
 - [ ] Full installer publishing deferred until hardening
@@ -277,10 +303,12 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## 8) Code Signing/Notarization Strategy
 
 ### Current Policy (development phase)
+
 - [ ] Unsigned builds are acceptable for local/internal use.
 - [ ] CI requires successful unsigned packaging, not signed release artifacts.
 
 ### Future Policy (hardening/release phase)
+
 - [ ] Add optional signing jobs behind secrets and release flags.
 - [ ] Keep unsigned path available for internal/private distribution.
 - [ ] Document trust/warning expectations for unsigned apps.
@@ -299,6 +327,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## 10) Generator Contract and Test Strategy
 
 ### 10.1 Contract-First Tests (in `tests/`)
+
 - [ ] Foundation scaffold contract tests
 - [ ] Fullstack auth variant tests
 - [ ] Desktop scaffold tests
@@ -307,6 +336,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Cross-platform command smoke tests
 
 ### 10.2 Test Rules
+
 - [ ] Tests create disposable temp output dirs
 - [ ] No external credentials required for baseline tests
 - [ ] Deterministic assertions on files/config/scripts
@@ -317,11 +347,12 @@ Documentation must be updated continuously during GREEN/BLUE:
 ## 11) Documentation and Tracking Protocol
 
 During implementation, after each substantial slice:
+
 - [ ] Update `PROGRESS.md` with timestamp, phase, completed items, and next tasks
 - [ ] Update `docs/LIVING_DOCS.md` with practical notes and known caveats
 - [ ] Update `docs/ARCHITECTURE.md` with decision/rationale updates
 - [ ] Update `docs/BTCA_RESOURCES.md` if BTCA resources changed
-- [ ] Create a new session summary (`SESSION_X_SUMMARY.md`) without overwriting existing files
+- [ ] Create a new session summary (`docs/session-summaries/SESSION_X_SUMMARY.md`) without overwriting existing files
 
 ---
 
@@ -339,6 +370,7 @@ During implementation, after each substantial slice:
 ## 13) Final DoD (Program-Level)
 
 The program is complete when:
+
 - [ ] Always-monorepo template generation works with flags + wizard.
 - [ ] Presets are available: web/backend/auth variants, desktop Electron, mobile Expo/TV, python lane.
 - [ ] Required CI matrix is green on Linux/macOS/Windows.
