@@ -1,1 +1,1 @@
-"""New repo template scaffolder package."""
+"""nurt.ai (Nu-Repo Template) scaffolder package."""

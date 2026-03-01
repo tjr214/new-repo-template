@@ -7,6 +7,10 @@ import sys
 from pathlib import Path
 
 from new_repo_template import scaffold
+from new_repo_template.snapshot_builder import build_snapshot_assets
+
+
+AUTH_CHOICES: tuple[str, str] = ("clerk", "better-auth")
 
 
 def perform_startup_update_check() -> None:
@@ -41,6 +45,62 @@ def perform_startup_update_check() -> None:
         print("Update available for nurt. Run `nurt update`.", file=sys.stderr)
 
 
+def prompt_targets() -> list[str]:
+    print("nurt new interactive mode")
+    print("Select targets (comma-separated):")
+    for index, target in enumerate(scaffold.TARGET_CHOICES, start=1):
+        print(f"  {index}) {target}")
+
+    while True:
+        user_input = input("Targets [foundation]: ").strip()
+        if user_input == "":
+            return ["foundation"]
+
+        choices: list[str] = []
+        invalid_tokens: list[str] = []
+        for token in [piece.strip().lower() for piece in user_input.split(",")]:
+            if token == "":
+                continue
+            if token.isdigit():
+                index = int(token)
+                if 1 <= index <= len(scaffold.TARGET_CHOICES):
+                    token = scaffold.TARGET_CHOICES[index - 1]
+                else:
+                    invalid_tokens.append(token)
+                    continue
+
+            if token not in scaffold.TARGET_CHOICES:
+                invalid_tokens.append(token)
+                continue
+
+            if token not in choices:
+                choices.append(token)
+
+        if invalid_tokens:
+            print(
+                "Invalid target selection:", ", ".join(invalid_tokens), file=sys.stderr
+            )
+            continue
+        if not choices:
+            print("At least one target must be selected.", file=sys.stderr)
+            continue
+        return choices
+
+
+def prompt_auth() -> str:
+    print("Select auth provider for web+backend:")
+    print("  1) clerk")
+    print("  2) better-auth")
+
+    while True:
+        user_input = input("Auth [clerk]: ").strip().lower()
+        if user_input in {"", "1", "clerk"}:
+            return "clerk"
+        if user_input in {"2", "better-auth"}:
+            return "better-auth"
+        print("Invalid auth choice. Use 1, 2, clerk, or better-auth.", file=sys.stderr)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nurt")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -50,7 +110,8 @@ def build_parser() -> argparse.ArgumentParser:
     new_parser.add_argument(
         "--target", action="append", choices=scaffold.TARGET_CHOICES
     )
-    new_parser.add_argument("--auth", choices=("clerk", "better-auth"))
+    new_parser.add_argument("--auth", choices=AUTH_CHOICES)
+    new_parser.add_argument("--no-interactive", action="store_true")
     new_parser.add_argument("--dry-run", action="store_true")
     new_parser.set_defaults(handler=handle_new)
 
@@ -67,7 +128,7 @@ def build_parser() -> argparse.ArgumentParser:
     tools_sync_parser.set_defaults(handler=handle_tools_sync)
 
     template_assets_parser = subparsers.add_parser(
-        "template-assets", help="Sync template assets"
+        "template-assets", help="Template asset operations"
     )
     template_assets_subparsers = template_assets_parser.add_subparsers(
         dest="template_assets_command", required=True
@@ -78,19 +139,43 @@ def build_parser() -> argparse.ArgumentParser:
     template_assets_sync_parser.add_argument("--dry-run", action="store_true")
     template_assets_sync_parser.set_defaults(handler=handle_template_assets_sync)
 
+    template_assets_snapshot_parser = template_assets_subparsers.add_parser(
+        "snapshot", help="Generate bundled snapshot assets from source manifest"
+    )
+    template_assets_snapshot_parser.add_argument("--dry-run", action="store_true")
+    template_assets_snapshot_parser.add_argument(
+        "--source-root", type=Path, default=Path.cwd()
+    )
+    template_assets_snapshot_parser.add_argument("--output-root", type=Path)
+    template_assets_snapshot_parser.set_defaults(
+        handler=handle_template_assets_snapshot
+    )
+
     return parser
 
 
 def handle_new(args: argparse.Namespace) -> int:
     output_path = (Path.cwd() / args.project_name).resolve()
-    selected_targets = args.target if args.target else ["foundation"]
+
+    selected_targets: list[str]
+    selected_auth = args.auth
+    if args.target:
+        selected_targets = list(args.target)
+    elif args.no_interactive:
+        selected_targets = ["foundation"]
+    else:
+        selected_targets = prompt_targets()
+
+    has_web_backend = "web" in selected_targets and "backend" in selected_targets
+    if has_web_backend and selected_auth is None and not args.no_interactive:
+        selected_auth = prompt_auth()
 
     scaffold_args: list[str] = []
     for target in selected_targets:
         scaffold_args.extend(["--target", target])
 
-    if args.auth is not None:
-        scaffold_args.extend(["--auth", args.auth])
+    if selected_auth is not None:
+        scaffold_args.extend(["--auth", selected_auth])
 
     scaffold_args.extend(["--no-interactive", "--output", str(output_path)])
     if args.dry_run:
@@ -156,6 +241,34 @@ def handle_template_assets_sync(args: argparse.Namespace) -> int:
 
     result = subprocess.run(["sh", str(script_path)], check=False)
     return result.returncode
+
+
+def handle_template_assets_snapshot(args: argparse.Namespace) -> int:
+    source_root = args.source_root.resolve()
+    if args.output_root is None:
+        output_root = source_root / "src" / "new_repo_template" / "snapshot_assets"
+    else:
+        output_root = args.output_root.resolve()
+
+    result = build_snapshot_assets(
+        source_root=source_root,
+        output_root=output_root,
+        dry_run=args.dry_run,
+    )
+
+    if args.dry_run:
+        print("DRY RUN: template-assets snapshot")
+        for relative_path in result.copied_files:
+            print(f"  - would copy: {relative_path}")
+        print("DRY RUN: metadata would be written to metadata.json")
+        return 0
+
+    print("Snapshot generation completed:")
+    for relative_path in result.copied_files:
+        print(f"  - copied: {relative_path}")
+    if result.metadata_path is not None:
+        print(f"  - metadata: {result.metadata_path}")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

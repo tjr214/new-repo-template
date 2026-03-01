@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "templates": [
+    "root_gitignore.txt",
+    "root_pyproject_base.toml",
+    "python_workspace_section.toml",
+    "python_lane_pyproject.toml",
+    "python_lane_readme.md",
+    "python_lane_init.py",
+    "python_lane_test.txt",
+    "env/python.env",
+    "env/web.env",
+    "env/backend.env",
+    "env/desktop.env",
+    "env/mobile.env",
+    "env/tv.env",
+    "auth_env/web_clerk.env",
+    "auth_env/backend_clerk.env",
+    "auth_env/web_better_auth.env",
+    "auth_env/backend_better_auth.env",
+    "wiring/backend_auth_config.ts",
+    "wiring/web_auth_provider_clerk.ts",
+    "wiring/web_auth_client_better_auth.ts"
+  ]
+}

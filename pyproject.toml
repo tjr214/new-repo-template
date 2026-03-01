@@ -28,6 +28,15 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/new_repo_template"]
+include = ["src/new_repo_template/snapshot_assets/**"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "README.md",
+  "pyproject.toml",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

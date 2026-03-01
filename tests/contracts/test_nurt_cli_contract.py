@@ -7,7 +7,11 @@ from pathlib import Path
 
 
 def run_nurt_command(
-    *, cwd: Path, args: list[str], env: dict[str, str] | None = None
+    *,
+    cwd: Path,
+    args: list[str],
+    env: dict[str, str] | None = None,
+    input_text: str | None = None,
 ) -> subprocess.CompletedProcess[str]:
     command_env = os.environ.copy()
     repo_root = Path(__file__).resolve().parents[2]
@@ -21,6 +25,7 @@ def run_nurt_command(
         cwd=cwd,
         capture_output=True,
         text=True,
+        input=input_text,
         env=command_env,
         check=False,
     )
@@ -59,12 +64,12 @@ def test_nurt_new_dry_run_generates_scaffold_plan_without_writing(
 
 
 def test_nurt_new_defaults_to_foundation_when_targets_omitted(tmp_path: Path) -> None:
-    """RED: nurt new should default target selection to foundation when omitted."""
+    """RED: nurt new should default to foundation in non-interactive mode."""
 
     output_dir = tmp_path / "demo-foundation"
     result = run_nurt_command(
         cwd=tmp_path,
-        args=["new", output_dir.name, "--dry-run"],
+        args=["new", output_dir.name, "--dry-run", "--no-interactive"],
     )
 
     assert result.returncode == 0, (
@@ -74,6 +79,30 @@ def test_nurt_new_defaults_to_foundation_when_targets_omitted(tmp_path: Path) ->
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "- targets: foundation" in combined_output
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
+def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
+    tmp_path: Path,
+) -> None:
+    """Interactive wizard should resolve targets and auth without explicit flags."""
+
+    output_dir = tmp_path / "demo-interactive"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="3,4\n2\n",
+    )
+
+    assert result.returncode == 0, (
+        "Expected interactive nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "nurt new interactive mode" in combined_output
+    assert "- targets: web, backend" in combined_output
+    assert "- auth: better-auth" in combined_output
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -99,7 +128,7 @@ def test_nurt_startup_update_check_notice_appears_when_update_available(
 
     result = run_nurt_command(
         cwd=tmp_path,
-        args=["new", "demo-update-notice", "--dry-run"],
+        args=["new", "demo-update-notice", "--dry-run", "--no-interactive"],
         env={"NURT_UPDATE_CHECK_SIMULATE": "9.9.9"},
     )
 
@@ -141,3 +170,29 @@ def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
     assert "update-opencode.sh --dry-run" in combined_output
+
+
+def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) -> None:
+    """template-assets snapshot dry-run should report snapshot planning details."""
+
+    (tmp_path / ".gitignore").write_text(".env\n", encoding="utf-8")
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "template-assets",
+            "snapshot",
+            "--dry-run",
+            "--source-root",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected template-assets snapshot dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "DRY RUN" in combined_output
+    assert "would copy: templates/root_gitignore.txt" in combined_output

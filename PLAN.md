@@ -205,8 +205,8 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [ ] `nurt` is installed from git using uv tools (`uv tool install --from git+... nurt`).
 - [x] `nurt` always performs update-check logic at command startup and prints deterministic notice when an update exists.
 - [x] `nurt update` performs explicit tool upgrade flow.
-- [ ] `nurt new` supports both interactive wizard/TUI mode and non-interactive flag mode.
-- [ ] If no targets are provided to `nurt new`, interactive mode should resolve target/auth selection via prompts.
+- [x] `nurt new` supports both interactive wizard/TUI mode and non-interactive flag mode.
+- [x] If no targets are provided to `nurt new`, interactive mode should resolve target/auth selection via prompts.
 - [x] `nurt new --dry-run` is non-destructive and validates full scaffold plan resolution.
 - [ ] Existing template governance/workflow assets remain in generated repos; scaffold output overlays app/runtime files only.
 - [x] `nurt template-assets sync` replaces template asset sync script behavior with one cohesive command.
@@ -214,14 +214,14 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 ### 4.3 Snapshot Asset Packaging Contract (for `nurt`)
 
-- [ ] Source-of-truth assets are declared by manifest (explicit include/exclude list, deterministic ordering).
-- [ ] Snapshot generation command produces bundled package assets from manifest-scoped files.
-- [ ] Snapshot generation writes metadata manifest (source commit, generation timestamp, file hashes, nurt version).
-- [ ] Packaged snapshot files are included in the wheel/sdist via hatchling build config and loaded at runtime with `importlib.resources`.
-- [ ] `nurt new` uses bundled snapshot assets by default (offline-capable, deterministic behavior).
-- [ ] `nurt template-assets sync` can pull/update live assets from the template repository on demand.
-- [ ] Snapshot generation validates forbidden-path exclusions (`.git`, caches, virtualenvs, local secrets).
-- [ ] RED tests assert snapshot determinism and packaged-asset availability after install.
+- [x] Source-of-truth assets are declared by manifest (explicit include/exclude list, deterministic ordering).
+- [x] Snapshot generation command produces bundled package assets from manifest-scoped files.
+- [x] Snapshot generation writes metadata manifest (source commit, generation timestamp, file hashes, nurt version).
+- [x] Packaged snapshot files are included in the wheel/sdist via hatchling build config and loaded at runtime with `importlib.resources`.
+- [x] `nurt new` uses bundled snapshot assets by default (offline-capable, deterministic behavior).
+- [x] `nurt template-assets sync` can pull/update live assets from the template repository on demand.
+- [x] Snapshot generation validates forbidden-path exclusions (`.git`, caches, virtualenvs, local secrets).
+- [x] RED tests assert snapshot determinism and packaged-asset availability after install.
 
 ---
 
@@ -274,7 +274,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 - [ ] Add root workspace config (`package.json` workspaces, `turbo.json`, Bun setup)
 - [ ] Add cross-platform-safe scripts (avoid bash-only assumptions for core commands)
-- [ ] Implement generator CLI: flags + interactive wizard fallback
+- [x] Implement generator CLI: flags + interactive wizard fallback
 - [x] Implement global CLI entrypoint `nurt` with `new`, `update`, `tools sync`, and `template-assets sync` commands.
 - [x] Implement selectable targets model (always monorepo, selected app types only)
 - [x] Preserve first-class Python lane support in monorepo selection
@@ -284,7 +284,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Implement `--dry-run` behavior for preflight resolution.
 - [x] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
 - [x] Add `--dry-run` mode to `nurt new` and `nurt tools sync` for non-destructive validation.
-- [ ] Integrate scaffold engine invocation into `nurt new` while preserving existing template assets.
+- [x] Integrate scaffold engine invocation into `nurt new` while preserving existing template assets.
 - [ ] Remove script-first bootstrap path from user docs in favor of global `nurt` command flow.
 
 ### RED Tests (must fail first)
@@ -299,14 +299,14 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Any `web` + `backend` selection without auth fails with deterministic validation error.
 - [x] Simulated mid-generation failure leaves no partial repo artifacts.
 - [x] `nurt new --dry-run` and `nurt tools sync --dry-run` execute successfully without mutating repository state.
-- [ ] `nurt new` interactive wizard flow resolves targets/auth and produces deterministic equivalent plan output.
+- [x] `nurt new` interactive wizard flow resolves targets/auth and produces deterministic equivalent plan output.
 
 ### DoD Gates
 
 - [x] Foundation scaffold tests pass
 - [ ] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
 - [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
-- [ ] CLI behavior contract tests pass for interactive and non-interactive paths.
+- [x] CLI behavior contract tests pass for interactive and non-interactive paths.
 - [ ] Root `pyproject.toml` invariant is enforced by tests across required matrix combinations.
 - [x] Failure-atomicity tests pass (transactional write or cleanup-on-failure verified).
 
@@ -567,8 +567,10 @@ The program is complete when:
 
 ## 14) Immediate Next Actions (Build Mode Step 1)
 
-- [ ] Start `nurt` CLI migration slice: introduce global command entrypoint and command routing (`new`, `update`, `tools sync`, `template-assets sync`).
-- [ ] Add first RED tests for `nurt new` parity with current scaffold contracts.
-- [ ] Add RED tests for `nurt` startup update-check behavior and `nurt update` execution path.
-- [ ] Add snapshot asset generation command + metadata manifest scaffolding and tests.
+- [x] Start `nurt` CLI migration slice: introduce global command entrypoint and command routing (`new`, `update`, `tools sync`, `template-assets sync`).
+- [x] Add first RED tests for `nurt new` parity with current scaffold contracts.
+- [x] Add RED tests for `nurt` startup update-check behavior and `nurt update` execution path.
+- [x] Add snapshot asset generation command + metadata manifest scaffolding and tests.
+- [ ] Replace script-wrapper behavior inside `nurt tools sync` / `nurt template-assets sync` with native Python command implementations.
+- [ ] Implement polished Rich/Textual interactive UI for `nurt new` (current prompt wizard is functional baseline).
 - [ ] Keep documentation synchronized continuously during implementation.

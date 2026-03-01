@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 02:34:22 PM
-**Current Phase:** M1 GREEN slice (`nurt` command bootstrap + startup update-check)
+**Last Updated:** 2026-03-01 02:48:03 PM
+**Current Phase:** M1 GREEN/BLUE slice (`nurt` interactive flow + snapshot asset pipeline)
 
 ---
 
@@ -84,6 +84,13 @@
 - [x] Added `nurt` contract tests in `tests/contracts/test_nurt_cli_contract.py` (new dry-run parity, update dry-run, startup update notice, tools sync dry-run, template-assets sync dry-run).
 - [x] Added `nurt` console entrypoint in `pyproject.toml`.
 - [x] Verified full suite GREEN after `nurt` bootstrap slice (`uv run pytest`: 29 passed).
+- [x] Added interactive `nurt new` wizard flow for target/auth selection when flags are omitted.
+- [x] Added bundled snapshot asset loader and migrated scaffold static content reads to packaged templates.
+- [x] Added snapshot generation pipeline (`nurt template-assets snapshot`) with metadata manifest output (timestamp, commit, hashes, version).
+- [x] Added snapshot asset contract tests in `tests/contracts/test_snapshot_assets_contract.py` (packaged availability + deterministic metadata).
+- [x] Expanded `nurt` contract tests to cover interactive wizard and snapshot dry-run behavior.
+- [x] Updated hatch build config to include snapshot assets in wheel/sdist.
+- [x] Verified full suite GREEN after interactive/snapshot slice (`uv run pytest`: 33 passed).
 
 ## In Progress
 
@@ -103,12 +110,14 @@
   - [x] Introduce `nurt` CLI entrypoint and command router.
   - [ ] Migrate installer/update orchestration into `nurt` subcommands beyond script-wrapper behavior.
   - [x] Implement mandatory startup update-check and `nurt update` flow.
-  - [ ] Implement snapshot asset generation + packaged asset loading path.
+  - [x] Implement snapshot asset generation + packaged asset loading path.
+  - [ ] Implement polished Rich/Textual interactive UI layer for `nurt new` (current prompt wizard baseline is in place).
 
 ## Next Up
 
 - [ ] Expand RED tests for remaining unsupported mixed-combo cases and future interactive fallback semantics.
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
+- [ ] Replace script-wrapper behavior in `nurt tools sync` and `nurt template-assets sync` with native Python implementations.
 - [ ] Define version baseline metadata and maintainer update/check workflow.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.

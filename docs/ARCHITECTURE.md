@@ -53,6 +53,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Installer now forwards target/auth selections into scaffold planning/apply flow, preserving the existing clone -> `install.sh` setup paradigm.
 - Current planning pivot supersedes script-first UX: implementation is moving to `nurt` global command flow with bundled snapshot assets and explicit `nurt update` lifecycle.
 - `nurt` command bootstrap is implemented at `src/new_repo_template/nurt_cli.py` with command routing (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check hook.
+- `nurt new` now includes interactive prompt-based target/auth resolution path.
+- Snapshot assets are bundled under `src/new_repo_template/snapshot_assets/` and loaded at runtime via `importlib.resources`.
+- Snapshot generation command path is implemented at `nurt template-assets snapshot` using manifest-driven source entries and metadata hashing.
 
 ## Validation Model
 
@@ -84,3 +87,5 @@ Current contract coverage:
   - Contract intent: non-destructive `--dry-run` behavior for installer/updater scripts and turborepo updater visibility.
 - `tests/contracts/test_nurt_cli_contract.py`
   - Contract intent: `nurt` command routing, new-project dry-run parity, startup update notice behavior, and dry-run safety for `update`/`tools sync`/`template-assets sync`.
+- `tests/contracts/test_snapshot_assets_contract.py`
+  - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation.

@@ -7,6 +7,8 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from new_repo_template.snapshot_assets_loader import load_template_text
+
 
 @dataclass(frozen=True)
 class ScaffoldPlan:
@@ -69,45 +71,44 @@ BETTER_AUTH_WIRING_PATHS: tuple[str, ...] = (
     "apps/web/src/auth-client.ts",
 )
 
-ROOT_PYPROJECT_BASE = (
-    "[build-system]\n"
-    'requires = ["hatchling>=1.26.3"]\n'
-    'build-backend = "hatchling.build"\n'
-)
+ROOT_PYPROJECT_BASE = load_template_text("root_pyproject_base.toml")
 
-PYTHON_WORKSPACE_SECTION = '\n[tool.uv.workspace]\nmembers = ["apps/python"]\n'
+PYTHON_WORKSPACE_SECTION = load_template_text("python_workspace_section.toml")
 
-PYTHON_LANE_PYPROJECT = (
-    "[build-system]\n"
-    'requires = ["hatchling>=1.26.3"]\n'
-    'build-backend = "hatchling.build"\n'
-    "\n"
-    "[project]\n"
-    'name = "python-app"\n'
-    'version = "0.1.0"\n'
-    'description = "Python lane application"\n'
-    'requires-python = ">=3.14"\n'
-    "dependencies = []\n"
-    "\n"
-    "[project.optional-dependencies]\n"
-    "dev = [\n"
-    '  "pytest>=9.0.2",\n'
-    '  "ruff>=0.14.14",\n'
-    '  "mypy>=1.19.1",\n'
-    "]\n"
-    "\n"
-    "[tool.pytest.ini_options]\n"
-    'testpaths = ["tests"]\n'
-)
+PYTHON_LANE_PYPROJECT = load_template_text("python_lane_pyproject.toml")
 
-PYTHON_LANE_README = (
-    "# Python Lane\n\n"
-    "Baseline developer commands:\n\n"
-    "- `uv sync --group dev`\n"
-    "- `uv run pytest`\n"
-    "- `uv run ruff check .`\n"
-    "- `uv run mypy src`\n"
+PYTHON_LANE_README = load_template_text("python_lane_readme.md")
+PYTHON_LANE_INIT = load_template_text("python_lane_init.py")
+PYTHON_LANE_TEST = load_template_text("python_lane_test.txt")
+
+TARGET_ENV_TEMPLATE_FILES: dict[str, str] = {
+    "python": "env/python.env",
+    "web": "env/web.env",
+    "backend": "env/backend.env",
+    "desktop": "env/desktop.env",
+    "mobile": "env/mobile.env",
+    "tv": "env/tv.env",
+}
+
+AUTH_ENV_TEMPLATE_FILES: dict[str, dict[str, str]] = {
+    "clerk": {
+        "web": "auth_env/web_clerk.env",
+        "backend": "auth_env/backend_clerk.env",
+    },
+    "better-auth": {
+        "web": "auth_env/web_better_auth.env",
+        "backend": "auth_env/backend_better_auth.env",
+    },
+}
+
+BACKEND_AUTH_CONFIG_TEMPLATE = load_template_text("wiring/backend_auth_config.ts")
+WEB_AUTH_PROVIDER_CLERK_TEMPLATE = load_template_text(
+    "wiring/web_auth_provider_clerk.ts"
 )
+WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE = load_template_text(
+    "wiring/web_auth_client_better_auth.ts"
+)
+ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
 
 SIMULATE_FAILURE_ENV = "NEW_REPO_TEMPLATE_SIMULATE_FAILURE"
 
@@ -225,13 +226,7 @@ def write_root_pyproject(*, output_root: Path, include_python_workspace: bool) -
 
 
 def write_root_gitignore(*, output_root: Path) -> None:
-    template_root = Path(__file__).resolve().parents[2]
-    template_gitignore = template_root / ".gitignore"
-    if not template_gitignore.exists():
-        raise FileNotFoundError(
-            f"Template root .gitignore not found: {template_gitignore}"
-        )
-    shutil.copy2(template_gitignore, output_root / ".gitignore")
+    (output_root / ".gitignore").write_text(ROOT_GITIGNORE, encoding="utf-8")
 
 
 def scaffold_foundation_core(
@@ -257,13 +252,11 @@ def scaffold_python_lane(*, output_root: Path) -> None:
     (lane_root / "pyproject.toml").write_text(PYTHON_LANE_PYPROJECT, encoding="utf-8")
     (lane_root / "README.md").write_text(PYTHON_LANE_README, encoding="utf-8")
     (lane_root / "src" / "python_app" / "__init__.py").write_text(
-        '"""Python lane package."""\n', encoding="utf-8"
+        PYTHON_LANE_INIT,
+        encoding="utf-8",
     )
     (lane_root / "tests" / "test_smoke.py").write_text(
-        "from python_app import __doc__\n\n"
-        "\n"
-        "def test_python_lane_import_smoke() -> None:\n"
-        "    assert __doc__ is not None\n",
+        PYTHON_LANE_TEST,
         encoding="utf-8",
     )
 
@@ -277,23 +270,15 @@ def scaffold_app_targets(*, output_root: Path, targets: tuple[str, ...]) -> None
 def scaffold_target_env_examples(
     *, output_root: Path, targets: tuple[str, ...]
 ) -> None:
-    env_content_by_target: dict[str, list[str]] = {
-        "python": ["PYTHON_APP_ENV=development"],
-        "web": ["VITE_APP_ENV=development"],
-        "backend": ["BACKEND_APP_ENV=development"],
-        "desktop": ["DESKTOP_APP_ENV=development"],
-        "mobile": ["MOBILE_APP_ENV=development"],
-        "tv": ["TV_APP_ENV=development"],
-    }
-
     for target in targets:
         env_path = TARGET_ENV_EXAMPLE_PATHS.get(target)
         if env_path is None:
             continue
-        env_lines = env_content_by_target[target]
+        env_template_path = TARGET_ENV_TEMPLATE_FILES[target]
+        env_content = load_template_text(env_template_path)
         target_env_file = output_root / env_path
         target_env_file.parent.mkdir(parents=True, exist_ok=True)
-        target_env_file.write_text("\n".join(env_lines) + "\n", encoding="utf-8")
+        target_env_file.write_text(env_content, encoding="utf-8")
 
 
 def scaffold_web_backend_env_examples(
@@ -303,35 +288,16 @@ def scaffold_web_backend_env_examples(
     if not has_web_backend or auth is None:
         return
 
-    web_env = ["# Web app environment", "VITE_CONVEX_URL="]
-    if auth == "clerk":
-        web_env.append("VITE_CLERK_PUBLISHABLE_KEY=")
-        backend_env = [
-            "# Backend environment",
-            "CONVEX_DEPLOYMENT=",
-            "CLERK_FRONTEND_API_URL=",
-            "AUTH_PROVIDER=clerk",
-        ]
-    else:
-        web_env.extend(
-            [
-                "VITE_CONVEX_SITE_URL=",
-                "VITE_SITE_URL=http://localhost:3000",
-            ]
-        )
-        backend_env = [
-            "# Backend environment",
-            "CONVEX_DEPLOYMENT=",
-            "SITE_URL=http://localhost:3000",
-            "AUTH_PROVIDER=better-auth",
-        ]
+    auth_templates = AUTH_ENV_TEMPLATE_FILES[auth]
+    web_env = load_template_text(auth_templates["web"])
+    backend_env = load_template_text(auth_templates["backend"])
 
     (output_root / "apps" / "web" / ".env.example").write_text(
-        "\n".join(web_env) + "\n",
+        web_env,
         encoding="utf-8",
     )
     (output_root / "apps" / "backend" / ".env.example").write_text(
-        "\n".join(backend_env) + "\n",
+        backend_env,
         encoding="utf-8",
     )
 
@@ -349,7 +315,9 @@ def scaffold_web_backend_auth_wiring(
     web_src_dir = output_root / "apps" / "web" / "src"
     web_src_dir.mkdir(parents=True, exist_ok=True)
 
-    backend_auth_config = f'export const authConfig = {{\n  provider: "{auth}",\n}}\n'
+    backend_auth_config = BACKEND_AUTH_CONFIG_TEMPLATE.replace(
+        "{{AUTH_PROVIDER}}", auth
+    )
     (backend_convex_dir / "auth.config.ts").write_text(
         backend_auth_config,
         encoding="utf-8",
@@ -357,14 +325,14 @@ def scaffold_web_backend_auth_wiring(
 
     if auth == "clerk":
         (web_src_dir / "auth-provider.ts").write_text(
-            'export const authProvider = {\n  name: "clerk",\n}\n',
+            WEB_AUTH_PROVIDER_CLERK_TEMPLATE,
             encoding="utf-8",
         )
         return
 
     if auth == "better-auth":
         (web_src_dir / "auth-client.ts").write_text(
-            'export const authClient = {\n  provider: "better auth",\n}\n',
+            WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE,
             encoding="utf-8",
         )
 
