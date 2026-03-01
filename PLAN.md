@@ -182,13 +182,14 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
   - [ ] interactive: prompt user
   - [x] non-interactive: hard fail with validation error
 - [x] If auth is provided without both `web` and `backend`: hard fail with deterministic validation error.
-- [ ] Mixed preset entries with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed presets).
-- [ ] Invalid/contradictory target combinations fail before any files are written.
+- [x] Mixed preset entries with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed presets).
+- [x] Invalid/contradictory target combinations fail before any files are written.
 - [x] Support `--dry-run` to print resolved scaffold plan without writing files.
 - [x] No generator option may suppress root `pyproject.toml`; it is a global invariant.
 - [x] If Python target is selected, generator must scaffold Python lane-local `pyproject.toml` in the lane directory in addition to root `pyproject.toml`.
 - [x] `tv` target always resolves to a separate `apps/tv` scaffold and never mutates `apps/mobile` into TV mode.
 - [x] If both `mobile` and `tv` are selected, generator creates both apps with shared packages only where explicit.
+- [x] Duplicate target selections fail with deterministic validation errors.
 - [x] Generator writes are failure-atomic: no partial scaffold output remains on failure.
 - [x] Implement transactional write strategy (stage temp output then atomic move) or guaranteed cleanup-on-failure.
 
@@ -258,7 +259,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Turbo tasks are wired for selected targets
 - [ ] Bun workspace install works
 - [ ] Python-selected target scaffolds expected files and runs baseline checks
-- [ ] Root `pyproject.toml` exists for every generated preset, including JS-only and TV-only outputs.
+- [x] Root `pyproject.toml` exists for every generated preset, including JS-only and TV-only outputs.
 - [x] Invalid flag combinations fail with deterministic error messages.
 - [x] Non-interactive mode missing required choices fails without prompts.
 - [x] Any `web` + `backend` selection without auth fails with deterministic validation error.

@@ -188,3 +188,108 @@ def test_web_only_scaffold_keeps_root_pyproject_invariant(tmp_path: Path) -> Non
     )
     assert (output_dir / "pyproject.toml").exists()
     assert (output_dir / "apps" / "web").exists()
+
+
+def test_duplicate_target_selection_fails_deterministically(tmp_path: Path) -> None:
+    """RED: duplicate target flags should fail with deterministic guidance."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "duplicate-target-output"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "web",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert "duplicate target selections are not allowed: web" in result.stderr
+
+
+def test_web_backend_clerk_env_examples_include_required_placeholders(
+    tmp_path: Path,
+) -> None:
+    """RED: clerk auth variant should scaffold expected env placeholders."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-backend-clerk"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--auth",
+            "clerk",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected web+backend+clerk scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    web_env = (output_dir / "apps" / "web" / ".env.example").read_text(encoding="utf-8")
+    backend_env = (output_dir / "apps" / "backend" / ".env.example").read_text(
+        encoding="utf-8"
+    )
+
+    assert "VITE_CONVEX_URL=" in web_env
+    assert "VITE_CLERK_PUBLISHABLE_KEY=" in web_env
+    assert "CONVEX_DEPLOYMENT=" in backend_env
+    assert "CLERK_FRONTEND_API_URL=" in backend_env
+
+
+def test_web_backend_better_auth_env_examples_include_required_placeholders(
+    tmp_path: Path,
+) -> None:
+    """RED: better-auth variant should scaffold expected env placeholders."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-backend-better-auth"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--auth",
+            "better-auth",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected web+backend+better-auth scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    web_env = (output_dir / "apps" / "web" / ".env.example").read_text(encoding="utf-8")
+    backend_env = (output_dir / "apps" / "backend" / ".env.example").read_text(
+        encoding="utf-8"
+    )
+
+    assert "VITE_CONVEX_URL=" in web_env
+    assert "VITE_CONVEX_SITE_URL=" in web_env
+    assert "VITE_SITE_URL=" in web_env
+    assert "CONVEX_DEPLOYMENT=" in backend_env
+    assert "SITE_URL=" in backend_env

@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 12:58:35 PM
-**Current Phase:** M1 GREEN/BLUE slice (target matrix + auth contract expansion) complete
+**Last Updated:** 2026-03-01 01:17:45 PM
+**Current Phase:** M1 GREEN/BLUE slice (auth variant env contracts + duplicate-target validation) complete
 
 ---
 
@@ -47,6 +47,11 @@
 - [x] Enforced standalone-only `foundation` target validation.
 - [x] Added contract coverage for mobile+tv separate app scaffolding and root `pyproject.toml` invariant on JS-only/TV-only outputs.
 - [x] Verified full suite GREEN after target/auth expansion (`uv run pytest`: 13 passed).
+- [x] Ran YELLOW BTCA lookups for Convex+Clerk and Convex+Better Auth env placeholder conventions.
+- [x] Added deeper RED tests for duplicate target validation and auth-variant env placeholders in `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- [x] Implemented deterministic duplicate-target validation error handling.
+- [x] Updated auth-variant `.env.example` generation to include Vite/Convex/Clerk/Better Auth placeholder keys expected by contract tests.
+- [x] Verified full suite GREEN after auth-variant contract expansion (`uv run pytest`: 16 passed).
 
 ## In Progress
 
@@ -57,14 +62,14 @@
 
 - [ ] M1 foundation implementation:
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
-  - [ ] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
+  - [x] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
   - [x] Implement transactional/failure-atomic scaffold write path.
   - [ ] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
 
 ## Next Up
 
-- [ ] Expand RED tests for deeper CLI validation matrix (duplicate targets, unsupported mixed combos, future interactive fallback semantics).
-- [ ] Add auth-variant output contract tests for `web+backend+clerk` and `web+backend+better-auth` scaffold files.
+- [ ] Expand RED tests for remaining unsupported mixed-combo cases and future interactive fallback semantics.
+- [ ] Add deeper auth-variant output contract tests beyond env files (target-specific config/wiring placeholders).
 - [ ] Define version baseline metadata and maintainer update/check workflow.
 - [ ] Add security baseline docs for `.env.example`/secret handling and CI secret scan expectations.
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.

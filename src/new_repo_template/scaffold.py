@@ -122,6 +122,18 @@ def normalize_targets(raw_targets: list[str]) -> tuple[str, ...]:
 def validate_args(
     parser: argparse.ArgumentParser, args: argparse.Namespace
 ) -> tuple[str, ...]:
+    duplicate_targets: list[str] = []
+    seen: set[str] = set()
+    for target in args.target:
+        if target in seen and target not in duplicate_targets:
+            duplicate_targets.append(target)
+        seen.add(target)
+    if duplicate_targets:
+        parser.error(
+            "duplicate target selections are not allowed: "
+            + ", ".join(duplicate_targets)
+        )
+
     selected_targets = normalize_targets(args.target)
 
     if "foundation" in selected_targets and len(selected_targets) > 1:
@@ -234,17 +246,28 @@ def scaffold_web_backend_env_examples(
     if not has_web_backend or auth is None:
         return
 
-    web_env = ["# Web app environment", "CONVEX_URL=your-convex-url"]
+    web_env = ["# Web app environment", "VITE_CONVEX_URL="]
     if auth == "clerk":
-        web_env.append("VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxx")
+        web_env.append("VITE_CLERK_PUBLISHABLE_KEY=")
+        backend_env = [
+            "# Backend environment",
+            "CONVEX_DEPLOYMENT=",
+            "CLERK_FRONTEND_API_URL=",
+            "AUTH_PROVIDER=clerk",
+        ]
     else:
-        web_env.append("BETTER_AUTH_URL=http://localhost:3000")
-
-    backend_env = [
-        "# Backend environment",
-        "CONVEX_DEPLOYMENT=dev:your-deployment",
-        f"AUTH_PROVIDER={auth}",
-    ]
+        web_env.extend(
+            [
+                "VITE_CONVEX_SITE_URL=",
+                "VITE_SITE_URL=http://localhost:3000",
+            ]
+        )
+        backend_env = [
+            "# Backend environment",
+            "CONVEX_DEPLOYMENT=",
+            "SITE_URL=http://localhost:3000",
+            "AUTH_PROVIDER=better-auth",
+        ]
 
     (output_root / "apps" / "web" / ".env.example").write_text(
         "\n".join(web_env) + "\n",
