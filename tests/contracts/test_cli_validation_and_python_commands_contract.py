@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 def run_scaffold_command(
     *, repo_root: Path, args: list[str]
@@ -71,6 +73,138 @@ def test_missing_no_interactive_fails_with_clear_error(tmp_path: Path) -> None:
     assert (
         "interactive mode is not implemented yet; use --no-interactive" in result.stderr
     )
+
+
+@pytest.mark.parametrize(
+    ("target_args", "output_name"),
+    [
+        (["--target", "foundation"], "foundation-no-interactive"),
+        (["--target", "python"], "python-no-interactive"),
+        (
+            [
+                "--target",
+                "web",
+                "--target",
+                "backend",
+                "--auth",
+                "clerk",
+            ],
+            "web-backend-no-interactive",
+        ),
+        (["--target", "mobile", "--target", "tv"], "mobile-tv-no-interactive"),
+    ],
+)
+def test_missing_no_interactive_fails_across_target_modes(
+    tmp_path: Path,
+    target_args: list[str],
+    output_name: str,
+) -> None:
+    """Non-interactive flag omission should fail consistently for all target modes."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / output_name
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            *target_args,
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert (
+        "interactive mode is not implemented yet; use --no-interactive" in result.stderr
+    )
+
+
+def test_missing_required_target_fails_with_deterministic_error(tmp_path: Path) -> None:
+    """Missing --target should fail clearly in non-interactive mode."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "missing-target-output"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert "the following arguments are required: --target" in result.stderr
+
+
+def test_missing_required_output_fails_with_deterministic_error() -> None:
+    """Missing --output should fail clearly in non-interactive mode."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--dry-run",
+        ],
+    )
+
+    assert result.returncode == 2
+    assert "the following arguments are required: --output" in result.stderr
+
+
+def test_invalid_target_choice_fails_with_deterministic_error(tmp_path: Path) -> None:
+    """Invalid target values should fail with argparse choice guidance."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "invalid-target-output"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "invalid",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert "argument --target: invalid choice: 'invalid'" in result.stderr
+
+
+def test_invalid_auth_choice_fails_with_deterministic_error(tmp_path: Path) -> None:
+    """Invalid auth values should fail with argparse choice guidance."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "invalid-auth-output"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--auth",
+            "invalid",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert "argument --auth: invalid choice: 'invalid'" in result.stderr
 
 
 def test_python_scaffold_includes_baseline_uv_commands(tmp_path: Path) -> None:

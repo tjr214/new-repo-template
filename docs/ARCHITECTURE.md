@@ -43,7 +43,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
 - Python lane RED/GREEN slice is complete with `tests/contracts/test_python_lane_contract.py`.
-- CLI validation + command-doc RED/GREEN slice is complete with `tests/contracts/test_cli_validation_and_python_commands_contract.py`.
+- CLI validation + command-doc RED/GREEN slice is complete with `tests/contracts/test_cli_validation_and_python_commands_contract.py`, including expanded non-interactive missing/invalid argument coverage across multiple target modes.
 - Failure-atomic RED/GREEN slice is complete with `tests/contracts/test_failure_atomicity_contract.py`.
 - Target-matrix RED/GREEN slice is complete with `tests/contracts/test_target_matrix_and_auth_contract.py`.
 - Security baseline RED/GREEN slice is complete with `tests/contracts/test_security_baseline_contract.py` and `docs/SECURITY_BASELINE.md`.
@@ -84,7 +84,7 @@ Current contract coverage:
 - `tests/contracts/test_python_lane_contract.py`
   - Contract intent: Python target dry-run and write flows preserve root/lane pyproject separation (`pyproject.toml` and `apps/python/pyproject.toml`).
 - `tests/contracts/test_cli_validation_and_python_commands_contract.py`
-  - Contract intent: deterministic CLI validation failures and Python lane baseline command documentation generation.
+  - Contract intent: deterministic CLI validation failures (including missing `--no-interactive` across foundation/python/web+backend/mobile+tv modes, missing required args, and invalid choice handling) and Python lane baseline command documentation generation.
 - `tests/contracts/test_failure_atomicity_contract.py`
   - Contract intent: simulated mid-generation failure leaves no partial output at the final scaffold path.
 - `tests/contracts/test_target_matrix_and_auth_contract.py`

@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 03:55:27 PM
-**Current Phase:** M0/M1 GREEN/BLUE slice (`CI versions + lockfile governance wiring`)
+**Last Updated:** 2026-03-01 04:25:01 PM
+**Current Phase:** M1 GREEN/BLUE slice (`non-interactive validation coverage expansion`)
 
 ---
 
@@ -134,6 +134,12 @@
 - [x] Added CI workflow contract test at `tests/contracts/test_ci_versions_guardrail_contract.py`.
 - [x] Ran YELLOW BTCA lookup for Bun CI lockfile-consistency command semantics (`bun ci`) while finalizing governance checks.
 - [x] Verified full suite GREEN after CI guardrail wiring (`uv run pytest`: 51 passed).
+- [x] Ran YELLOW BTCA lookup for deterministic automation-friendly CLI validation error characteristics (`btca ask -r bun ...`).
+- [x] Expanded non-interactive validation contract coverage in `tests/contracts/test_cli_validation_and_python_commands_contract.py` for:
+  - [x] missing `--no-interactive` failure across foundation/python/web+backend/mobile+tv target modes
+  - [x] missing required argument failures (`--target`, `--output`)
+  - [x] invalid choice failures (`--target`, `--auth`)
+- [x] Verified full suite GREEN after validation-coverage expansion (`uv run pytest`: 59 passed).
 
 ## In Progress
 
@@ -145,7 +151,7 @@
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
   - [x] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
   - [x] Implement transactional/failure-atomic scaffold write path.
-  - [ ] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
+  - [x] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
   - [x] Add auth-variant env placeholder scaffolding + minimal wiring placeholder files for `web+backend`.
   - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
 
