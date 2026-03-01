@@ -99,7 +99,7 @@
 #### 1.3.5 BTCA Safety and Maintenance Rules
 
 - **CRITICAL**: Avoid destructive commands without explicit user request:
-  - `btca clear` (removes cloned local resource data)
-  - `btca wipe` (deletes BTCA configs)
+  - `btca clear` (only safe to do if the btca tool returns an error specifying that you try running `btca clear` OR if the user requests it)
+  - `btca wipe` (deletes BTCA configs -- NEVER SAFE!)
 - Keep `specialNotes` practical and implementation-focused; do not include secrets or personal data.
 - Re-validate after any model/provider/resource change with `btca status` + `btca resources`.
