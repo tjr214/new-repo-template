@@ -22,6 +22,14 @@ NC='\033[0m' # No Color
 TABLE_COLOR="${WHITE}"
 SEPARATOR_COLOR="${DULL_YELLOW}"
 
+TABLE_TOOL_WIDTH=10
+TABLE_STATUS_WIDTH=11
+TABLE_DETAILS_WIDTH=78
+TABLE_COL1_HORIZONTAL=$((TABLE_TOOL_WIDTH + 2))
+TABLE_COL2_HORIZONTAL=$((TABLE_STATUS_WIDTH + 2))
+TABLE_COL3_HORIZONTAL=$((TABLE_DETAILS_WIDTH + 2))
+TABLE_FULL_HORIZONTAL=$((TABLE_COL1_HORIZONTAL + TABLE_COL2_HORIZONTAL + TABLE_COL3_HORIZONTAL + 2))
+
 printf "${CYAN}${BOLD}OpenCode Installation/Update Script${NC}\n"
 printf "${CYAN}=====================================${NC}\n"
 
@@ -87,18 +95,37 @@ repeat_char() {
     printf "%s" "$OUT"
 }
 
+fit_text() {
+    TEXT="$1"
+    WIDTH="$2"
+
+    if [ "${#TEXT}" -le "$WIDTH" ]; then
+        printf "%s" "$TEXT"
+        return
+    fi
+
+    if [ "$WIDTH" -le 3 ]; then
+        printf "%.*s" "$WIDTH" "$TEXT"
+        return
+    fi
+
+    TRUNCATED_WIDTH=$((WIDTH - 3))
+    TRUNCATED_TEXT=$(printf "%.*s" "$TRUNCATED_WIDTH" "$TEXT")
+    printf "%s..." "$TRUNCATED_TEXT"
+}
+
 print_results_table() {
-    HEADER_TOOL=$(center_text "Tools" 10)
-    HEADER_STATUS=$(center_text "Status" 11)
-    HEADER_DETAILS=$(center_text "Details" 56)
-    FULL_HORIZONTAL=$(repeat_char "─" 85)
-    COL1_HORIZONTAL=$(repeat_char "─" 12)
-    COL2_HORIZONTAL=$(repeat_char "─" 13)
-    COL3_HORIZONTAL=$(repeat_char "─" 58)
+    HEADER_TOOL=$(center_text "Tools" "$TABLE_TOOL_WIDTH")
+    HEADER_STATUS=$(center_text "Status" "$TABLE_STATUS_WIDTH")
+    HEADER_DETAILS=$(center_text "Details" "$TABLE_DETAILS_WIDTH")
+    FULL_HORIZONTAL=$(repeat_char "─" "$TABLE_FULL_HORIZONTAL")
+    COL1_HORIZONTAL=$(repeat_char "─" "$TABLE_COL1_HORIZONTAL")
+    COL2_HORIZONTAL=$(repeat_char "─" "$TABLE_COL2_HORIZONTAL")
+    COL3_HORIZONTAL=$(repeat_char "─" "$TABLE_COL3_HORIZONTAL")
 
     printf "${TABLE_COLOR}┌%s┐${NC}\n" "$FULL_HORIZONTAL"
-    CENTERED_TITLE=$(center_text "Update Results" 85)
-    printf "${TABLE_COLOR}│${BOLD_RED}${BG_YELLOW}%-85s${NC}${TABLE_COLOR}│${NC}\n" "$CENTERED_TITLE"
+    CENTERED_TITLE=$(center_text "Update Results" "$TABLE_FULL_HORIZONTAL")
+    printf "${TABLE_COLOR}│${BOLD_RED}${BG_YELLOW}%-*s${NC}${TABLE_COLOR}│${NC}\n" "$TABLE_FULL_HORIZONTAL" "$CENTERED_TITLE"
     printf "${TABLE_COLOR}├%s┬%s┬%s┤${NC}\n" "$COL1_HORIZONTAL" "$COL2_HORIZONTAL" "$COL3_HORIZONTAL"
     printf "${TABLE_COLOR}│ %s │ %s │ %s │${NC}\n" "$HEADER_TOOL" "$HEADER_STATUS" "$HEADER_DETAILS"
     printf "${TABLE_COLOR}├%s┼%s┼%s┤${NC}\n" "$COL1_HORIZONTAL" "$COL2_HORIZONTAL" "$COL3_HORIZONTAL"
@@ -140,9 +167,11 @@ print_result_row() {
         STATUS_COLOR="${BOLD}${GREEN}"
     fi
 
-    printf "${TABLE_COLOR}│ ${YELLOW}%-10s${TABLE_COLOR} │ " "$TOOL_NAME"
-    printf "${STATUS_COLOR}%-11s${NC}" "$TOOL_STATUS"
-    printf "${TABLE_COLOR} │ ${MAGENTA}%-56s${TABLE_COLOR} │${NC}\n" "$TOOL_DETAIL"
+    FITTED_DETAIL=$(fit_text "$TOOL_DETAIL" "$TABLE_DETAILS_WIDTH")
+
+    printf "${TABLE_COLOR}│ ${YELLOW}%-*s${TABLE_COLOR} │ " "$TABLE_TOOL_WIDTH" "$TOOL_NAME"
+    printf "${STATUS_COLOR}%-*s${NC}" "$TABLE_STATUS_WIDTH" "$TOOL_STATUS"
+    printf "${TABLE_COLOR} │ ${MAGENTA}%-*s${TABLE_COLOR} │${NC}\n" "$TABLE_DETAILS_WIDTH" "$FITTED_DETAIL"
 }
 
 UV_STATUS="PENDING"
@@ -188,6 +217,32 @@ print_install_update_result() {
         LAST_RESULT_STATUS="COMPLETED"
         LAST_RESULT_DETAIL="version unavailable"
         printf "${GREEN}${BOLD}%s install/update completed successfully!${NC}\n" "$TOOL_NAME"
+    fi
+}
+
+extract_opencode_target_version() {
+    INSTALL_OUTPUT="$1"
+    printf "%s\n" "$INSTALL_OUTPUT" | awk -F': ' '/Installing opencode version:/ {print $2; exit}' | tr -d '\r\n'
+}
+
+print_opencode_update_result() {
+    PREVIOUS_VERSION="$1"
+    CURRENT_VERSION="$2"
+    TARGET_VERSION="$3"
+
+    if [ -n "$TARGET_VERSION" ] && [ "$TARGET_VERSION" != "$PREVIOUS_VERSION" ] && { [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" = "$PREVIOUS_VERSION" ]; }; then
+        LAST_RESULT_STATUS="UPDATED"
+        LAST_RESULT_DETAIL="$PREVIOUS_VERSION -> $TARGET_VERSION"
+        printf "${GREEN}${BOLD}OpenCode updated successfully!${NC}\n"
+        printf "${BLUE}Previous version: ${NC}%s\n" "$PREVIOUS_VERSION"
+        printf "${BLUE}Installer target version: ${NC}${BOLD}%s${NC}\n" "$TARGET_VERSION"
+        if [ -n "$CURRENT_VERSION" ]; then
+            printf "${YELLOW}Current shell still reports version %s. A new shell may be required.${NC}\n" "$CURRENT_VERSION"
+        else
+            printf "${YELLOW}Current shell cannot resolve the installed version yet. A new shell may be required.${NC}\n"
+        fi
+    else
+        print_install_update_result "OpenCode" "$PREVIOUS_VERSION" "$CURRENT_VERSION"
     fi
 }
 
@@ -306,12 +361,16 @@ if command_exists opencode; then
     printf "${YELLOW}Updating OpenCode...${NC}\n"
     
     # Update opencode
-    if curl -fsSL https://opencode.ai/install | bash; then
+    if OPENCODE_INSTALL_OUTPUT=$(curl -fsSL https://opencode.ai/install | bash 2>&1); then
+        printf "%s\n" "$OPENCODE_INSTALL_OUTPUT"
+        hash -r 2>/dev/null
         NEW_VERSION=$(opencode --version 2>/dev/null | tr -d '\n')
-        print_install_update_result "OpenCode" "$CURRENT_VERSION" "$NEW_VERSION"
+        OPENCODE_TARGET_VERSION=$(extract_opencode_target_version "$OPENCODE_INSTALL_OUTPUT")
+        print_opencode_update_result "$CURRENT_VERSION" "$NEW_VERSION" "$OPENCODE_TARGET_VERSION"
         OPENCODE_STATUS="$LAST_RESULT_STATUS"
         OPENCODE_DETAIL="$LAST_RESULT_DETAIL"
     else
+        printf "%s\n" "$OPENCODE_INSTALL_OUTPUT"
         printf "${RED}${BOLD}Error: Update failed${NC}\n"
         mark_failure "opencode"
         OPENCODE_STATUS="FAILED"
@@ -321,12 +380,18 @@ else
     printf "${YELLOW}OpenCode not found. Installing...${NC}\n"
     
     # Install opencode
-    if curl -fsSL https://opencode.ai/install | bash; then
+    if OPENCODE_INSTALL_OUTPUT=$(curl -fsSL https://opencode.ai/install | bash 2>&1); then
+        printf "%s\n" "$OPENCODE_INSTALL_OUTPUT"
+        hash -r 2>/dev/null
         INSTALLED_VERSION=$(opencode --version 2>/dev/null | tr -d '\n')
+        if [ -z "$INSTALLED_VERSION" ]; then
+            INSTALLED_VERSION=$(extract_opencode_target_version "$OPENCODE_INSTALL_OUTPUT")
+        fi
         print_install_update_result "OpenCode" "" "$INSTALLED_VERSION"
         OPENCODE_STATUS="$LAST_RESULT_STATUS"
         OPENCODE_DETAIL="$LAST_RESULT_DETAIL"
     else
+        printf "%s\n" "$OPENCODE_INSTALL_OUTPUT"
         printf "${RED}${BOLD}Error: Installation failed${NC}\n"
         mark_failure "opencode"
         OPENCODE_STATUS="FAILED"
