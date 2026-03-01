@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 04:57:36 PM
-**Current Phase:** M1 GREEN/BLUE slice (`python baseline command contracts + CI cross-platform smoke wiring`)
+**Last Updated:** 2026-03-01 05:08:04 PM
+**Current Phase:** M1/M2 GREEN/BLUE slice (`fullstack auth-variant concrete wiring contracts`)
 
 ---
 
@@ -187,6 +187,17 @@
 - [x] Expanded CI contract assertions in `tests/contracts/test_ci_versions_guardrail_contract.py` to cover matrix OS scope, Bun setup, and smoke-contract step wiring in addition to version guardrail command.
 - [x] Updated user-facing bootstrap guidance in `README.md` to make global `nurt` flow canonical and mark `install.sh` as legacy/maintainer path.
 - [x] Verified full suite GREEN after Python+CI slice (`uv run pytest`: 83 passed).
+- [x] Added RED fullstack auth-variant concrete wiring contracts at `tests/contracts/test_fullstack_auth_wiring_contract.py` for:
+  - [x] `web+backend+clerk` concrete TanStack/Convex file scaffolding assertions
+  - [x] `web+backend+better-auth` concrete TanStack/Convex file scaffolding assertions
+  - [x] dry-run plan visibility for concrete framework wiring paths
+- [x] Expanded scaffold fullstack baseline generation for concrete framework layout:
+  - [x] web TanStack-style files (`apps/web/src/main.tsx`, `router.tsx`, `routes/__root.tsx`, `routes/index.tsx`)
+  - [x] backend Convex-style files (`apps/backend/convex/http.ts`, `schema.ts`)
+  - [x] auth wiring templates upgraded from minimal placeholders to concrete provider/env-based config stubs
+- [x] Added new snapshot templates for concrete fullstack files under `src/new_repo_template/snapshot_assets/templates/fullstack/`.
+- [x] Updated M2/contract checklist status in `PLAN.md` for completed fullstack auth variant tests and related auth behavior/env assertions.
+- [x] Verified full suite GREEN after fullstack wiring contract expansion (`uv run pytest`: 86 passed).
 
 ## In Progress
 
@@ -217,7 +228,7 @@
 
 ## Next Up
 
-- [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
+- [ ] Add Convex codegen/startup command smoke contracts for scaffolded backend lane.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 

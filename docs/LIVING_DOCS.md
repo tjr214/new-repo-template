@@ -88,3 +88,5 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Python lane scaffold dependency metadata now uses uv dependency groups (`[dependency-groups].dev`) so documented baseline commands execute without manual pyproject edits.
 - CI matrix now performs explicit cross-platform script smoke checks: Bun setup on each runner plus execution of Bun workspace install, Turbo root-script smoke, and Python baseline command contracts.
 - User-facing bootstrap guidance in `README.md` now explicitly documents global `nurt` flow and labels `install.sh` as legacy/maintainer-only path.
+- Fullstack auth-variant contract coverage is now concrete: `tests/contracts/test_fullstack_auth_wiring_contract.py` validates TanStack-style web files and Convex-style backend files for both Clerk and Better Auth outputs, plus dry-run path visibility.
+- Scaffolded `web+backend` outputs now include concrete framework baseline files (`apps/web/src/main.tsx`, `router.tsx`, route files; `apps/backend/convex/http.ts`, `schema.ts`) instead of auth-only placeholder wiring.

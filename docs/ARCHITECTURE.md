@@ -66,6 +66,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - JS app targets now scaffold workspace-local `package.json` manifests (`apps/web`, `apps/backend`, `apps/desktop`, `apps/mobile`, `apps/tv`) with baseline script placeholders for Turbo/Bun wiring.
 - Bun workspace install viability coverage is now active in `tests/contracts/test_bun_workspace_install_contract.py` and verifies generated `web+backend` output supports both `bun install` and `bun install --frozen-lockfile`.
 - Minimal selected-preset command-smoke coverage is now active in `tests/contracts/test_turbo_command_smoke_contract.py`, validating root script viability for `dev`, `build`, `test`, `lint`, and `typecheck` after install on generated `web+backend` output.
+- Fullstack scaffold baseline now includes concrete framework file layout for `web+backend`: TanStack-style web routing/app entry files and Convex-style backend `http.ts`/`schema.ts` baseline files.
+- Fullstack auth variant contract coverage is now concrete in `tests/contracts/test_fullstack_auth_wiring_contract.py`, with Clerk and Better Auth assertions on provider-aware backend auth config and frontend auth client/provider stubs.
 - Version baseline metadata/workflow is implemented with `version-baseline.json` and native `nurt versions check/update` commands in `src/new_repo_template/version_baseline.py`.
 - Version baseline workflow now includes lockfile lifecycle controls: update-time regeneration (with dry-run/summaries) and check-time lockfile presence validation.
 - CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest`, sets up Bun on matrix runners, and runs cross-platform script smoke contracts on native Linux/macOS/Windows.
@@ -103,6 +105,8 @@ Current contract coverage:
   - Contract intent: JS workspace manifests are scaffolded for `web+backend` outputs and generated workspace installs remain viable via `bun install` and `bun install --frozen-lockfile`.
 - `tests/contracts/test_turbo_command_smoke_contract.py`
   - Contract intent: selected minimal JS preset passes root Turbo-routed command scripts (`dev`, `build`, `test`, `lint`, `typecheck`) after Bun install.
+- `tests/contracts/test_fullstack_auth_wiring_contract.py`
+  - Contract intent: `web+backend` scaffold outputs include concrete TanStack/Convex baseline files and auth-variant-specific wiring for both Clerk and Better Auth, with dry-run path visibility.
 - `tests/contracts/test_security_baseline_contract.py`
   - Contract intent: root `.gitignore` secret/env protections and per-target `.env.example` placeholder generation.
 - `tests/contracts/test_installer_scripts_dry_run_contract.py`

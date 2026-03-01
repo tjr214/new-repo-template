@@ -62,6 +62,21 @@ APP_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
     "tv": "workspace_packages/tv_package.json",
 }
 
+WEB_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/web/src/",
+    "apps/web/src/main.tsx",
+    "apps/web/src/router.tsx",
+    "apps/web/src/routes/",
+    "apps/web/src/routes/__root.tsx",
+    "apps/web/src/routes/index.tsx",
+)
+
+BACKEND_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/backend/convex/",
+    "apps/backend/convex/http.ts",
+    "apps/backend/convex/schema.ts",
+)
+
 PYTHON_PATHS: tuple[str, ...] = (
     "apps/python/",
     "apps/python/pyproject.toml",
@@ -126,6 +141,12 @@ WEB_AUTH_PROVIDER_CLERK_TEMPLATE = load_template_text(
 WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE = load_template_text(
     "wiring/web_auth_client_better_auth.ts"
 )
+WEB_MAIN_TEMPLATE = load_template_text("fullstack/web_main.tsx")
+WEB_ROUTER_TEMPLATE = load_template_text("fullstack/web_router.tsx")
+WEB_ROOT_ROUTE_TEMPLATE = load_template_text("fullstack/web_root_route.tsx")
+WEB_INDEX_ROUTE_TEMPLATE = load_template_text("fullstack/web_index_route.tsx")
+BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
+BACKEND_SCHEMA_TEMPLATE = load_template_text("fullstack/backend_schema.ts")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
 ROOT_PACKAGE_JSON = load_template_text("root_package.json")
 ROOT_TURBO_JSON = load_template_text("root_turbo.json")
@@ -201,6 +222,10 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
             paths.append(APP_TARGET_DIRS[target])
         if target in APP_TARGET_PACKAGE_PATHS:
             paths.append(APP_TARGET_PACKAGE_PATHS[target])
+        if target == "web":
+            paths.extend(WEB_FRAMEWORK_PATHS)
+        if target == "backend":
+            paths.extend(BACKEND_FRAMEWORK_PATHS)
         if target == "python":
             paths.extend(PYTHON_PATHS)
         if target in TARGET_ENV_EXAMPLE_PATHS:
@@ -304,6 +329,35 @@ def scaffold_app_targets(*, output_root: Path, targets: tuple[str, ...]) -> None
         (output_root / package_path).write_text(package_template, encoding="utf-8")
 
 
+def scaffold_web_framework_files(
+    *, output_root: Path, targets: tuple[str, ...]
+) -> None:
+    if "web" not in targets:
+        return
+
+    web_src = output_root / "apps" / "web" / "src"
+    routes_dir = web_src / "routes"
+    routes_dir.mkdir(parents=True, exist_ok=True)
+
+    (web_src / "main.tsx").write_text(WEB_MAIN_TEMPLATE, encoding="utf-8")
+    (web_src / "router.tsx").write_text(WEB_ROUTER_TEMPLATE, encoding="utf-8")
+    (routes_dir / "__root.tsx").write_text(WEB_ROOT_ROUTE_TEMPLATE, encoding="utf-8")
+    (routes_dir / "index.tsx").write_text(WEB_INDEX_ROUTE_TEMPLATE, encoding="utf-8")
+
+
+def scaffold_backend_framework_files(
+    *, output_root: Path, targets: tuple[str, ...]
+) -> None:
+    if "backend" not in targets:
+        return
+
+    convex_dir = output_root / "apps" / "backend" / "convex"
+    convex_dir.mkdir(parents=True, exist_ok=True)
+
+    (convex_dir / "http.ts").write_text(BACKEND_HTTP_TEMPLATE, encoding="utf-8")
+    (convex_dir / "schema.ts").write_text(BACKEND_SCHEMA_TEMPLATE, encoding="utf-8")
+
+
 def scaffold_target_env_examples(
     *, output_root: Path, targets: tuple[str, ...]
 ) -> None:
@@ -380,6 +434,8 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
         include_python_workspace=plan.include_python_workspace,
     )
     scaffold_app_targets(output_root=plan.output, targets=plan.targets)
+    scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
+    scaffold_backend_framework_files(output_root=plan.output, targets=plan.targets)
 
     if "python" in plan.targets:
         scaffold_python_lane(output_root=plan.output)

@@ -333,17 +333,17 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### RED Tests
 
-- [ ] `fullstack + clerk` scaffold contract test
-- [ ] `fullstack + better-auth` scaffold contract test
+- [x] `fullstack + clerk` scaffold contract test
+- [x] `fullstack + better-auth` scaffold contract test
 - [ ] Convex codegen and startup command smoke checks
-- [ ] Auth-required env template assertions
-- [ ] Auth-required behavior tests for non-interactive mode (error when omitted).
-- [ ] Mixed `web` + `backend` presets require explicit auth and pass in both auth variants.
-- [ ] Credentialless CI checks validate wiring without external auth keys.
+- [x] Auth-required env template assertions
+- [x] Auth-required behavior tests for non-interactive mode (error when omitted).
+- [x] Mixed `web` + `backend` presets require explicit auth and pass in both auth variants.
+- [x] Credentialless CI checks validate wiring without external auth keys.
 
 ### DoD Gates
 
-- [ ] Both auth presets pass contract tests
+- [x] Both auth presets pass contract tests
 - [ ] Local dev flow works for cloud Convex mode
 - [ ] Native Windows backend dev/test commands pass in CI
 - [ ] Docs updated with fullstack setup and auth decision flow
@@ -502,7 +502,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### 10.1 Contract-First Tests (in `tests/`)
 
 - [x] Foundation scaffold contract tests
-- [ ] Fullstack auth variant tests
+- [x] Fullstack auth variant tests
 - [ ] Desktop scaffold tests
 - [ ] Mobile scaffold tests
 - [ ] TV scaffold tests
