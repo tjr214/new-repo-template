@@ -119,6 +119,31 @@ copy_directory() {
     fi
 }
 
+# Helper function to copy directory contents without deleting destination
+copy_directory_contents() {
+    SOURCE="$1"
+    DEST="$2"
+
+    if [ ! -d "$SOURCE" ]; then
+        printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
+        printf "Expected: ${SOURCE}\n"
+        printf "The template repository may be incomplete or corrupted.\n"
+        exit 1
+    fi
+
+    if [ ! -d "$DEST" ]; then
+        mkdir -p "$DEST"
+        printf "  ${GREEN}✓${NC} Created ${DEST} directory\n"
+    fi
+
+    if cp -Rp "$SOURCE/." "$DEST/"; then
+        printf "  ${GREEN}✓${NC} Copied contents into ${DEST}\n"
+    else
+        printf "${RED}${BOLD}Error: Failed to copy contents into ${DEST}${NC}\n"
+        exit 1
+    fi
+}
+
 # Step 1: Update .claude/settings.json
 printf "${CYAN}${BOLD}Step 1/12: Updating .claude/settings.json${NC}\n"
 printf "${CYAN}------------------------------------------${NC}\n"
@@ -272,7 +297,7 @@ printf "\n"
 # Step 12: Update docs/workflows/
 printf "${CYAN}${BOLD}Step 12/12: Updating docs/workflows/${NC}\n"
 printf "${CYAN}------------------------------------${NC}\n"
-copy_directory "$CLONE_DIR/docs/workflows" "docs/workflows"
+copy_directory_contents "$CLONE_DIR/docs/workflows" "docs/workflows"
 printf "\n"
 
 # Cleanup
