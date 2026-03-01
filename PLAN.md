@@ -289,14 +289,14 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
 - [x] Add `--dry-run` mode to `nurt new` and `nurt tools sync` for non-destructive validation.
 - [x] Integrate scaffold engine invocation into `nurt new` while preserving existing template assets.
-- [ ] Remove script-first bootstrap path from user docs in favor of global `nurt` command flow.
+- [x] Remove script-first bootstrap path from user docs in favor of global `nurt` command flow.
 
 ### RED Tests (must fail first)
 
 - [x] Generated repo always has monorepo root shape
 - [x] Turbo tasks are wired for selected targets
 - [x] Bun workspace install works
-- [ ] Python-selected target scaffolds expected files and runs baseline checks
+- [x] Python-selected target scaffolds expected files and runs baseline checks
 - [x] Root `pyproject.toml` exists for every generated preset, including JS-only and TV-only outputs.
 - [x] Invalid flag combinations fail with deterministic error messages.
 - [x] Non-interactive mode missing required choices fails without prompts.
@@ -313,7 +313,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 - [x] Foundation scaffold tests pass
 - [x] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
-- [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
+- [x] Cross-platform script checks pass on Linux/macOS/Windows CI
 - [x] CLI behavior contract tests pass for interactive and non-interactive paths.
 - [x] Root `pyproject.toml` invariant is enforced by tests across required matrix combinations.
 - [x] Failure-atomicity tests pass (transactional write or cleanup-on-failure verified).
@@ -493,7 +493,7 @@ Documentation must be updated continuously during GREEN/BLUE:
   - [x] `uv run ruff check .`
   - [x] `uv run mypy src`
 - [x] Ensure Python lane participates in required preset matrix tests.
-- [ ] Validate Python lane behavior in CI on supported host platforms.
+- [x] Validate Python lane behavior in CI on supported host platforms.
 
 ---
 

@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 04:49:26 PM
-**Current Phase:** M1 GREEN/BLUE slice (`minimal preset Turbo command smoke viability`)
+**Last Updated:** 2026-03-01 04:57:36 PM
+**Current Phase:** M1 GREEN/BLUE slice (`python baseline command contracts + CI cross-platform smoke wiring`)
 
 ---
 
@@ -176,6 +176,17 @@
   - [x] root script viability for `bun run dev`, `build`, `test`, `lint`, and `typecheck`
 - [x] Verified focused workspace/smoke contracts GREEN (`uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_bun_workspace_install_contract.py tests/contracts/test_turbo_command_smoke_contract.py`: 5 passed).
 - [x] Verified full suite GREEN after minimal command-smoke slice (`uv run pytest`: 82 passed).
+- [x] Ran YELLOW BTCA lookup for Turborepo root package manager metadata requirement (`packageManager` in root `package.json`).
+- [x] Added Python lane baseline command execution contract in `tests/contracts/test_python_lane_contract.py`:
+  - [x] scaffold `--target python` then run `uv sync --group dev`
+  - [x] run `uv run pytest`, `uv run ruff check .`, and `uv run mypy src`
+- [x] Updated Python lane scaffold template dependency grouping to align with uv group command semantics (`[dependency-groups].dev` in `python_lane_pyproject.toml`).
+- [x] Updated CI matrix workflow for explicit cross-platform script validation:
+  - [x] set up Bun on all matrix runners (`oven-sh/setup-bun@v2`)
+  - [x] run cross-platform smoke contracts (`test_bun_workspace_install_contract.py`, `test_turbo_command_smoke_contract.py`, `test_python_target_scaffold_runs_baseline_commands`)
+- [x] Expanded CI contract assertions in `tests/contracts/test_ci_versions_guardrail_contract.py` to cover matrix OS scope, Bun setup, and smoke-contract step wiring in addition to version guardrail command.
+- [x] Updated user-facing bootstrap guidance in `README.md` to make global `nurt` flow canonical and mark `install.sh` as legacy/maintainer path.
+- [x] Verified full suite GREEN after Python+CI slice (`uv run pytest`: 83 passed).
 
 ## In Progress
 
@@ -187,6 +198,9 @@
   - [x] Add initial JS app workspace package manifests for selected JS targets.
   - [x] Add Bun workspace install viability contract coverage.
   - [x] Add selected minimal preset command-smoke contract coverage for `dev/build/test/lint/typecheck`.
+  - [x] Validate Python-selected target baseline command execution checks.
+  - [x] Remove script-first bootstrap path from user docs in favor of global `nurt` command flow.
+  - [x] Wire cross-platform script smoke checks into Linux/macOS/Windows CI.
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
   - [x] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
   - [x] Implement transactional/failure-atomic scaffold write path.
@@ -204,7 +218,6 @@
 ## Next Up
 
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
-- [ ] Add Python-selected target command execution contract for baseline checks (`uv sync --group dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 

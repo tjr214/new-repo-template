@@ -42,7 +42,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
-- Python lane RED/GREEN slice is complete with `tests/contracts/test_python_lane_contract.py`.
+- Python lane RED/GREEN slice is complete with `tests/contracts/test_python_lane_contract.py`, including baseline command execution checks.
 - CLI validation + command-doc RED/GREEN slice is complete with `tests/contracts/test_cli_validation_and_python_commands_contract.py`, including expanded non-interactive missing/invalid argument coverage across multiple target modes.
 - Failure-atomic RED/GREEN slice is complete with `tests/contracts/test_failure_atomicity_contract.py`.
 - Target-matrix RED/GREEN slice is complete with `tests/contracts/test_target_matrix_and_auth_contract.py`.
@@ -50,8 +50,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Installer/updater script RED/GREEN slice is complete with `tests/contracts/test_installer_scripts_dry_run_contract.py`.
 - Current scaffold implementation supports `foundation`, `python`, `web`, `backend`, `desktop`, `mobile`, and `tv` targets with non-interactive mode, dry-run support, deterministic auth validation for `web+backend`, duplicate-target validation, auth-variant env placeholders, minimal auth wiring placeholders, root `.gitignore` secret guards, and transactional scaffold writes.
 - Installer tooling now supports non-destructive script-level dry-runs and includes turborepo (`turbo`) update/install in the updater workflow.
-- Installer now forwards target/auth selections into scaffold planning/apply flow, preserving the existing clone -> `install.sh` setup paradigm.
-- Current planning pivot supersedes script-first UX: implementation is moving to `nurt` global command flow with bundled snapshot assets and explicit `nurt update` lifecycle.
+- Installer support remains available for legacy/maintainer operations, but user bootstrap is standardized on global `nurt` command flow.
+- Script-first UX has been superseded: primary execution is `uv tool install --from git+... nurt` followed by `nurt new <project-name>` with bundled snapshot assets and explicit `nurt update` lifecycle.
 - `nurt` command bootstrap is implemented at `src/new_repo_template/nurt_cli.py` with command routing (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check hook.
 - `nurt new` now includes interactive prompt-based target/auth resolution path.
 - Snapshot assets are bundled under `src/new_repo_template/snapshot_assets/` and loaded at runtime via `importlib.resources`.
@@ -68,7 +68,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Minimal selected-preset command-smoke coverage is now active in `tests/contracts/test_turbo_command_smoke_contract.py`, validating root script viability for `dev`, `build`, `test`, `lint`, and `typecheck` after install on generated `web+backend` output.
 - Version baseline metadata/workflow is implemented with `version-baseline.json` and native `nurt versions check/update` commands in `src/new_repo_template/version_baseline.py`.
 - Version baseline workflow now includes lockfile lifecycle controls: update-time regeneration (with dry-run/summaries) and check-time lockfile presence validation.
-- CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest` and runs test matrix jobs on native Linux/macOS/Windows runners.
+- CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest`, sets up Bun on matrix runners, and runs cross-platform script smoke contracts on native Linux/macOS/Windows.
 - Interactive prompt rendering now includes Rich/Textual-aware UI infrastructure in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback behavior.
 
 ## Validation Model
@@ -88,7 +88,7 @@ Current contract coverage:
 - `tests/contracts/test_monorepo_foundation_contract.py`
   - Contract intent: non-interactive `--dry-run` foundation scaffold path succeeds, reports monorepo shape (`apps`, `packages`, `pyproject.toml`), and writes no files.
 - `tests/contracts/test_python_lane_contract.py`
-  - Contract intent: Python target dry-run and write flows preserve root/lane pyproject separation (`pyproject.toml` and `apps/python/pyproject.toml`).
+  - Contract intent: Python target dry-run/write flows preserve root/lane pyproject separation (`pyproject.toml` and `apps/python/pyproject.toml`) and baseline lane commands execute (`uv sync --group dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
 - `tests/contracts/test_cli_validation_and_python_commands_contract.py`
   - Contract intent: deterministic CLI validation failures (including missing `--no-interactive` across foundation/python/web+backend/mobile+tv modes, missing required args, and invalid choice handling) and Python lane baseline command documentation generation.
 - `tests/contracts/test_failure_atomicity_contract.py`
@@ -114,4 +114,4 @@ Current contract coverage:
 - `tests/contracts/test_version_baseline_contract.py`
   - Contract intent: codified version baseline metadata validation and maintainer update/check workflow behavior (including stale detection, lockfile regeneration/check guardrails, and dry-run non-destructive updates).
 - `tests/contracts/test_ci_versions_guardrail_contract.py`
-  - Contract intent: CI workflow includes required `nurt versions check --check-lockfiles --check-latest` guardrail command.
+  - Contract intent: CI workflow includes required version guardrail command plus cross-platform matrix smoke-check wiring (Bun setup and targeted command-smoke contract execution).

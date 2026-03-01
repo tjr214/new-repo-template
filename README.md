@@ -7,6 +7,17 @@ This repo supports two delivery lanes:
 
 Use this guide to choose the right lane and run the right commands.
 
+## Template Bootstrap (User Flow)
+
+For end users generating a new project from this template, the canonical flow is the global `nurt` CLI.
+
+1. Install `nurt` from git:
+   - `uv tool install --from git+https://github.com/<org>/<repo>.git nurt`
+2. Generate a project:
+   - `nurt new <project-name>`
+
+`install.sh` is retained for internal/legacy maintenance workflows, not as the primary end-user bootstrap path.
+
 ## Which Lane Should I Use?
 
 ### Use Quick Lane (`quick-spec` / `quick-dev`) when:

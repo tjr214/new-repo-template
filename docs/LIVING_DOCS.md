@@ -64,8 +64,8 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Auth variant env contract slice complete: duplicate target selections now fail deterministically, and `web+backend` auth variants scaffold explicit `.env.example` placeholders for Clerk and Better Auth flows.
 - Auth wiring placeholder slice complete: `web+backend` auth variants now scaffold minimal placeholder wiring files for frontend/backend auth integration points (`apps/backend/convex/auth.config.ts`, plus auth-specific web wiring stubs).
 - Security baseline slice complete: generated outputs now copy the root `.gitignore` baseline (with env/secret guards) and include target-local `.env.example` placeholders; baseline policy is documented in `docs/SECURITY_BASELINE.md`.
-- Installer/tooling script slice complete: `install.sh` and `.template_scripts/update-opencode.sh` now support `--dry-run`, and updater flow now includes turborepo (`turbo`) install/update handling.
-- Installer orchestration is now aligned with clone-and-run paradigm: `install.sh` forwards target/auth inputs to scaffold planning/apply flows while preserving existing template governance assets.
+- Installer/tooling script slice complete: `install.sh` and `.template_scripts/update-opencode.sh` support `--dry-run`, and updater flow includes turborepo (`turbo`) install/update handling for maintainer/legacy flows.
+- User-facing bootstrap path is now fully `nurt`-first (`uv tool install --from git+... nurt` then `nurt new <project-name>`); script-first bootstrap is not the default user guidance.
 - New strategic direction: migrate fully to global `nurt` command model (`new`, `update`, `tools sync`, `template-assets sync`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
 - `nurt` bootstrap implementation is now in place with command routing and startup update-check hook.
 - `nurt new` now supports interactive target/auth prompt flow when flags are omitted.
@@ -84,3 +84,7 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Root workspace bootstrap slice is now in place: scaffold outputs include root `package.json` (Bun workspaces + Turbo-routed `dev/build/test/lint/typecheck` scripts) and root `turbo.json` (minimal task graph for those commands), with contract coverage in `tests/contracts/test_root_workspace_contract.py`.
 - JS-target app manifests are now scaffolded (`apps/{web,backend,desktop,mobile,tv}/package.json`), and Bun workspace install viability is contract-tested in `tests/contracts/test_bun_workspace_install_contract.py` (including `bun install` and `bun install --frozen-lockfile` on generated `web+backend` output).
 - Minimal preset command-smoke coverage is now active in `tests/contracts/test_turbo_command_smoke_contract.py`: generated `web+backend` scaffold runs `bun install --frozen-lockfile` and passes root `bun run dev/build/test/lint/typecheck` scripts end-to-end.
+- Python lane execution contract coverage now includes baseline command viability in `tests/contracts/test_python_lane_contract.py` (`uv sync --group dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
+- Python lane scaffold dependency metadata now uses uv dependency groups (`[dependency-groups].dev`) so documented baseline commands execute without manual pyproject edits.
+- CI matrix now performs explicit cross-platform script smoke checks: Bun setup on each runner plus execution of Bun workspace install, Turbo root-script smoke, and Python baseline command contracts.
+- User-facing bootstrap guidance in `README.md` now explicitly documents global `nurt` flow and labels `install.sh` as legacy/maintainer-only path.
