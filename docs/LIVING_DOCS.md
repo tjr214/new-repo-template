@@ -22,6 +22,7 @@ The canonical execution checklist is in `PLAN.md`.
 - Turbo + Bun: yes
 - Convex: cloud-first default
 - Auth mode: explicit choice required (`clerk` or `better-auth`)
+- Auth rule scope: any preset containing both `web` and `backend` must explicitly choose auth
 - Desktop frontend: dedicated Electron app (Forge)
 - Mobile: dedicated Expo mobile app (`apps/mobile`)
 - TV: dedicated Expo AndroidTV app (`apps/tv`), separate from mobile
@@ -31,6 +32,7 @@ The canonical execution checklist is in `PLAN.md`.
 - Convex CI baseline: credentialless wiring checks only (no external secrets required)
 - Generator writes: failure-atomic (transactional write strategy or cleanup-on-failure)
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
+- Root `pyproject.toml` invariant: always present, even when Python target is not selected
 
 ## Known Constraints
 
@@ -39,4 +41,6 @@ The canonical execution checklist is in `PLAN.md`.
 - AndroidTV support includes emulator automation plus manual Shield checklist.
 - AndroidTV app is always a separate scaffold target, not a mobile profile toggle.
 - Fullstack auth choice has no default and must be explicitly selected in non-interactive runs.
+- Mixed presets with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed variant).
 - Generator failures must not leave partially scaffolded repos behind.
+- Root `pyproject.toml` is required for template tooling flows (including RALPH loader compatibility).

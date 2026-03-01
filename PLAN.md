@@ -4,6 +4,7 @@
 - [x] **Core stack**: Bun workspaces + Turborepo.
 - [x] **Fullstack**: TanStack Start + Convex.
 - [x] **Auth choice required**: explicit `clerk` or `better-auth` prompt; no default.
+- [x] **Auth rule scope**: every preset that includes both `web` and `backend` must explicitly choose auth.
 - [x] **Desktop**: dedicated Electron app via Electron Forge.
 - [x] **Mobile + TV split**: Expo mobile app and separate Expo TV app.
 - [x] **Python lane**: first-class selectable target (CLI/TUI focused).
@@ -13,6 +14,7 @@
 - [x] **Signing policy**: unsigned/internal builds are acceptable now; signing/notarization is hardening-phase optional workflow.
 - [x] **Execution loop**: strict YELLOW-RED-GREEN-BLUE with ongoing doc sync.
 - [x] **Version policy**: template tracks latest known-good versions; generated repos lock to that snapshot on install.
+- [x] **Root `pyproject.toml` invariant**: always present in generated repos, even when Python target is not selected.
 
 ---
 
@@ -51,6 +53,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [x] Native Windows CI is required for backend/dev tooling and Electron packaging checks.
 - [x] WSL is supplemental only, not a replacement for native Windows checks.
 - [x] Code signing: deferred to hardening phase; not required for early milestones.
+- [x] Root `pyproject.toml` is mandatory for template tooling compatibility (including RALPH loader flow), independent of selected targets.
 
 ### 1.1 Version Baseline Policy (Locked Behavior)
 
@@ -95,10 +98,16 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [ ] Mobile-only target
 - [ ] TV-only target
 - [ ] Mobile + TV dual-target (separate apps)
-- [ ] Mixed: Web + Backend + Desktop
-- [ ] Mixed: Web + Backend + Mobile + Desktop
-- [ ] Mixed: Web + Backend + TV + Desktop
-- [ ] Mixed all-target sanity pass (includes Python lane)
+- [ ] Mixed: Web + Backend + Clerk + Desktop
+- [ ] Mixed: Web + Backend + Better Auth + Desktop
+- [ ] Mixed: Web + Backend + Clerk + Mobile + Desktop
+- [ ] Mixed: Web + Backend + Better Auth + Mobile + Desktop
+- [ ] Mixed: Web + Backend + Clerk + TV + Desktop
+- [ ] Mixed: Web + Backend + Better Auth + TV + Desktop
+- [ ] Mixed: Web + Backend + Clerk + Mobile + TV + Desktop
+- [ ] Mixed: Web + Backend + Better Auth + Mobile + TV + Desktop
+- [ ] All-target sanity pass + Clerk (includes Python lane)
+- [ ] All-target sanity pass + Better Auth (includes Python lane)
 
 ---
 
@@ -148,6 +157,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 ## 4) Target Monorepo Architecture (Template Output)
 
 - [ ] Root workspace with `apps/*` and `packages/*`
+- [ ] Root `pyproject.toml` is always scaffolded and retained for template/runtime tooling requirements.
 - [ ] Shared infra packages for lint/tsconfig/tooling presets
 - [ ] Selectable app targets generated into monorepo:
   - [ ] `apps/web` (TanStack Start)
@@ -164,13 +174,15 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [ ] Support explicit non-interactive mode for CI (`--no-interactive`).
 - [ ] In non-interactive mode, missing required options fail with non-zero exit and clear remediation text.
 - [ ] In interactive mode, wizard prompts can resolve missing options.
-- [ ] Fullstack target requires explicit auth choice (`clerk` or `better-auth`).
-- [ ] If fullstack is selected and auth is omitted:
+- [ ] Any configuration that includes both `web` and `backend` requires explicit auth choice (`clerk` or `better-auth`).
+- [ ] If `web` and `backend` are selected and auth is omitted:
   - [ ] interactive: prompt user
   - [ ] non-interactive: hard fail with validation error
-- [ ] If auth is provided without fullstack target: hard fail with deterministic validation error.
+- [ ] If auth is provided without both `web` and `backend`: hard fail with deterministic validation error.
+- [ ] Mixed preset entries with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed presets).
 - [ ] Invalid/contradictory target combinations fail before any files are written.
 - [ ] Support `--dry-run` to print resolved scaffold plan without writing files.
+- [ ] No generator option may suppress root `pyproject.toml`; it is a global invariant.
 - [ ] `tv` target always resolves to a separate `apps/tv` scaffold and never mutates `apps/mobile` into TV mode.
 - [ ] If both `mobile` and `tv` are selected, generator creates both apps with shared packages only where explicit.
 - [ ] Generator writes are failure-atomic: no partial scaffold output remains on failure.
@@ -231,6 +243,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Implement selectable targets model (always monorepo, selected app types only)
 - [ ] Preserve first-class Python lane support in monorepo selection
 - [ ] Add contract tests for foundation scaffold shape and scripts
+- [ ] Ensure root `pyproject.toml` is generated for every preset combination (including non-Python selections).
 - [ ] Implement non-interactive/CI mode behavior and deterministic validation errors.
 - [ ] Implement `--dry-run` behavior for preflight resolution.
 - [ ] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
@@ -241,8 +254,10 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Turbo tasks are wired for selected targets
 - [ ] Bun workspace install works
 - [ ] Python-selected target scaffolds expected files and runs baseline checks
+- [ ] Root `pyproject.toml` exists for every generated preset, including JS-only and TV-only outputs.
 - [ ] Invalid flag combinations fail with deterministic error messages.
 - [ ] Non-interactive mode missing required choices fails without prompts.
+- [ ] Any `web` + `backend` selection without auth fails with deterministic validation error.
 - [ ] Simulated mid-generation failure leaves no partial repo artifacts.
 
 ### DoD Gates
@@ -251,6 +266,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
 - [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
 - [ ] CLI behavior contract tests pass for interactive and non-interactive paths.
+- [ ] Root `pyproject.toml` invariant is enforced by tests across required matrix combinations.
 - [ ] Failure-atomicity tests pass (transactional write or cleanup-on-failure verified).
 
 ---
@@ -273,6 +289,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Convex codegen and startup command smoke checks
 - [ ] Auth-required env template assertions
 - [ ] Auth-required behavior tests for non-interactive mode (error when omitted).
+- [ ] Mixed `web` + `backend` presets require explicit auth and pass in both auth variants.
 - [ ] Credentialless CI checks validate wiring without external auth keys.
 
 ### DoD Gates
@@ -443,6 +460,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Cross-platform command smoke tests
 - [ ] Required preset-combination matrix tests (Section 2.1)
 - [ ] CLI behavior contract tests (`--no-interactive`, invalid combos, auth-required flow)
+- [ ] Matrix tests must include auth variants for every preset containing both `web` and `backend`.
+- [ ] Matrix tests must assert root `pyproject.toml` presence for every generated configuration.
 
 ### 10.2 Test Rules
 
@@ -493,10 +512,11 @@ The program is complete when:
 - [ ] Always-monorepo template generation works with flags + wizard.
 - [ ] Presets are available: web/backend/auth variants, desktop Electron, separate mobile app, separate TV app, python lane.
 - [ ] Required CI matrix is green on Linux/macOS/Windows.
-- [ ] Required preset combination matrix (Section 2.1) is green.
+- [ ] Required preset combination matrix (Section 2.1) is green, including auth variants for every `web` + `backend` preset.
 - [ ] Native Windows backend and Electron checks are passing.
 - [ ] TV app guarantees remote-primary UX with keyboard/mouse/gamepad support.
 - [ ] Contract tests in `tests/` comprehensively cover scaffold outputs.
+- [ ] Root `pyproject.toml` invariant holds for all generated repositories.
 - [ ] Generator failure atomicity is guaranteed by implementation and tests.
 - [ ] Core docs and trackers are synchronized and current.
 - [ ] Phased release notes/checklists are complete.

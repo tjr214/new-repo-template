@@ -16,6 +16,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Monorepo orchestration: Turborepo (`turbo`)
 - JS/TS package manager and workspaces: Bun
 - Auth integration mode for Convex fullstack scaffolds: explicit prompt (`clerk` or `better-auth`)
+- Auth selection rule: any scaffold selecting both `web` and `backend` must explicitly choose auth
 - Desktop packaging tool: Electron Forge
 - Convex workflow: cloud-first
 - CI platform: GitHub Actions
@@ -24,6 +25,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Scaffold contract: explicit preset-combination matrix and deterministic non-interactive CLI behavior
 - Generator write model: failure-atomic scaffolding (transactional writes or cleanup-on-failure)
 - TV input contract: remote-primary navigation with keyboard/mouse/gamepad support as secondary inputs
+- Root metadata invariant: `pyproject.toml` exists at repository root for all generated repos regardless of selected targets
 
 ## Planned Topology
 

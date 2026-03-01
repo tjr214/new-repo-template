@@ -14,6 +14,8 @@
 - [x] Incorporated plan guardrails: upfront version policy, preset matrix, CLI behavior contract, secret-free Convex CI strategy, Python lane contract, security baseline, BTCA governance logging.
 - [x] Added generator failure atomicity guardrail (transactional writes or cleanup-on-failure with explicit tests).
 - [x] Updated plan to make AndroidTV a dedicated app target with remote-primary + keyboard/mouse/gamepad support contract.
+- [x] Clarified preset matrix auth dimension so all `web` + `backend` mixed presets explicitly include auth variants.
+- [x] Added global root `pyproject.toml` invariant for all generated repos, including non-Python selections.
 
 ## In Progress
 
