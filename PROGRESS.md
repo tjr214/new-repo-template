@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 01:53:11 PM
-**Current Phase:** M1 GREEN/BLUE slice (installer scaffold orchestration alignment) complete
+**Last Updated:** 2026-03-01 02:02:10 PM
+**Current Phase:** Planning alignment update (all-in `nurt` global CLI migration)
 
 ---
 
@@ -75,6 +75,9 @@
 - [x] Added installer dry-run contract coverage for forwarding target/auth options into scaffold planning output.
 - [x] Updated `PLAN.md` with explicit clone -> `install.sh` orchestration contract semantics.
 - [x] Verified full suite GREEN after installer orchestration alignment (`uv run pytest`: 23 passed).
+- [x] Locked strategic pivot to all-in global `nurt` tool distribution (no `install.sh` fallback path for user flow).
+- [x] Updated `PLAN.md` with `nurt` command model (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check requirements.
+- [x] Added snapshot asset packaging contract details to `PLAN.md` (manifest, metadata, bundled runtime assets, deterministic behavior).
 
 ## In Progress
 
@@ -89,6 +92,12 @@
   - [ ] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
   - [x] Add auth-variant env placeholder scaffolding + minimal wiring placeholder files for `web+backend`.
   - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
+
+- [ ] Nurt migration implementation:
+  - [ ] Introduce `nurt` CLI entrypoint and command router.
+  - [ ] Migrate installer/update orchestration into `nurt` subcommands.
+  - [ ] Implement mandatory startup update-check and `nurt update` flow.
+  - [ ] Implement snapshot asset generation + packaged asset loading path.
 
 ## Next Up
 

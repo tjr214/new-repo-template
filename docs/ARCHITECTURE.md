@@ -28,6 +28,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Root metadata invariant: `pyproject.toml` exists at repository root for all generated repos regardless of selected targets
 - Python lane metadata boundary: Python app metadata/deps live in lane-local `apps/python/pyproject.toml`, while root `pyproject.toml` remains monorepo/tooling-level
 - Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards and selected targets scaffold placeholder-only `.env.example`
+- Global UX direction: distribute and run as `nurt` global CLI installed via uv from git; user entrypoint is `nurt new <project-name>`
 
 ## Planned Topology
 
@@ -50,6 +51,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Current scaffold implementation supports `foundation`, `python`, `web`, `backend`, `desktop`, `mobile`, and `tv` targets with non-interactive mode, dry-run support, deterministic auth validation for `web+backend`, duplicate-target validation, auth-variant env placeholders, minimal auth wiring placeholders, root `.gitignore` secret guards, and transactional scaffold writes.
 - Installer tooling now supports non-destructive script-level dry-runs and includes turborepo (`turbo`) update/install in the updater workflow.
 - Installer now forwards target/auth selections into scaffold planning/apply flow, preserving the existing clone -> `install.sh` setup paradigm.
+- Current planning pivot supersedes script-first UX: implementation is moving to `nurt` global command flow with bundled snapshot assets and explicit `nurt update` lifecycle.
 
 ## Validation Model
 

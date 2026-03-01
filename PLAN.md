@@ -16,7 +16,12 @@
 - [x] **Version policy**: template tracks latest known-good versions; generated repos lock to that snapshot on install.
 - [x] **Root `pyproject.toml` invariant**: always present in generated repos, even when Python target is not selected.
 - [x] **Python lane pyproject boundary**: root `pyproject.toml` remains repo/tooling-level; Python target also scaffolds a lane-local `pyproject.toml` under the Python app directory.
-- [x] **Installer dry-run support**: `install.sh` and `.template_scripts/update-opencode.sh` support `--dry-run` for non-destructive validation.
+- [x] **Primary UX tool**: global CLI is `nurt` (Nu-Repo Template).
+- [x] **Distribution model**: install `nurt` directly from git via `uv tool install --from git+... nurt`.
+- [x] **Execution entrypoint**: `nurt new <project-name>` (no `install.sh` fallback path).
+- [x] **Tool update policy**: `nurt` checks for updates on every command run; explicit upgrade command is `nurt update`.
+- [x] **Template sync command naming**: use `nurt template-assets sync`.
+- [x] **Snapshot model**: `nurt` ships bundled snapshot assets by default (deterministic, offline-capable) and can sync live template assets via command.
 
 ---
 
@@ -194,17 +199,29 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [x] Generator writes are failure-atomic: no partial scaffold output remains on failure.
 - [x] Implement transactional write strategy (stage temp output then atomic move) or guaranteed cleanup-on-failure.
 
-### 4.2 Installation Orchestration Contract (Clone -> `install.sh`)
+### 4.2 Installation Orchestration Contract (`nurt` Global CLI)
 
-- [x] Primary execution flow remains: clone template repo, then run `sh install.sh`.
-- [x] `install.sh` is the entrypoint that orchestrates scaffold selection and setup tasks.
-- [x] `install.sh` supports scaffold selection flags (`--target` repeatable, optional `--auth`) and forwards them to the scaffold engine.
-- [x] If no targets are provided to `install.sh`, default scaffold selection is `foundation`.
-- [x] Installer dry-run mode (`--dry-run`) is non-destructive and validates scaffold resolution plus updater dry-run flow.
-- [x] Non-dry installer flow applies scaffold output in-place before repo reinitialization.
-- [x] Existing template governance/workflow assets remain in generated repos; scaffold output overlays app/runtime files only.
-- [x] Updater script (`.template_scripts/update-opencode.sh`) includes turborepo (`turbo`) install/update handling.
-- [x] Updater dry-run mode (`--dry-run`) is non-destructive and suitable for RED-phase script validation.
+- [ ] Primary execution flow is `nurt new <project-name>` (no `install.sh` fallback path).
+- [ ] `nurt` is installed from git using uv tools (`uv tool install --from git+... nurt`).
+- [ ] `nurt` always performs update-check logic at command startup and prints deterministic notice when an update exists.
+- [ ] `nurt update` performs explicit tool upgrade flow.
+- [ ] `nurt new` supports both interactive wizard/TUI mode and non-interactive flag mode.
+- [ ] If no targets are provided to `nurt new`, interactive mode should resolve target/auth selection via prompts.
+- [ ] `nurt new --dry-run` is non-destructive and validates full scaffold plan resolution.
+- [ ] Existing template governance/workflow assets remain in generated repos; scaffold output overlays app/runtime files only.
+- [ ] `nurt template-assets sync` replaces template asset sync script behavior with one cohesive command.
+- [ ] `nurt tools sync` consolidates tool update/install behavior currently spread across scripts.
+
+### 4.3 Snapshot Asset Packaging Contract (for `nurt`)
+
+- [ ] Source-of-truth assets are declared by manifest (explicit include/exclude list, deterministic ordering).
+- [ ] Snapshot generation command produces bundled package assets from manifest-scoped files.
+- [ ] Snapshot generation writes metadata manifest (source commit, generation timestamp, file hashes, nurt version).
+- [ ] Packaged snapshot files are included in the wheel/sdist via hatchling build config and loaded at runtime with `importlib.resources`.
+- [ ] `nurt new` uses bundled snapshot assets by default (offline-capable, deterministic behavior).
+- [ ] `nurt template-assets sync` can pull/update live assets from the template repository on demand.
+- [ ] Snapshot generation validates forbidden-path exclusions (`.git`, caches, virtualenvs, local secrets).
+- [ ] RED tests assert snapshot determinism and packaged-asset availability after install.
 
 ---
 
@@ -258,6 +275,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add root workspace config (`package.json` workspaces, `turbo.json`, Bun setup)
 - [ ] Add cross-platform-safe scripts (avoid bash-only assumptions for core commands)
 - [ ] Implement generator CLI: flags + interactive wizard fallback
+- [ ] Implement global CLI entrypoint `nurt` with `new`, `update`, `tools sync`, and `template-assets sync` commands.
 - [x] Implement selectable targets model (always monorepo, selected app types only)
 - [x] Preserve first-class Python lane support in monorepo selection
 - [x] Add contract tests for foundation scaffold shape and scripts
@@ -265,8 +283,9 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Implement non-interactive/CI mode behavior and deterministic validation errors.
 - [x] Implement `--dry-run` behavior for preflight resolution.
 - [x] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
-- [x] Add `--dry-run` mode to `install.sh` and `.template_scripts/update-opencode.sh` for non-destructive script validation.
-- [x] Integrate scaffold engine invocation into installer flow while preserving existing template assets.
+- [ ] Add `--dry-run` mode to `nurt new` and `nurt tools sync` for non-destructive validation.
+- [ ] Integrate scaffold engine invocation into `nurt new` while preserving existing template assets.
+- [ ] Remove script-first bootstrap path from user docs in favor of global `nurt` command flow.
 
 ### RED Tests (must fail first)
 
@@ -279,7 +298,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Non-interactive mode missing required choices fails without prompts.
 - [x] Any `web` + `backend` selection without auth fails with deterministic validation error.
 - [x] Simulated mid-generation failure leaves no partial repo artifacts.
-- [x] Installer and updater dry-run modes execute successfully without mutating repository state.
+- [ ] `nurt new --dry-run` and `nurt tools sync --dry-run` execute successfully without mutating repository state.
+- [ ] `nurt new` interactive wizard flow resolves targets/auth and produces deterministic equivalent plan output.
 
 ### DoD Gates
 
@@ -547,7 +567,8 @@ The program is complete when:
 
 ## 14) Immediate Next Actions (Build Mode Step 1)
 
-- [ ] Execute M0 first (BTCA resources + docs baseline + test scaffolding).
-- [x] Create and run first RED contract test for monorepo foundation output.
-- [ ] Implement M1 in strict YELLOW-RED-GREEN-BLUE slices.
+- [ ] Start `nurt` CLI migration slice: introduce global command entrypoint and command routing (`new`, `update`, `tools sync`, `template-assets sync`).
+- [ ] Add first RED tests for `nurt new` parity with current scaffold contracts.
+- [ ] Add RED tests for `nurt` startup update-check behavior and `nurt update` execution path.
+- [ ] Add snapshot asset generation command + metadata manifest scaffolding and tests.
 - [ ] Keep documentation synchronized continuously during implementation.

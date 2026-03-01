@@ -37,6 +37,7 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
 - Root `pyproject.toml` invariant: always present, even when Python target is not selected
 - Python lane metadata boundary: Python target scaffolds `apps/python/pyproject.toml`; root `pyproject.toml` remains monorepo/tooling-level
+- Global execution UX pivot: primary user flow is moving to globally installed `nurt` (`nurt new <project-name>`) with no `install.sh` fallback user path
 
 ## Known Constraints
 
@@ -65,4 +66,5 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Security baseline slice complete: generated outputs now copy the root `.gitignore` baseline (with env/secret guards) and include target-local `.env.example` placeholders; baseline policy is documented in `docs/SECURITY_BASELINE.md`.
 - Installer/tooling script slice complete: `install.sh` and `.template_scripts/update-opencode.sh` now support `--dry-run`, and updater flow now includes turborepo (`turbo`) install/update handling.
 - Installer orchestration is now aligned with clone-and-run paradigm: `install.sh` forwards target/auth inputs to scaffold planning/apply flows while preserving existing template governance assets.
+- New strategic direction: migrate fully to global `nurt` command model (`new`, `update`, `tools sync`, `template-assets sync`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
 - Current blocker/caveat: intermittent BTCA `bun` resource clone/fetch failures; cache reset via `btca clear` helps transiently but needs follow-up hardening guidance.
