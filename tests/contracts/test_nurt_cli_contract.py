@@ -106,6 +106,55 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
+def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
+    tmp_path: Path,
+) -> None:
+    """Rich/Textual mode should fall back cleanly when rich UI is unavailable."""
+
+    output_dir = tmp_path / "demo-rich-fallback"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="3,4\n2\n",
+        env={
+            "NURT_UI_MODE": "rich",
+            "NURT_SIMULATE_RICH_UNAVAILABLE": "1",
+        },
+    )
+
+    assert result.returncode == 0, (
+        "Expected rich-mode fallback interactive command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "Rich/Textual UI unavailable" in combined_output
+    assert "nurt new interactive mode" in combined_output
+    assert "- auth: better-auth" in combined_output
+
+
+def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) -> None:
+    """Plain UI mode should avoid rich fallback warnings and still work."""
+
+    output_dir = tmp_path / "demo-plain-ui"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="3,4\n1\n",
+        env={"NURT_UI_MODE": "plain", "NURT_SIMULATE_RICH_UNAVAILABLE": "1"},
+    )
+
+    assert result.returncode == 0, (
+        "Expected plain UI interactive command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "nurt new interactive mode" in combined_output
+    assert "Rich/Textual UI unavailable" not in combined_output
+    assert "- auth: clerk" in combined_output
+
+
 def test_nurt_new_interactive_without_stdin_fails_with_clear_remediation(
     tmp_path: Path,
 ) -> None:

@@ -69,7 +69,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 ### 1.1 Version Baseline Policy (Locked Behavior)
 
-- [ ] Keep a "latest known-good" baseline for core toolchain (`bun`, `turbo`, `typescript`, `python`) in template metadata.
+- [x] Keep a "latest known-good" baseline for core toolchain (`bun`, `turbo`, `typescript`, `python`) in template metadata.
 - [ ] New project generation uses the latest known-good baseline and writes/retains lockfiles so first install is deterministic.
 - [ ] For JS/TS dependencies: follow project rule to use `^` ranges while lockfiles pin concrete versions.
 - [ ] For Python lane: keep pinned minimums compatible with `>=3.14` and generate deterministic `uv.lock` state.
@@ -78,12 +78,12 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 ### 1.2 Version Update UX (Ease of Maintenance)
 
-- [ ] Add a maintainer command (for example `bun run versions:update`) that:
-  - [ ] Fetches latest stable versions for baseline-managed dependencies.
-  - [ ] Updates template baseline metadata.
+- [x] Add a maintainer command (`nurt versions update`) that:
+  - [x] Fetches latest stable versions for baseline-managed dependencies.
+  - [x] Updates template baseline metadata.
   - [ ] Regenerates lockfiles used by scaffolded outputs.
-  - [ ] Produces a human-readable diff summary for PR review.
-- [ ] Add a companion check command (for example `bun run versions:check`) for CI guardrails.
+  - [x] Produces a human-readable diff summary for PR review.
+- [x] Add a companion check command (`nurt versions check`) for CI guardrails.
 
 ---
 
@@ -258,7 +258,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Expand `PROGRESS.md` from template placeholder to active tracker
 - [ ] Keep `PLAN.md` as canonical implementation source of truth
 - [x] Define generator contract test scaffolding under `tests/`
-- [ ] Define and codify version baseline metadata and update workflow.
+- [x] Define and codify version baseline metadata and update workflow.
 - [x] Add security baseline docs (`.env.example` convention + secret handling rules).
 
 ### DoD Gates
@@ -267,7 +267,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] `docs/BTCA_RESOURCES.md` matches project resources exactly
 - [x] Planning docs exist and are internally consistent
 - [x] Baseline test scaffolding in `tests/` is present and runnable
-- [ ] Version baseline policy is codified and covered by tests/CI checks.
+- [x] Version baseline policy is codified and covered by tests/CI checks.
 - [x] Security baseline conventions are documented and validated by scaffold tests.
 
 ---
@@ -306,6 +306,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] `nurt new` interactive wizard flow resolves targets/auth and produces deterministic equivalent plan output.
 - [x] Native non-dry-run sync commands surface deterministic validation/failure messaging (`nurt tools sync` failure summary path and `nurt template-assets sync` root/dirty-repo guardrails).
 - [x] `nurt new` interactive stdin-closure paths fail cleanly with remediation guidance instead of raw traceback output.
+- [x] Mixed combo validation contracts cover additional unsupported auth/target combinations (`web+backend+desktop` auth requirement and auth misuse with partial mixed selections).
 
 ### DoD Gates
 
@@ -578,5 +579,5 @@ The program is complete when:
 - [x] Add RED tests for `nurt` startup update-check behavior and `nurt update` execution path.
 - [x] Add snapshot asset generation command + metadata manifest scaffolding and tests.
 - [x] Replace script-wrapper behavior inside `nurt tools sync` / `nurt template-assets sync` with native Python command implementations.
-- [ ] Implement polished Rich/Textual interactive UI for `nurt new` (current prompt wizard is functional baseline).
+- [x] Implement polished Rich/Textual interactive UI for `nurt new` (Rich table/panel prompt layer with deterministic plain fallback).
 - [ ] Keep documentation synchronized continuously during implementation.

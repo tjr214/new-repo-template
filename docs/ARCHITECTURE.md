@@ -59,6 +59,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Script-wrapper migration slice is complete for sync commands: `nurt tools sync` and `nurt template-assets sync` now call native Python operations in `src/new_repo_template/sync_ops.py`.
 - Contract coverage now includes non-dry-run sync failure messaging for native `nurt` sync commands (tools sync simulated failure output and template-assets sync validation failures).
 - Interactive `nurt new` now handles stdin-closure failure paths with deterministic remediation output instead of raw EOF tracebacks.
+- Mixed-combo validation coverage now includes additional unsupported auth/target combinations in mixed presets.
+- Version baseline metadata/workflow is implemented with `version-baseline.json` and native `nurt versions check/update` commands in `src/new_repo_template/version_baseline.py`.
+- Interactive prompt rendering now includes Rich/Textual-aware UI infrastructure in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback behavior.
 
 ## Validation Model
 
@@ -83,7 +86,7 @@ Current contract coverage:
 - `tests/contracts/test_failure_atomicity_contract.py`
   - Contract intent: simulated mid-generation failure leaves no partial output at the final scaffold path.
 - `tests/contracts/test_target_matrix_and_auth_contract.py`
-  - Contract intent: multi-target validation/auth rules, duplicate target rejection, auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
+  - Contract intent: multi-target validation/auth rules, duplicate target rejection, unsupported mixed-combo auth validation, auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
 - `tests/contracts/test_security_baseline_contract.py`
   - Contract intent: root `.gitignore` secret/env protections and per-target `.env.example` placeholder generation.
 - `tests/contracts/test_installer_scripts_dry_run_contract.py`
@@ -92,3 +95,5 @@ Current contract coverage:
   - Contract intent: `nurt` command routing, new-project dry-run parity, startup update notice behavior, dry-run safety for `update`/`tools sync`/`template-assets sync`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
 - `tests/contracts/test_snapshot_assets_contract.py`
   - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation.
+- `tests/contracts/test_version_baseline_contract.py`
+  - Contract intent: codified version baseline metadata validation and maintainer update/check workflow behavior (including stale detection and dry-run non-destructive updates).

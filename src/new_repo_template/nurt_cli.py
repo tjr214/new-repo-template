@@ -7,8 +7,16 @@ import sys
 from pathlib import Path
 
 from new_repo_template import scaffold
+from new_repo_template.interactive_ui import (
+    InteractiveUIConfig,
+    ask_user_input,
+    render_auth_menu,
+    render_target_menu,
+    resolve_ui_config,
+)
 from new_repo_template.snapshot_builder import build_snapshot_assets
 from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
+from new_repo_template.version_baseline import run_versions_check, run_versions_update
 
 
 AUTH_CHOICES: tuple[str, str] = ("clerk", "better-auth")
@@ -56,15 +64,16 @@ def perform_startup_update_check() -> None:
         print("Update available for nurt. Run `nurt update`.", file=sys.stderr)
 
 
-def prompt_targets() -> list[str]:
-    print("nurt new interactive mode")
-    print("Select targets (comma-separated):")
-    for index, target in enumerate(scaffold.TARGET_CHOICES, start=1):
-        print(f"  {index}) {target}")
+def prompt_targets(*, ui_config: InteractiveUIConfig) -> list[str]:
+    render_target_menu(config=ui_config, targets=scaffold.TARGET_CHOICES)
 
     while True:
         try:
-            user_input = input("Targets [foundation]: ").strip()
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt="Targets [foundation]: ",
+                default="foundation",
+            )
         except EOFError as exc:
             raise RuntimeError(INTERACTIVE_TARGETS_REMEDIATION) from exc
         if user_input == "":
@@ -101,14 +110,16 @@ def prompt_targets() -> list[str]:
         return choices
 
 
-def prompt_auth() -> str:
-    print("Select auth provider for web+backend:")
-    print("  1) clerk")
-    print("  2) better-auth")
+def prompt_auth(*, ui_config: InteractiveUIConfig) -> str:
+    render_auth_menu(config=ui_config)
 
     while True:
         try:
-            user_input = input("Auth [clerk]: ").strip().lower()
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt="Auth [clerk]: ",
+                default="clerk",
+            ).lower()
         except EOFError as exc:
             raise RuntimeError(INTERACTIVE_AUTH_REMEDIATION) from exc
         if user_input in {"", "1", "clerk"}:
@@ -168,11 +179,41 @@ def build_parser() -> argparse.ArgumentParser:
         handler=handle_template_assets_snapshot
     )
 
+    versions_parser = subparsers.add_parser(
+        "versions", help="Manage version baseline metadata"
+    )
+    versions_subparsers = versions_parser.add_subparsers(
+        dest="versions_command", required=True
+    )
+
+    versions_check_parser = versions_subparsers.add_parser(
+        "check", help="Validate version baseline metadata"
+    )
+    versions_check_parser.add_argument(
+        "--baseline-path", type=Path, default=Path("version-baseline.json")
+    )
+    versions_check_parser.add_argument("--check-latest", action="store_true")
+    versions_check_parser.add_argument("--source-file", type=Path)
+    versions_check_parser.set_defaults(handler=handle_versions_check)
+
+    versions_update_parser = versions_subparsers.add_parser(
+        "update", help="Refresh version baseline metadata"
+    )
+    versions_update_parser.add_argument(
+        "--baseline-path", type=Path, default=Path("version-baseline.json")
+    )
+    versions_update_parser.add_argument("--source-file", type=Path)
+    versions_update_parser.add_argument("--dry-run", action="store_true")
+    versions_update_parser.set_defaults(handler=handle_versions_update)
+
     return parser
 
 
 def handle_new(args: argparse.Namespace) -> int:
     output_path = (Path.cwd() / args.project_name).resolve()
+    ui_config = resolve_ui_config()
+    if ui_config.warning is not None:
+        print(f"Warning: {ui_config.warning}", file=sys.stderr)
 
     selected_targets: list[str]
     selected_auth = args.auth
@@ -182,11 +223,11 @@ def handle_new(args: argparse.Namespace) -> int:
         elif args.no_interactive:
             selected_targets = ["foundation"]
         else:
-            selected_targets = prompt_targets()
+            selected_targets = prompt_targets(ui_config=ui_config)
 
         has_web_backend = "web" in selected_targets and "backend" in selected_targets
         if has_web_backend and selected_auth is None and not args.no_interactive:
-            selected_auth = prompt_auth()
+            selected_auth = prompt_auth(ui_config=ui_config)
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
@@ -258,6 +299,26 @@ def handle_template_assets_snapshot(args: argparse.Namespace) -> int:
     if result.metadata_path is not None:
         print(f"  - metadata: {result.metadata_path}")
     return 0
+
+
+def handle_versions_check(args: argparse.Namespace) -> int:
+    return run_versions_check(
+        baseline_path=args.baseline_path.resolve(),
+        check_latest=bool(args.check_latest),
+        source_file=args.source_file.resolve()
+        if args.source_file is not None
+        else None,
+    )
+
+
+def handle_versions_update(args: argparse.Namespace) -> int:
+    return run_versions_update(
+        baseline_path=args.baseline_path.resolve(),
+        dry_run=bool(args.dry_run),
+        source_file=args.source_file.resolve()
+        if args.source_file is not None
+        else None,
+    )
 
 
 def main(argv: list[str] | None = None) -> int:

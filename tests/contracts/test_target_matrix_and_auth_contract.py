@@ -50,6 +50,37 @@ def test_web_backend_requires_explicit_auth_in_non_interactive_mode(
     )
 
 
+def test_web_backend_desktop_requires_explicit_auth_in_non_interactive_mode(
+    tmp_path: Path,
+) -> None:
+    """RED: any mixed preset containing web+backend must require auth."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-backend-desktop-no-auth"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--target",
+            "desktop",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert (
+        "auth option is required when both web and backend targets are selected"
+        in result.stderr
+    )
+
+
 def test_web_backend_with_auth_succeeds_and_is_dry_run_only(tmp_path: Path) -> None:
     """RED: web+backend with auth should resolve and avoid writes in dry-run."""
 
@@ -212,6 +243,68 @@ def test_duplicate_target_selection_fails_deterministically(tmp_path: Path) -> N
 
     assert result.returncode == 2
     assert "duplicate target selections are not allowed: web" in result.stderr
+
+
+def test_auth_with_web_desktop_without_backend_fails_deterministically(
+    tmp_path: Path,
+) -> None:
+    """RED: auth must fail when web is selected without backend in mixed presets."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-desktop-auth-invalid"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "desktop",
+            "--auth",
+            "clerk",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert (
+        "auth option is only valid when both web and backend targets are selected"
+        in result.stderr
+    )
+
+
+def test_auth_with_backend_desktop_without_web_fails_deterministically(
+    tmp_path: Path,
+) -> None:
+    """RED: auth must fail when backend is selected without web in mixed presets."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "backend-desktop-auth-invalid"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "backend",
+            "--target",
+            "desktop",
+            "--auth",
+            "better-auth",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert (
+        "auth option is only valid when both web and backend targets are selected"
+        in result.stderr
+    )
 
 
 def test_web_backend_clerk_env_examples_include_required_placeholders(

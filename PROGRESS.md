@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 03:25:23 PM
-**Current Phase:** M1 GREEN/BLUE slice (`nurt` interactive fallback failure handling)
+**Last Updated:** 2026-03-01 03:36:07 PM
+**Current Phase:** M0/M1 GREEN/BLUE slice (`version baseline workflow + Rich/Textual UI layer`)
 
 ---
 
@@ -106,12 +106,25 @@
   - [x] auth-selection prompt failure remediation text
 - [x] Hardened `nurt new` interactive flow to fail cleanly on EOF with deterministic remediation guidance (`--no-interactive`, `--target`, `--auth`).
 - [x] Verified full suite GREEN after interactive fallback hardening (`uv run pytest`: 38 passed).
+- [x] Expanded mixed-combo contract coverage in `tests/contracts/test_target_matrix_and_auth_contract.py` for additional unsupported auth/target combinations.
+- [x] Added version baseline metadata file at `version-baseline.json` for managed core toolchain versions (`bun`, `turbo`, `typescript`, `python`).
+- [x] Added `nurt versions` command surface with maintainer workflows:
+  - [x] `nurt versions check`
+  - [x] `nurt versions check --check-latest`
+  - [x] `nurt versions update`
+  - [x] `nurt versions update --dry-run`
+- [x] Added version baseline contract suite at `tests/contracts/test_version_baseline_contract.py` (validation, stale detection, update diff output, and dry-run non-destructive behavior).
+- [x] Introduced Rich/Textual interactive UI layer scaffolding in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback and explicit warning path when enhanced UI is unavailable.
+- [x] Updated `nurt new` interactive path to route through Rich UI renderer/prompts when enabled and safe.
+- [x] Added runtime dependencies for interactive UI layer in `pyproject.toml` (`rich>=14.3.3`, `textual>=8.0.1`).
+- [x] Expanded `nurt` contract coverage for Rich/Textual mode fallback and plain-mode behavior controls in `tests/contracts/test_nurt_cli_contract.py`.
+- [x] Verified full suite GREEN after this slice (`uv run pytest`: 47 passed).
 
 ## In Progress
 
 - [ ] M0 setup execution hardening:
   - [ ] Resolve intermittent `bun` BTCA resource load failures (`git clone/fetch failed`) and record stable workaround or remediation.
-- [ ] Define and codify version baseline metadata and update workflow.
+- [ ] Extend version workflow to regenerate/check scaffold lockfiles as part of baseline update automation.
 
 - [ ] M1 foundation implementation:
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
@@ -126,13 +139,13 @@
   - [x] Migrate installer/update orchestration into `nurt` subcommands beyond script-wrapper behavior.
   - [x] Implement mandatory startup update-check and `nurt update` flow.
   - [x] Implement snapshot asset generation + packaged asset loading path.
-  - [ ] Implement polished Rich/Textual interactive UI layer for `nurt new` (current prompt wizard baseline is in place).
+  - [x] Implement polished Rich/Textual interactive UI layer for `nurt new` (current prompt wizard baseline is in place).
 
 ## Next Up
 
-- [ ] Expand RED tests for remaining unsupported mixed-combo cases.
+- [ ] Add remaining required preset-combination matrix contracts from `PLAN.md` Section 2.1.
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
-- [ ] Define version baseline metadata and maintainer update/check workflow.
+- [ ] Extend `nurt versions update` to regenerate lockfiles and include lockfile diff reporting.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 
