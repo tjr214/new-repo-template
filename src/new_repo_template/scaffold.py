@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import os
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
+import tempfile
 
 
 @dataclass(frozen=True)
@@ -18,6 +21,7 @@ PYTHON_PATHS: tuple[str, ...] = (
     *FOUNDATION_PATHS,
     "apps/python/",
     "apps/python/pyproject.toml",
+    "apps/python/README.md",
     "apps/python/src/python_app/",
     "apps/python/tests/",
 )
@@ -53,11 +57,23 @@ PYTHON_LANE_PYPROJECT = (
     'testpaths = ["tests"]\n'
 )
 
+PYTHON_LANE_README = (
+    "# Python Lane\n\n"
+    "Baseline developer commands:\n\n"
+    "- `uv sync --group dev`\n"
+    "- `uv run pytest`\n"
+    "- `uv run ruff check .`\n"
+    "- `uv run mypy src`\n"
+)
+
+SIMULATE_FAILURE_ENV = "NEW_REPO_TEMPLATE_SIMULATE_FAILURE"
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="new-repo-template")
     parser.add_argument("--target", required=True, choices=("foundation", "python"))
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--auth", choices=("clerk", "better-auth"))
     parser.add_argument("--no-interactive", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     return parser
@@ -111,10 +127,15 @@ def scaffold_foundation(plan: ScaffoldPlan) -> None:
 
 def scaffold_python_lane(plan: ScaffoldPlan) -> None:
     scaffold_foundation(plan)
+
+    if os.environ.get(SIMULATE_FAILURE_ENV) == "python-after-root":
+        raise RuntimeError("simulated scaffold failure after root generation")
+
     lane_root = plan.output / "apps" / "python"
     (lane_root / "src" / "python_app").mkdir(parents=True)
     (lane_root / "tests").mkdir()
     (lane_root / "pyproject.toml").write_text(PYTHON_LANE_PYPROJECT, encoding="utf-8")
+    (lane_root / "README.md").write_text(PYTHON_LANE_README, encoding="utf-8")
     (lane_root / "src" / "python_app" / "__init__.py").write_text(
         '"""Python lane package."""\n', encoding="utf-8"
     )
@@ -127,7 +148,7 @@ def scaffold_python_lane(plan: ScaffoldPlan) -> None:
     )
 
 
-def execute_scaffold(plan: ScaffoldPlan) -> None:
+def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     if plan.target == "foundation":
         scaffold_foundation(plan)
         return
@@ -137,9 +158,43 @@ def execute_scaffold(plan: ScaffoldPlan) -> None:
     raise ValueError(f"Unsupported target: {plan.target}")
 
 
+def execute_scaffold(plan: ScaffoldPlan) -> None:
+    if plan.output.exists():
+        raise FileExistsError(f"Output path already exists: {plan.output}")
+
+    plan.output.parent.mkdir(parents=True, exist_ok=True)
+    stage_container = Path(
+        tempfile.mkdtemp(prefix=f".{plan.output.name}.staging-", dir=plan.output.parent)
+    )
+    stage_output = stage_container / plan.output.name
+    staged_plan = ScaffoldPlan(
+        target=plan.target,
+        output=stage_output,
+        paths=plan.paths,
+        include_python_workspace=plan.include_python_workspace,
+    )
+
+    try:
+        execute_scaffold_direct(staged_plan)
+        stage_output.replace(plan.output)
+    except Exception:
+        shutil.rmtree(stage_container, ignore_errors=True)
+        raise
+    finally:
+        shutil.rmtree(stage_container, ignore_errors=True)
+
+
+def validate_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    if args.auth is not None:
+        parser.error(
+            "auth option is only valid when both web and backend targets are selected"
+        )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    validate_args(parser, args)
 
     if not args.no_interactive:
         parser.error("interactive mode is not implemented yet; use --no-interactive")
@@ -150,7 +205,11 @@ def main(argv: list[str] | None = None) -> int:
         print(render_plan(plan))
         return 0
 
-    execute_scaffold(plan)
+    try:
+        execute_scaffold(plan)
+    except Exception as exc:
+        parser.exit(status=1, message=f"scaffold failed: {exc}\n")
+
     print(render_plan(plan))
     return 0
 

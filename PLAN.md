@@ -174,23 +174,23 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 ### 4.1 CLI Behavior Contract (Scaffolder)
 
-- [ ] Support explicit non-interactive mode for CI (`--no-interactive`).
-- [ ] In non-interactive mode, missing required options fail with non-zero exit and clear remediation text.
+- [x] Support explicit non-interactive mode for CI (`--no-interactive`).
+- [x] In non-interactive mode, missing required options fail with non-zero exit and clear remediation text.
 - [ ] In interactive mode, wizard prompts can resolve missing options.
 - [ ] Any configuration that includes both `web` and `backend` requires explicit auth choice (`clerk` or `better-auth`).
 - [ ] If `web` and `backend` are selected and auth is omitted:
   - [ ] interactive: prompt user
   - [ ] non-interactive: hard fail with validation error
-- [ ] If auth is provided without both `web` and `backend`: hard fail with deterministic validation error.
+- [x] If auth is provided without both `web` and `backend`: hard fail with deterministic validation error.
 - [ ] Mixed preset entries with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed presets).
 - [ ] Invalid/contradictory target combinations fail before any files are written.
-- [ ] Support `--dry-run` to print resolved scaffold plan without writing files.
+- [x] Support `--dry-run` to print resolved scaffold plan without writing files.
 - [ ] No generator option may suppress root `pyproject.toml`; it is a global invariant.
-- [ ] If Python target is selected, generator must scaffold Python lane-local `pyproject.toml` in the lane directory in addition to root `pyproject.toml`.
+- [x] If Python target is selected, generator must scaffold Python lane-local `pyproject.toml` in the lane directory in addition to root `pyproject.toml`.
 - [ ] `tv` target always resolves to a separate `apps/tv` scaffold and never mutates `apps/mobile` into TV mode.
 - [ ] If both `mobile` and `tv` are selected, generator creates both apps with shared packages only where explicit.
-- [ ] Generator writes are failure-atomic: no partial scaffold output remains on failure.
-- [ ] Implement transactional write strategy (stage temp output then atomic move) or guaranteed cleanup-on-failure.
+- [x] Generator writes are failure-atomic: no partial scaffold output remains on failure.
+- [x] Implement transactional write strategy (stage temp output then atomic move) or guaranteed cleanup-on-failure.
 
 ---
 
@@ -248,25 +248,25 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Preserve first-class Python lane support in monorepo selection
 - [ ] Add contract tests for foundation scaffold shape and scripts
 - [ ] Ensure root `pyproject.toml` is generated for every preset combination (including non-Python selections).
-- [ ] Implement non-interactive/CI mode behavior and deterministic validation errors.
-- [ ] Implement `--dry-run` behavior for preflight resolution.
-- [ ] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
+- [x] Implement non-interactive/CI mode behavior and deterministic validation errors.
+- [x] Implement `--dry-run` behavior for preflight resolution.
+- [x] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
 
 ### RED Tests (must fail first)
 
-- [ ] Generated repo always has monorepo root shape
+- [x] Generated repo always has monorepo root shape
 - [ ] Turbo tasks are wired for selected targets
 - [ ] Bun workspace install works
 - [ ] Python-selected target scaffolds expected files and runs baseline checks
 - [ ] Root `pyproject.toml` exists for every generated preset, including JS-only and TV-only outputs.
 - [ ] Invalid flag combinations fail with deterministic error messages.
-- [ ] Non-interactive mode missing required choices fails without prompts.
+- [x] Non-interactive mode missing required choices fails without prompts.
 - [ ] Any `web` + `backend` selection without auth fails with deterministic validation error.
-- [ ] Simulated mid-generation failure leaves no partial repo artifacts.
+- [x] Simulated mid-generation failure leaves no partial repo artifacts.
 
 ### DoD Gates
 
-- [ ] Foundation scaffold tests pass
+- [x] Foundation scaffold tests pass
 - [ ] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
 - [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
 - [ ] CLI behavior contract tests pass for interactive and non-interactive paths.
@@ -442,11 +442,11 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 - [x] Define canonical scaffold shape for Python lane (app dir, source package, tests, config).
 - [x] Python lane must have its own app-local `pyproject.toml` (for package/app metadata and Python deps), while root `pyproject.toml` remains the monorepo-level invariant.
-- [ ] Define baseline Python commands for generated projects:
-  - [ ] `uv sync --group dev`
-  - [ ] `uv run pytest`
-  - [ ] `uv run ruff check .`
-  - [ ] `uv run mypy src`
+- [x] Define baseline Python commands for generated projects:
+  - [x] `uv sync --group dev`
+  - [x] `uv run pytest`
+  - [x] `uv run ruff check .`
+  - [x] `uv run mypy src`
 - [ ] Ensure Python lane participates in required preset matrix tests.
 - [ ] Validate Python lane behavior in CI on supported host platforms.
 
@@ -456,7 +456,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### 10.1 Contract-First Tests (in `tests/`)
 
-- [ ] Foundation scaffold contract tests
+- [x] Foundation scaffold contract tests
 - [ ] Fullstack auth variant tests
 - [ ] Desktop scaffold tests
 - [ ] Mobile scaffold tests
@@ -470,11 +470,11 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### 10.2 Test Rules
 
-- [ ] Tests create disposable temp output dirs
-- [ ] No external credentials required for baseline tests
-- [ ] Deterministic assertions on files/config/scripts
-- [ ] CI-friendly and parallelizable where possible
-- [ ] Failure-path tests assert no partial scaffold output on generator errors.
+- [x] Tests create disposable temp output dirs
+- [x] No external credentials required for baseline tests
+- [x] Deterministic assertions on files/config/scripts
+- [x] CI-friendly and parallelizable where possible
+- [x] Failure-path tests assert no partial scaffold output on generator errors.
 
 ### 10.3 Security Baseline (Early)
 

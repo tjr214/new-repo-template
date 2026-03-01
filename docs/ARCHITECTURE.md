@@ -36,12 +36,14 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestone M0 is active.
+- Milestone M1 bootstrap is active (with M0 baseline tasks partially completed).
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
 - Python lane RED/GREEN slice is complete with `tests/contracts/test_python_lane_contract.py`.
-- Current scaffold implementation supports `foundation` and `python` targets with non-interactive mode and dry-run support.
+- CLI validation + command-doc RED/GREEN slice is complete with `tests/contracts/test_cli_validation_and_python_commands_contract.py`.
+- Failure-atomic RED/GREEN slice is complete with `tests/contracts/test_failure_atomicity_contract.py`.
+- Current scaffold implementation supports `foundation` and `python` targets with non-interactive mode, dry-run support, deterministic auth-misuse validation, and transactional scaffold writes.
 
 ## Validation Model
 
@@ -61,3 +63,7 @@ Current RED anchor test:
   - Contract intent: non-interactive `--dry-run` foundation scaffold path succeeds, reports monorepo shape (`apps`, `packages`, `pyproject.toml`), and writes no files.
 - `tests/contracts/test_python_lane_contract.py`
   - Contract intent: Python target dry-run and write flows preserve root/lane pyproject separation (`pyproject.toml` and `apps/python/pyproject.toml`).
+- `tests/contracts/test_cli_validation_and_python_commands_contract.py`
+  - Contract intent: deterministic CLI validation failures and Python lane baseline command documentation generation.
+- `tests/contracts/test_failure_atomicity_contract.py`
+  - Contract intent: simulated mid-generation failure leaves no partial output at the final scaffold path.

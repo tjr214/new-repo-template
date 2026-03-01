@@ -49,7 +49,7 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Generator failures must not leave partially scaffolded repos behind.
 - Root `pyproject.toml` is required for template tooling flows (including RALPH loader compatibility).
 
-## M0 Execution Notes
+## Implementation Notes (M0-M1)
 
 - BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
@@ -57,4 +57,6 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.
 - Initial GREEN implementation added `src/new_repo_template/scaffold.py` and now satisfies the first dry-run foundation contract.
 - Python lane GREEN slice complete: `--target python` now scaffolds both root `pyproject.toml` and lane-local `apps/python/pyproject.toml`.
+- CLI validation + Python command contract slice complete: `--auth` now fails deterministically when invalid, non-interactive omission has explicit failure coverage, and Python lane scaffolds `apps/python/README.md` with baseline uv commands.
+- Failure-atomic scaffold slice complete: generator now stages output in a temp directory and atomically moves it into place; failure-path contract confirms no partial output remains.
 - Current blocker/caveat: intermittent BTCA `bun` resource clone/fetch failures; cache reset via `btca clear` helps transiently but needs follow-up hardening guidance.

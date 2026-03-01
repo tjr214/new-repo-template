@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 12:33:07 PM
-**Current Phase:** M1 GREEN slice (Python lane pyproject boundary) complete
+**Last Updated:** 2026-03-01 12:45:01 PM
+**Current Phase:** M1 GREEN/BLUE slice (failure-atomic writes) complete
 
 ---
 
@@ -29,6 +29,17 @@
 - [x] Expanded scaffold CLI to support `--target python` with lane-local scaffold output under `apps/python`.
 - [x] Implemented root/lane pyproject separation for Python target, including root `[tool.uv.workspace]` member wiring.
 - [x] Verified GREEN for foundation + Python contracts (`uv run pytest`).
+- [x] Ran YELLOW context lookups for argparse validation style and uv command baseline recommendations.
+- [x] Added RED tests for CLI validation + Python command documentation at `tests/contracts/test_cli_validation_and_python_commands_contract.py`.
+- [x] Implemented deterministic `--auth` validation error path for unsupported target combinations.
+- [x] Added Python lane command documentation scaffold (`apps/python/README.md`) with baseline uv commands.
+- [x] Added non-interactive failure-path coverage for omitted `--no-interactive`.
+- [x] Verified full suite GREEN after this slice (`uv run pytest`: 6 passed).
+- [x] Ran YELLOW context lookup on atomic staging/rename patterns via CPython docs.
+- [x] Added RED failure-atomicity contract at `tests/contracts/test_failure_atomicity_contract.py`.
+- [x] Implemented transactional scaffold write strategy (temp staging directory + atomic move into final output path).
+- [x] Added simulated mid-generation failure hook for contract testing and ensured cleanup of staged output.
+- [x] Verified full suite GREEN after atomicity implementation (`uv run pytest`: 7 passed).
 
 ## In Progress
 
@@ -39,14 +50,14 @@
 
 - [ ] M1 foundation implementation:
   - [ ] Expand scaffold CLI from foundation+python to full target selection contract.
-  - [ ] Add deterministic validation errors for invalid combinations and auth rules.
-  - [ ] Implement transactional/failure-atomic scaffold write path.
-  - [ ] Add non-interactive validation path coverage for missing/invalid required arguments.
+  - [ ] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
+  - [x] Implement transactional/failure-atomic scaffold write path.
+  - [ ] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
 
 ## Next Up
 
-- [ ] Add RED tests for CLI validation behavior (`--no-interactive`, auth-required combinations, invalid combos).
-- [ ] Add RED tests for Python baseline commands and generated lane command docs (`uv sync --group dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
+- [ ] Expand RED tests for CLI validation to full matrix once web/backend/desktop/mobile/tv targets are introduced.
+- [ ] Add RED tests for web+backend auth-required path once those targets are introduced.
 - [ ] Define version baseline metadata and maintainer update/check workflow.
 - [ ] Add security baseline docs for `.env.example`/secret handling and CI secret scan expectations.
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
