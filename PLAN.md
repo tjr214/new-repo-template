@@ -201,15 +201,15 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 ### 4.2 Installation Orchestration Contract (`nurt` Global CLI)
 
-- [ ] Primary execution flow is `nurt new <project-name>` (no `install.sh` fallback path).
+- [x] Primary execution flow is `nurt new <project-name>` (no `install.sh` fallback path).
 - [ ] `nurt` is installed from git using uv tools (`uv tool install --from git+... nurt`).
-- [ ] `nurt` always performs update-check logic at command startup and prints deterministic notice when an update exists.
-- [ ] `nurt update` performs explicit tool upgrade flow.
+- [x] `nurt` always performs update-check logic at command startup and prints deterministic notice when an update exists.
+- [x] `nurt update` performs explicit tool upgrade flow.
 - [ ] `nurt new` supports both interactive wizard/TUI mode and non-interactive flag mode.
 - [ ] If no targets are provided to `nurt new`, interactive mode should resolve target/auth selection via prompts.
-- [ ] `nurt new --dry-run` is non-destructive and validates full scaffold plan resolution.
+- [x] `nurt new --dry-run` is non-destructive and validates full scaffold plan resolution.
 - [ ] Existing template governance/workflow assets remain in generated repos; scaffold output overlays app/runtime files only.
-- [ ] `nurt template-assets sync` replaces template asset sync script behavior with one cohesive command.
+- [x] `nurt template-assets sync` replaces template asset sync script behavior with one cohesive command.
 - [ ] `nurt tools sync` consolidates tool update/install behavior currently spread across scripts.
 
 ### 4.3 Snapshot Asset Packaging Contract (for `nurt`)
@@ -275,7 +275,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add root workspace config (`package.json` workspaces, `turbo.json`, Bun setup)
 - [ ] Add cross-platform-safe scripts (avoid bash-only assumptions for core commands)
 - [ ] Implement generator CLI: flags + interactive wizard fallback
-- [ ] Implement global CLI entrypoint `nurt` with `new`, `update`, `tools sync`, and `template-assets sync` commands.
+- [x] Implement global CLI entrypoint `nurt` with `new`, `update`, `tools sync`, and `template-assets sync` commands.
 - [x] Implement selectable targets model (always monorepo, selected app types only)
 - [x] Preserve first-class Python lane support in monorepo selection
 - [x] Add contract tests for foundation scaffold shape and scripts
@@ -283,7 +283,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Implement non-interactive/CI mode behavior and deterministic validation errors.
 - [x] Implement `--dry-run` behavior for preflight resolution.
 - [x] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
-- [ ] Add `--dry-run` mode to `nurt new` and `nurt tools sync` for non-destructive validation.
+- [x] Add `--dry-run` mode to `nurt new` and `nurt tools sync` for non-destructive validation.
 - [ ] Integrate scaffold engine invocation into `nurt new` while preserving existing template assets.
 - [ ] Remove script-first bootstrap path from user docs in favor of global `nurt` command flow.
 
@@ -298,7 +298,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Non-interactive mode missing required choices fails without prompts.
 - [x] Any `web` + `backend` selection without auth fails with deterministic validation error.
 - [x] Simulated mid-generation failure leaves no partial repo artifacts.
-- [ ] `nurt new --dry-run` and `nurt tools sync --dry-run` execute successfully without mutating repository state.
+- [x] `nurt new --dry-run` and `nurt tools sync --dry-run` execute successfully without mutating repository state.
 - [ ] `nurt new` interactive wizard flow resolves targets/auth and produces deterministic equivalent plan output.
 
 ### DoD Gates

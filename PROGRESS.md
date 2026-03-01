@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 02:02:10 PM
-**Current Phase:** Planning alignment update (all-in `nurt` global CLI migration)
+**Last Updated:** 2026-03-01 02:34:22 PM
+**Current Phase:** M1 GREEN slice (`nurt` command bootstrap + startup update-check)
 
 ---
 
@@ -78,6 +78,12 @@
 - [x] Locked strategic pivot to all-in global `nurt` tool distribution (no `install.sh` fallback path for user flow).
 - [x] Updated `PLAN.md` with `nurt` command model (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check requirements.
 - [x] Added snapshot asset packaging contract details to `PLAN.md` (manifest, metadata, bundled runtime assets, deterministic behavior).
+- [x] Added `nurt` CLI implementation module at `src/new_repo_template/nurt_cli.py`.
+- [x] Implemented `nurt` command routing for `new`, `update`, `tools sync`, and `template-assets sync`.
+- [x] Implemented mandatory startup update-check hook on every `nurt` invocation (with deterministic simulated notice path for contract tests).
+- [x] Added `nurt` contract tests in `tests/contracts/test_nurt_cli_contract.py` (new dry-run parity, update dry-run, startup update notice, tools sync dry-run, template-assets sync dry-run).
+- [x] Added `nurt` console entrypoint in `pyproject.toml`.
+- [x] Verified full suite GREEN after `nurt` bootstrap slice (`uv run pytest`: 29 passed).
 
 ## In Progress
 
@@ -94,9 +100,9 @@
   - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
 
 - [ ] Nurt migration implementation:
-  - [ ] Introduce `nurt` CLI entrypoint and command router.
-  - [ ] Migrate installer/update orchestration into `nurt` subcommands.
-  - [ ] Implement mandatory startup update-check and `nurt update` flow.
+  - [x] Introduce `nurt` CLI entrypoint and command router.
+  - [ ] Migrate installer/update orchestration into `nurt` subcommands beyond script-wrapper behavior.
+  - [x] Implement mandatory startup update-check and `nurt update` flow.
   - [ ] Implement snapshot asset generation + packaged asset loading path.
 
 ## Next Up

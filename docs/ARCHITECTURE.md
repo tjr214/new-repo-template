@@ -52,6 +52,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Installer tooling now supports non-destructive script-level dry-runs and includes turborepo (`turbo`) update/install in the updater workflow.
 - Installer now forwards target/auth selections into scaffold planning/apply flow, preserving the existing clone -> `install.sh` setup paradigm.
 - Current planning pivot supersedes script-first UX: implementation is moving to `nurt` global command flow with bundled snapshot assets and explicit `nurt update` lifecycle.
+- `nurt` command bootstrap is implemented at `src/new_repo_template/nurt_cli.py` with command routing (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check hook.
 
 ## Validation Model
 
@@ -81,3 +82,5 @@ Current contract coverage:
   - Contract intent: root `.gitignore` secret/env protections and per-target `.env.example` placeholder generation.
 - `tests/contracts/test_installer_scripts_dry_run_contract.py`
   - Contract intent: non-destructive `--dry-run` behavior for installer/updater scripts and turborepo updater visibility.
+- `tests/contracts/test_nurt_cli_contract.py`
+  - Contract intent: `nurt` command routing, new-project dry-run parity, startup update notice behavior, and dry-run safety for `update`/`tools sync`/`template-assets sync`.
