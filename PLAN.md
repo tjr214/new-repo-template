@@ -225,7 +225,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Keep `PLAN.md` as canonical implementation source of truth
 - [x] Define generator contract test scaffolding under `tests/`
 - [ ] Define and codify version baseline metadata and update workflow.
-- [ ] Add security baseline docs (`.env.example` convention + secret handling rules).
+- [x] Add security baseline docs (`.env.example` convention + secret handling rules).
 
 ### DoD Gates
 
@@ -234,7 +234,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Planning docs exist and are internally consistent
 - [x] Baseline test scaffolding in `tests/` is present and runnable
 - [ ] Version baseline policy is codified and covered by tests/CI checks.
-- [ ] Security baseline conventions are documented and validated by scaffold tests.
+- [x] Security baseline conventions are documented and validated by scaffold tests.
 
 ---
 
@@ -479,9 +479,9 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### 10.3 Security Baseline (Early)
 
-- [ ] Each generated target includes `.env.example` with placeholder values only.
-- [ ] Add explicit secret-handling rules to docs (never commit real `.env` or credential files).
-- [ ] Ensure generated `.gitignore` covers local env/secret artifacts.
+- [x] Each generated target includes `.env.example` with placeholder values only.
+- [x] Add explicit secret-handling rules to docs (never commit real `.env` or credential files).
+- [x] Ensure generated `.gitignore` covers local env/secret artifacts.
 - [ ] Add lightweight secret scanning in CI (advisory first, can become required later).
 
 ---

@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 01:22:41 PM
-**Current Phase:** M1 GREEN/BLUE slice (auth wiring placeholders + deeper auth contracts) complete
+**Last Updated:** 2026-03-01 01:32:49 PM
+**Current Phase:** M1 BLUE slice (gitignore source-of-truth correction) complete
 
 ---
 
@@ -58,13 +58,20 @@
   - [x] `apps/web/src/auth-provider.ts` for Clerk
   - [x] `apps/web/src/auth-client.ts` for Better Auth
 - [x] Verified full suite GREEN after auth-wiring slice (`uv run pytest`: 18 passed).
+- [x] Ran YELLOW BTCA lookups for env placeholder and secret-handling conventions (Convex + Clerk docs).
+- [x] Added RED security baseline contracts in `tests/contracts/test_security_baseline_contract.py`.
+- [x] Implemented root `.gitignore` security baseline handling in scaffold output.
+- [x] Implemented target-local `.env.example` generation for selected targets with placeholder values.
+- [x] Added security baseline documentation at `docs/SECURITY_BASELINE.md`.
+- [x] Verified full suite GREEN after security baseline slice (`uv run pytest`: 20 passed).
+- [x] Corrected `.gitignore` strategy: scaffold now copies the repository root `.gitignore` baseline instead of synthesizing a new file.
+- [x] Expanded repository root `.gitignore` baseline with `.env.*`, `!.env.example`, `*.pem`, and `*.key` guards.
 
 ## In Progress
 
 - [ ] M0 setup execution hardening:
   - [ ] Resolve intermittent `bun` BTCA resource load failures (`git clone/fetch failed`) and record stable workaround or remediation.
 - [ ] Define and codify version baseline metadata and update workflow.
-- [ ] Add security baseline docs (`.env.example` convention + secret handling rules).
 
 - [ ] M1 foundation implementation:
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
@@ -78,7 +85,7 @@
 - [ ] Expand RED tests for remaining unsupported mixed-combo cases and future interactive fallback semantics.
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
 - [ ] Define version baseline metadata and maintainer update/check workflow.
-- [ ] Add security baseline docs for `.env.example`/secret handling and CI secret scan expectations.
+- [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 
 ## BTCA Governance Log

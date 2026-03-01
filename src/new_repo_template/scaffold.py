@@ -27,7 +27,12 @@ TARGET_CHOICES: tuple[str, ...] = (
     "tv",
 )
 
-FOUNDATION_PATHS: tuple[str, ...] = ("apps/", "packages/", "pyproject.toml")
+FOUNDATION_PATHS: tuple[str, ...] = (
+    "apps/",
+    "packages/",
+    "pyproject.toml",
+    ".gitignore",
+)
 
 APP_TARGET_DIRS: dict[str, str] = {
     "web": "apps/web/",
@@ -45,10 +50,14 @@ PYTHON_PATHS: tuple[str, ...] = (
     "apps/python/tests/",
 )
 
-WEB_BACKEND_ENV_PATHS: tuple[str, ...] = (
-    "apps/web/.env.example",
-    "apps/backend/.env.example",
-)
+TARGET_ENV_EXAMPLE_PATHS: dict[str, str] = {
+    "python": "apps/python/.env.example",
+    "web": "apps/web/.env.example",
+    "backend": "apps/backend/.env.example",
+    "desktop": "apps/desktop/.env.example",
+    "mobile": "apps/mobile/.env.example",
+    "tv": "apps/tv/.env.example",
+}
 
 CLERK_WIRING_PATHS: tuple[str, ...] = (
     "apps/backend/convex/auth.config.ts",
@@ -171,10 +180,11 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
             paths.append(APP_TARGET_DIRS[target])
         if target == "python":
             paths.extend(PYTHON_PATHS)
+        if target in TARGET_ENV_EXAMPLE_PATHS:
+            paths.append(TARGET_ENV_EXAMPLE_PATHS[target])
 
     has_web_backend = "web" in targets and "backend" in targets
     if has_web_backend and auth is not None:
-        paths.extend(WEB_BACKEND_ENV_PATHS)
         if auth == "clerk":
             paths.extend(CLERK_WIRING_PATHS)
         if auth == "better-auth":
@@ -214,6 +224,16 @@ def write_root_pyproject(*, output_root: Path, include_python_workspace: bool) -
     (output_root / "pyproject.toml").write_text(root_content, encoding="utf-8")
 
 
+def write_root_gitignore(*, output_root: Path) -> None:
+    template_root = Path(__file__).resolve().parents[2]
+    template_gitignore = template_root / ".gitignore"
+    if not template_gitignore.exists():
+        raise FileNotFoundError(
+            f"Template root .gitignore not found: {template_gitignore}"
+        )
+    shutil.copy2(template_gitignore, output_root / ".gitignore")
+
+
 def scaffold_foundation_core(
     *, output_root: Path, include_python_workspace: bool
 ) -> None:
@@ -224,6 +244,7 @@ def scaffold_foundation_core(
         output_root=output_root,
         include_python_workspace=include_python_workspace,
     )
+    write_root_gitignore(output_root=output_root)
 
 
 def scaffold_python_lane(*, output_root: Path) -> None:
@@ -251,6 +272,28 @@ def scaffold_app_targets(*, output_root: Path, targets: tuple[str, ...]) -> None
     for target in targets:
         if target in APP_TARGET_DIRS:
             (output_root / APP_TARGET_DIRS[target]).mkdir(parents=True, exist_ok=True)
+
+
+def scaffold_target_env_examples(
+    *, output_root: Path, targets: tuple[str, ...]
+) -> None:
+    env_content_by_target: dict[str, list[str]] = {
+        "python": ["PYTHON_APP_ENV=development"],
+        "web": ["VITE_APP_ENV=development"],
+        "backend": ["BACKEND_APP_ENV=development"],
+        "desktop": ["DESKTOP_APP_ENV=development"],
+        "mobile": ["MOBILE_APP_ENV=development"],
+        "tv": ["TV_APP_ENV=development"],
+    }
+
+    for target in targets:
+        env_path = TARGET_ENV_EXAMPLE_PATHS.get(target)
+        if env_path is None:
+            continue
+        env_lines = env_content_by_target[target]
+        target_env_file = output_root / env_path
+        target_env_file.parent.mkdir(parents=True, exist_ok=True)
+        target_env_file.write_text("\n".join(env_lines) + "\n", encoding="utf-8")
 
 
 def scaffold_web_backend_env_examples(
@@ -335,6 +378,8 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
 
     if "python" in plan.targets:
         scaffold_python_lane(output_root=plan.output)
+
+    scaffold_target_env_examples(output_root=plan.output, targets=plan.targets)
 
     scaffold_web_backend_env_examples(
         output_root=plan.output,

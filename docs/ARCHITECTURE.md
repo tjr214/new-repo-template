@@ -27,6 +27,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - TV input contract: remote-primary navigation with keyboard/mouse/gamepad support as secondary inputs
 - Root metadata invariant: `pyproject.toml` exists at repository root for all generated repos regardless of selected targets
 - Python lane metadata boundary: Python app metadata/deps live in lane-local `apps/python/pyproject.toml`, while root `pyproject.toml` remains monorepo/tooling-level
+- Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards and selected targets scaffold placeholder-only `.env.example`
 
 ## Planned Topology
 
@@ -44,7 +45,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - CLI validation + command-doc RED/GREEN slice is complete with `tests/contracts/test_cli_validation_and_python_commands_contract.py`.
 - Failure-atomic RED/GREEN slice is complete with `tests/contracts/test_failure_atomicity_contract.py`.
 - Target-matrix RED/GREEN slice is complete with `tests/contracts/test_target_matrix_and_auth_contract.py`.
-- Current scaffold implementation supports `foundation`, `python`, `web`, `backend`, `desktop`, `mobile`, and `tv` targets with non-interactive mode, dry-run support, deterministic auth validation for `web+backend`, duplicate-target validation, auth-variant env placeholders, minimal auth wiring placeholders, and transactional scaffold writes.
+- Security baseline RED/GREEN slice is complete with `tests/contracts/test_security_baseline_contract.py` and `docs/SECURITY_BASELINE.md`.
+- Current scaffold implementation supports `foundation`, `python`, `web`, `backend`, `desktop`, `mobile`, and `tv` targets with non-interactive mode, dry-run support, deterministic auth validation for `web+backend`, duplicate-target validation, auth-variant env placeholders, minimal auth wiring placeholders, root `.gitignore` secret guards, and transactional scaffold writes.
 
 ## Validation Model
 
@@ -70,3 +72,5 @@ Current contract coverage:
   - Contract intent: simulated mid-generation failure leaves no partial output at the final scaffold path.
 - `tests/contracts/test_target_matrix_and_auth_contract.py`
   - Contract intent: multi-target validation/auth rules, duplicate target rejection, auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
+- `tests/contracts/test_security_baseline_contract.py`
+  - Contract intent: root `.gitignore` secret/env protections and per-target `.env.example` placeholder generation.

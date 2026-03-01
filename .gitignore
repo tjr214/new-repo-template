@@ -73,6 +73,10 @@ Thumbs.db
 #.claude/
 #.mcp.json
 .env
+.env.*
+!.env.example
+*.pem
+*.key
 
 # btca local data
 .btca/
