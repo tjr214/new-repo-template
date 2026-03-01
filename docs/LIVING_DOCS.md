@@ -79,4 +79,6 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Interactive UI layer is now Rich/Textual-aware: `nurt new` renders enhanced target/auth menus when Rich is available and falls back deterministically to plain prompts when unavailable.
 - Mixed preset validation contracts now include additional unsupported auth/target mixed-combo checks.
 - Non-interactive scaffold validation coverage has been expanded across target modes: omitted `--no-interactive` is now contract-tested for foundation/python/web+backend/mobile+tv, and parser-level missing/invalid argument failures (`--target`, `--output`, invalid `--target`/`--auth`) are now explicitly covered.
-- Current blocker/caveat: intermittent BTCA `bun` resource clone/fetch failures; cache reset via `btca clear` helps transiently but needs follow-up hardening guidance.
+- Required preset matrix coverage from `PLAN.md` Section 2.1 is now implemented in `tests/contracts/test_required_preset_matrix_contract.py`, including all-target (python-inclusive) sanity passes for both auth variants.
+- BTCA `bun` clone/fetch hardening follow-up has been explicitly deprioritized for now so implementation can continue on core PLAN milestones.
+- Root workspace bootstrap slice is now in place: scaffold outputs include root `package.json` (Bun workspaces + Turbo-routed `dev/build/test/lint/typecheck` scripts) and root `turbo.json` (minimal task graph for those commands), with contract coverage in `tests/contracts/test_root_workspace_contract.py`.

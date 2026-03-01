@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 04:25:01 PM
-**Current Phase:** M1 GREEN/BLUE slice (`non-interactive validation coverage expansion`)
+**Last Updated:** 2026-03-01 04:33:46 PM
+**Current Phase:** M1 GREEN/BLUE slice (`root workspace config + cross-platform script contract wiring`)
 
 ---
 
@@ -140,14 +140,32 @@
   - [x] missing required argument failures (`--target`, `--output`)
   - [x] invalid choice failures (`--target`, `--auth`)
 - [x] Verified full suite GREEN after validation-coverage expansion (`uv run pytest`: 59 passed).
+- [x] Ran YELLOW BTCA lookup for stable monorepo contract-test assertions before matrix test expansion (`btca ask -r turborepo ...`).
+- [x] Added required preset-combination matrix contract coverage at `tests/contracts/test_required_preset_matrix_contract.py` for all Section 2.1 presets:
+  - [x] foundation-only, python-only, desktop-only, mobile-only, tv-only, mobile+tv
+  - [x] web+backend auth variants (clerk, better-auth)
+  - [x] mixed desktop/mobile/tv permutations for both auth variants
+  - [x] all-target sanity passes (with python lane) for both auth variants
+- [x] Verified full suite GREEN after preset-matrix slice (`uv run pytest`: 77 passed).
+- [x] Deferred BTCA `bun` fetch-failure hardening follow-up per user direction to continue PLAN execution.
+- [x] Ran YELLOW BTCA lookups for Bun workspace root config/script style and Turborepo minimal task wiring before adding workspace contracts (`btca ask -r bun ...`, `btca ask -r turborepo ...`).
+- [x] Added RED root workspace contract tests at `tests/contracts/test_root_workspace_contract.py` for:
+  - [x] dry-run plan output includes `package.json` and `turbo.json`
+  - [x] scaffolded root `package.json` includes Bun workspaces and `dev/build/test/lint/typecheck` Turbo script wiring
+  - [x] scaffolded root `turbo.json` includes minimal task keys for `dev/build/test/lint/typecheck`
+- [x] Implemented root workspace scaffold output templates and wiring:
+  - [x] `src/new_repo_template/snapshot_assets/templates/root_package.json`
+  - [x] `src/new_repo_template/snapshot_assets/templates/root_turbo.json`
+  - [x] `src/new_repo_template/scaffold.py` now emits both files for all scaffold outputs
+- [x] Verified full suite GREEN after workspace/script slice (`uv run pytest`: 79 passed).
 
 ## In Progress
 
-- [ ] M0 setup execution hardening:
-  - [ ] Resolve intermittent `bun` BTCA resource load failures (`git clone/fetch failed`) and record stable workaround or remediation.
 - [ ] Extend version workflow to cover JS lockfile regeneration paths once root/package workspace manifests are introduced.
 
 - [ ] M1 foundation implementation:
+  - [x] Add root workspace config (`package.json` workspaces + `turbo.json`) to scaffold output.
+  - [x] Add initial cross-platform root script wiring (`dev/build/test/lint/typecheck`) via Turbo commands.
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
   - [x] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
   - [x] Implement transactional/failure-atomic scaffold write path.
@@ -164,8 +182,8 @@
 
 ## Next Up
 
-- [ ] Add remaining required preset-combination matrix contracts from `PLAN.md` Section 2.1.
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
+- [ ] Add Bun workspace install viability contract coverage once initial JS app package manifests are scaffolded.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 

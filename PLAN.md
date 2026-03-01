@@ -102,24 +102,24 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 ### 2.1 Required Preset Combination Matrix
 
-- [ ] Foundation only (monorepo shell only)
-- [ ] Python-only target
-- [ ] Web + Backend + Clerk
-- [ ] Web + Backend + Better Auth
-- [ ] Desktop-only target
-- [ ] Mobile-only target
-- [ ] TV-only target
-- [ ] Mobile + TV dual-target (separate apps)
-- [ ] Mixed: Web + Backend + Clerk + Desktop
-- [ ] Mixed: Web + Backend + Better Auth + Desktop
-- [ ] Mixed: Web + Backend + Clerk + Mobile + Desktop
-- [ ] Mixed: Web + Backend + Better Auth + Mobile + Desktop
-- [ ] Mixed: Web + Backend + Clerk + TV + Desktop
-- [ ] Mixed: Web + Backend + Better Auth + TV + Desktop
-- [ ] Mixed: Web + Backend + Clerk + Mobile + TV + Desktop
-- [ ] Mixed: Web + Backend + Better Auth + Mobile + TV + Desktop
-- [ ] All-target sanity pass + Clerk (includes Python lane)
-- [ ] All-target sanity pass + Better Auth (includes Python lane)
+- [x] Foundation only (monorepo shell only)
+- [x] Python-only target
+- [x] Web + Backend + Clerk
+- [x] Web + Backend + Better Auth
+- [x] Desktop-only target
+- [x] Mobile-only target
+- [x] TV-only target
+- [x] Mobile + TV dual-target (separate apps)
+- [x] Mixed: Web + Backend + Clerk + Desktop
+- [x] Mixed: Web + Backend + Better Auth + Desktop
+- [x] Mixed: Web + Backend + Clerk + Mobile + Desktop
+- [x] Mixed: Web + Backend + Better Auth + Mobile + Desktop
+- [x] Mixed: Web + Backend + Clerk + TV + Desktop
+- [x] Mixed: Web + Backend + Better Auth + TV + Desktop
+- [x] Mixed: Web + Backend + Clerk + Mobile + TV + Desktop
+- [x] Mixed: Web + Backend + Better Auth + Mobile + TV + Desktop
+- [x] All-target sanity pass + Clerk (includes Python lane)
+- [x] All-target sanity pass + Better Auth (includes Python lane)
 
 ---
 
@@ -168,7 +168,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 ## 4) Target Monorepo Architecture (Template Output)
 
-- [ ] Root workspace with `apps/*` and `packages/*`
+- [x] Root workspace with `apps/*` and `packages/*`
 - [ ] Root `pyproject.toml` is always scaffolded and retained for template/runtime tooling requirements.
 - [ ] Root `pyproject.toml` is repo-level metadata/tooling anchor, not a replacement for app-local Python package metadata.
 - [ ] Shared infra packages for lint/tsconfig/tooling presets
@@ -180,7 +180,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
   - [ ] `apps/tv` (Expo AndroidTV app, separate from mobile)
   - [ ] Python target lane (for CLI/TUI, optional FastAPI experiments) with lane-local `pyproject.toml`
 - [ ] Shared UI/util package(s) for web + desktop reuse where practical
-- [ ] Root scripts route through Turbo (`dev`, `build`, `test`, `lint`, `typecheck`)
+- [x] Root scripts route through Turbo (`dev`, `build`, `test`, `lint`, `typecheck`)
 
 ### 4.1 CLI Behavior Contract (Scaffolder)
 
@@ -276,14 +276,14 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### Tasks
 
-- [ ] Add root workspace config (`package.json` workspaces, `turbo.json`, Bun setup)
-- [ ] Add cross-platform-safe scripts (avoid bash-only assumptions for core commands)
+- [x] Add root workspace config (`package.json` workspaces, `turbo.json`, Bun setup)
+- [x] Add cross-platform-safe scripts (avoid bash-only assumptions for core commands)
 - [x] Implement generator CLI: flags + interactive wizard fallback
 - [x] Implement global CLI entrypoint `nurt` with `new`, `update`, `tools sync`, and `template-assets sync` commands.
 - [x] Implement selectable targets model (always monorepo, selected app types only)
 - [x] Preserve first-class Python lane support in monorepo selection
 - [x] Add contract tests for foundation scaffold shape and scripts
-- [ ] Ensure root `pyproject.toml` is generated for every preset combination (including non-Python selections).
+- [x] Ensure root `pyproject.toml` is generated for every preset combination (including non-Python selections).
 - [x] Implement non-interactive/CI mode behavior and deterministic validation errors.
 - [x] Implement `--dry-run` behavior for preflight resolution.
 - [x] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
@@ -294,7 +294,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### RED Tests (must fail first)
 
 - [x] Generated repo always has monorepo root shape
-- [ ] Turbo tasks are wired for selected targets
+- [x] Turbo tasks are wired for selected targets
 - [ ] Bun workspace install works
 - [ ] Python-selected target scaffolds expected files and runs baseline checks
 - [x] Root `pyproject.toml` exists for every generated preset, including JS-only and TV-only outputs.
@@ -315,7 +315,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
 - [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
 - [x] CLI behavior contract tests pass for interactive and non-interactive paths.
-- [ ] Root `pyproject.toml` invariant is enforced by tests across required matrix combinations.
+- [x] Root `pyproject.toml` invariant is enforced by tests across required matrix combinations.
 - [x] Failure-atomicity tests pass (transactional write or cleanup-on-failure verified).
 
 ---
@@ -492,7 +492,7 @@ Documentation must be updated continuously during GREEN/BLUE:
   - [x] `uv run pytest`
   - [x] `uv run ruff check .`
   - [x] `uv run mypy src`
-- [ ] Ensure Python lane participates in required preset matrix tests.
+- [x] Ensure Python lane participates in required preset matrix tests.
 - [ ] Validate Python lane behavior in CI on supported host platforms.
 
 ---
@@ -508,10 +508,10 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] TV scaffold tests
 - [x] Python lane scaffold tests
 - [ ] Cross-platform command smoke tests
-- [ ] Required preset-combination matrix tests (Section 2.1)
+- [x] Required preset-combination matrix tests (Section 2.1)
 - [x] CLI behavior contract tests (`--no-interactive`, invalid combos, auth-required flow)
-- [ ] Matrix tests must include auth variants for every preset containing both `web` and `backend`.
-- [ ] Matrix tests must assert root `pyproject.toml` presence for every generated configuration.
+- [x] Matrix tests must include auth variants for every preset containing both `web` and `backend`.
+- [x] Matrix tests must assert root `pyproject.toml` presence for every generated configuration.
 
 ### 10.2 Test Rules
 

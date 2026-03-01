@@ -34,6 +34,8 @@ FOUNDATION_PATHS: tuple[str, ...] = (
     "packages/",
     "pyproject.toml",
     ".gitignore",
+    "package.json",
+    "turbo.json",
 )
 
 APP_TARGET_DIRS: dict[str, str] = {
@@ -109,6 +111,8 @@ WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE = load_template_text(
     "wiring/web_auth_client_better_auth.ts"
 )
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
+ROOT_PACKAGE_JSON = load_template_text("root_package.json")
+ROOT_TURBO_JSON = load_template_text("root_turbo.json")
 
 SIMULATE_FAILURE_ENV = "NEW_REPO_TEMPLATE_SIMULATE_FAILURE"
 
@@ -229,6 +233,14 @@ def write_root_gitignore(*, output_root: Path) -> None:
     (output_root / ".gitignore").write_text(ROOT_GITIGNORE, encoding="utf-8")
 
 
+def write_root_package_json(*, output_root: Path) -> None:
+    (output_root / "package.json").write_text(ROOT_PACKAGE_JSON, encoding="utf-8")
+
+
+def write_root_turbo_json(*, output_root: Path) -> None:
+    (output_root / "turbo.json").write_text(ROOT_TURBO_JSON, encoding="utf-8")
+
+
 def scaffold_foundation_core(
     *, output_root: Path, include_python_workspace: bool
 ) -> None:
@@ -240,6 +252,8 @@ def scaffold_foundation_core(
         include_python_workspace=include_python_workspace,
     )
     write_root_gitignore(output_root=output_root)
+    write_root_package_json(output_root=output_root)
+    write_root_turbo_json(output_root=output_root)
 
 
 def scaffold_python_lane(*, output_root: Path) -> None:
