@@ -5,7 +5,7 @@
 - [x] **Fullstack**: TanStack Start + Convex.
 - [x] **Auth choice required**: explicit `clerk` or `better-auth` prompt; no default.
 - [x] **Desktop**: dedicated Electron app via Electron Forge.
-- [x] **Mobile**: Expo with AndroidTV support path.
+- [x] **Mobile + TV split**: Expo mobile app and separate Expo TV app.
 - [x] **Python lane**: first-class selectable target (CLI/TUI focused).
 - [x] **CI**: GitHub Actions, with native Windows CI required.
 - [x] **Windows policy**: native Windows checks are required; WSL is optional supplemental validation.
@@ -25,7 +25,8 @@ Build an always-monorepo template that supports:
 - Fullstack web: TanStack Start + Convex
 - Auth options for Convex apps: Clerk or Better Auth (explicit prompt, no default)
 - Desktop frontend: Electron (dedicated desktop app)
-- Mobile frontend: Expo, including AndroidTV support (Shield-compatible, generic AndroidTV)
+- Mobile frontend: Expo mobile app
+- TV frontend: separate Expo TV app for AndroidTV (Shield-compatible, generic AndroidTV)
 - Python lane: first-class selectable target (primarily CLI/TUI, optional FastAPI experimentation)
 
 This plan is comprehensive and execution-ready so a fresh Build Mode context can execute directly from this file.
@@ -41,6 +42,8 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [x] Fullstack auth: explicit choice required (`clerk` or `better-auth`), no implicit default.
 - [x] CI system: GitHub Actions.
 - [x] Desktop: dedicated Electron app.
+- [x] TV app is always separate from mobile app (`apps/tv` distinct from `apps/mobile`).
+- [x] TV input model: remote is primary HID; keyboard/mouse/gamepad are supported secondary inputs.
 - [x] Mobile TV validation depth: emulator + manual Shield checklist.
 - [x] Release strategy: phased releases.
 - [x] Python target remains first-class.
@@ -90,9 +93,11 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [ ] Web + Backend + Better Auth
 - [ ] Desktop-only target
 - [ ] Mobile-only target
-- [ ] Mobile + AndroidTV profile enabled
+- [ ] TV-only target
+- [ ] Mobile + TV dual-target (separate apps)
 - [ ] Mixed: Web + Backend + Desktop
 - [ ] Mixed: Web + Backend + Mobile + Desktop
+- [ ] Mixed: Web + Backend + TV + Desktop
 - [ ] Mixed all-target sanity pass (includes Python lane)
 
 ---
@@ -148,7 +153,8 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
   - [ ] `apps/web` (TanStack Start)
   - [ ] `apps/backend` (Convex functions/config)
   - [ ] `apps/desktop` (Electron)
-  - [ ] `apps/mobile` (Expo + AndroidTV-ready profile)
+  - [ ] `apps/mobile` (Expo mobile app)
+  - [ ] `apps/tv` (Expo AndroidTV app, separate from mobile)
   - [ ] Python target lane (for CLI/TUI, optional FastAPI experiments)
 - [ ] Shared UI/util package(s) for web + desktop reuse where practical
 - [ ] Root scripts route through Turbo (`dev`, `build`, `test`, `lint`, `typecheck`)
@@ -165,6 +171,10 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [ ] If auth is provided without fullstack target: hard fail with deterministic validation error.
 - [ ] Invalid/contradictory target combinations fail before any files are written.
 - [ ] Support `--dry-run` to print resolved scaffold plan without writing files.
+- [ ] `tv` target always resolves to a separate `apps/tv` scaffold and never mutates `apps/mobile` into TV mode.
+- [ ] If both `mobile` and `tv` are selected, generator creates both apps with shared packages only where explicit.
+- [ ] Generator writes are failure-atomic: no partial scaffold output remains on failure.
+- [ ] Implement transactional write strategy (stage temp output then atomic move) or guaranteed cleanup-on-failure.
 
 ---
 
@@ -223,6 +233,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add contract tests for foundation scaffold shape and scripts
 - [ ] Implement non-interactive/CI mode behavior and deterministic validation errors.
 - [ ] Implement `--dry-run` behavior for preflight resolution.
+- [ ] Implement failure-atomic scaffold writes (transactional or cleanup-on-failure).
 
 ### RED Tests (must fail first)
 
@@ -232,6 +243,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Python-selected target scaffolds expected files and runs baseline checks
 - [ ] Invalid flag combinations fail with deterministic error messages.
 - [ ] Non-interactive mode missing required choices fails without prompts.
+- [ ] Simulated mid-generation failure leaves no partial repo artifacts.
 
 ### DoD Gates
 
@@ -239,6 +251,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] `dev/build/test/lint/typecheck` commands pass on selected minimal preset
 - [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
 - [ ] CLI behavior contract tests pass for interactive and non-interactive paths.
+- [ ] Failure-atomicity tests pass (transactional write or cleanup-on-failure verified).
 
 ---
 
@@ -297,28 +310,33 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ---
 
-## M4 - Mobile + AndroidTV Preset (Expo)
+## M4 - Mobile + TV Presets (Expo, Separate Apps)
 
 ### Tasks
 
-- [ ] Scaffold `apps/mobile` with Expo baseline
-- [ ] Add AndroidTV-ready configuration path
-- [ ] Wire TV-related config/plugin conventions
-- [ ] Add TV-focused env/build profile notes and scripts
-- [ ] Add focus/navigation baseline patterns checklist
+- [ ] Scaffold `apps/mobile` with Expo mobile baseline
+- [ ] Scaffold `apps/tv` with Expo AndroidTV baseline (separate app)
+- [ ] Wire TV-related config/plugin conventions in `apps/tv` only
+- [ ] Add TV-focused env/build profile notes and scripts for dedicated TV app
+- [ ] Add TV focus/navigation baseline patterns checklist (remote-primary)
+- [ ] Add keyboard/mouse/gamepad fallback input support checklist for TV app
 
 ### RED Tests
 
 - [ ] Mobile scaffold contract test
-- [ ] TV config contract test (plugin/config presence and expected wiring)
-- [ ] Android build profile checks for TV mode
+- [ ] TV scaffold contract test (separate `apps/tv` output)
+- [ ] TV config contract test (plugin/config presence and expected wiring in `apps/tv`)
+- [ ] Android build profile checks for TV app
+- [ ] HID contract test for TV app input handling (remote primary + keyboard/mouse/gamepad supported)
 
 ### DoD Gates
 
 - [ ] Expo mobile baseline passes lint/typecheck/tests
+- [ ] Expo TV baseline passes lint/typecheck/tests
 - [ ] AndroidTV emulator validation checklist completed
 - [ ] Manual Shield checklist completed and logged
-- [ ] Docs updated for mobile/TV setup, caveats, and test flow
+- [ ] TV input UX checks pass: remote-primary navigation and keyboard/mouse/gamepad support
+- [ ] Docs updated for separate mobile/TV setup, caveats, and test flow
 
 ---
 
@@ -358,6 +376,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Required preset-combination matrix checks
 - [ ] Windows-native checks for JS/TS backend workflows
 - [ ] Windows-native Electron package smoke check
+- [ ] Dedicated TV app scaffold and input-contract checks
 - [ ] Version baseline compliance check
 - [ ] Lightweight secret scan job
 
@@ -418,7 +437,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Foundation scaffold contract tests
 - [ ] Fullstack auth variant tests
 - [ ] Desktop scaffold tests
-- [ ] Mobile/TV scaffold tests
+- [ ] Mobile scaffold tests
+- [ ] TV scaffold tests
 - [ ] Python lane scaffold tests
 - [ ] Cross-platform command smoke tests
 - [ ] Required preset-combination matrix tests (Section 2.1)
@@ -430,6 +450,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] No external credentials required for baseline tests
 - [ ] Deterministic assertions on files/config/scripts
 - [ ] CI-friendly and parallelizable where possible
+- [ ] Failure-path tests assert no partial scaffold output on generator errors.
 
 ### 10.3 Security Baseline (Early)
 
@@ -459,6 +480,8 @@ During implementation, after each substantial slice:
 - [ ] **Auth integration churn:** keep variant-specific tests and template fixtures.
 - [ ] **Electron packaging complexity:** use Forge defaults and incremental packaging gates.
 - [ ] **AndroidTV ecosystem instability:** lock known-good config paths and maintain manual Shield checklist.
+- [ ] **TV UX quality drift:** enforce remote-primary focus checks and fallback HID tests (keyboard/mouse/gamepad).
+- [ ] **Partial scaffold output on failure:** use transactional writes or strict cleanup-on-failure and test both paths.
 - [ ] **Scope creep:** phased release with strict DoD per milestone.
 
 ---
@@ -468,11 +491,13 @@ During implementation, after each substantial slice:
 The program is complete when:
 
 - [ ] Always-monorepo template generation works with flags + wizard.
-- [ ] Presets are available: web/backend/auth variants, desktop Electron, mobile Expo/TV, python lane.
+- [ ] Presets are available: web/backend/auth variants, desktop Electron, separate mobile app, separate TV app, python lane.
 - [ ] Required CI matrix is green on Linux/macOS/Windows.
 - [ ] Required preset combination matrix (Section 2.1) is green.
 - [ ] Native Windows backend and Electron checks are passing.
+- [ ] TV app guarantees remote-primary UX with keyboard/mouse/gamepad support.
 - [ ] Contract tests in `tests/` comprehensively cover scaffold outputs.
+- [ ] Generator failure atomicity is guaranteed by implementation and tests.
 - [ ] Core docs and trackers are synchronized and current.
 - [ ] Phased release notes/checklists are complete.
 

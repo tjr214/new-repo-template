@@ -23,15 +23,20 @@ The canonical execution checklist is in `PLAN.md`.
 - Convex: cloud-first default
 - Auth mode: explicit choice required (`clerk` or `better-auth`)
 - Desktop frontend: dedicated Electron app (Forge)
-- Mobile: Expo with AndroidTV path
+- Mobile: dedicated Expo mobile app (`apps/mobile`)
+- TV: dedicated Expo AndroidTV app (`apps/tv`), separate from mobile
 - CI: GitHub Actions with required native Windows checks
 - Signing: deferred to hardening; unsigned internal builds allowed in early phases
 - Versioning: template tracks latest known-good versions, generated repos lock deterministic install state via lockfiles
 - Convex CI baseline: credentialless wiring checks only (no external secrets required)
+- Generator writes: failure-atomic (transactional write strategy or cleanup-on-failure)
+- TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
 
 ## Known Constraints
 
 - BTCA project resources are approved and must be added/synced before implementation research begins in earnest.
 - Native Windows validation must not be replaced by WSL-only checks.
 - AndroidTV support includes emulator automation plus manual Shield checklist.
+- AndroidTV app is always a separate scaffold target, not a mobile profile toggle.
 - Fullstack auth choice has no default and must be explicitly selected in non-interactive runs.
+- Generator failures must not leave partially scaffolded repos behind.

@@ -7,7 +7,8 @@ This repository is a project template that generates new repositories. The templ
 The target architecture is an always-on monorepo template that can scaffold:
 - Web fullstack apps (TanStack Start + Convex)
 - Desktop apps (Electron)
-- Mobile apps (Expo, including AndroidTV path)
+- Mobile apps (Expo, dedicated app)
+- TV apps (Expo AndroidTV, dedicated app separate from mobile)
 - Python-oriented projects (CLI/TUI-first)
 
 ## Core Decisions
@@ -21,6 +22,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Platform support policy: native macOS + Linux + Windows (WSL optional supplemental only)
 - Version policy: latest known-good baseline in template, deterministic lockfile state in generated repos
 - Scaffold contract: explicit preset-combination matrix and deterministic non-interactive CLI behavior
+- Generator write model: failure-atomic scaffolding (transactional writes or cleanup-on-failure)
+- TV input contract: remote-primary navigation with keyboard/mouse/gamepad support as secondary inputs
 
 ## Planned Topology
 

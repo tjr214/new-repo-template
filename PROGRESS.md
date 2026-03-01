@@ -12,6 +12,8 @@
 - [x] Defined CI direction (GitHub Actions with required native Windows checks).
 - [x] Created comprehensive execution plan at `PLAN.md`.
 - [x] Incorporated plan guardrails: upfront version policy, preset matrix, CLI behavior contract, secret-free Convex CI strategy, Python lane contract, security baseline, BTCA governance logging.
+- [x] Added generator failure atomicity guardrail (transactional writes or cleanup-on-failure with explicit tests).
+- [x] Updated plan to make AndroidTV a dedicated app target with remote-primary + keyboard/mouse/gamepad support contract.
 
 ## In Progress
 
