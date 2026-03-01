@@ -17,6 +17,7 @@
 - [x] **Root `pyproject.toml` invariant**: always present in generated repos, even when Python target is not selected.
 - [x] **Python lane pyproject boundary**: root `pyproject.toml` remains repo/tooling-level; Python target also scaffolds a lane-local `pyproject.toml` under the Python app directory.
 - [x] **Primary UX tool**: global CLI is `nurt` (Nu-Repo Template).
+- [x] **Project brand**: project identity is `nurt.ai`; CLI command remains `nurt`.
 - [x] **Distribution model**: install `nurt` directly from git via `uv tool install --from git+... nurt`.
 - [x] **Execution entrypoint**: `nurt new <project-name>` (no `install.sh` fallback path).
 - [x] **Tool update policy**: `nurt` checks for updates on every command run; explicit upgrade command is `nurt update`.
@@ -30,6 +31,8 @@
 ## 0) Purpose
 
 Build an always-monorepo template that supports:
+
+- `nurt.ai` global CLI workflow for AI-agent-ready project bootstrapping (`nurt new <project-name>`)
 
 - Fullstack web: TanStack Start + Convex
 - Auth options for Convex apps: Clerk or Better Auth (explicit prompt, no default)
@@ -62,6 +65,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [x] Code signing: deferred to hardening phase; not required for early milestones.
 - [x] Root `pyproject.toml` is mandatory for template tooling compatibility (including RALPH loader flow), independent of selected targets.
 - [x] When Python lane is selected, scaffold a Python-lane-local `pyproject.toml`; do not treat the root `pyproject.toml` as the Python app package metadata file.
+- [x] Branding decision: product/repository identity is `nurt.ai` with `nurt` as the CLI command.
 
 ### 1.1 Version Baseline Policy (Locked Behavior)
 
