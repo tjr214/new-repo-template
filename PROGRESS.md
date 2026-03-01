@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 03:36:07 PM
-**Current Phase:** M0/M1 GREEN/BLUE slice (`version baseline workflow + Rich/Textual UI layer`)
+**Last Updated:** 2026-03-01 03:44:19 PM
+**Current Phase:** M0/M1 GREEN/BLUE slice (`version baseline lockfile regeneration + lockfile checks`)
 
 ---
 
@@ -119,12 +119,22 @@
 - [x] Added runtime dependencies for interactive UI layer in `pyproject.toml` (`rich>=14.3.3`, `textual>=8.0.1`).
 - [x] Expanded `nurt` contract coverage for Rich/Textual mode fallback and plain-mode behavior controls in `tests/contracts/test_nurt_cli_contract.py`.
 - [x] Verified full suite GREEN after this slice (`uv run pytest`: 47 passed).
+- [x] Extended `nurt versions check` with lockfile validation guardrail (`--check-lockfiles`).
+- [x] Extended `nurt versions update` to regenerate lockfiles by default, with:
+  - [x] deterministic dry-run lockfile planning output
+  - [x] lockfile regeneration summary reporting
+  - [x] optional `--skip-lockfiles` bypass switch
+- [x] Added lockfile workflow contracts in `tests/contracts/test_version_baseline_contract.py` for:
+  - [x] missing lockfile detection in check mode
+  - [x] lockfile regeneration path on update
+  - [x] dry-run non-destructive lockfile planning
+- [x] Verified full suite GREEN after lockfile workflow expansion (`uv run pytest`: 50 passed).
 
 ## In Progress
 
 - [ ] M0 setup execution hardening:
   - [ ] Resolve intermittent `bun` BTCA resource load failures (`git clone/fetch failed`) and record stable workaround or remediation.
-- [ ] Extend version workflow to regenerate/check scaffold lockfiles as part of baseline update automation.
+- [ ] Extend version workflow to cover JS lockfile regeneration paths once root/package workspace manifests are introduced.
 
 - [ ] M1 foundation implementation:
   - [x] Expand scaffold CLI from foundation+python to full target selection contract.
@@ -145,7 +155,7 @@
 
 - [ ] Add remaining required preset-combination matrix contracts from `PLAN.md` Section 2.1.
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
-- [ ] Extend `nurt versions update` to regenerate lockfiles and include lockfile diff reporting.
+- [ ] Add CI wiring to run `nurt versions check --check-lockfiles --check-latest` in required validation paths.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
 

@@ -73,15 +73,15 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [ ] New project generation uses the latest known-good baseline and writes/retains lockfiles so first install is deterministic.
 - [ ] For JS/TS dependencies: follow project rule to use `^` ranges while lockfiles pin concrete versions.
 - [ ] For Python lane: keep pinned minimums compatible with `>=3.14` and generate deterministic `uv.lock` state.
-- [ ] Provide an easy one-command update flow to refresh baseline versions and regenerate lockfiles.
-- [ ] RED/CI must validate baseline versions are present and lockfiles are generated.
+- [x] Provide an easy one-command update flow to refresh baseline versions and regenerate lockfiles.
+- [x] RED/CI must validate baseline versions are present and lockfiles are generated.
 
 ### 1.2 Version Update UX (Ease of Maintenance)
 
 - [x] Add a maintainer command (`nurt versions update`) that:
   - [x] Fetches latest stable versions for baseline-managed dependencies.
   - [x] Updates template baseline metadata.
-  - [ ] Regenerates lockfiles used by scaffolded outputs.
+  - [x] Regenerates lockfiles used by scaffolded outputs.
   - [x] Produces a human-readable diff summary for PR review.
 - [x] Add a companion check command (`nurt versions check`) for CI guardrails.
 
@@ -307,6 +307,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Native non-dry-run sync commands surface deterministic validation/failure messaging (`nurt tools sync` failure summary path and `nurt template-assets sync` root/dirty-repo guardrails).
 - [x] `nurt new` interactive stdin-closure paths fail cleanly with remediation guidance instead of raw traceback output.
 - [x] Mixed combo validation contracts cover additional unsupported auth/target combinations (`web+backend+desktop` auth requirement and auth misuse with partial mixed selections).
+- [x] `nurt versions update` regenerates lockfiles (with dry-run planning and summary reporting), and `nurt versions check --check-lockfiles` enforces lockfile presence.
 
 ### DoD Gates
 

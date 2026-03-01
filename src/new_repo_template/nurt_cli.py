@@ -193,6 +193,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--baseline-path", type=Path, default=Path("version-baseline.json")
     )
     versions_check_parser.add_argument("--check-latest", action="store_true")
+    versions_check_parser.add_argument("--check-lockfiles", action="store_true")
     versions_check_parser.add_argument("--source-file", type=Path)
     versions_check_parser.set_defaults(handler=handle_versions_check)
 
@@ -204,6 +205,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     versions_update_parser.add_argument("--source-file", type=Path)
     versions_update_parser.add_argument("--dry-run", action="store_true")
+    versions_update_parser.add_argument("--skip-lockfiles", action="store_true")
     versions_update_parser.set_defaults(handler=handle_versions_update)
 
     return parser
@@ -305,6 +307,8 @@ def handle_versions_check(args: argparse.Namespace) -> int:
     return run_versions_check(
         baseline_path=args.baseline_path.resolve(),
         check_latest=bool(args.check_latest),
+        check_lockfiles=bool(args.check_lockfiles),
+        project_root=Path.cwd().resolve(),
         source_file=args.source_file.resolve()
         if args.source_file is not None
         else None,
@@ -315,6 +319,8 @@ def handle_versions_update(args: argparse.Namespace) -> int:
     return run_versions_update(
         baseline_path=args.baseline_path.resolve(),
         dry_run=bool(args.dry_run),
+        project_root=Path.cwd().resolve(),
+        regenerate_lockfiles=not bool(args.skip_lockfiles),
         source_file=args.source_file.resolve()
         if args.source_file is not None
         else None,
