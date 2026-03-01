@@ -13,6 +13,16 @@ from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
 
 AUTH_CHOICES: tuple[str, str] = ("clerk", "better-auth")
 
+INTERACTIVE_TARGETS_REMEDIATION = (
+    "interactive input unavailable while selecting targets; rerun with "
+    "--no-interactive and provide one or more --target options"
+)
+
+INTERACTIVE_AUTH_REMEDIATION = (
+    "interactive input unavailable while selecting auth; rerun with "
+    "--no-interactive and provide --auth"
+)
+
 
 def perform_startup_update_check() -> None:
     simulated_version = os.environ.get("NURT_UPDATE_CHECK_SIMULATE")
@@ -53,7 +63,10 @@ def prompt_targets() -> list[str]:
         print(f"  {index}) {target}")
 
     while True:
-        user_input = input("Targets [foundation]: ").strip()
+        try:
+            user_input = input("Targets [foundation]: ").strip()
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_TARGETS_REMEDIATION) from exc
         if user_input == "":
             return ["foundation"]
 
@@ -94,7 +107,10 @@ def prompt_auth() -> str:
     print("  2) better-auth")
 
     while True:
-        user_input = input("Auth [clerk]: ").strip().lower()
+        try:
+            user_input = input("Auth [clerk]: ").strip().lower()
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_AUTH_REMEDIATION) from exc
         if user_input in {"", "1", "clerk"}:
             return "clerk"
         if user_input in {"2", "better-auth"}:
@@ -160,16 +176,20 @@ def handle_new(args: argparse.Namespace) -> int:
 
     selected_targets: list[str]
     selected_auth = args.auth
-    if args.target:
-        selected_targets = list(args.target)
-    elif args.no_interactive:
-        selected_targets = ["foundation"]
-    else:
-        selected_targets = prompt_targets()
+    try:
+        if args.target:
+            selected_targets = list(args.target)
+        elif args.no_interactive:
+            selected_targets = ["foundation"]
+        else:
+            selected_targets = prompt_targets()
 
-    has_web_backend = "web" in selected_targets and "backend" in selected_targets
-    if has_web_backend and selected_auth is None and not args.no_interactive:
-        selected_auth = prompt_auth()
+        has_web_backend = "web" in selected_targets and "backend" in selected_targets
+        if has_web_backend and selected_auth is None and not args.no_interactive:
+            selected_auth = prompt_auth()
+    except RuntimeError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
 
     scaffold_args: list[str] = []
     for target in selected_targets:

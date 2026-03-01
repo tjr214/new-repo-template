@@ -71,4 +71,6 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - `nurt new` now supports interactive target/auth prompt flow when flags are omitted.
 - Snapshot asset pipeline is now active: scaffold content is loaded from bundled package templates, and `nurt template-assets snapshot` can regenerate packaged assets + metadata.
 - `nurt tools sync` and `nurt template-assets sync` now execute native Python operations (no script wrapper dependency in CLI command handlers).
+- `nurt` sync contracts now include non-dry-run failure-path assertions for clear operator feedback (project-root/dirty-git validation for template sync and deterministic failure reporting for tools sync).
+- `nurt new` interactive flow now handles closed stdin (EOF) with deterministic remediation messaging instead of tracebacks.
 - Current blocker/caveat: intermittent BTCA `bun` resource clone/fetch failures; cache reset via `btca clear` helps transiently but needs follow-up hardening guidance.

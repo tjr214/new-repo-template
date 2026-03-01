@@ -304,6 +304,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Simulated mid-generation failure leaves no partial repo artifacts.
 - [x] `nurt new --dry-run` and `nurt tools sync --dry-run` execute successfully without mutating repository state.
 - [x] `nurt new` interactive wizard flow resolves targets/auth and produces deterministic equivalent plan output.
+- [x] Native non-dry-run sync commands surface deterministic validation/failure messaging (`nurt tools sync` failure summary path and `nurt template-assets sync` root/dirty-repo guardrails).
+- [x] `nurt new` interactive stdin-closure paths fail cleanly with remediation guidance instead of raw traceback output.
 
 ### DoD Gates
 

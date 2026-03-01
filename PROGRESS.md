@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 03:15:25 PM
-**Current Phase:** M1 GREEN/BLUE slice (`nurt` native sync migration)
+**Last Updated:** 2026-03-01 03:25:23 PM
+**Current Phase:** M1 GREEN/BLUE slice (`nurt` interactive fallback failure handling)
 
 ---
 
@@ -95,6 +95,17 @@
 - [x] Replaced script-wrapper behavior in `nurt tools sync` and `nurt template-assets sync` with native Python implementations.
 - [x] Expanded `nurt` dry-run contract assertions to verify script-free native sync planning output.
 - [x] Verified full suite GREEN after native sync migration (`uv run pytest`: 33 passed).
+- [x] Added non-dry-run `nurt` sync failure contracts in `tests/contracts/test_nurt_cli_contract.py` for:
+  - [x] `tools sync` deterministic failure messaging path
+  - [x] `template-assets sync` project-root validation failure path
+  - [x] `template-assets sync` dirty-git validation failure path
+- [x] Added deterministic tools-sync failure simulation hook (`NURT_TOOLS_SYNC_SIMULATE_FAILURE`) for contract-safe non-destructive validation.
+- [x] Verified full suite GREEN after non-dry-run sync contract expansion (`uv run pytest`: 36 passed).
+- [x] Added interactive stdin-unavailable contract coverage in `tests/contracts/test_nurt_cli_contract.py` for:
+  - [x] target-selection prompt failure remediation text
+  - [x] auth-selection prompt failure remediation text
+- [x] Hardened `nurt new` interactive flow to fail cleanly on EOF with deterministic remediation guidance (`--no-interactive`, `--target`, `--auth`).
+- [x] Verified full suite GREEN after interactive fallback hardening (`uv run pytest`: 38 passed).
 
 ## In Progress
 
@@ -119,9 +130,8 @@
 
 ## Next Up
 
-- [ ] Expand RED tests for remaining unsupported mixed-combo cases and future interactive fallback semantics.
+- [ ] Expand RED tests for remaining unsupported mixed-combo cases.
 - [ ] Add stronger auth-variant output contracts for concrete framework wiring once TanStack Start + Convex file layouts are introduced.
-- [ ] Add non-dry-run contract coverage for native `nurt tools sync` / `nurt template-assets sync` validation and failure messaging.
 - [ ] Define version baseline metadata and maintainer update/check workflow.
 - [ ] Add lightweight secret scanning in CI (advisory first).
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.

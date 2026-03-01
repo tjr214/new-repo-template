@@ -12,6 +12,8 @@ from platform import system
 TEMPLATE_REPO_HTTPS = "https://github.com/tjr214/new-repo-template.git"
 TEMPLATE_REPO_SSH = "git@github.com:tjr214/new-repo-template.git"
 
+SIMULATE_TOOLS_SYNC_FAILURE_ENV = "NURT_TOOLS_SYNC_SIMULATE_FAILURE"
+
 
 @dataclass(frozen=True)
 class ToolSyncResult:
@@ -31,6 +33,12 @@ def _run_command(
         check=False,
         timeout=timeout,
     )
+
+
+def _is_truthy_env(value: str | None) -> bool:
+    if value is None:
+        return False
+    return value.strip().lower() not in {"", "0", "false", "no", "none"}
 
 
 def _run_shell_pipeline(command: str) -> subprocess.CompletedProcess[str]:
@@ -310,6 +318,12 @@ def run_tools_sync(*, dry_run: bool) -> int:
         print("  - btca: install/update via `bun add --global btca`")
         print("  - ripgrep: install/update via platform package manager")
         return 0
+
+    if _is_truthy_env(os.environ.get(SIMULATE_TOOLS_SYNC_FAILURE_ENV)):
+        print("Running tool sync (native Python implementation)...")
+        for tool in ("uv", "bun", "turbo", "opencode", "btca", "ripgrep"):
+            print(f"- {tool}: FAILED (simulated failure)")
+        return 1
 
     print("Running tool sync (native Python implementation)...")
     results = [

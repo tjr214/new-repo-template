@@ -106,6 +106,50 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
+def test_nurt_new_interactive_without_stdin_fails_with_clear_remediation(
+    tmp_path: Path,
+) -> None:
+    """Interactive mode should fail cleanly when stdin is unavailable."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", "demo-no-stdin", "--dry-run"],
+        input_text="",
+    )
+
+    assert result.returncode == 1, (
+        "Expected interactive command to fail cleanly when stdin is unavailable.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "interactive input unavailable" in combined_output
+    assert "--no-interactive" in combined_output
+    assert "--target" in combined_output
+
+
+def test_nurt_new_interactive_auth_prompt_without_stdin_fails_with_remediation(
+    tmp_path: Path,
+) -> None:
+    """Auth prompt should fail cleanly when stdin closes before auth selection."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", "demo-auth-no-stdin", "--dry-run"],
+        input_text="3,4\n",
+    )
+
+    assert result.returncode == 1, (
+        "Expected auth prompt to fail cleanly when stdin closes early.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "interactive input unavailable" in combined_output
+    assert "--no-interactive" in combined_output
+    assert "--auth" in combined_output
+
+
 def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:
     """RED: nurt update dry-run should be non-destructive and explicit."""
 
@@ -179,6 +223,73 @@ def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
     assert "btca" in combined_output
     assert "ripgrep" in combined_output
     assert "update-opencode.sh" not in combined_output
+
+
+def test_nurt_tools_sync_non_dry_run_reports_failures(tmp_path: Path) -> None:
+    """Non-dry tools sync should surface deterministic failure messaging."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["tools", "sync"],
+        env={"NURT_TOOLS_SYNC_SIMULATE_FAILURE": "1"},
+    )
+
+    assert result.returncode == 1, (
+        "Expected simulated tools sync failure to return non-zero.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "Running tool sync" in combined_output
+    assert "uv: FAILED (simulated failure)" in combined_output
+    assert "ripgrep: FAILED (simulated failure)" in combined_output
+
+
+def test_nurt_template_assets_sync_fails_outside_project_root(tmp_path: Path) -> None:
+    """Non-dry template-assets sync should fail with clear root-validation message."""
+
+    result = run_nurt_command(cwd=tmp_path, args=["template-assets", "sync"])
+
+    assert result.returncode == 1, (
+        "Expected template-assets sync to fail outside project root.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "template-assets sync must run from project root" in combined_output
+
+
+def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> None:
+    """Non-dry template-assets sync should fail when working tree is dirty."""
+
+    (tmp_path / ".opencode").mkdir()
+    (tmp_path / ".template_scripts").mkdir()
+    (tmp_path / ".opencode" / "placeholder.md").write_text(
+        "# placeholder\n", encoding="utf-8"
+    )
+
+    init_result = subprocess.run(
+        ["git", "init"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert init_result.returncode == 0, (
+        "Expected git init to succeed in test fixture.\n"
+        f"stdout:\n{init_result.stdout}\n"
+        f"stderr:\n{init_result.stderr}"
+    )
+
+    result = run_nurt_command(cwd=tmp_path, args=["template-assets", "sync"])
+
+    assert result.returncode == 1, (
+        "Expected template-assets sync to fail on dirty git repo.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "repository has uncommitted changes" in combined_output
 
 
 def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) -> None:

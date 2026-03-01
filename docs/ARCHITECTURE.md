@@ -57,6 +57,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Snapshot assets are bundled under `src/new_repo_template/snapshot_assets/` and loaded at runtime via `importlib.resources`.
 - Snapshot generation command path is implemented at `nurt template-assets snapshot` using manifest-driven source entries and metadata hashing.
 - Script-wrapper migration slice is complete for sync commands: `nurt tools sync` and `nurt template-assets sync` now call native Python operations in `src/new_repo_template/sync_ops.py`.
+- Contract coverage now includes non-dry-run sync failure messaging for native `nurt` sync commands (tools sync simulated failure output and template-assets sync validation failures).
+- Interactive `nurt new` now handles stdin-closure failure paths with deterministic remediation output instead of raw EOF tracebacks.
 
 ## Validation Model
 
@@ -87,6 +89,6 @@ Current contract coverage:
 - `tests/contracts/test_installer_scripts_dry_run_contract.py`
   - Contract intent: non-destructive `--dry-run` behavior for installer/updater scripts and turborepo updater visibility.
 - `tests/contracts/test_nurt_cli_contract.py`
-  - Contract intent: `nurt` command routing, new-project dry-run parity, startup update notice behavior, and dry-run safety for `update`/`tools sync`/`template-assets sync`.
+  - Contract intent: `nurt` command routing, new-project dry-run parity, startup update notice behavior, dry-run safety for `update`/`tools sync`/`template-assets sync`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
 - `tests/contracts/test_snapshot_assets_contract.py`
   - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation.
