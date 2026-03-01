@@ -136,11 +136,29 @@ copy_directory_contents() {
         printf "  ${GREEN}✓${NC} Created ${DEST} directory\n"
     fi
 
-    if cp -Rp "$SOURCE/." "$DEST/"; then
-        printf "  ${GREEN}✓${NC} Copied contents into ${DEST}\n"
-    else
-        printf "${RED}${BOLD}Error: Failed to copy contents into ${DEST}${NC}\n"
-        exit 1
+    FILE_LIST=$(mktemp)
+    find "$SOURCE" -type f > "$FILE_LIST"
+
+    COPIED_FILE_COUNT=0
+    while IFS= read -r SOURCE_FILE; do
+        if [ -f "$SOURCE_FILE" ]; then
+            REL_PATH=${SOURCE_FILE#$SOURCE/}
+            DEST_FILE="$DEST/$REL_PATH"
+            DEST_DIR=$(dirname "$DEST_FILE")
+
+            if [ ! -d "$DEST_DIR" ]; then
+                mkdir -p "$DEST_DIR"
+            fi
+
+            copy_file "$SOURCE_FILE" "$DEST_FILE"
+            COPIED_FILE_COUNT=$((COPIED_FILE_COUNT + 1))
+        fi
+    done < "$FILE_LIST"
+
+    rm -f "$FILE_LIST"
+
+    if [ $COPIED_FILE_COUNT -eq 0 ]; then
+        printf "${YELLOW}Warning: No files found in template ${SOURCE}${NC}\n"
     fi
 }
 
