@@ -177,18 +177,18 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [x] Support explicit non-interactive mode for CI (`--no-interactive`).
 - [x] In non-interactive mode, missing required options fail with non-zero exit and clear remediation text.
 - [ ] In interactive mode, wizard prompts can resolve missing options.
-- [ ] Any configuration that includes both `web` and `backend` requires explicit auth choice (`clerk` or `better-auth`).
+- [x] Any configuration that includes both `web` and `backend` requires explicit auth choice (`clerk` or `better-auth`).
 - [ ] If `web` and `backend` are selected and auth is omitted:
   - [ ] interactive: prompt user
-  - [ ] non-interactive: hard fail with validation error
+  - [x] non-interactive: hard fail with validation error
 - [x] If auth is provided without both `web` and `backend`: hard fail with deterministic validation error.
 - [ ] Mixed preset entries with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed presets).
 - [ ] Invalid/contradictory target combinations fail before any files are written.
 - [x] Support `--dry-run` to print resolved scaffold plan without writing files.
-- [ ] No generator option may suppress root `pyproject.toml`; it is a global invariant.
+- [x] No generator option may suppress root `pyproject.toml`; it is a global invariant.
 - [x] If Python target is selected, generator must scaffold Python lane-local `pyproject.toml` in the lane directory in addition to root `pyproject.toml`.
-- [ ] `tv` target always resolves to a separate `apps/tv` scaffold and never mutates `apps/mobile` into TV mode.
-- [ ] If both `mobile` and `tv` are selected, generator creates both apps with shared packages only where explicit.
+- [x] `tv` target always resolves to a separate `apps/tv` scaffold and never mutates `apps/mobile` into TV mode.
+- [x] If both `mobile` and `tv` are selected, generator creates both apps with shared packages only where explicit.
 - [x] Generator writes are failure-atomic: no partial scaffold output remains on failure.
 - [x] Implement transactional write strategy (stage temp output then atomic move) or guaranteed cleanup-on-failure.
 
@@ -244,8 +244,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Add root workspace config (`package.json` workspaces, `turbo.json`, Bun setup)
 - [ ] Add cross-platform-safe scripts (avoid bash-only assumptions for core commands)
 - [ ] Implement generator CLI: flags + interactive wizard fallback
-- [ ] Implement selectable targets model (always monorepo, selected app types only)
-- [ ] Preserve first-class Python lane support in monorepo selection
+- [x] Implement selectable targets model (always monorepo, selected app types only)
+- [x] Preserve first-class Python lane support in monorepo selection
 - [ ] Add contract tests for foundation scaffold shape and scripts
 - [ ] Ensure root `pyproject.toml` is generated for every preset combination (including non-Python selections).
 - [x] Implement non-interactive/CI mode behavior and deterministic validation errors.
@@ -259,9 +259,9 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Bun workspace install works
 - [ ] Python-selected target scaffolds expected files and runs baseline checks
 - [ ] Root `pyproject.toml` exists for every generated preset, including JS-only and TV-only outputs.
-- [ ] Invalid flag combinations fail with deterministic error messages.
+- [x] Invalid flag combinations fail with deterministic error messages.
 - [x] Non-interactive mode missing required choices fails without prompts.
-- [ ] Any `web` + `backend` selection without auth fails with deterministic validation error.
+- [x] Any `web` + `backend` selection without auth fails with deterministic validation error.
 - [x] Simulated mid-generation failure leaves no partial repo artifacts.
 
 ### DoD Gates
@@ -271,7 +271,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Cross-platform script checks pass on Linux/macOS/Windows CI
 - [ ] CLI behavior contract tests pass for interactive and non-interactive paths.
 - [ ] Root `pyproject.toml` invariant is enforced by tests across required matrix combinations.
-- [ ] Failure-atomicity tests pass (transactional write or cleanup-on-failure verified).
+- [x] Failure-atomicity tests pass (transactional write or cleanup-on-failure verified).
 
 ---
 
@@ -464,7 +464,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Python lane scaffold tests
 - [ ] Cross-platform command smoke tests
 - [ ] Required preset-combination matrix tests (Section 2.1)
-- [ ] CLI behavior contract tests (`--no-interactive`, invalid combos, auth-required flow)
+- [x] CLI behavior contract tests (`--no-interactive`, invalid combos, auth-required flow)
 - [ ] Matrix tests must include auth variants for every preset containing both `web` and `backend`.
 - [ ] Matrix tests must assert root `pyproject.toml` presence for every generated configuration.
 

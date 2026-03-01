@@ -43,7 +43,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Python lane RED/GREEN slice is complete with `tests/contracts/test_python_lane_contract.py`.
 - CLI validation + command-doc RED/GREEN slice is complete with `tests/contracts/test_cli_validation_and_python_commands_contract.py`.
 - Failure-atomic RED/GREEN slice is complete with `tests/contracts/test_failure_atomicity_contract.py`.
-- Current scaffold implementation supports `foundation` and `python` targets with non-interactive mode, dry-run support, deterministic auth-misuse validation, and transactional scaffold writes.
+- Target-matrix RED/GREEN slice is complete with `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- Current scaffold implementation supports `foundation`, `python`, `web`, `backend`, `desktop`, `mobile`, and `tv` targets with non-interactive mode, dry-run support, deterministic auth validation for `web+backend`, and transactional scaffold writes.
 
 ## Validation Model
 
@@ -57,7 +58,7 @@ DoD is enforced by contract tests under `tests/` plus CI matrix checks across Li
 
 Baseline CI is credentialless for cloud-first Convex wiring checks; credential-dependent deployment tests are optional and separately gated.
 
-Current RED anchor test:
+Current contract coverage:
 
 - `tests/contracts/test_monorepo_foundation_contract.py`
   - Contract intent: non-interactive `--dry-run` foundation scaffold path succeeds, reports monorepo shape (`apps`, `packages`, `pyproject.toml`), and writes no files.
@@ -67,3 +68,5 @@ Current RED anchor test:
   - Contract intent: deterministic CLI validation failures and Python lane baseline command documentation generation.
 - `tests/contracts/test_failure_atomicity_contract.py`
   - Contract intent: simulated mid-generation failure leaves no partial output at the final scaffold path.
+- `tests/contracts/test_target_matrix_and_auth_contract.py`
+  - Contract intent: multi-target validation/auth rules and separate mobile/TV app scaffolding behavior.

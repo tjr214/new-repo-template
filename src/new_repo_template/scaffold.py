@@ -3,27 +3,51 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-import tempfile
 
 
 @dataclass(frozen=True)
 class ScaffoldPlan:
-    target: str
+    targets: tuple[str, ...]
     output: Path
     paths: tuple[str, ...]
     include_python_workspace: bool
+    auth: str | None
 
+
+TARGET_CHOICES: tuple[str, ...] = (
+    "foundation",
+    "python",
+    "web",
+    "backend",
+    "desktop",
+    "mobile",
+    "tv",
+)
 
 FOUNDATION_PATHS: tuple[str, ...] = ("apps/", "packages/", "pyproject.toml")
+
+APP_TARGET_DIRS: dict[str, str] = {
+    "web": "apps/web/",
+    "backend": "apps/backend/",
+    "desktop": "apps/desktop/",
+    "mobile": "apps/mobile/",
+    "tv": "apps/tv/",
+}
+
 PYTHON_PATHS: tuple[str, ...] = (
-    *FOUNDATION_PATHS,
     "apps/python/",
     "apps/python/pyproject.toml",
     "apps/python/README.md",
     "apps/python/src/python_app/",
     "apps/python/tests/",
+)
+
+WEB_BACKEND_ENV_PATHS: tuple[str, ...] = (
+    "apps/web/.env.example",
+    "apps/backend/.env.example",
 )
 
 ROOT_PYPROJECT_BASE = (
@@ -71,7 +95,12 @@ SIMULATE_FAILURE_ENV = "NEW_REPO_TEMPLATE_SIMULATE_FAILURE"
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="new-repo-template")
-    parser.add_argument("--target", required=True, choices=("foundation", "python"))
+    parser.add_argument(
+        "--target",
+        required=True,
+        action="append",
+        choices=TARGET_CHOICES,
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--auth", choices=("clerk", "better-auth"))
     parser.add_argument("--no-interactive", action="store_true")
@@ -79,29 +108,73 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def resolve_plan(target: str, output: Path) -> ScaffoldPlan:
-    if target == "foundation":
-        return ScaffoldPlan(
-            target=target,
-            output=output,
-            paths=FOUNDATION_PATHS,
-            include_python_workspace=False,
+def normalize_targets(raw_targets: list[str]) -> tuple[str, ...]:
+    ordered_unique: list[str] = []
+    seen: set[str] = set()
+    for target in raw_targets:
+        if target in seen:
+            continue
+        seen.add(target)
+        ordered_unique.append(target)
+    return tuple(ordered_unique)
+
+
+def validate_args(
+    parser: argparse.ArgumentParser, args: argparse.Namespace
+) -> tuple[str, ...]:
+    selected_targets = normalize_targets(args.target)
+
+    if "foundation" in selected_targets and len(selected_targets) > 1:
+        parser.error("foundation target cannot be combined with other targets")
+
+    has_web_backend = "web" in selected_targets and "backend" in selected_targets
+    if has_web_backend and args.auth is None:
+        parser.error(
+            "auth option is required when both web and backend targets are selected"
         )
-    if target == "python":
-        return ScaffoldPlan(
-            target=target,
-            output=output,
-            paths=PYTHON_PATHS,
-            include_python_workspace=True,
+
+    if args.auth is not None and not has_web_backend:
+        parser.error(
+            "auth option is only valid when both web and backend targets are selected"
         )
-    raise ValueError(f"Unsupported target: {target}")
+
+    return selected_targets
+
+
+def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, ...]:
+    paths: list[str] = list(FOUNDATION_PATHS)
+
+    for target in targets:
+        if target in APP_TARGET_DIRS:
+            paths.append(APP_TARGET_DIRS[target])
+        if target == "python":
+            paths.extend(PYTHON_PATHS)
+
+    has_web_backend = "web" in targets and "backend" in targets
+    if has_web_backend and auth is not None:
+        paths.extend(WEB_BACKEND_ENV_PATHS)
+
+    return tuple(paths)
+
+
+def resolve_plan(
+    *, targets: tuple[str, ...], output: Path, auth: str | None
+) -> ScaffoldPlan:
+    return ScaffoldPlan(
+        targets=targets,
+        output=output,
+        paths=resolve_paths(targets=targets, auth=auth),
+        include_python_workspace="python" in targets,
+        auth=auth,
+    )
 
 
 def render_plan(plan: ScaffoldPlan) -> str:
     lines = [
         "Resolved scaffold plan:",
-        f"- target: {plan.target}",
+        f"- targets: {', '.join(plan.targets)}",
         f"- output: {plan.output}",
+        f"- auth: {plan.auth if plan.auth is not None else 'none'}",
         "- root layout:",
     ]
     lines.extend(f"  - {path}" for path in plan.paths)
@@ -115,23 +188,23 @@ def write_root_pyproject(*, output_root: Path, include_python_workspace: bool) -
     (output_root / "pyproject.toml").write_text(root_content, encoding="utf-8")
 
 
-def scaffold_foundation(plan: ScaffoldPlan) -> None:
-    plan.output.mkdir(parents=True, exist_ok=False)
-    (plan.output / "apps").mkdir()
-    (plan.output / "packages").mkdir()
+def scaffold_foundation_core(
+    *, output_root: Path, include_python_workspace: bool
+) -> None:
+    output_root.mkdir(parents=True, exist_ok=False)
+    (output_root / "apps").mkdir()
+    (output_root / "packages").mkdir()
     write_root_pyproject(
-        output_root=plan.output,
-        include_python_workspace=plan.include_python_workspace,
+        output_root=output_root,
+        include_python_workspace=include_python_workspace,
     )
 
 
-def scaffold_python_lane(plan: ScaffoldPlan) -> None:
-    scaffold_foundation(plan)
-
+def scaffold_python_lane(*, output_root: Path) -> None:
     if os.environ.get(SIMULATE_FAILURE_ENV) == "python-after-root":
         raise RuntimeError("simulated scaffold failure after root generation")
 
-    lane_root = plan.output / "apps" / "python"
+    lane_root = output_root / "apps" / "python"
     (lane_root / "src" / "python_app").mkdir(parents=True)
     (lane_root / "tests").mkdir()
     (lane_root / "pyproject.toml").write_text(PYTHON_LANE_PYPROJECT, encoding="utf-8")
@@ -148,14 +221,56 @@ def scaffold_python_lane(plan: ScaffoldPlan) -> None:
     )
 
 
+def scaffold_app_targets(*, output_root: Path, targets: tuple[str, ...]) -> None:
+    for target in targets:
+        if target in APP_TARGET_DIRS:
+            (output_root / APP_TARGET_DIRS[target]).mkdir(parents=True, exist_ok=True)
+
+
+def scaffold_web_backend_env_examples(
+    *, output_root: Path, auth: str | None, targets: tuple[str, ...]
+) -> None:
+    has_web_backend = "web" in targets and "backend" in targets
+    if not has_web_backend or auth is None:
+        return
+
+    web_env = ["# Web app environment", "CONVEX_URL=your-convex-url"]
+    if auth == "clerk":
+        web_env.append("VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxx")
+    else:
+        web_env.append("BETTER_AUTH_URL=http://localhost:3000")
+
+    backend_env = [
+        "# Backend environment",
+        "CONVEX_DEPLOYMENT=dev:your-deployment",
+        f"AUTH_PROVIDER={auth}",
+    ]
+
+    (output_root / "apps" / "web" / ".env.example").write_text(
+        "\n".join(web_env) + "\n",
+        encoding="utf-8",
+    )
+    (output_root / "apps" / "backend" / ".env.example").write_text(
+        "\n".join(backend_env) + "\n",
+        encoding="utf-8",
+    )
+
+
 def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
-    if plan.target == "foundation":
-        scaffold_foundation(plan)
-        return
-    if plan.target == "python":
-        scaffold_python_lane(plan)
-        return
-    raise ValueError(f"Unsupported target: {plan.target}")
+    scaffold_foundation_core(
+        output_root=plan.output,
+        include_python_workspace=plan.include_python_workspace,
+    )
+    scaffold_app_targets(output_root=plan.output, targets=plan.targets)
+
+    if "python" in plan.targets:
+        scaffold_python_lane(output_root=plan.output)
+
+    scaffold_web_backend_env_examples(
+        output_root=plan.output,
+        auth=plan.auth,
+        targets=plan.targets,
+    )
 
 
 def execute_scaffold(plan: ScaffoldPlan) -> None:
@@ -168,10 +283,11 @@ def execute_scaffold(plan: ScaffoldPlan) -> None:
     )
     stage_output = stage_container / plan.output.name
     staged_plan = ScaffoldPlan(
-        target=plan.target,
+        targets=plan.targets,
         output=stage_output,
         paths=plan.paths,
         include_python_workspace=plan.include_python_workspace,
+        auth=plan.auth,
     )
 
     try:
@@ -184,22 +300,15 @@ def execute_scaffold(plan: ScaffoldPlan) -> None:
         shutil.rmtree(stage_container, ignore_errors=True)
 
 
-def validate_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
-    if args.auth is not None:
-        parser.error(
-            "auth option is only valid when both web and backend targets are selected"
-        )
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    validate_args(parser, args)
+    selected_targets = validate_args(parser, args)
 
     if not args.no_interactive:
         parser.error("interactive mode is not implemented yet; use --no-interactive")
 
-    plan = resolve_plan(target=args.target, output=args.output)
+    plan = resolve_plan(targets=selected_targets, output=args.output, auth=args.auth)
 
     if args.dry_run:
         print(render_plan(plan))

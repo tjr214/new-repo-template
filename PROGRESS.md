@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 12:45:01 PM
-**Current Phase:** M1 GREEN/BLUE slice (failure-atomic writes) complete
+**Last Updated:** 2026-03-01 12:58:35 PM
+**Current Phase:** M1 GREEN/BLUE slice (target matrix + auth contract expansion) complete
 
 ---
 
@@ -40,6 +40,13 @@
 - [x] Implemented transactional scaffold write strategy (temp staging directory + atomic move into final output path).
 - [x] Added simulated mid-generation failure hook for contract testing and ensured cleanup of staged output.
 - [x] Verified full suite GREEN after atomicity implementation (`uv run pytest`: 7 passed).
+- [x] Added RED target-matrix/auth contract tests in `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- [x] Ran YELLOW BTCA lookup to confirm `argparse` repeat-option pattern (`action='append'` + post-parse validation).
+- [x] Expanded target model to include `web`, `backend`, `desktop`, `mobile`, and `tv` in addition to `foundation` and `python`.
+- [x] Enforced explicit auth requirement for `web` + `backend` selections in non-interactive mode.
+- [x] Enforced standalone-only `foundation` target validation.
+- [x] Added contract coverage for mobile+tv separate app scaffolding and root `pyproject.toml` invariant on JS-only/TV-only outputs.
+- [x] Verified full suite GREEN after target/auth expansion (`uv run pytest`: 13 passed).
 
 ## In Progress
 
@@ -49,15 +56,15 @@
 - [ ] Add security baseline docs (`.env.example` convention + secret handling rules).
 
 - [ ] M1 foundation implementation:
-  - [ ] Expand scaffold CLI from foundation+python to full target selection contract.
+  - [x] Expand scaffold CLI from foundation+python to full target selection contract.
   - [ ] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
   - [x] Implement transactional/failure-atomic scaffold write path.
   - [ ] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
 
 ## Next Up
 
-- [ ] Expand RED tests for CLI validation to full matrix once web/backend/desktop/mobile/tv targets are introduced.
-- [ ] Add RED tests for web+backend auth-required path once those targets are introduced.
+- [ ] Expand RED tests for deeper CLI validation matrix (duplicate targets, unsupported mixed combos, future interactive fallback semantics).
+- [ ] Add auth-variant output contract tests for `web+backend+clerk` and `web+backend+better-auth` scaffold files.
 - [ ] Define version baseline metadata and maintainer update/check workflow.
 - [ ] Add security baseline docs for `.env.example`/secret handling and CI secret scan expectations.
 - [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
