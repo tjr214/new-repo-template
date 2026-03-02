@@ -38,7 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestone M1 bootstrap is active (with M0 baseline tasks partially completed).
+- Milestones M0-M2 are complete; M3 desktop preset implementation is now active.
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -63,7 +63,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Required preset-combination matrix coverage is now implemented for all `PLAN.md` Section 2.1 combinations in `tests/contracts/test_required_preset_matrix_contract.py`, including both auth variants and all-target (python-inclusive) sanity passes.
 - Root workspace scaffold now emits `package.json` and `turbo.json` at repository root for all outputs, with Bun workspaces (`apps/*`, `packages/*`) and Turbo-routed root scripts (`dev`, `build`, `test`, `lint`, `typecheck`).
 - Root workspace contract coverage now verifies dry-run visibility and scaffolded workspace/task wiring in `tests/contracts/test_root_workspace_contract.py`.
-- JS app targets now scaffold workspace-local `package.json` manifests (`apps/web`, `apps/backend`, `apps/desktop`, `apps/mobile`, `apps/tv`) with baseline script placeholders for Turbo/Bun wiring.
+- JS app targets scaffold workspace-local `package.json` manifests (`apps/web`, `apps/backend`, `apps/desktop`, `apps/mobile`, `apps/tv`) with target-aware script wiring.
 - Bun workspace install viability coverage is now active in `tests/contracts/test_bun_workspace_install_contract.py` and verifies generated `web+backend` output supports both `bun install` and `bun install --frozen-lockfile`.
 - Minimal selected-preset command-smoke coverage is now active in `tests/contracts/test_turbo_command_smoke_contract.py`, validating root script viability for `dev`, `build`, `test`, `lint`, and `typecheck` after install on generated `web+backend` output.
 - Fullstack scaffold baseline now includes concrete framework file layout for `web+backend`: TanStack-style web routing/app entry files and Convex-style backend `http.ts`/`schema.ts` baseline files.
@@ -78,6 +78,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Version baseline workflow now includes lockfile lifecycle controls: update-time regeneration (with dry-run/summaries) and check-time lockfile presence validation.
 - CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest`, sets up Bun on matrix runners, and runs cross-platform script smoke contracts on native Linux/macOS/Windows.
 - Interactive prompt rendering now includes Rich/Textual-aware UI infrastructure in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback behavior.
+- Desktop scaffold baseline is now concrete for `desktop` target: generated outputs include Electron entry files (`src/main.ts`, `src/preload.ts`, `src/renderer.ts`), `forge.config.ts`, `tsconfig.json`, `index.html`, and desktop README distribution notes.
+- Desktop workspace scripts now include local Forge commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:start:smoke`, `desktop:package:smoke`, `desktop:make:smoke`) wired through root task scripts for non-GUI determinism.
 
 ## Validation Model
 
@@ -113,6 +115,8 @@ Current contract coverage:
   - Contract intent: selected minimal JS preset passes root Turbo-routed command scripts (`dev`, `build`, `test`, `lint`, `typecheck`) after Bun install.
 - `tests/contracts/test_fullstack_auth_wiring_contract.py`
   - Contract intent: `web+backend` scaffold outputs include concrete TanStack/Convex baseline files, expanded web app shell/config files, shared-package wiring, and auth-variant-specific frontend/backend wiring for both Clerk and Better Auth, with dry-run path visibility.
+- `tests/contracts/test_desktop_scaffold_contract.py`
+  - Contract intent: `desktop` scaffold outputs include concrete Electron Forge baseline files and scripts/dependencies, plus dry-run path visibility for desktop framework wiring.
 - `tests/contracts/test_convex_backend_smoke_contract.py`
   - Contract intent: generated backend workspace includes local Convex commands (`convex:codegen`, `convex:dev`), CI-safe smoke wrappers (`convex:*:smoke`), smoke-safe `dev`/`test` execution, and backend README cloud-dev/auth flow guidance.
 - `tests/contracts/test_security_baseline_contract.py`

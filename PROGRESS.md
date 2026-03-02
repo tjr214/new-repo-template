@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-02 10:32:13 AM
-**Current Phase:** M2 BLUE complete (`fuller TanStack Start web scaffold + shared package integration`)
+**Last Updated:** 2026-03-02 10:46:56 AM
+**Current Phase:** M3 BLUE complete (`desktop Electron Forge scaffold baseline + contracts`)
 
 ---
 
@@ -246,6 +246,29 @@
   - [x] `uv run pytest tests/contracts/test_fullstack_auth_wiring_contract.py` -> pass (3 tests)
   - [x] `uv run pytest tests/contracts/test_bun_workspace_install_contract.py tests/contracts/test_turbo_command_smoke_contract.py tests/contracts/test_convex_backend_smoke_contract.py` -> pass (4 tests)
   - [x] `uv run pytest` -> pass (87 tests)
+- [x] Started M3 with explicit YELLOW-RED-GREEN-BLUE loop for desktop preset baseline.
+- [x] Ran fresh YELLOW BTCA asks for desktop slice:
+  - [x] `btca ask -r turborepo` for desktop task cache/persistent guidance.
+  - [x] `btca ask -r bun` for cross-platform script conventions.
+  - [x] `btca clear` (BTCA hint-driven) and retried combined `turborepo+bun` ask after bun resource clone failure.
+- [x] Added RED desktop preset contracts in `tests/contracts/test_desktop_scaffold_contract.py`:
+  - [x] concrete desktop scaffold files (README, forge config, TS config, HTML, main/preload/renderer)
+  - [x] dry-run path visibility for desktop Electron Forge baseline
+  - [x] desktop workspace script/dependency assertions (`electron`, `@electron-forge/cli`)
+- [x] Implemented GREEN desktop scaffold baseline in `src/new_repo_template/scaffold.py`:
+  - [x] added desktop framework path planning + write flow
+  - [x] wired desktop template loading and scaffold generation
+- [x] Added desktop snapshot templates under `src/new_repo_template/snapshot_assets/templates/desktop/`:
+  - [x] `desktop_main.ts`, `desktop_preload.ts`, `desktop_renderer.ts`
+  - [x] `desktop_index.html`, `desktop_tsconfig.json`, `desktop_forge.config.ts`
+  - [x] `desktop_readme.md` with unsigned internal distribution guidance
+- [x] Upgraded desktop workspace manifest template at `src/new_repo_template/snapshot_assets/templates/workspace_packages/desktop_package.json`:
+  - [x] Electron Forge + Electron + TypeScript devDependencies pinned with `^` latest versions
+  - [x] local desktop commands (`desktop:start`, `desktop:package`, `desktop:make`)
+  - [x] CI-safe smoke wrappers (`desktop:*:smoke`) mapped into root task scripts (`dev`, `build`, `typecheck`)
+- [x] Verified BLUE:
+  - [x] `uv run pytest tests/contracts/test_desktop_scaffold_contract.py` -> pass (2 tests)
+  - [x] `uv run pytest` -> pass (89 tests)
 
 ## In Progress
 
@@ -268,9 +291,10 @@
   - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
 
 - [ ] M3 desktop preset implementation:
-  - [ ] Scaffold dedicated `apps/desktop` beyond placeholder package scaffold.
-  - [ ] Integrate Electron Forge with monorepo/Turbo tasks.
-  - [ ] Add desktop dev/start/build/package script contracts.
+  - [x] Scaffold dedicated `apps/desktop` beyond placeholder package scaffold.
+  - [x] Integrate Electron Forge with monorepo/Turbo tasks.
+  - [x] Add desktop dev/start/build/package script contracts.
+  - [ ] Add desktop runtime smoke contracts for start/package flows on native OS runners.
 
 - [ ] Nurt migration implementation:
   - [x] Introduce `nurt` CLI entrypoint and command router.
@@ -281,9 +305,9 @@
 
 ## Next Up
 
-- [ ] Start M3 YELLOW research + RED contracts for Electron preset scaffolding.
+- [ ] Add desktop runtime smoke contracts (`electron-forge start/package`) for native CI lanes.
 - [ ] Add lightweight secret scanning in CI (advisory first).
-- [ ] Continue milestone execution in YELLOW-RED-GREEN-BLUE slices (M3 next).
+- [ ] Continue milestone execution in YELLOW-RED-GREEN-BLUE slices (M3 remaining, then M4).
 
 ## BTCA Governance Log
 
@@ -293,3 +317,4 @@
 - [x] 2026-03-01: `btca clear` executed after BTCA runtime suggested cache reset for resource clone/fetch failures.
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `convex-docs` resource load fetch failure.
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `tanstack-router-start` resource load fetch failure; follow-up query succeeded.
+- [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `bun` resource clone failure during M3 YELLOW combined ask; retry succeeded.

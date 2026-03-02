@@ -175,7 +175,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [ ] Selectable app targets generated into monorepo:
   - [ ] `apps/web` (TanStack Start)
   - [ ] `apps/backend` (Convex functions/config)
-  - [ ] `apps/desktop` (Electron)
+  - [x] `apps/desktop` (Electron)
   - [ ] `apps/mobile` (Expo mobile app)
   - [ ] `apps/tv` (Expo AndroidTV app, separate from mobile)
   - [ ] Python target lane (for CLI/TUI, optional FastAPI experiments) with lane-local `pyproject.toml`
@@ -355,15 +355,15 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### Tasks
 
-- [ ] Scaffold dedicated `apps/desktop`
-- [ ] Integrate Electron Forge with monorepo/Turbo tasks
+- [x] Scaffold dedicated `apps/desktop`
+- [x] Integrate Electron Forge with monorepo/Turbo tasks
 - [ ] Reuse shared UI/util packages with web where practical
-- [ ] Provide desktop dev/start/build/package scripts
-- [ ] Add internal distribution guidance for unsigned artifacts
+- [x] Provide desktop dev/start/build/package scripts
+- [x] Add internal distribution guidance for unsigned artifacts
 
 ### RED Tests
 
-- [ ] Desktop scaffold contract test
+- [x] Desktop scaffold contract test
 - [ ] Electron app starts in dev mode
 - [ ] Desktop packaging smoke tests per OS (unsigned)
 
@@ -503,7 +503,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 - [x] Foundation scaffold contract tests
 - [x] Fullstack auth variant tests
-- [ ] Desktop scaffold tests
+- [x] Desktop scaffold tests
 - [ ] Mobile scaffold tests
 - [ ] TV scaffold tests
 - [x] Python lane scaffold tests

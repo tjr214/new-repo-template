@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0 execution has started. BTCA project resources are now configured, and the first scaffold contract has progressed from RED to GREEN with an initial implementation slice.
+M0-M2 execution is complete. M3 is now in progress with a first desktop Electron Forge scaffold baseline slice merged through YELLOW-RED-GREEN-BLUE.
 
 ## Active Implementation Rules
 
@@ -98,3 +98,6 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - M0 governance baseline is now fully closed: `PLAN.md` is explicitly marked and maintained as canonical implementation source-of-truth.
 - M2 web scaffold now includes a fuller TanStack Start-style baseline beyond route stubs: `app.config.ts`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/routeTree.gen.ts`, and base styles in `apps/web/src/styles.css`.
 - Fullstack shared workspace integration is now active for `web+backend` presets via `packages/shared` (`@generated/shared`), with both web and backend manifests wired through `workspace:*` dependencies and baseline web route consumption.
+- Desktop Electron Forge baseline scaffold is now concrete for `desktop` target: generated output includes `apps/desktop/README.md`, `forge.config.ts`, `tsconfig.json`, `index.html`, and `src/{main,preload,renderer}.ts`.
+- Desktop workspace package manifest now includes Forge-oriented local commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:*:smoke`) with root task scripts mapped to non-GUI smoke behavior for deterministic CI compatibility.
+- Unsigned desktop artifact guidance is now scaffolded into generated desktop README docs for internal distribution expectations during pre-hardening milestones.

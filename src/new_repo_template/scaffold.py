@@ -84,6 +84,17 @@ BACKEND_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/backend/README.md",
 )
 
+DESKTOP_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/desktop/README.md",
+    "apps/desktop/forge.config.ts",
+    "apps/desktop/tsconfig.json",
+    "apps/desktop/index.html",
+    "apps/desktop/src/",
+    "apps/desktop/src/main.ts",
+    "apps/desktop/src/preload.ts",
+    "apps/desktop/src/renderer.ts",
+)
+
 SHARED_FULLSTACK_PATHS: tuple[str, ...] = (
     "packages/shared/",
     "packages/shared/package.json",
@@ -168,6 +179,13 @@ WEB_STYLES_TEMPLATE = load_template_text("fullstack/web_styles.css")
 BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
 BACKEND_SCHEMA_TEMPLATE = load_template_text("fullstack/backend_schema.ts")
 BACKEND_README_TEMPLATE = load_template_text("fullstack/backend_readme.md")
+DESKTOP_MAIN_TEMPLATE = load_template_text("desktop/desktop_main.ts")
+DESKTOP_PRELOAD_TEMPLATE = load_template_text("desktop/desktop_preload.ts")
+DESKTOP_RENDERER_TEMPLATE = load_template_text("desktop/desktop_renderer.ts")
+DESKTOP_INDEX_HTML_TEMPLATE = load_template_text("desktop/desktop_index.html")
+DESKTOP_TSCONFIG_TEMPLATE = load_template_text("desktop/desktop_tsconfig.json")
+DESKTOP_FORGE_CONFIG_TEMPLATE = load_template_text("desktop/desktop_forge.config.ts")
+DESKTOP_README_TEMPLATE = load_template_text("desktop/desktop_readme.md")
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
 SHARED_INDEX_TEMPLATE = load_template_text("shared/shared_index.ts")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
@@ -249,6 +267,8 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
             paths.extend(WEB_FRAMEWORK_PATHS)
         if target == "backend":
             paths.extend(BACKEND_FRAMEWORK_PATHS)
+        if target == "desktop":
+            paths.extend(DESKTOP_FRAMEWORK_PATHS)
         if target == "python":
             paths.extend(PYTHON_PATHS)
         if target in TARGET_ENV_EXAMPLE_PATHS:
@@ -396,6 +416,40 @@ def scaffold_backend_framework_files(
     )
 
 
+def scaffold_desktop_framework_files(
+    *, output_root: Path, targets: tuple[str, ...]
+) -> None:
+    if "desktop" not in targets:
+        return
+
+    desktop_root = output_root / "apps" / "desktop"
+    desktop_src = desktop_root / "src"
+    desktop_src.mkdir(parents=True, exist_ok=True)
+
+    (desktop_root / "README.md").write_text(DESKTOP_README_TEMPLATE, encoding="utf-8")
+    (desktop_root / "forge.config.ts").write_text(
+        DESKTOP_FORGE_CONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
+    (desktop_root / "tsconfig.json").write_text(
+        DESKTOP_TSCONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
+    (desktop_root / "index.html").write_text(
+        DESKTOP_INDEX_HTML_TEMPLATE,
+        encoding="utf-8",
+    )
+    (desktop_src / "main.ts").write_text(DESKTOP_MAIN_TEMPLATE, encoding="utf-8")
+    (desktop_src / "preload.ts").write_text(
+        DESKTOP_PRELOAD_TEMPLATE,
+        encoding="utf-8",
+    )
+    (desktop_src / "renderer.ts").write_text(
+        DESKTOP_RENDERER_TEMPLATE,
+        encoding="utf-8",
+    )
+
+
 def scaffold_shared_fullstack_package(
     *, output_root: Path, targets: tuple[str, ...]
 ) -> None:
@@ -490,6 +544,7 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_app_targets(output_root=plan.output, targets=plan.targets)
     scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_backend_framework_files(output_root=plan.output, targets=plan.targets)
+    scaffold_desktop_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_shared_fullstack_package(output_root=plan.output, targets=plan.targets)
 
     if "python" in plan.targets:
