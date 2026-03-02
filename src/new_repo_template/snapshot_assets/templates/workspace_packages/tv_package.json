@@ -2,11 +2,30 @@
   "name": "@generated/tv",
   "private": true,
   "version": "0.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "expo": "^55.0.4",
+    "expo-status-bar": "^55.0.4",
+    "react": "^19.2.4",
+    "react-native": "^0.84.1",
+    "react-native-tvos": "^0.83.2-0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@react-native-tvos/config-tv": "^0.1.5",
+    "typescript": "^5.9.3"
+  },
   "scripts": {
-    "dev": "bun --version",
-    "build": "bun --version",
+    "dev": "bun run tv:start:smoke",
+    "build": "bun run tv:export:smoke",
     "test": "bun --version",
     "lint": "bun --version",
-    "typecheck": "bun --version"
+    "typecheck": "bun run typecheck:smoke",
+    "tv:start": "expo start --non-interactive",
+    "tv:android": "expo run:android",
+    "tv:export": "expo export --non-interactive",
+    "tv:start:smoke": "expo start --help",
+    "tv:export:smoke": "expo export --help",
+    "typecheck:smoke": "tsc --help"
   }
 }

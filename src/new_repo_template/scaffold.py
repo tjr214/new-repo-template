@@ -95,6 +95,22 @@ DESKTOP_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/desktop/src/renderer.ts",
 )
 
+MOBILE_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/mobile/app.json",
+    "apps/mobile/babel.config.js",
+    "apps/mobile/index.js",
+    "apps/mobile/App.tsx",
+    "apps/mobile/tsconfig.json",
+)
+
+TV_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/tv/app.json",
+    "apps/tv/babel.config.js",
+    "apps/tv/index.js",
+    "apps/tv/App.tsx",
+    "apps/tv/tsconfig.json",
+)
+
 SHARED_WORKSPACE_PATHS: tuple[str, ...] = (
     "packages/shared/",
     "packages/shared/package.json",
@@ -189,6 +205,16 @@ DESKTOP_INDEX_HTML_TEMPLATE = load_template_text("desktop/desktop_index.html")
 DESKTOP_TSCONFIG_TEMPLATE = load_template_text("desktop/desktop_tsconfig.json")
 DESKTOP_FORGE_CONFIG_TEMPLATE = load_template_text("desktop/desktop_forge.config.ts")
 DESKTOP_README_TEMPLATE = load_template_text("desktop/desktop_readme.md")
+MOBILE_APP_JSON_TEMPLATE = load_template_text("mobile/mobile_app.json")
+MOBILE_BABEL_CONFIG_TEMPLATE = load_template_text("mobile/mobile_babel.config.js")
+MOBILE_INDEX_TEMPLATE = load_template_text("mobile/mobile_index.js")
+MOBILE_APP_TEMPLATE = load_template_text("mobile/mobile_app.tsx")
+MOBILE_TSCONFIG_TEMPLATE = load_template_text("mobile/mobile_tsconfig.json")
+TV_APP_JSON_TEMPLATE = load_template_text("tv/tv_app.json")
+TV_BABEL_CONFIG_TEMPLATE = load_template_text("tv/tv_babel.config.js")
+TV_INDEX_TEMPLATE = load_template_text("tv/tv_index.js")
+TV_APP_TEMPLATE = load_template_text("tv/tv_app.tsx")
+TV_TSCONFIG_TEMPLATE = load_template_text("tv/tv_tsconfig.json")
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
 DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
     "workspace_packages/desktop_package_with_shared.json"
@@ -275,6 +301,10 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
             paths.extend(BACKEND_FRAMEWORK_PATHS)
         if target == "desktop":
             paths.extend(DESKTOP_FRAMEWORK_PATHS)
+        if target == "mobile":
+            paths.extend(MOBILE_FRAMEWORK_PATHS)
+        if target == "tv":
+            paths.extend(TV_FRAMEWORK_PATHS)
         if target == "python":
             paths.extend(PYTHON_PATHS)
         if target in TARGET_ENV_EXAMPLE_PATHS:
@@ -478,6 +508,42 @@ def scaffold_shared_workspace_package(
     (shared_src_dir / "index.ts").write_text(SHARED_INDEX_TEMPLATE, encoding="utf-8")
 
 
+def scaffold_mobile_framework_files(
+    *, output_root: Path, targets: tuple[str, ...]
+) -> None:
+    if "mobile" not in targets:
+        return
+
+    mobile_root = output_root / "apps" / "mobile"
+    mobile_root.mkdir(parents=True, exist_ok=True)
+
+    (mobile_root / "app.json").write_text(MOBILE_APP_JSON_TEMPLATE, encoding="utf-8")
+    (mobile_root / "babel.config.js").write_text(
+        MOBILE_BABEL_CONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
+    (mobile_root / "index.js").write_text(MOBILE_INDEX_TEMPLATE, encoding="utf-8")
+    (mobile_root / "App.tsx").write_text(MOBILE_APP_TEMPLATE, encoding="utf-8")
+    (mobile_root / "tsconfig.json").write_text(
+        MOBILE_TSCONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
+
+
+def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) -> None:
+    if "tv" not in targets:
+        return
+
+    tv_root = output_root / "apps" / "tv"
+    tv_root.mkdir(parents=True, exist_ok=True)
+
+    (tv_root / "app.json").write_text(TV_APP_JSON_TEMPLATE, encoding="utf-8")
+    (tv_root / "babel.config.js").write_text(TV_BABEL_CONFIG_TEMPLATE, encoding="utf-8")
+    (tv_root / "index.js").write_text(TV_INDEX_TEMPLATE, encoding="utf-8")
+    (tv_root / "App.tsx").write_text(TV_APP_TEMPLATE, encoding="utf-8")
+    (tv_root / "tsconfig.json").write_text(TV_TSCONFIG_TEMPLATE, encoding="utf-8")
+
+
 def scaffold_target_env_examples(
     *, output_root: Path, targets: tuple[str, ...]
 ) -> None:
@@ -557,6 +623,8 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_backend_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_desktop_framework_files(output_root=plan.output, targets=plan.targets)
+    scaffold_mobile_framework_files(output_root=plan.output, targets=plan.targets)
+    scaffold_tv_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_shared_workspace_package(output_root=plan.output, targets=plan.targets)
 
     if "python" in plan.targets:

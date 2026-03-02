@@ -38,7 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestones M0-M3 are complete; next execution focus is M4 mobile/TV preset implementation.
+- Milestones M0-M3 are complete; M4 is now in progress with the first mobile/TV preset baseline slice implemented.
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -83,6 +83,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Desktop Forge package/make scripts now include deterministic unsigned output locations (`out/unsigned/package`, `out/unsigned/make`) with parallel smoke-path assertions (`out/unsigned-smoke/*`) for contract-level validation.
 - Shared workspace reuse is now applied across web+desktop scaffolds: `packages/shared` is generated for web-bearing presets, desktop manifests include `@generated/shared` for web+desktop selections, and renderer baseline wiring imports shared utility values.
 - Desktop runtime smoke contract now executes start, package, and make smoke commands, completing milestone confidence for cross-platform dev/build/package behavior.
+- Mobile and TV scaffold baselines are now concrete: generated `apps/mobile` and `apps/tv` outputs include Expo app entry/config files (`app.json`, `babel.config.js`, `index.js`, `App.tsx`, `tsconfig.json`) rather than package-manifest-only placeholders.
+- TV plugin/config isolation is now explicit in scaffolded TV config: `apps/tv/app.json` includes `@react-native-tvos/config-tv`, while mobile config remains plugin-free.
+- Mobile/TV workspace manifests now include Expo-oriented script surfaces and dependency baselines (`expo`, `react`, `react-native`, `expo-status-bar`, plus TV-specific `react-native-tvos` and `@react-native-tvos/config-tv`).
 
 ## Validation Model
 
@@ -122,6 +125,8 @@ Current contract coverage:
   - Contract intent: `desktop` scaffold outputs include concrete Electron Forge baseline files and scripts/dependencies, plus dry-run path visibility for desktop framework wiring.
 - `tests/contracts/test_desktop_runtime_smoke_contract.py`
   - Contract intent: generated `desktop` workspace installs cleanly, executes Forge start/package smoke commands, validates root `dev`/`build` desktop smoke paths, and asserts deterministic unsigned output path wiring.
+- `tests/contracts/test_mobile_tv_scaffold_contract.py`
+  - Contract intent: generated `mobile` and `tv` scaffold outputs include concrete Expo baseline files, TV plugin/config isolation is enforced to `apps/tv`, and `mobile+tv` dry-run output reports distinct app wiring paths.
 - `tests/contracts/test_convex_backend_smoke_contract.py`
   - Contract intent: generated backend workspace includes local Convex commands (`convex:codegen`, `convex:dev`), CI-safe smoke wrappers (`convex:*:smoke`), smoke-safe `dev`/`test` execution, and backend README cloud-dev/auth flow guidance.
 - `tests/contracts/test_security_baseline_contract.py`

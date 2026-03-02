@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. Desktop milestone scope is now closed with cross-platform runtime/package smoke coverage and shared web+desktop utility package reuse.
+M0-M3 execution is complete. M4 is in progress with the first mobile/TV scaffold baseline slice now GREEN.
 
 ## Active Implementation Rules
 
@@ -106,3 +106,6 @@ M0-M3 execution is complete. Desktop milestone scope is now closed with cross-pl
 - Advisory secret scanning is now enabled in CI via a dedicated non-blocking `secret-scan-advisory` job using `gitleaks/gitleaks-action@v2` (`continue-on-error: true`) to surface potential leaks without gating baseline delivery.
 - Desktop runtime smoke coverage now also executes `desktop:make:smoke` in contract tests, completing the dev/build/package baseline gate for M3.
 - Shared workspace package reuse now covers web+desktop combinations: scaffolded outputs emit `packages/shared`, desktop package wiring includes `@generated/shared`, and desktop renderer consumes shared utility exports.
+- M4 mobile/TV baseline contracts are now active in `tests/contracts/test_mobile_tv_scaffold_contract.py` for mobile-only scaffold shape, tv-only scaffold shape, TV plugin isolation (`@react-native-tvos/config-tv` in `apps/tv/app.json`), and mobile+tv dry-run path visibility.
+- Scaffold outputs now include concrete Expo baseline files for both mobile and TV targets (`app.json`, `babel.config.js`, `index.js`, `App.tsx`, `tsconfig.json`) generated from snapshot templates under `src/new_repo_template/snapshot_assets/templates/mobile/` and `src/new_repo_template/snapshot_assets/templates/tv/`.
+- Mobile and TV workspace manifests are now Expo-oriented (scripts + dependencies), with TV-specific plugin dependency wiring (`@react-native-tvos/config-tv`) isolated to `apps/tv`.

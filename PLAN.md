@@ -380,18 +380,18 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### Tasks
 
-- [ ] Scaffold `apps/mobile` with Expo mobile baseline
-- [ ] Scaffold `apps/tv` with Expo AndroidTV baseline (separate app)
-- [ ] Wire TV-related config/plugin conventions in `apps/tv` only
+- [x] Scaffold `apps/mobile` with Expo mobile baseline
+- [x] Scaffold `apps/tv` with Expo AndroidTV baseline (separate app)
+- [x] Wire TV-related config/plugin conventions in `apps/tv` only
 - [ ] Add TV-focused env/build profile notes and scripts for dedicated TV app
 - [ ] Add TV focus/navigation baseline patterns checklist (remote-primary)
 - [ ] Add keyboard/mouse/gamepad fallback input support checklist for TV app
 
 ### RED Tests
 
-- [ ] Mobile scaffold contract test
-- [ ] TV scaffold contract test (separate `apps/tv` output)
-- [ ] TV config contract test (plugin/config presence and expected wiring in `apps/tv`)
+- [x] Mobile scaffold contract test
+- [x] TV scaffold contract test (separate `apps/tv` output)
+- [x] TV config contract test (plugin/config presence and expected wiring in `apps/tv`)
 - [ ] Android build profile checks for TV app
 - [ ] HID contract test for TV app input handling (remote primary + keyboard/mouse/gamepad supported)
 
@@ -504,8 +504,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Foundation scaffold contract tests
 - [x] Fullstack auth variant tests
 - [x] Desktop scaffold tests
-- [ ] Mobile scaffold tests
-- [ ] TV scaffold tests
+- [x] Mobile scaffold tests
+- [x] TV scaffold tests
 - [x] Python lane scaffold tests
 - [x] Cross-platform command smoke tests
 - [x] Required preset-combination matrix tests (Section 2.1)

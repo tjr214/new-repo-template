@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-02 11:11:08 AM
-**Current Phase:** M3 complete (`shared web+desktop util reuse + desktop make smoke + milestone DoD closeout`)
+**Last Updated:** 2026-03-02 01:58:13 PM
+**Current Phase:** M4 in progress (`Expo mobile baseline + isolated Expo TV plugin/config baseline`)
 
 ---
 
@@ -304,38 +304,42 @@
   - [x] `uv run pytest tests/contracts/test_desktop_runtime_smoke_contract.py tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (2 tests)
   - [x] `uv run pytest` -> pass (92 tests)
 - [x] Closed all remaining M3 PLAN checkboxes (tasks, RED tests, and DoD gates).
+- [x] Started M4 with explicit YELLOW-RED-GREEN-BLUE slice for mobile/TV baseline scaffolding.
+- [x] Ran M4 YELLOW BTCA asks:
+  - [x] `btca ask -r expo-docs -r bun -r turborepo` for Bun+Turbo Expo mobile baseline shape (files/scripts/dependencies/CI non-interactive behavior).
+  - [x] `btca ask -r react-native-tvos -r expo-tv-config -r expo-docs` for isolated `apps/tv` plugin/config requirements.
+- [x] Added RED contracts in `tests/contracts/test_mobile_tv_scaffold_contract.py`:
+  - [x] mobile-only Expo baseline scaffold contract
+  - [x] tv-only Expo TV scaffold + isolated plugin contract
+  - [x] mobile+tv dry-run path visibility contract
+- [x] Implemented GREEN mobile/TV scaffold output in `src/new_repo_template/scaffold.py`:
+  - [x] added framework path planning for `apps/mobile/*` and `apps/tv/*`
+  - [x] added scaffold writers for Expo mobile and Expo TV baseline files
+- [x] Added new mobile and TV snapshot templates:
+  - [x] `src/new_repo_template/snapshot_assets/templates/mobile/*`
+  - [x] `src/new_repo_template/snapshot_assets/templates/tv/*`
+- [x] Upgraded JS workspace manifests for mobile/TV Expo baselines:
+  - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/mobile_package.json`
+  - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/tv_package.json`
+  - [x] dependencies refreshed to latest looked-up npm versions (`expo`, `expo-status-bar`, `react`, `react-native`, `react-native-tvos`, `@react-native-tvos/config-tv`, `typescript`, `@babel/core`).
+- [x] Verified BLUE for M4 slice:
+  - [x] `uv run pytest tests/contracts/test_mobile_tv_scaffold_contract.py` -> pass (3 tests)
+  - [x] `uv run pytest` -> pass (95 tests)
 
 ## In Progress
 
-- [ ] Extend version workflow to cover JS lockfile regeneration paths once root/package workspace manifests are introduced.
-
-- [ ] M1 foundation implementation:
-  - [x] Add root workspace config (`package.json` workspaces + `turbo.json`) to scaffold output.
-  - [x] Add initial cross-platform root script wiring (`dev/build/test/lint/typecheck`) via Turbo commands.
-  - [x] Add initial JS app workspace package manifests for selected JS targets.
-  - [x] Add Bun workspace install viability contract coverage.
-  - [x] Add selected minimal preset command-smoke contract coverage for `dev/build/test/lint/typecheck`.
-  - [x] Validate Python-selected target baseline command execution checks.
-  - [x] Remove script-first bootstrap path from user docs in favor of global `nurt` command flow.
-  - [x] Wire cross-platform script smoke checks into Linux/macOS/Windows CI.
-  - [x] Expand scaffold CLI from foundation+python to full target selection contract.
-  - [x] Extend deterministic validation errors to full target matrix (web/backend/auth combinations, contradictory selections).
-  - [x] Implement transactional/failure-atomic scaffold write path.
-  - [x] Add broader non-interactive validation path coverage for missing/invalid required arguments across all target modes.
-  - [x] Add auth-variant env placeholder scaffolding + minimal wiring placeholder files for `web+backend`.
-  - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
-
-- [ ] Nurt migration implementation:
-  - [x] Introduce `nurt` CLI entrypoint and command router.
-  - [x] Migrate installer/update orchestration into `nurt` subcommands beyond script-wrapper behavior.
-  - [x] Implement mandatory startup update-check and `nurt update` flow.
-  - [x] Implement snapshot asset generation + packaged asset loading path.
-  - [x] Implement polished Rich/Textual interactive UI layer for `nurt new` (current prompt wizard baseline is in place).
+- [ ] M4 mobile/TV milestone execution:
+  - [x] Scaffold Expo mobile baseline (`apps/mobile`) and Expo AndroidTV baseline (`apps/tv`) as separate apps.
+  - [x] Enforce TV plugin/config isolation to `apps/tv` via scaffolded app config.
+  - [ ] Add Android build profile checks for TV app.
+  - [ ] Add TV HID contract checks (remote primary + keyboard/mouse/gamepad fallback).
+  - [ ] Add TV/mobile setup docs and validation checklist updates for emulator + Shield flow.
 
 ## Next Up
 
-- [ ] Start M4 with YELLOW BTCA lookups for Expo mobile + AndroidTV split-app baseline and config/plugin contract shape.
-- [ ] Continue milestone execution in YELLOW-RED-GREEN-BLUE slices (M4 remaining, then M5).
+- [ ] Add RED contracts + GREEN implementation for TV Android build profile checks (`apps/tv` specific).
+- [ ] Add RED contracts + GREEN implementation for TV input/HID baseline checklist scaffolding.
+- [ ] Continue M4 DoD completion, then move to M5 hardening slices.
 
 ## BTCA Governance Log
 
@@ -346,3 +350,4 @@
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `convex-docs` resource load fetch failure.
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `tanstack-router-start` resource load fetch failure; follow-up query succeeded.
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `bun` resource clone failure during M3 YELLOW combined ask; retry succeeded.
+- [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `expo-docs` resource checkout failure during M4 YELLOW ask; both Expo baseline lookups then succeeded.
