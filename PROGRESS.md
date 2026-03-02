@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-02 10:57:41 AM
-**Current Phase:** M3 BLUE complete (`desktop runtime smoke + unsigned path assertions + advisory secret scan`)
+**Last Updated:** 2026-03-02 11:11:08 AM
+**Current Phase:** M3 complete (`shared web+desktop util reuse + desktop make smoke + milestone DoD closeout`)
 
 ---
 
@@ -286,6 +286,24 @@
 - [x] Verified BLUE:
   - [x] `uv run pytest tests/contracts/test_desktop_runtime_smoke_contract.py tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (2 tests)
   - [x] `uv run pytest` -> pass (90 tests)
+- [x] Continued M3 with explicit YELLOW-RED-GREEN-BLUE closeout slice for remaining desktop milestone items.
+- [x] Ran YELLOW BTCA asks for M3 closeout:
+  - [x] `btca ask -r turborepo` for Electron Forge build output/caching guidance (`out/**`, `out/make/**`, persistent uncached dev).
+  - [x] `btca ask -r bun` for cross-platform deterministic GUI-tool smoke command patterns.
+- [x] Added RED contracts for shared reuse and workspace viability:
+  - [x] `tests/contracts/test_desktop_scaffold_contract.py::test_web_desktop_scaffold_reuses_shared_workspace_package`
+  - [x] `tests/contracts/test_bun_workspace_install_contract.py::test_generated_web_desktop_workspace_supports_bun_install`
+- [x] Implemented GREEN shared web+desktop package reuse in scaffold/templates:
+  - [x] Scaffold now emits `packages/shared` whenever `web` or `backend` target is selected.
+  - [x] Added web+desktop desktop-manifest variant template with `@generated/shared` dependency.
+  - [x] Added web+desktop desktop renderer template consuming `NURT_WELCOME_MESSAGE` from `@generated/shared`.
+  - [x] Updated root Turbo build outputs to include Electron artifact paths (`out/**`, `out/make/**`).
+- [x] Completed BLUE runtime hardening and verification:
+  - [x] Expanded desktop runtime smoke contract to execute `desktop:make:smoke` in addition to start/package smoke paths.
+  - [x] `uv run pytest tests/contracts/test_desktop_scaffold_contract.py tests/contracts/test_bun_workspace_install_contract.py` -> pass (6 tests)
+  - [x] `uv run pytest tests/contracts/test_desktop_runtime_smoke_contract.py tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (2 tests)
+  - [x] `uv run pytest` -> pass (92 tests)
+- [x] Closed all remaining M3 PLAN checkboxes (tasks, RED tests, and DoD gates).
 
 ## In Progress
 
@@ -307,13 +325,6 @@
   - [x] Add auth-variant env placeholder scaffolding + minimal wiring placeholder files for `web+backend`.
   - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
 
-- [ ] M3 desktop preset implementation:
-  - [x] Scaffold dedicated `apps/desktop` beyond placeholder package scaffold.
-  - [x] Integrate Electron Forge with monorepo/Turbo tasks.
-  - [x] Add desktop dev/start/build/package script contracts.
-  - [x] Add desktop runtime smoke contracts for start/package flows on native OS runners.
-  - [x] Add unsigned package/make output path assertions for desktop smoke scripts.
-
 - [ ] Nurt migration implementation:
   - [x] Introduce `nurt` CLI entrypoint and command router.
   - [x] Migrate installer/update orchestration into `nurt` subcommands beyond script-wrapper behavior.
@@ -323,8 +334,8 @@
 
 ## Next Up
 
-- [ ] Close remaining M3 RED/DoD items (native Electron packaging behavior beyond `--help` smoke and Windows packaging confidence gate).
-- [ ] Continue milestone execution in YELLOW-RED-GREEN-BLUE slices (M3 remaining, then M4).
+- [ ] Start M4 with YELLOW BTCA lookups for Expo mobile + AndroidTV split-app baseline and config/plugin contract shape.
+- [ ] Continue milestone execution in YELLOW-RED-GREEN-BLUE slices (M4 remaining, then M5).
 
 ## BTCA Governance Log
 

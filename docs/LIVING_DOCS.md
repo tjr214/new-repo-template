@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M2 execution is complete. M3 is now in progress with a first desktop Electron Forge scaffold baseline slice merged through YELLOW-RED-GREEN-BLUE.
+M0-M3 execution is complete. Desktop milestone scope is now closed with cross-platform runtime/package smoke coverage and shared web+desktop utility package reuse.
 
 ## Active Implementation Rules
 
@@ -104,3 +104,5 @@ M0-M2 execution is complete. M3 is now in progress with a first desktop Electron
 - Desktop runtime smoke coverage is now active in `tests/contracts/test_desktop_runtime_smoke_contract.py`: generated `desktop` scaffold is install-validated with Bun, executes Forge start/package smoke commands, and verifies deterministic unsigned output path wiring (`out/unsigned/*`, `out/unsigned-smoke/*`).
 - CI native matrix smoke step now includes desktop runtime smoke contracts in `.github/workflows/ci.yml`, extending Linux/macOS/Windows confidence for desktop script wiring.
 - Advisory secret scanning is now enabled in CI via a dedicated non-blocking `secret-scan-advisory` job using `gitleaks/gitleaks-action@v2` (`continue-on-error: true`) to surface potential leaks without gating baseline delivery.
+- Desktop runtime smoke coverage now also executes `desktop:make:smoke` in contract tests, completing the dev/build/package baseline gate for M3.
+- Shared workspace package reuse now covers web+desktop combinations: scaffolded outputs emit `packages/shared`, desktop package wiring includes `@generated/shared`, and desktop renderer consumes shared utility exports.

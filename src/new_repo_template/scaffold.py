@@ -95,7 +95,7 @@ DESKTOP_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/desktop/src/renderer.ts",
 )
 
-SHARED_FULLSTACK_PATHS: tuple[str, ...] = (
+SHARED_WORKSPACE_PATHS: tuple[str, ...] = (
     "packages/shared/",
     "packages/shared/package.json",
     "packages/shared/src/",
@@ -182,11 +182,17 @@ BACKEND_README_TEMPLATE = load_template_text("fullstack/backend_readme.md")
 DESKTOP_MAIN_TEMPLATE = load_template_text("desktop/desktop_main.ts")
 DESKTOP_PRELOAD_TEMPLATE = load_template_text("desktop/desktop_preload.ts")
 DESKTOP_RENDERER_TEMPLATE = load_template_text("desktop/desktop_renderer.ts")
+DESKTOP_RENDERER_WITH_SHARED_TEMPLATE = load_template_text(
+    "desktop/desktop_renderer_with_shared.ts"
+)
 DESKTOP_INDEX_HTML_TEMPLATE = load_template_text("desktop/desktop_index.html")
 DESKTOP_TSCONFIG_TEMPLATE = load_template_text("desktop/desktop_tsconfig.json")
 DESKTOP_FORGE_CONFIG_TEMPLATE = load_template_text("desktop/desktop_forge.config.ts")
 DESKTOP_README_TEMPLATE = load_template_text("desktop/desktop_readme.md")
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
+DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
+    "workspace_packages/desktop_package_with_shared.json"
+)
 SHARED_INDEX_TEMPLATE = load_template_text("shared/shared_index.ts")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
 ROOT_PACKAGE_JSON = load_template_text("root_package.json")
@@ -274,10 +280,11 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
         if target in TARGET_ENV_EXAMPLE_PATHS:
             paths.append(TARGET_ENV_EXAMPLE_PATHS[target])
 
-    has_web_backend = "web" in targets and "backend" in targets
-    if has_web_backend:
-        paths.extend(SHARED_FULLSTACK_PATHS)
+    has_shared_workspace = "web" in targets or "backend" in targets
+    if has_shared_workspace:
+        paths.extend(SHARED_WORKSPACE_PATHS)
 
+    has_web_backend = "web" in targets and "backend" in targets
     if has_web_backend and auth is not None:
         if auth == "clerk":
             paths.extend(CLERK_WIRING_PATHS)
@@ -372,6 +379,8 @@ def scaffold_app_targets(*, output_root: Path, targets: tuple[str, ...]) -> None
         if package_path is None:
             continue
         package_template = load_template_text(APP_TARGET_PACKAGE_TEMPLATE_FILES[target])
+        if target == "desktop" and "web" in targets:
+            package_template = DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE
         (output_root / package_path).write_text(package_template, encoding="utf-8")
 
 
@@ -444,17 +453,20 @@ def scaffold_desktop_framework_files(
         DESKTOP_PRELOAD_TEMPLATE,
         encoding="utf-8",
     )
+    renderer_template = DESKTOP_RENDERER_TEMPLATE
+    if "web" in targets:
+        renderer_template = DESKTOP_RENDERER_WITH_SHARED_TEMPLATE
     (desktop_src / "renderer.ts").write_text(
-        DESKTOP_RENDERER_TEMPLATE,
+        renderer_template,
         encoding="utf-8",
     )
 
 
-def scaffold_shared_fullstack_package(
+def scaffold_shared_workspace_package(
     *, output_root: Path, targets: tuple[str, ...]
 ) -> None:
-    has_web_backend = "web" in targets and "backend" in targets
-    if not has_web_backend:
+    has_shared_workspace = "web" in targets or "backend" in targets
+    if not has_shared_workspace:
         return
 
     shared_src_dir = output_root / "packages" / "shared" / "src"
@@ -545,7 +557,7 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_backend_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_desktop_framework_files(output_root=plan.output, targets=plan.targets)
-    scaffold_shared_fullstack_package(output_root=plan.output, targets=plan.targets)
+    scaffold_shared_workspace_package(output_root=plan.output, targets=plan.targets)
 
     if "python" in plan.targets:
         scaffold_python_lane(output_root=plan.output)

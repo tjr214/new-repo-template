@@ -12,7 +12,9 @@
       "outputs": [
         "dist/**",
         ".next/**",
-        "!.next/cache/**"
+        "!.next/cache/**",
+        "out/**",
+        "out/make/**"
       ]
     },
     "test": {

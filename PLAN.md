@@ -179,7 +179,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
   - [ ] `apps/mobile` (Expo mobile app)
   - [ ] `apps/tv` (Expo AndroidTV app, separate from mobile)
   - [ ] Python target lane (for CLI/TUI, optional FastAPI experiments) with lane-local `pyproject.toml`
-- [ ] Shared UI/util package(s) for web + desktop reuse where practical
+- [x] Shared UI/util package(s) for web + desktop reuse where practical
 - [x] Root scripts route through Turbo (`dev`, `build`, `test`, `lint`, `typecheck`)
 
 ### 4.1 CLI Behavior Contract (Scaffolder)
@@ -357,22 +357,22 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 - [x] Scaffold dedicated `apps/desktop`
 - [x] Integrate Electron Forge with monorepo/Turbo tasks
-- [ ] Reuse shared UI/util packages with web where practical
+- [x] Reuse shared UI/util packages with web where practical
 - [x] Provide desktop dev/start/build/package scripts
 - [x] Add internal distribution guidance for unsigned artifacts
 
 ### RED Tests
 
 - [x] Desktop scaffold contract test
-- [ ] Electron app starts in dev mode
+- [x] Electron app starts in dev mode
 - [x] Desktop packaging smoke tests per OS (unsigned)
 
 ### DoD Gates
 
-- [ ] Desktop dev/build/package passes in CI (macOS/Linux/Windows)
-- [ ] Native Windows Electron packaging passes
-- [ ] No signing required for milestone completion
-- [ ] Internal distribution docs for unsigned binaries are present
+- [x] Desktop dev/build/package passes in CI (macOS/Linux/Windows)
+- [x] Native Windows Electron packaging passes
+- [x] No signing required for milestone completion
+- [x] Internal distribution docs for unsigned binaries are present
 
 ---
 

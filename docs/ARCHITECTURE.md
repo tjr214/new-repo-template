@@ -38,7 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestones M0-M2 are complete; M3 desktop preset implementation is now active.
+- Milestones M0-M3 are complete; next execution focus is M4 mobile/TV preset implementation.
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -81,6 +81,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Desktop scaffold baseline is now concrete for `desktop` target: generated outputs include Electron entry files (`src/main.ts`, `src/preload.ts`, `src/renderer.ts`), `forge.config.ts`, `tsconfig.json`, `index.html`, and desktop README distribution notes.
 - Desktop workspace scripts now include local Forge commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:start:smoke`, `desktop:package:smoke`, `desktop:make:smoke`) wired through root task scripts for non-GUI determinism.
 - Desktop Forge package/make scripts now include deterministic unsigned output locations (`out/unsigned/package`, `out/unsigned/make`) with parallel smoke-path assertions (`out/unsigned-smoke/*`) for contract-level validation.
+- Shared workspace reuse is now applied across web+desktop scaffolds: `packages/shared` is generated for web-bearing presets, desktop manifests include `@generated/shared` for web+desktop selections, and renderer baseline wiring imports shared utility values.
+- Desktop runtime smoke contract now executes start, package, and make smoke commands, completing milestone confidence for cross-platform dev/build/package behavior.
 
 ## Validation Model
 

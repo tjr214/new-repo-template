@@ -142,3 +142,61 @@ def test_generated_web_backend_workspace_supports_bun_install(tmp_path: Path) ->
         f"stdout:\n{frozen_result.stdout}\n"
         f"stderr:\n{frozen_result.stderr}"
     )
+
+
+def test_generated_web_desktop_workspace_supports_bun_install(tmp_path: Path) -> None:
+    """Web+desktop workspace should install cleanly with shared package wiring."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-desktop-install"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "desktop",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected web+desktop scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    bun_binary = shutil.which("bun")
+    if bun_binary is None:
+        pytest.skip("bun executable is required for workspace install viability check")
+
+    install_result = subprocess.run(
+        [bun_binary, "install"],
+        cwd=output_dir,
+        capture_output=True,
+        text=True,
+        env=os.environ.copy(),
+        check=False,
+    )
+    assert install_result.returncode == 0, (
+        "Expected `bun install` to succeed for generated web+desktop workspace.\n"
+        f"stdout:\n{install_result.stdout}\n"
+        f"stderr:\n{install_result.stderr}"
+    )
+
+    frozen_result = subprocess.run(
+        [bun_binary, "install", "--frozen-lockfile"],
+        cwd=output_dir,
+        capture_output=True,
+        text=True,
+        env=os.environ.copy(),
+        check=False,
+    )
+    assert frozen_result.returncode == 0, (
+        "Expected `bun install --frozen-lockfile` to succeed for web+desktop workspace.\n"
+        f"stdout:\n{frozen_result.stdout}\n"
+        f"stderr:\n{frozen_result.stderr}"
+    )

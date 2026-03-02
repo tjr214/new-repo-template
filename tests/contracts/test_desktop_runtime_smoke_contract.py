@@ -122,6 +122,17 @@ def test_desktop_runtime_smoke_commands_and_unsigned_output_paths(
         f"stderr:\n{package_smoke_result.stderr}"
     )
 
+    make_smoke_result = run_bun_command(
+        bun_binary=bun_binary,
+        cwd=desktop_dir,
+        args=["run", "desktop:make:smoke"],
+    )
+    assert make_smoke_result.returncode == 0, (
+        "Expected desktop make smoke command to succeed.\n"
+        f"stdout:\n{make_smoke_result.stdout}\n"
+        f"stderr:\n{make_smoke_result.stderr}"
+    )
+
     root_dev_result = run_bun_command(
         bun_binary=bun_binary,
         cwd=output_dir,

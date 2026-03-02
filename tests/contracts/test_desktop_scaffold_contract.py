@@ -127,3 +127,53 @@ def test_desktop_only_dry_run_lists_electron_forge_paths(tmp_path: Path) -> None
     assert "apps/desktop/src/main.ts" in combined_output
     assert "apps/desktop/src/preload.ts" in combined_output
     assert "apps/desktop/src/renderer.ts" in combined_output
+
+
+def test_web_desktop_scaffold_reuses_shared_workspace_package(tmp_path: Path) -> None:
+    """Web+desktop should share utility package wiring between both apps."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-desktop-shared"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "desktop",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected web+desktop scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    shared_manifest = output_dir / "packages" / "shared" / "package.json"
+    assert shared_manifest.exists(), "Expected shared workspace package for web+desktop"
+
+    web_manifest = json.loads(
+        (output_dir / "apps" / "web" / "package.json").read_text(encoding="utf-8")
+    )
+    desktop_manifest = json.loads(
+        (output_dir / "apps" / "desktop" / "package.json").read_text(encoding="utf-8")
+    )
+
+    web_dependencies = web_manifest.get("dependencies")
+    assert isinstance(web_dependencies, dict)
+    assert web_dependencies.get("@generated/shared") == "workspace:*"
+
+    desktop_dependencies = desktop_manifest.get("dependencies")
+    assert isinstance(desktop_dependencies, dict)
+    assert desktop_dependencies.get("@generated/shared") == "workspace:*"
+
+    desktop_renderer_text = (
+        output_dir / "apps" / "desktop" / "src" / "renderer.ts"
+    ).read_text(encoding="utf-8")
+    assert 'from "@generated/shared"' in desktop_renderer_text
+    assert "NURT_WELCOME_MESSAGE" in desktop_renderer_text
