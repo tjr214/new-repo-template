@@ -18,6 +18,8 @@ For end users generating a new project from this template, the canonical flow is
 
 `install.sh` is retained for internal/legacy maintenance workflows, not as the primary end-user bootstrap path.
 
+For fullstack template setup/auth flow details, see `docs/FULLSTACK_SETUP.md`.
+
 ## Which Lane Should I Use?
 
 ### Use Quick Lane (`quick-spec` / `quick-dev`) when:

@@ -325,9 +325,9 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### Tasks
 
 - [ ] Scaffold `apps/web` for TanStack Start
-- [ ] Scaffold `apps/backend` for Convex cloud workflow
-- [ ] Add explicit auth selection prompt (`clerk` or `better-auth`)
-- [ ] Scaffold auth-specific wiring and env templates
+- [x] Scaffold `apps/backend` for Convex cloud workflow
+- [x] Add explicit auth selection prompt (`clerk` or `better-auth`)
+- [x] Scaffold auth-specific wiring and env templates
 - [ ] Add shared package integration where appropriate
 - [x] Implement credentialless CI-safe checks for Convex cloud-first scaffolds.
 
@@ -344,9 +344,9 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### DoD Gates
 
 - [x] Both auth presets pass contract tests
-- [ ] Local dev flow works for cloud Convex mode
-- [ ] Native Windows backend dev/test commands pass in CI
-- [ ] Docs updated with fullstack setup and auth decision flow
+- [x] Local dev flow works for cloud Convex mode
+- [x] Native Windows backend dev/test commands pass in CI
+- [x] Docs updated with fullstack setup and auth decision flow
 - [x] Required CI path remains secret-free for baseline checks.
 
 ---
@@ -471,16 +471,16 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ## 9) Backend and Runtime Strategy
 
-- [ ] Convex is cloud-first for this template's fullstack lane.
-- [ ] Convex local deployments are documented as optional advanced workflow, not default requirement.
-- [ ] Primary fullstack backend path is TypeScript + Convex.
-- [ ] Python remains first-class but primarily for CLI/TUI and optional local service experimentation.
+- [x] Convex is cloud-first for this template's fullstack lane.
+- [x] Convex local deployments are documented as optional advanced workflow, not default requirement.
+- [x] Primary fullstack backend path is TypeScript + Convex.
+- [x] Python remains first-class but primarily for CLI/TUI and optional local service experimentation.
 
 ### 9.1 Convex Cloud-First Testability (No Credentials Required in Baseline CI)
 
 - [x] Baseline CI uses scaffold contract tests and static wiring checks only.
 - [x] Baseline CI does not require Convex login, `CONVEX_DEPLOY_KEY`, or third-party auth credentials.
-- [ ] Credential-dependent smoke tests are optional and separately gated.
+- [x] Credential-dependent smoke tests are optional and separately gated.
 - [x] Generated repos include `.env.example` placeholders for required Convex/auth variables.
 
 ### 9.2 Python Lane First-Class Contract

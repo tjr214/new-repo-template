@@ -69,6 +69,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Fullstack scaffold baseline now includes concrete framework file layout for `web+backend`: TanStack-style web routing/app entry files and Convex-style backend `http.ts`/`schema.ts` baseline files.
 - Fullstack auth variant contract coverage is now concrete in `tests/contracts/test_fullstack_auth_wiring_contract.py`, with Clerk and Better Auth assertions on provider-aware backend auth config and frontend auth client/provider stubs.
 - Convex backend smoke coverage now validates generated backend script viability for credentialless CLI help commands (`convex codegen --help`, `convex dev --help`) in `tests/contracts/test_convex_backend_smoke_contract.py`.
+- Generated backend outputs now include `apps/backend/README.md` with cloud-first local Convex workflow guidance and auth decision alignment notes.
+- Backend script model now separates credentialed local commands (`convex:dev`, `convex:codegen`) from CI-safe wrappers (`convex:*:smoke`), with `dev`/`test` mapped to smoke-safe commands for cross-platform CI determinism.
+- Fullstack setup and auth decision flow are now documented in `docs/FULLSTACK_SETUP.md`.
 - Version baseline metadata/workflow is implemented with `version-baseline.json` and native `nurt versions check/update` commands in `src/new_repo_template/version_baseline.py`.
 - Version baseline workflow now includes lockfile lifecycle controls: update-time regeneration (with dry-run/summaries) and check-time lockfile presence validation.
 - CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest`, sets up Bun on matrix runners, and runs cross-platform script smoke contracts on native Linux/macOS/Windows.
@@ -109,7 +112,7 @@ Current contract coverage:
 - `tests/contracts/test_fullstack_auth_wiring_contract.py`
   - Contract intent: `web+backend` scaffold outputs include concrete TanStack/Convex baseline files and auth-variant-specific wiring for both Clerk and Better Auth, with dry-run path visibility.
 - `tests/contracts/test_convex_backend_smoke_contract.py`
-  - Contract intent: generated backend workspace includes credentialless Convex CLI smoke commands (`convex:codegen`, `convex:dev`) that run successfully after Bun install.
+  - Contract intent: generated backend workspace includes local Convex commands (`convex:codegen`, `convex:dev`), CI-safe smoke wrappers (`convex:*:smoke`), smoke-safe `dev`/`test` execution, and backend README cloud-dev/auth flow guidance.
 - `tests/contracts/test_security_baseline_contract.py`
   - Contract intent: root `.gitignore` secret/env protections and per-target `.env.example` placeholder generation.
 - `tests/contracts/test_installer_scripts_dry_run_contract.py`

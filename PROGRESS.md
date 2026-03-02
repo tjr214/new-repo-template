@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-01 05:17:35 PM
-**Current Phase:** M2 GREEN/BLUE slice (`Convex codegen/dev credentialless smoke checks`)
+**Last Updated:** 2026-03-02 10:07:42 AM
+**Current Phase:** M2 GREEN/BLUE slice (`cloud-first local-dev flow + backend dev/test CI coverage`)
 
 ---
 
@@ -210,6 +210,19 @@
 - [x] Expanded CI workflow contract assertions in `tests/contracts/test_ci_versions_guardrail_contract.py` for Convex smoke step wiring.
 - [x] Updated `PLAN.md` status for M2 Convex smoke and credentialless CI baseline checklist items.
 - [x] Verified full suite GREEN after Convex smoke slice (`uv run pytest`: 87 passed).
+- [x] Expanded Convex backend smoke contract (`tests/contracts/test_convex_backend_smoke_contract.py`) to validate cloud-first local-dev flow shape:
+  - [x] backend package scripts include local commands (`convex:dev`, `convex:codegen`) and CI-safe wrappers (`convex:*:smoke`)
+  - [x] generated backend `dev`/`test` scripts succeed in credentialless CI-safe mode
+  - [x] generated backend README includes auth decision flow and cloud-first setup guidance
+- [x] Updated backend workspace package template to separate local dev commands from CI-safe smoke commands:
+  - [x] `dev` -> `bun run convex:dev:smoke`
+  - [x] `test` -> `bun run convex:codegen:smoke`
+  - [x] `convex:dev` -> `convex dev`
+  - [x] `convex:codegen` -> `convex codegen`
+- [x] Added scaffolded backend local-dev guide template at `src/new_repo_template/snapshot_assets/templates/fullstack/backend_readme.md` and emit path `apps/backend/README.md` in scaffold output.
+- [x] Added template-level fullstack setup documentation at `docs/FULLSTACK_SETUP.md` (auth decision flow, cloud-first local workflow, CI-safe smoke path, optional credentialed advanced path).
+- [x] Updated `README.md` bootstrap section to link `docs/FULLSTACK_SETUP.md`.
+- [x] Updated `PLAN.md` M2/Backend strategy DoD items for local cloud-dev flow, native Windows backend dev/test CI coverage, and docs/auth decision flow.
 
 ## In Progress
 
@@ -231,6 +244,14 @@
   - [x] Add auth-variant env placeholder scaffolding + minimal wiring placeholder files for `web+backend`.
   - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
 
+- [ ] M2 fullstack web preset implementation:
+  - [x] Scaffold baseline `apps/backend` Convex cloud workflow files and scripts.
+  - [x] Add explicit auth selection flow and enforce it for `web+backend` presets.
+  - [x] Scaffold auth-specific wiring and env templates.
+  - [x] Add credentialless Convex CLI smoke coverage for CI.
+  - [x] Validate local cloud-first dev flow shape via generated backend docs + script contracts.
+  - [ ] Add shared package integration where appropriate.
+
 - [ ] Nurt migration implementation:
   - [x] Introduce `nurt` CLI entrypoint and command router.
   - [x] Migrate installer/update orchestration into `nurt` subcommands beyond script-wrapper behavior.
@@ -240,9 +261,10 @@
 
 ## Next Up
 
-- [ ] Add cloud-first local dev flow contracts for Convex lane (`convex dev` workflow expectations) without requiring credentials in baseline CI.
+- [ ] Scaffold `apps/web` beyond current TanStack-style baseline toward fuller TanStack Start structure and scripts.
+- [ ] Add shared package integration for fullstack lanes where practical.
 - [ ] Add lightweight secret scanning in CI (advisory first).
-- [ ] Continue M1 implementation in YELLOW-RED-GREEN-BLUE slices.
+- [ ] Continue M2 implementation in YELLOW-RED-GREEN-BLUE slices.
 
 ## BTCA Governance Log
 
@@ -250,3 +272,4 @@
 - [x] 2026-03-01: Revalidated with `btca resources` and `btca status`.
 - [x] 2026-03-01: `convex-docs` resource corrected to `https://github.com/get-convex/convex-docs` after invalid search path error.
 - [x] 2026-03-01: `btca clear` executed after BTCA runtime suggested cache reset for resource clone/fetch failures.
+- [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `convex-docs` resource load fetch failure.

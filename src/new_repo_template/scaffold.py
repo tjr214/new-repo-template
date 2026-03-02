@@ -75,6 +75,7 @@ BACKEND_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/backend/convex/",
     "apps/backend/convex/http.ts",
     "apps/backend/convex/schema.ts",
+    "apps/backend/README.md",
 )
 
 PYTHON_PATHS: tuple[str, ...] = (
@@ -147,6 +148,7 @@ WEB_ROOT_ROUTE_TEMPLATE = load_template_text("fullstack/web_root_route.tsx")
 WEB_INDEX_ROUTE_TEMPLATE = load_template_text("fullstack/web_index_route.tsx")
 BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
 BACKEND_SCHEMA_TEMPLATE = load_template_text("fullstack/backend_schema.ts")
+BACKEND_README_TEMPLATE = load_template_text("fullstack/backend_readme.md")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
 ROOT_PACKAGE_JSON = load_template_text("root_package.json")
 ROOT_TURBO_JSON = load_template_text("root_turbo.json")
@@ -356,6 +358,10 @@ def scaffold_backend_framework_files(
 
     (convex_dir / "http.ts").write_text(BACKEND_HTTP_TEMPLATE, encoding="utf-8")
     (convex_dir / "schema.ts").write_text(BACKEND_SCHEMA_TEMPLATE, encoding="utf-8")
+    (output_root / "apps" / "backend" / "README.md").write_text(
+        BACKEND_README_TEMPLATE,
+        encoding="utf-8",
+    )
 
 
 def scaffold_target_env_examples(

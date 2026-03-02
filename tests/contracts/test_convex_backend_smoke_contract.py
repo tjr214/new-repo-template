@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -82,10 +83,31 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
         f"stderr:\n{install_result.stderr}"
     )
 
+    backend_package_json_path = output_dir / "apps" / "backend" / "package.json"
+    backend_package_json = json.loads(
+        backend_package_json_path.read_text(encoding="utf-8")
+    )
+    backend_scripts = backend_package_json.get("scripts", {})
+
+    assert backend_scripts.get("convex:dev") == "convex dev"
+    assert backend_scripts.get("convex:codegen") == "convex codegen"
+    assert backend_scripts.get("convex:dev:smoke") == "convex dev --help"
+    assert backend_scripts.get("convex:codegen:smoke") == "convex codegen --help"
+
+    backend_readme_path = output_dir / "apps" / "backend" / "README.md"
+    assert backend_readme_path.exists(), (
+        "Backend README should define local cloud-dev flow"
+    )
+    backend_readme = backend_readme_path.read_text(encoding="utf-8")
+    assert "bun run convex:dev" in backend_readme
+    assert "AUTH_PROVIDER" in backend_readme
+    assert "Clerk" in backend_readme
+    assert "Better Auth" in backend_readme
+
     codegen_help_result = run_bun_command(
         bun_binary=bun_binary,
         cwd=output_dir / "apps" / "backend",
-        args=["run", "convex:codegen"],
+        args=["run", "convex:codegen:smoke"],
     )
     assert codegen_help_result.returncode == 0, (
         "Expected backend Convex codegen smoke command to succeed.\n"
@@ -96,7 +118,7 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
     dev_help_result = run_bun_command(
         bun_binary=bun_binary,
         cwd=output_dir / "apps" / "backend",
-        args=["run", "convex:dev"],
+        args=["run", "convex:dev:smoke"],
     )
     assert dev_help_result.returncode == 0, (
         "Expected backend Convex dev smoke command to succeed.\n"
@@ -108,3 +130,25 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
     dev_output = f"{dev_help_result.stdout}\n{dev_help_result.stderr}"
     assert "codegen" in codegen_output.lower()
     assert "dev" in dev_output.lower()
+
+    backend_dev_result = run_bun_command(
+        bun_binary=bun_binary,
+        cwd=output_dir / "apps" / "backend",
+        args=["run", "dev"],
+    )
+    assert backend_dev_result.returncode == 0, (
+        "Expected backend dev command to succeed in CI-safe mode.\n"
+        f"stdout:\n{backend_dev_result.stdout}\n"
+        f"stderr:\n{backend_dev_result.stderr}"
+    )
+
+    backend_test_result = run_bun_command(
+        bun_binary=bun_binary,
+        cwd=output_dir / "apps" / "backend",
+        args=["run", "test"],
+    )
+    assert backend_test_result.returncode == 0, (
+        "Expected backend test command to succeed in CI-safe mode.\n"
+        f"stdout:\n{backend_test_result.stdout}\n"
+        f"stderr:\n{backend_test_result.stderr}"
+    )
