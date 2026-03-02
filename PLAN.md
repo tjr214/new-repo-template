@@ -256,7 +256,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Add approved BTCA resources (1-10)
 - [x] Create/seed missing docs: `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`
 - [x] Expand `PROGRESS.md` from template placeholder to active tracker
-- [ ] Keep `PLAN.md` as canonical implementation source of truth
+- [x] Keep `PLAN.md` as canonical implementation source of truth
 - [x] Define generator contract test scaffolding under `tests/`
 - [x] Define and codify version baseline metadata and update workflow.
 - [x] Add security baseline docs (`.env.example` convention + secret handling rules).
@@ -324,11 +324,11 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### Tasks
 
-- [ ] Scaffold `apps/web` for TanStack Start
+- [x] Scaffold `apps/web` for TanStack Start
 - [x] Scaffold `apps/backend` for Convex cloud workflow
 - [x] Add explicit auth selection prompt (`clerk` or `better-auth`)
 - [x] Scaffold auth-specific wiring and env templates
-- [ ] Add shared package integration where appropriate
+- [x] Add shared package integration where appropriate
 - [x] Implement credentialless CI-safe checks for Convex cloud-first scaffolds.
 
 ### RED Tests

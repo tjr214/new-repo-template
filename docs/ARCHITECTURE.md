@@ -67,7 +67,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Bun workspace install viability coverage is now active in `tests/contracts/test_bun_workspace_install_contract.py` and verifies generated `web+backend` output supports both `bun install` and `bun install --frozen-lockfile`.
 - Minimal selected-preset command-smoke coverage is now active in `tests/contracts/test_turbo_command_smoke_contract.py`, validating root script viability for `dev`, `build`, `test`, `lint`, and `typecheck` after install on generated `web+backend` output.
 - Fullstack scaffold baseline now includes concrete framework file layout for `web+backend`: TanStack-style web routing/app entry files and Convex-style backend `http.ts`/`schema.ts` baseline files.
+- Fullstack web scaffold now includes additional TanStack Start-style app shell/config files (`apps/web/app.config.ts`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/routeTree.gen.ts`, `src/styles.css`) to move beyond minimal route-only baseline output.
 - Fullstack auth variant contract coverage is now concrete in `tests/contracts/test_fullstack_auth_wiring_contract.py`, with Clerk and Better Auth assertions on provider-aware backend auth config and frontend auth client/provider stubs.
+- Shared-package integration is now part of the fullstack baseline for `web+backend` selections: scaffold emits `packages/shared` (`@generated/shared`) and wires both `apps/web` and `apps/backend` manifests via `workspace:*` dependencies.
 - Convex backend smoke coverage now validates generated backend script viability for credentialless CLI help commands (`convex codegen --help`, `convex dev --help`) in `tests/contracts/test_convex_backend_smoke_contract.py`.
 - Generated backend outputs now include `apps/backend/README.md` with cloud-first local Convex workflow guidance and auth decision alignment notes.
 - Backend script model now separates credentialed local commands (`convex:dev`, `convex:codegen`) from CI-safe wrappers (`convex:*:smoke`), with `dev`/`test` mapped to smoke-safe commands for cross-platform CI determinism.
@@ -110,7 +112,7 @@ Current contract coverage:
 - `tests/contracts/test_turbo_command_smoke_contract.py`
   - Contract intent: selected minimal JS preset passes root Turbo-routed command scripts (`dev`, `build`, `test`, `lint`, `typecheck`) after Bun install.
 - `tests/contracts/test_fullstack_auth_wiring_contract.py`
-  - Contract intent: `web+backend` scaffold outputs include concrete TanStack/Convex baseline files and auth-variant-specific wiring for both Clerk and Better Auth, with dry-run path visibility.
+  - Contract intent: `web+backend` scaffold outputs include concrete TanStack/Convex baseline files, expanded web app shell/config files, shared-package wiring, and auth-variant-specific frontend/backend wiring for both Clerk and Better Auth, with dry-run path visibility.
 - `tests/contracts/test_convex_backend_smoke_contract.py`
   - Contract intent: generated backend workspace includes local Convex commands (`convex:codegen`, `convex:dev`), CI-safe smoke wrappers (`convex:*:smoke`), smoke-safe `dev`/`test` execution, and backend README cloud-dev/auth flow guidance.
 - `tests/contracts/test_security_baseline_contract.py`

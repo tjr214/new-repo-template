@@ -63,9 +63,15 @@ APP_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
 }
 
 WEB_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/web/app.config.ts",
+    "apps/web/vite.config.ts",
+    "apps/web/tsconfig.json",
+    "apps/web/index.html",
     "apps/web/src/",
     "apps/web/src/main.tsx",
     "apps/web/src/router.tsx",
+    "apps/web/src/routeTree.gen.ts",
+    "apps/web/src/styles.css",
     "apps/web/src/routes/",
     "apps/web/src/routes/__root.tsx",
     "apps/web/src/routes/index.tsx",
@@ -76,6 +82,13 @@ BACKEND_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/backend/convex/http.ts",
     "apps/backend/convex/schema.ts",
     "apps/backend/README.md",
+)
+
+SHARED_FULLSTACK_PATHS: tuple[str, ...] = (
+    "packages/shared/",
+    "packages/shared/package.json",
+    "packages/shared/src/",
+    "packages/shared/src/index.ts",
 )
 
 PYTHON_PATHS: tuple[str, ...] = (
@@ -146,9 +159,17 @@ WEB_MAIN_TEMPLATE = load_template_text("fullstack/web_main.tsx")
 WEB_ROUTER_TEMPLATE = load_template_text("fullstack/web_router.tsx")
 WEB_ROOT_ROUTE_TEMPLATE = load_template_text("fullstack/web_root_route.tsx")
 WEB_INDEX_ROUTE_TEMPLATE = load_template_text("fullstack/web_index_route.tsx")
+WEB_ROUTE_TREE_TEMPLATE = load_template_text("fullstack/web_route_tree.gen.ts")
+WEB_APP_CONFIG_TEMPLATE = load_template_text("fullstack/web_app.config.ts")
+WEB_VITE_CONFIG_TEMPLATE = load_template_text("fullstack/web_vite.config.ts")
+WEB_TSCONFIG_TEMPLATE = load_template_text("fullstack/web_tsconfig.json")
+WEB_INDEX_HTML_TEMPLATE = load_template_text("fullstack/web_index.html")
+WEB_STYLES_TEMPLATE = load_template_text("fullstack/web_styles.css")
 BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
 BACKEND_SCHEMA_TEMPLATE = load_template_text("fullstack/backend_schema.ts")
 BACKEND_README_TEMPLATE = load_template_text("fullstack/backend_readme.md")
+SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
+SHARED_INDEX_TEMPLATE = load_template_text("shared/shared_index.ts")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
 ROOT_PACKAGE_JSON = load_template_text("root_package.json")
 ROOT_TURBO_JSON = load_template_text("root_turbo.json")
@@ -234,6 +255,9 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
             paths.append(TARGET_ENV_EXAMPLE_PATHS[target])
 
     has_web_backend = "web" in targets and "backend" in targets
+    if has_web_backend:
+        paths.extend(SHARED_FULLSTACK_PATHS)
+
     if has_web_backend and auth is not None:
         if auth == "clerk":
             paths.extend(CLERK_WIRING_PATHS)
@@ -337,12 +361,20 @@ def scaffold_web_framework_files(
     if "web" not in targets:
         return
 
+    web_root = output_root / "apps" / "web"
     web_src = output_root / "apps" / "web" / "src"
     routes_dir = web_src / "routes"
     routes_dir.mkdir(parents=True, exist_ok=True)
 
+    (web_root / "app.config.ts").write_text(WEB_APP_CONFIG_TEMPLATE, encoding="utf-8")
+    (web_root / "vite.config.ts").write_text(WEB_VITE_CONFIG_TEMPLATE, encoding="utf-8")
+    (web_root / "tsconfig.json").write_text(WEB_TSCONFIG_TEMPLATE, encoding="utf-8")
+    (web_root / "index.html").write_text(WEB_INDEX_HTML_TEMPLATE, encoding="utf-8")
+
     (web_src / "main.tsx").write_text(WEB_MAIN_TEMPLATE, encoding="utf-8")
     (web_src / "router.tsx").write_text(WEB_ROUTER_TEMPLATE, encoding="utf-8")
+    (web_src / "routeTree.gen.ts").write_text(WEB_ROUTE_TREE_TEMPLATE, encoding="utf-8")
+    (web_src / "styles.css").write_text(WEB_STYLES_TEMPLATE, encoding="utf-8")
     (routes_dir / "__root.tsx").write_text(WEB_ROOT_ROUTE_TEMPLATE, encoding="utf-8")
     (routes_dir / "index.tsx").write_text(WEB_INDEX_ROUTE_TEMPLATE, encoding="utf-8")
 
@@ -362,6 +394,22 @@ def scaffold_backend_framework_files(
         BACKEND_README_TEMPLATE,
         encoding="utf-8",
     )
+
+
+def scaffold_shared_fullstack_package(
+    *, output_root: Path, targets: tuple[str, ...]
+) -> None:
+    has_web_backend = "web" in targets and "backend" in targets
+    if not has_web_backend:
+        return
+
+    shared_src_dir = output_root / "packages" / "shared" / "src"
+    shared_src_dir.mkdir(parents=True, exist_ok=True)
+    (output_root / "packages" / "shared" / "package.json").write_text(
+        SHARED_PACKAGE_TEMPLATE,
+        encoding="utf-8",
+    )
+    (shared_src_dir / "index.ts").write_text(SHARED_INDEX_TEMPLATE, encoding="utf-8")
 
 
 def scaffold_target_env_examples(
@@ -442,6 +490,7 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_app_targets(output_root=plan.output, targets=plan.targets)
     scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_backend_framework_files(output_root=plan.output, targets=plan.targets)
+    scaffold_shared_fullstack_package(output_root=plan.output, targets=plan.targets)
 
     if "python" in plan.targets:
         scaffold_python_lane(output_root=plan.output)

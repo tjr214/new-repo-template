@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-02 10:07:42 AM
-**Current Phase:** M2 GREEN/BLUE slice (`cloud-first local-dev flow + backend dev/test CI coverage`)
+**Last Updated:** 2026-03-02 10:32:13 AM
+**Current Phase:** M2 BLUE complete (`fuller TanStack Start web scaffold + shared package integration`)
 
 ---
 
@@ -223,6 +223,29 @@
 - [x] Added template-level fullstack setup documentation at `docs/FULLSTACK_SETUP.md` (auth decision flow, cloud-first local workflow, CI-safe smoke path, optional credentialed advanced path).
 - [x] Updated `README.md` bootstrap section to link `docs/FULLSTACK_SETUP.md`.
 - [x] Updated `PLAN.md` M2/Backend strategy DoD items for local cloud-dev flow, native Windows backend dev/test CI coverage, and docs/auth decision flow.
+- [x] Ran YELLOW BTCA lookups for:
+  - [x] TanStack Start minimal file/script baseline in Bun/Turbo monorepos.
+  - [x] Shared workspace package modeling (`workspace:*`, package boundaries, Turbo reliability) using `turborepo` + `bun` resources.
+  - [x] Lightweight web/backend shared-package boundary guidance (`tanstack-router-start` + `convex-docs`).
+- [x] Executed `btca clear` after BTCA resource-load hint on TanStack fetch failure and retried query successfully.
+- [x] Added RED coverage in `tests/contracts/test_fullstack_auth_wiring_contract.py` for:
+  - [x] fuller TanStack Start-style web scaffold paths (`app.config.ts`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/routeTree.gen.ts`, styles)
+  - [x] shared package scaffold path/dry-run visibility (`packages/shared/package.json`)
+  - [x] workspace dependency wiring assertions (`@generated/shared` in web/backend manifests)
+- [x] Implemented fuller web scaffold templates and wiring:
+  - [x] added web config/runtime templates under `src/new_repo_template/snapshot_assets/templates/fullstack/`
+  - [x] updated scaffold path planning and write flow in `src/new_repo_template/scaffold.py`
+  - [x] upgraded web workspace package manifest scripts/dependencies in `workspace_packages/web_package.json`
+- [x] Implemented shared package integration for fullstack presets:
+  - [x] added `packages/shared` templates (`workspace_packages/shared_package.json`, `shared/shared_index.ts`)
+  - [x] scaffold now emits `packages/shared` only for `web+backend` selections
+  - [x] web route baseline now consumes shared export (`@generated/shared`)
+  - [x] backend workspace manifest now includes `@generated/shared` dependency
+- [x] Marked remaining M0 governance task complete (`PLAN.md` canonical-source checkbox) and completed final M2 task checkboxes.
+- [x] Verified GREEN:
+  - [x] `uv run pytest tests/contracts/test_fullstack_auth_wiring_contract.py` -> pass (3 tests)
+  - [x] `uv run pytest tests/contracts/test_bun_workspace_install_contract.py tests/contracts/test_turbo_command_smoke_contract.py tests/contracts/test_convex_backend_smoke_contract.py` -> pass (4 tests)
+  - [x] `uv run pytest` -> pass (87 tests)
 
 ## In Progress
 
@@ -244,13 +267,10 @@
   - [x] Add auth-variant env placeholder scaffolding + minimal wiring placeholder files for `web+backend`.
   - [x] Add non-destructive `--dry-run` support for installer and tool updater scripts.
 
-- [ ] M2 fullstack web preset implementation:
-  - [x] Scaffold baseline `apps/backend` Convex cloud workflow files and scripts.
-  - [x] Add explicit auth selection flow and enforce it for `web+backend` presets.
-  - [x] Scaffold auth-specific wiring and env templates.
-  - [x] Add credentialless Convex CLI smoke coverage for CI.
-  - [x] Validate local cloud-first dev flow shape via generated backend docs + script contracts.
-  - [ ] Add shared package integration where appropriate.
+- [ ] M3 desktop preset implementation:
+  - [ ] Scaffold dedicated `apps/desktop` beyond placeholder package scaffold.
+  - [ ] Integrate Electron Forge with monorepo/Turbo tasks.
+  - [ ] Add desktop dev/start/build/package script contracts.
 
 - [ ] Nurt migration implementation:
   - [x] Introduce `nurt` CLI entrypoint and command router.
@@ -261,10 +281,9 @@
 
 ## Next Up
 
-- [ ] Scaffold `apps/web` beyond current TanStack-style baseline toward fuller TanStack Start structure and scripts.
-- [ ] Add shared package integration for fullstack lanes where practical.
+- [ ] Start M3 YELLOW research + RED contracts for Electron preset scaffolding.
 - [ ] Add lightweight secret scanning in CI (advisory first).
-- [ ] Continue M2 implementation in YELLOW-RED-GREEN-BLUE slices.
+- [ ] Continue milestone execution in YELLOW-RED-GREEN-BLUE slices (M3 next).
 
 ## BTCA Governance Log
 
@@ -273,3 +292,4 @@
 - [x] 2026-03-01: `convex-docs` resource corrected to `https://github.com/get-convex/convex-docs` after invalid search path error.
 - [x] 2026-03-01: `btca clear` executed after BTCA runtime suggested cache reset for resource clone/fetch failures.
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `convex-docs` resource load fetch failure.
+- [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `tanstack-router-start` resource load fetch failure; follow-up query succeeded.

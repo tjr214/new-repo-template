@@ -95,3 +95,6 @@ M0 execution has started. BTCA project resources are now configured, and the fir
 - Backend local-dev flow guidance is now scaffolded into generated outputs at `apps/backend/README.md`, covering cloud-first Convex steps, auth decision alignment (`AUTH_PROVIDER`), and separation between credentialed local commands and CI-safe smoke commands.
 - Fullstack setup/auth decision documentation is now centralized in `docs/FULLSTACK_SETUP.md` and linked from `README.md`.
 - Backend workspace scripts now distinguish credentialed local commands (`convex:dev`, `convex:codegen`) from CI-safe wrappers (`convex:dev:smoke`, `convex:codegen:smoke`), while `dev`/`test` remain smoke-safe for cross-platform CI.
+- M0 governance baseline is now fully closed: `PLAN.md` is explicitly marked and maintained as canonical implementation source-of-truth.
+- M2 web scaffold now includes a fuller TanStack Start-style baseline beyond route stubs: `app.config.ts`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/routeTree.gen.ts`, and base styles in `apps/web/src/styles.css`.
+- Fullstack shared workspace integration is now active for `web+backend` presets via `packages/shared` (`@generated/shared`), with both web and backend manifests wired through `workspace:*` dependencies and baseline web route consumption.
