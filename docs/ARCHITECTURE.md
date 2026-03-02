@@ -76,10 +76,11 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Fullstack setup and auth decision flow are now documented in `docs/FULLSTACK_SETUP.md`.
 - Version baseline metadata/workflow is implemented with `version-baseline.json` and native `nurt versions check/update` commands in `src/new_repo_template/version_baseline.py`.
 - Version baseline workflow now includes lockfile lifecycle controls: update-time regeneration (with dry-run/summaries) and check-time lockfile presence validation.
-- CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest`, sets up Bun on matrix runners, and runs cross-platform script smoke contracts on native Linux/macOS/Windows.
+- CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest`, sets up Bun on matrix runners, runs cross-platform script smoke contracts on native Linux/macOS/Windows, and includes a non-blocking advisory secret scan job.
 - Interactive prompt rendering now includes Rich/Textual-aware UI infrastructure in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback behavior.
 - Desktop scaffold baseline is now concrete for `desktop` target: generated outputs include Electron entry files (`src/main.ts`, `src/preload.ts`, `src/renderer.ts`), `forge.config.ts`, `tsconfig.json`, `index.html`, and desktop README distribution notes.
 - Desktop workspace scripts now include local Forge commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:start:smoke`, `desktop:package:smoke`, `desktop:make:smoke`) wired through root task scripts for non-GUI determinism.
+- Desktop Forge package/make scripts now include deterministic unsigned output locations (`out/unsigned/package`, `out/unsigned/make`) with parallel smoke-path assertions (`out/unsigned-smoke/*`) for contract-level validation.
 
 ## Validation Model
 
@@ -117,6 +118,8 @@ Current contract coverage:
   - Contract intent: `web+backend` scaffold outputs include concrete TanStack/Convex baseline files, expanded web app shell/config files, shared-package wiring, and auth-variant-specific frontend/backend wiring for both Clerk and Better Auth, with dry-run path visibility.
 - `tests/contracts/test_desktop_scaffold_contract.py`
   - Contract intent: `desktop` scaffold outputs include concrete Electron Forge baseline files and scripts/dependencies, plus dry-run path visibility for desktop framework wiring.
+- `tests/contracts/test_desktop_runtime_smoke_contract.py`
+  - Contract intent: generated `desktop` workspace installs cleanly, executes Forge start/package smoke commands, validates root `dev`/`build` desktop smoke paths, and asserts deterministic unsigned output path wiring.
 - `tests/contracts/test_convex_backend_smoke_contract.py`
   - Contract intent: generated backend workspace includes local Convex commands (`convex:codegen`, `convex:dev`), CI-safe smoke wrappers (`convex:*:smoke`), smoke-safe `dev`/`test` execution, and backend README cloud-dev/auth flow guidance.
 - `tests/contracts/test_security_baseline_contract.py`
@@ -130,4 +133,4 @@ Current contract coverage:
 - `tests/contracts/test_version_baseline_contract.py`
   - Contract intent: codified version baseline metadata validation and maintainer update/check workflow behavior (including stale detection, lockfile regeneration/check guardrails, and dry-run non-destructive updates).
 - `tests/contracts/test_ci_versions_guardrail_contract.py`
-  - Contract intent: CI workflow includes required version guardrail command plus cross-platform matrix smoke-check wiring (Bun setup and targeted command-smoke contract execution).
+  - Contract intent: CI workflow includes required version guardrail command, cross-platform matrix smoke-check wiring (including desktop runtime smoke contract), and advisory secret-scan job presence.

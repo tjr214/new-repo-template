@@ -15,11 +15,11 @@
     "lint": "bun --version",
     "typecheck": "bun run typecheck:smoke",
     "desktop:start": "electron-forge start",
-    "desktop:package": "electron-forge package",
-    "desktop:make": "electron-forge make",
+    "desktop:package": "electron-forge package --outDir out/unsigned/package",
+    "desktop:make": "electron-forge make --outDir out/unsigned/make",
     "desktop:start:smoke": "electron-forge start --help",
-    "desktop:package:smoke": "electron-forge package --help",
-    "desktop:make:smoke": "electron-forge make --help",
+    "desktop:package:smoke": "electron-forge package --help --outDir out/unsigned-smoke/package",
+    "desktop:make:smoke": "electron-forge make --help --outDir out/unsigned-smoke/make",
     "typecheck:smoke": "tsc --help"
   }
 }

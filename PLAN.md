@@ -365,7 +365,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 - [x] Desktop scaffold contract test
 - [ ] Electron app starts in dev mode
-- [ ] Desktop packaging smoke tests per OS (unsigned)
+- [x] Desktop packaging smoke tests per OS (unsigned)
 
 ### DoD Gates
 
@@ -430,7 +430,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### 7.1 Workflow Files
 
-- [ ] `.github/workflows/ci.yml` (required)
+- [x] `.github/workflows/ci.yml` (required)
 - [ ] `.github/workflows/release.yml` (later)
 - [ ] `.github/workflows/nightly.yml` (optional)
 
@@ -441,10 +441,10 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] Scaffold contract tests for selected presets
 - [ ] Required preset-combination matrix checks
 - [ ] Windows-native checks for JS/TS backend workflows
-- [ ] Windows-native Electron package smoke check
+- [x] Windows-native Electron package smoke check
 - [ ] Dedicated TV app scaffold and input-contract checks
 - [ ] Version baseline compliance check
-- [ ] Lightweight secret scan job
+- [x] Lightweight secret scan job
 
 ### 7.3 Non-Blocking/Deferred CI
 
@@ -526,7 +526,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Each generated target includes `.env.example` with placeholder values only.
 - [x] Add explicit secret-handling rules to docs (never commit real `.env` or credential files).
 - [x] Ensure generated `.gitignore` covers local env/secret artifacts.
-- [ ] Add lightweight secret scanning in CI (advisory first, can become required later).
+- [x] Add lightweight secret scanning in CI (advisory first, can become required later).
 
 ---
 

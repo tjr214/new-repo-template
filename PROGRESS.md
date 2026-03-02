@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-02 10:46:56 AM
-**Current Phase:** M3 BLUE complete (`desktop Electron Forge scaffold baseline + contracts`)
+**Last Updated:** 2026-03-02 10:57:41 AM
+**Current Phase:** M3 BLUE complete (`desktop runtime smoke + unsigned path assertions + advisory secret scan`)
 
 ---
 
@@ -269,6 +269,23 @@
 - [x] Verified BLUE:
   - [x] `uv run pytest tests/contracts/test_desktop_scaffold_contract.py` -> pass (2 tests)
   - [x] `uv run pytest` -> pass (89 tests)
+- [x] Continued M3 with follow-up YELLOW-RED-GREEN-BLUE slice for desktop runtime smoke and CI security hardening.
+- [x] Ran YELLOW BTCA asks for this slice:
+  - [x] `btca ask -r turborepo` for package/make output caching guidance (`out/**`, `out/make/**`) with non-cached persistent dev tasks.
+  - [x] `btca ask -r bun` for cross-platform CI-safe smoke script conventions.
+- [x] Added RED runtime + CI contracts:
+  - [x] `tests/contracts/test_desktop_runtime_smoke_contract.py` for desktop start/package smoke commands and unsigned output path assertions.
+  - [x] expanded `tests/contracts/test_ci_versions_guardrail_contract.py` to require desktop smoke contract wiring and advisory secret scan job in CI.
+- [x] Implemented GREEN desktop runtime/unsigned path script updates in `src/new_repo_template/snapshot_assets/templates/workspace_packages/desktop_package.json`:
+  - [x] `desktop:package` now targets `out/unsigned/package`
+  - [x] `desktop:make` now targets `out/unsigned/make`
+  - [x] smoke wrappers assert deterministic unsigned smoke output paths
+- [x] Implemented GREEN CI updates in `.github/workflows/ci.yml`:
+  - [x] added `tests/contracts/test_desktop_runtime_smoke_contract.py` to cross-platform native matrix smoke step
+  - [x] added `secret-scan-advisory` job using `gitleaks/gitleaks-action@v2` with `continue-on-error: true`
+- [x] Verified BLUE:
+  - [x] `uv run pytest tests/contracts/test_desktop_runtime_smoke_contract.py tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (2 tests)
+  - [x] `uv run pytest` -> pass (90 tests)
 
 ## In Progress
 
@@ -294,7 +311,8 @@
   - [x] Scaffold dedicated `apps/desktop` beyond placeholder package scaffold.
   - [x] Integrate Electron Forge with monorepo/Turbo tasks.
   - [x] Add desktop dev/start/build/package script contracts.
-  - [ ] Add desktop runtime smoke contracts for start/package flows on native OS runners.
+  - [x] Add desktop runtime smoke contracts for start/package flows on native OS runners.
+  - [x] Add unsigned package/make output path assertions for desktop smoke scripts.
 
 - [ ] Nurt migration implementation:
   - [x] Introduce `nurt` CLI entrypoint and command router.
@@ -305,8 +323,7 @@
 
 ## Next Up
 
-- [ ] Add desktop runtime smoke contracts (`electron-forge start/package`) for native CI lanes.
-- [ ] Add lightweight secret scanning in CI (advisory first).
+- [ ] Close remaining M3 RED/DoD items (native Electron packaging behavior beyond `--help` smoke and Windows packaging confidence gate).
 - [ ] Continue milestone execution in YELLOW-RED-GREEN-BLUE slices (M3 remaining, then M4).
 
 ## BTCA Governance Log

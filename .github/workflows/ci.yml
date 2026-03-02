@@ -44,6 +44,7 @@ jobs:
           uv run pytest
           tests/contracts/test_bun_workspace_install_contract.py
           tests/contracts/test_convex_backend_smoke_contract.py
+          tests/contracts/test_desktop_runtime_smoke_contract.py
           tests/contracts/test_turbo_command_smoke_contract.py
           tests/contracts/test_python_lane_contract.py::test_python_target_scaffold_runs_baseline_commands
 
@@ -74,3 +75,18 @@ jobs:
 
       - name: Enforce version + lockfile governance
         run: uv run nurt versions check --check-lockfiles --check-latest
+
+  secret-scan-advisory:
+    name: Secret Scan (Advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run lightweight secret scan (advisory)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

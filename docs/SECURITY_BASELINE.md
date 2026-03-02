@@ -29,4 +29,4 @@ Define baseline secret-handling behavior for generated repositories from this te
 
 ## CI Status
 
-- Lightweight secret scanning in CI is planned but not yet implemented.
+- Lightweight advisory secret scanning is enabled in CI via `.github/workflows/ci.yml` (`secret-scan-advisory` using `gitleaks/gitleaks-action@v2` with non-blocking `continue-on-error: true`).
