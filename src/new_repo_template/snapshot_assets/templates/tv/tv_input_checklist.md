@@ -1,22 +1,31 @@
 # TV Input Checklist
 
-Use this checklist to keep TV behavior remote-primary while preserving fallback support.
+Use this checklist to keep TV behavior remote-primary while preserving keyboard/mouse/gamepad fallback support.
 
 ## Focus and Navigation Baseline (remote-primary)
 
 - [ ] Initial focus lands on the intended primary control (`hasTVPreferredFocus`).
 - [ ] Focus state is visible on every focusable element.
 - [ ] D-pad navigation between key sections is deterministic.
-- [ ] Back-navigation behavior is defined for remote back/menu actions.
+- [ ] Select/back behavior is deterministic for remote input.
 
-## HID Fallback Support
+## Keyboard/Mouse/Gamepad Fallback Support
 
-- [ ] Keyboard arrows and enter/escape map to the same navigation/actions as remote input.
+- [ ] Keyboard arrows + enter/escape map to the same navigation/actions as remote input.
 - [ ] Mouse pointer/click can activate the same controls as remote input.
 - [ ] Gamepad directional/select/back controls map to the same navigation/actions as remote input.
-- [ ] Input telemetry/debugging confirms keyboard, mouse, and gamepad paths are exercised.
+- [ ] Input logging confirms keyboard, mouse, and gamepad paths were exercised.
 
-## Validation Notes
+## Android TV Emulator Validation
 
-- [ ] AndroidTV emulator checks completed.
-- [ ] Manual NVIDIA Shield checklist completed and logged.
+- [ ] Android TV Emulator image boots and app launches cleanly.
+- [ ] Emulator D-pad navigation validates remote-primary behavior end-to-end.
+- [ ] Focus recovery is correct after screen transitions and back navigation.
+
+## NVIDIA Shield Validation
+
+- [ ] NVIDIA Shield remote-only pass confirms remote-primary behavior.
+- [ ] NVIDIA Shield keyboard fallback pass completed.
+- [ ] NVIDIA Shield mouse fallback pass completed.
+- [ ] NVIDIA Shield gamepad fallback pass completed.
+- [ ] Results logged with pass/fail notes for each input path.

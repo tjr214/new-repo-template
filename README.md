@@ -19,6 +19,7 @@ For end users generating a new project from this template, the canonical flow is
 `install.sh` is retained for internal/legacy maintenance workflows, not as the primary end-user bootstrap path.
 
 For fullstack template setup/auth flow details, see `docs/FULLSTACK_SETUP.md`.
+For mobile/TV setup, caveats, and validation flow details, see `docs/MOBILE_TV_SETUP.md`.
 
 ## Which Lane Should I Use?
 

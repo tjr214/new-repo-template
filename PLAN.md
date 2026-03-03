@@ -394,6 +394,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] TV config contract test (plugin/config presence and expected wiring in `apps/tv`)
 - [x] Android build profile checks for TV app
 - [x] HID contract test for TV app input handling (remote primary + keyboard/mouse/gamepad supported)
+- [x] Mobile/TV setup docs + validation checklist contract test coverage
 
 ### DoD Gates
 
@@ -402,7 +403,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] AndroidTV emulator validation checklist completed
 - [ ] Manual Shield checklist completed and logged
 - [ ] TV input UX checks pass: remote-primary navigation and keyboard/mouse/gamepad support
-- [ ] Docs updated for separate mobile/TV setup, caveats, and test flow
+- [x] Docs updated for separate mobile/TV setup, caveats, and test flow
 
 ---
 

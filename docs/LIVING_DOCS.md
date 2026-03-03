@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 is in progress with the first mobile/TV scaffold baseline slice now GREEN.
+M0-M3 execution is complete. M4 is in progress with baseline, TV build-profile, TV HID/input, and setup-doc/checklist slices now GREEN.
 
 ## Active Implementation Rules
 
@@ -111,3 +111,7 @@ M0-M3 execution is complete. M4 is in progress with the first mobile/TV scaffold
 - Mobile and TV workspace manifests are now Expo-oriented (scripts + dependencies), with TV-specific plugin dependency wiring (`@react-native-tvos/config-tv`) isolated to `apps/tv`.
 - TV Android build-profile baseline is now scaffolded for dedicated `apps/tv`: generated output includes `apps/tv/eas.json` with `development`/`preview` APK internal-distribution profiles and package scripts for profile-aware Android EAS builds (`tv:build:development`, `tv:build:preview`), with contract coverage in `tests/contracts/test_tv_android_build_profile_contract.py`.
 - TV HID/input baseline is now scaffolded with remote-primary focus wiring and fallback-input checklist artifacts: generated TV app includes `useTVEventHandler` + preferred focus markers in `apps/tv/App.tsx` and a dedicated `apps/tv/TV_INPUT_CHECKLIST.md` covering keyboard/mouse/gamepad validation, with contract coverage in `tests/contracts/test_tv_input_hid_contract.py`.
+- Mobile/TV setup docs are now scaffolded directly into generated apps: `apps/mobile/README.md` includes CI-safe validation command guidance and `apps/tv/README.md` includes dedicated Android TV Emulator and NVIDIA Shield validation flow guidance.
+- TV input checklist content now explicitly includes Android TV Emulator and NVIDIA Shield validation sections with remote-primary and keyboard/mouse/gamepad fallback pass criteria.
+- Setup-doc dry-run and scaffold coverage is now enforced in `tests/contracts/test_mobile_tv_setup_docs_contract.py`.
+- Template-level mobile/TV workflow documentation now exists at `docs/MOBILE_TV_SETUP.md` and is linked from `README.md`.

@@ -96,6 +96,7 @@ DESKTOP_FRAMEWORK_PATHS: tuple[str, ...] = (
 )
 
 MOBILE_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/mobile/README.md",
     "apps/mobile/app.json",
     "apps/mobile/babel.config.js",
     "apps/mobile/index.js",
@@ -104,6 +105,7 @@ MOBILE_FRAMEWORK_PATHS: tuple[str, ...] = (
 )
 
 TV_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/tv/README.md",
     "apps/tv/app.json",
     "apps/tv/eas.json",
     "apps/tv/babel.config.js",
@@ -212,6 +214,7 @@ MOBILE_BABEL_CONFIG_TEMPLATE = load_template_text("mobile/mobile_babel.config.js
 MOBILE_INDEX_TEMPLATE = load_template_text("mobile/mobile_index.js")
 MOBILE_APP_TEMPLATE = load_template_text("mobile/mobile_app.tsx")
 MOBILE_TSCONFIG_TEMPLATE = load_template_text("mobile/mobile_tsconfig.json")
+MOBILE_README_TEMPLATE = load_template_text("mobile/mobile_readme.md")
 TV_APP_JSON_TEMPLATE = load_template_text("tv/tv_app.json")
 TV_EAS_JSON_TEMPLATE = load_template_text("tv/tv_eas.json")
 TV_BABEL_CONFIG_TEMPLATE = load_template_text("tv/tv_babel.config.js")
@@ -219,6 +222,7 @@ TV_INDEX_TEMPLATE = load_template_text("tv/tv_index.js")
 TV_APP_TEMPLATE = load_template_text("tv/tv_app.tsx")
 TV_TSCONFIG_TEMPLATE = load_template_text("tv/tv_tsconfig.json")
 TV_INPUT_CHECKLIST_TEMPLATE = load_template_text("tv/tv_input_checklist.md")
+TV_README_TEMPLATE = load_template_text("tv/tv_readme.md")
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
 DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
     "workspace_packages/desktop_package_with_shared.json"
@@ -521,6 +525,7 @@ def scaffold_mobile_framework_files(
     mobile_root = output_root / "apps" / "mobile"
     mobile_root.mkdir(parents=True, exist_ok=True)
 
+    (mobile_root / "README.md").write_text(MOBILE_README_TEMPLATE, encoding="utf-8")
     (mobile_root / "app.json").write_text(MOBILE_APP_JSON_TEMPLATE, encoding="utf-8")
     (mobile_root / "babel.config.js").write_text(
         MOBILE_BABEL_CONFIG_TEMPLATE,
@@ -541,6 +546,7 @@ def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) 
     tv_root = output_root / "apps" / "tv"
     tv_root.mkdir(parents=True, exist_ok=True)
 
+    (tv_root / "README.md").write_text(TV_README_TEMPLATE, encoding="utf-8")
     (tv_root / "app.json").write_text(TV_APP_JSON_TEMPLATE, encoding="utf-8")
     (tv_root / "eas.json").write_text(TV_EAS_JSON_TEMPLATE, encoding="utf-8")
     (tv_root / "babel.config.js").write_text(TV_BABEL_CONFIG_TEMPLATE, encoding="utf-8")

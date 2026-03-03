@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 05:44:46 AM
-**Current Phase:** M4 in progress (`Expo mobile baseline + isolated Expo TV plugin/config + Android build profile checks + TV HID/input contracts`)
+**Last Updated:** 2026-03-03 05:53:52 AM
+**Current Phase:** M4 in progress (`mobile/TV setup docs + emulator/Shield validation checklist scaffolding complete; remaining DoD execution checks pending`)
 
 ---
 
@@ -360,6 +360,29 @@
 - [x] Verified BLUE for this slice:
   - [x] `uv run pytest tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_mobile_tv_scaffold_contract.py` -> pass (6 tests)
   - [x] `uv run pytest` -> pass (101 tests)
+- [x] Continued M4 with explicit YELLOW-RED-GREEN-BLUE slice for setup docs + emulator/Shield validation checklist scaffolding.
+- [x] Ran M4 YELLOW BTCA asks for this docs/validation slice:
+  - [x] `btca ask -r expo-docs -r react-native-tvos` for CI-safe, non-interactive mobile/TV validation commands.
+  - [x] `btca ask -r expo-docs -r react-native-tvos -r expo-tv-config` for practical Android TV Emulator + NVIDIA Shield checklist expectations.
+  - [x] Executed `btca clear` after BTCA runtime reported `expo-docs` fetch failure, then reran successfully.
+- [x] Added RED setup-doc contracts in `tests/contracts/test_mobile_tv_setup_docs_contract.py`:
+  - [x] mobile-only scaffold emits `apps/mobile/README.md` with CI-safe validation guidance markers.
+  - [x] tv-only scaffold emits `apps/tv/README.md` with Android TV Emulator + NVIDIA Shield validation guidance markers.
+  - [x] mobile+tv dry-run output includes setup README paths.
+- [x] Implemented GREEN setup-doc + checklist scaffolding updates:
+  - [x] added `src/new_repo_template/snapshot_assets/templates/mobile/mobile_readme.md`
+  - [x] added `src/new_repo_template/snapshot_assets/templates/tv/tv_readme.md`
+  - [x] expanded `src/new_repo_template/snapshot_assets/templates/tv/tv_input_checklist.md` with explicit Android TV Emulator + NVIDIA Shield sections
+  - [x] updated `src/new_repo_template/scaffold.py` to plan/write `apps/mobile/README.md` and `apps/tv/README.md`
+- [x] Updated planning and documentation sync for this slice:
+  - [x] `PLAN.md` (M4 docs DoD gate + RED test coverage item)
+  - [x] `docs/LIVING_DOCS.md`
+  - [x] `docs/ARCHITECTURE.md`
+- [x] Added template-level mobile/TV setup guide at `docs/MOBILE_TV_SETUP.md` and linked it from `README.md`.
+- [x] Verified BLUE for this slice:
+  - [x] `uv run pytest tests/contracts/test_mobile_tv_setup_docs_contract.py` -> pass (3 tests)
+  - [x] `uv run pytest tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_tv_android_build_profile_contract.py tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_mobile_tv_setup_docs_contract.py` -> pass (12 tests)
+  - [x] `uv run pytest` -> pass (104 tests)
 
 ## In Progress
 
@@ -368,11 +391,11 @@
   - [x] Enforce TV plugin/config isolation to `apps/tv` via scaffolded app config.
   - [x] Add Android build profile checks for TV app.
   - [x] Add TV HID contract checks (remote primary + keyboard/mouse/gamepad fallback).
-  - [ ] Add TV/mobile setup docs and validation checklist updates for emulator + Shield flow.
+  - [x] Add TV/mobile setup docs and validation checklist updates for emulator + Shield flow.
 
 ## Next Up
 
-- [ ] Continue M4 DoD completion, then move to M5 hardening slices.
+- [ ] Finish remaining M4 DoD execution checks (mobile/TV lint-typecheck-test, emulator run, Shield log), then move to M5 hardening slices.
 
 ## BTCA Governance Log
 
@@ -386,3 +409,4 @@
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `expo-docs` resource checkout failure during M4 YELLOW ask; both Expo baseline lookups then succeeded.
 - [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 TV build-profile YELLOW ask; follow-up Expo/TV guidance query succeeded.
 - [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 TV HID/input YELLOW ask; follow-up fallback-input query succeeded.
+- [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 setup-doc/checklist YELLOW ask; follow-up emulator/Shield guidance query succeeded.

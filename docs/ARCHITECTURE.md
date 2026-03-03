@@ -38,7 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestones M0-M3 are complete; M4 is now in progress with the first mobile/TV preset baseline slice implemented.
+- Milestones M0-M3 are complete; M4 is now in progress with mobile/TV baseline, TV build-profile, TV HID/input, and setup-doc/checklist slices implemented.
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -88,6 +88,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Mobile/TV workspace manifests now include Expo-oriented script surfaces and dependency baselines (`expo`, `react`, `react-native`, `expo-status-bar`, plus TV-specific `react-native-tvos` and `@react-native-tvos/config-tv`).
 - TV Android build-profile baseline is now scaffolded as dedicated TV config: `apps/tv/eas.json` includes `development` + `preview` EAS profiles with internal APK Android settings, and TV workspace scripts include profile-specific Android build commands.
 - TV HID/input baseline is now scaffolded as part of TV app output: `apps/tv/App.tsx` includes remote-primary focus/event starter wiring and generated TV outputs include `apps/tv/TV_INPUT_CHECKLIST.md` for keyboard/mouse/gamepad fallback validation steps.
+- Mobile/TV setup documentation is now scaffolded in-app: generated output includes `apps/mobile/README.md` (mobile setup and CI-safe validation commands) and `apps/tv/README.md` (Android TV Emulator + NVIDIA Shield validation flow).
+- TV input checklist guidance is now expanded with explicit Android TV Emulator and NVIDIA Shield validation sections while preserving remote-primary plus keyboard/mouse/gamepad fallback criteria.
+- Template-level setup and caveat guidance for this lane is now captured in `docs/MOBILE_TV_SETUP.md` and linked from `README.md`.
 
 ## Validation Model
 
@@ -133,6 +136,8 @@ Current contract coverage:
   - Contract intent: generated `tv` scaffold includes Android EAS build profile config (`apps/tv/eas.json`), profile-aware TV Android build scripts, and dry-run visibility for TV build-profile output paths.
 - `tests/contracts/test_tv_input_hid_contract.py`
   - Contract intent: generated `tv` scaffold includes remote-primary focus wiring markers in app baseline, includes a TV HID checklist covering keyboard/mouse/gamepad fallback validation, and reports checklist path in dry-run planning output.
+- `tests/contracts/test_mobile_tv_setup_docs_contract.py`
+  - Contract intent: generated `mobile` and `tv` scaffolds include setup/validation README docs, TV docs explicitly cover Android TV Emulator and NVIDIA Shield flow, and mobile+tv dry-run output reports README paths.
 - `tests/contracts/test_convex_backend_smoke_contract.py`
   - Contract intent: generated backend workspace includes local Convex commands (`convex:codegen`, `convex:dev`), CI-safe smoke wrappers (`convex:*:smoke`), smoke-safe `dev`/`test` execution, and backend README cloud-dev/auth flow guidance.
 - `tests/contracts/test_security_baseline_contract.py`
