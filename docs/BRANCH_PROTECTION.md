@@ -2,6 +2,23 @@
 
 This guide defines the baseline branch-protection policy for this template repository.
 
+## Automation Script
+
+Use the maintainer script at `.template_scripts/configure-repo-protections.sh` to apply baseline policy to this template repo or any repo generated from it.
+
+Examples:
+
+- Auto-detect required checks from latest successful `CI` run and apply protections:
+  - `sh .template_scripts/configure-repo-protections.sh --repo <owner>/<repo> --branch main`
+- Preview changes without applying:
+  - `sh .template_scripts/configure-repo-protections.sh --dry-run --repo <owner>/<repo> --branch main --required-check "Tests (ubuntu-latest)" --required-check "Preset Regression Suite" --required-check "Version Baseline Guardrail"`
+
+Script baseline behavior:
+
+- Enables `dependabot_security_updates` at repository level.
+- Applies branch protection requiring pull requests, required status checks, up-to-date branches, conversation resolution, and linear history.
+- Restricts force pushes and branch deletions.
+
 ## Target Branches
 
 - Apply this policy to `main`.

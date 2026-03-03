@@ -1,6 +1,6 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 08:46:07 AM
+**Last Updated:** 2026-03-03 09:15:53 AM
 **Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness`)
 
 ---
@@ -581,6 +581,12 @@
   - [x] `Secret Scan (Advisory)` -> pass
 - [x] Marked M5 complete in `PLAN.md` by checking the remaining M5 DoD gate (`Required CI jobs green on PRs`).
 - [x] Synced milestone closeout status across `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session artifact `docs/session-summaries/SESSION_57_SUMMARY.md`.
+- [x] Completed repository-protection automation slice with explicit YELLOW-RED-GREEN-BLUE loop:
+  - [x] YELLOW: reviewed `docs/BRANCH_PROTECTION.md` + existing installer/updater script patterns, and queried BTCA (`btca ask -r bun ...`) for shell portability guidance before authoring a new POSIX helper script.
+  - [x] RED: added failing dry-run contract `test_configure_repo_protections_script_dry_run_reports_actions` in `tests/contracts/test_installer_scripts_dry_run_contract.py`.
+  - [x] GREEN: implemented `.template_scripts/configure-repo-protections.sh` with dry-run planning, required-check support/auto-discovery, branch-protection application, and `dependabot_security_updates` enablement.
+  - [x] BLUE: verified script behavior via `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py` (4 passed).
+- [x] Updated branch-protection maintainer guidance in `docs/BRANCH_PROTECTION.md` to document the new automation script usage for template and generated repositories.
 
 ## In Progress
 

@@ -157,3 +157,43 @@ def test_install_dry_run_accepts_target_and_auth_inputs(tmp_path: Path) -> None:
     assert "- targets: web, backend" in combined_output
     assert "- auth: clerk" in combined_output
     assert (sandbox_root / ".git").exists(), ".git should remain in dry-run mode"
+
+
+def test_configure_repo_protections_script_dry_run_reports_actions() -> None:
+    """RED: protections script dry-run should show branch-protection + dependabot actions."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    script_path = repo_root / ".template_scripts" / "configure-repo-protections.sh"
+
+    shell = _resolve_posix_shell()
+    result = subprocess.run(
+        [
+            shell,
+            str(script_path),
+            "--dry-run",
+            "--repo",
+            "example-org/example-repo",
+            "--branch",
+            "main",
+            "--required-check",
+            "Tests (ubuntu-latest)",
+            "--required-check",
+            "Preset Regression Suite",
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, (
+        "Expected protections script dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "DRY RUN" in combined_output
+    assert "dependabot_security_updates" in combined_output
+    assert "Require a pull request before merging" in combined_output
+    assert "Tests (ubuntu-latest)" in combined_output
