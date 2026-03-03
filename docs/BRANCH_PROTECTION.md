@@ -36,5 +36,6 @@ Reason: this job is intentionally configured with `continue-on-error: true` to s
 
 ## Maintenance Notes
 
+- `Tests (windows-latest)` is intentionally a focused Windows-critical lane (workspace install + backend/desktop/turbo/python command smoke contracts) to keep native Windows validation fast and reliable.
 - If CI job names change in `.github/workflows/ci.yml`, update this file in the same PR.
 - Keep this guidance aligned with `PLAN.md` M5 hardening tasks and `PROGRESS.md` status.

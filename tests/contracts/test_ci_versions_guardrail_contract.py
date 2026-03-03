@@ -22,7 +22,11 @@ def test_ci_workflow_runs_versions_guardrail_cross_platform_smokes_cache_and_adv
     assert "actions/cache@v4" in workflow_text
     assert "~/.cache/uv" in workflow_text
     assert "~/.bun/install/cache" in workflow_text
-    assert "Run cross-platform command smoke contracts" in workflow_text
+    assert "Run cross-platform command smoke contracts (non-Windows)" in workflow_text
+    assert "Run Windows critical contracts" in workflow_text
+    assert "if: ${{ runner.os == 'Windows' }}" in workflow_text
+    assert "Run full test suite (non-Windows)" in workflow_text
+    assert "if: ${{ runner.os != 'Windows' }}" in workflow_text
     assert "test_bun_workspace_install_contract.py" in workflow_text
     assert "test_convex_backend_smoke_contract.py" in workflow_text
     assert "test_desktop_runtime_smoke_contract.py" in workflow_text

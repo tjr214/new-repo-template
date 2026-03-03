@@ -38,7 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestones M0-M3 are complete; M4 automatable slices are complete with manual Emulator/Shield carryover gates still open; M5 hardening is now in closeout with CI matrix/cache strategy expansion, branch-protection guidance, dedicated preset-regression CI coverage, dependency upgrade/versioning policy documentation, optional signing/release checklist design, CI env-template asset reliability hardening, and Windows installer-script contract shell-resolution hardening.
+- Milestones M0-M3 are complete; M4 automatable slices are complete with manual Emulator/Shield carryover gates still open; M5 hardening is now in closeout with CI matrix/cache strategy expansion, branch-protection guidance, dedicated preset-regression CI coverage, dependency upgrade/versioning policy documentation, optional signing/release checklist design, CI env-template asset reliability hardening, Windows installer-script contract shell-resolution hardening, updater tooling support for GitHub CLI (`gh`), and focused Windows-critical CI lane tuning.
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -86,6 +86,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - CI reliability hardening now explicitly protects scaffold env seed assets used for generated `.env.example` files: `.gitignore` unignores `src/new_repo_template/snapshot_assets/templates/env/*.env`, and security-baseline contracts assert these files exist and are not git-ignored.
 - Installer script dry-run contracts now use explicit POSIX-shell resolution (`bash` preferred, `sh` fallback, skip when unavailable) to keep Windows full-suite CI behavior deterministic.
 - Installer script dry-run shell contracts are explicitly POSIX-scoped for CI determinism and are skipped on Windows runners; Windows-required coverage remains focused on scaffold/runtime workflows.
+- Updater tooling in `.template_scripts/update-opencode.sh` now manages GitHub CLI (`gh`) alongside existing core tools, with dry-run status-table visibility and OS/package-manager specific install/update flows.
+- CI matrix execution model now uses non-Windows full-suite confidence lanes and a focused `windows-latest` critical-contract lane to keep native Windows validation intact while reducing runtime overhead.
 - Interactive prompt rendering now includes Rich/Textual-aware UI infrastructure in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback behavior.
 - Desktop scaffold baseline is now concrete for `desktop` target: generated outputs include Electron entry files (`src/main.ts`, `src/preload.ts`, `src/renderer.ts`), `forge.config.ts`, `tsconfig.json`, `index.html`, and desktop README distribution notes.
 - Desktop workspace scripts now include local Forge commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:start:smoke`, `desktop:package:smoke`, `desktop:make:smoke`) wired through root task scripts for non-GUI determinism.

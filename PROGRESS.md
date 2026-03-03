@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 07:27:13 AM
-**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; env template asset reliability fix is merged, installer script shell-contract coverage is now POSIX-scoped for deterministic CI behavior, and final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 07:59:13 AM
+**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; CI now uses a focused windows-latest critical-contract lane while non-Windows runners continue full-suite execution, and final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -530,6 +530,25 @@
   - [x] retain full validation on POSIX runners via explicit shell resolution helper
 - [x] Verified BLUE after follow-up guard:
   - [x] `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py` -> pass (3 tests)
+  - [x] `uv run pytest` -> pass (113 tests)
+- [x] Completed targeted updater tooling slice for GitHub CLI support with YELLOW-RED-GREEN-BLUE loop:
+  - [x] YELLOW: reviewed `.template_scripts/update-opencode.sh` flow and queried BTCA (`btca ask -r bun ...`) for shell-path/install-check convention alignment.
+  - [x] RED: expanded installer dry-run contract expectation in `tests/contracts/test_installer_scripts_dry_run_contract.py` to require `gh` visibility.
+  - [x] GREEN: added `gh` install/update handling to `.template_scripts/update-opencode.sh` with dry-run row, status-table reporting, and platform package-manager branches.
+  - [x] BLUE: verified updater dry-run contract still passes (`uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py`).
+- [x] Continued M5 with explicit YELLOW-RED-GREEN-BLUE slice to tune `windows-latest` runtime by running only critical Windows contracts.
+- [x] Ran M5 YELLOW research for Windows-lane tuning:
+  - [x] reviewed `.github/workflows/ci.yml`, `tests/contracts/test_ci_versions_guardrail_contract.py`, and `docs/BRANCH_PROTECTION.md`
+  - [x] queried BTCA with `btca ask -r bun -r turborepo` for guidance on focused Windows CI lanes in Bun/Turbo monorepos
+- [x] Added RED contract expectations in `tests/contracts/test_ci_versions_guardrail_contract.py` for:
+  - [x] non-Windows smoke/full-suite step gating
+  - [x] dedicated `Run Windows critical contracts` step and Windows-specific condition
+- [x] Implemented GREEN CI workflow tuning:
+  - [x] updated `.github/workflows/ci.yml` to run full smoke + full suite only on non-Windows runners
+  - [x] added Windows-only critical contract subset (`bun workspace install`, `convex backend smoke`, `desktop runtime smoke`, `turbo command smoke`, `python baseline command`)
+  - [x] updated `docs/BRANCH_PROTECTION.md` to document focused Windows-critical lane intent
+- [x] Verified BLUE for Windows-lane tuning slice:
+  - [x] `uv run pytest tests/contracts/test_ci_versions_guardrail_contract.py tests/contracts/test_branch_protection_guidance_contract.py` -> pass (3 tests)
   - [x] `uv run pytest` -> pass (113 tests)
 
 ## In Progress

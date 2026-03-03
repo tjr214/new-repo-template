@@ -27,8 +27,8 @@ def _resolve_posix_shell() -> str:
     pytest.skip("POSIX shell executable not available for installer script contract")
 
 
-def test_update_opencode_script_supports_dry_run_and_lists_turbo() -> None:
-    """RED: update-opencode script should expose dry-run with turborepo coverage."""
+def test_update_opencode_script_supports_dry_run_and_lists_turbo_and_gh() -> None:
+    """RED: update-opencode dry-run should include turborepo and gh coverage."""
 
     repo_root = Path(__file__).resolve().parents[2]
     script_path = repo_root / ".template_scripts" / "update-opencode.sh"
@@ -51,6 +51,7 @@ def test_update_opencode_script_supports_dry_run_and_lists_turbo() -> None:
     assert "DRY RUN" in combined_output
     assert "DRY-RUN" in combined_output
     assert "turbo" in combined_output
+    assert "gh" in combined_output
 
 
 def test_install_script_dry_run_is_non_destructive(tmp_path: Path) -> None:

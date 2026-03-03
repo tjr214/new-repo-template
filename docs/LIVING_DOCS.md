@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is now in closeout with CI matrix/cache hardening, branch-protection guidance, dedicated preset-regression coverage, dependency versioning policy, optional signing/release checklist design, CI env-template asset reliability fixes, and Windows installer-script contract shell hardening in place.
+M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is now in closeout with CI matrix/cache hardening, branch-protection guidance, dedicated preset-regression coverage, dependency versioning policy, optional signing/release checklist design, CI env-template asset reliability fixes, Windows installer-script contract shell hardening in place, updater tooling expansion for GitHub CLI (`gh`) support, and focused Windows-critical CI lane tuning.
 
 ## Active Implementation Rules
 
@@ -127,3 +127,5 @@ M0-M3 execution is complete. M4 automatable slices are complete with manual Emul
 - CI hardening now includes a guard against missing scaffold env seed assets: `.gitignore` explicitly unignores `src/new_repo_template/snapshot_assets/templates/env/*.env`, and contract coverage verifies those template files exist and are not hidden by git ignore rules.
 - Installer dry-run contract tests now resolve a POSIX shell explicitly (`bash` preferred, `sh` fallback) to avoid Windows-specific shell-resolution drift in full-suite CI runs.
 - Installer dry-run shell-script contracts are now explicitly POSIX-scoped in tests (skipped on Windows runners) while Windows CI continues to enforce core scaffold/runtime contracts.
+- Updater tooling now includes GitHub CLI (`gh`) in `.template_scripts/update-opencode.sh`, including dry-run visibility, status-table reporting, and install/update handling via platform package managers.
+- CI runner strategy now keeps full smoke + full-suite execution on Linux/macOS while `windows-latest` runs a focused critical contract subset (workspace install, backend/desktop/turbo/python command confidence) to reduce wall-clock time without dropping native Windows coverage.
