@@ -102,3 +102,37 @@ def test_selected_targets_each_receive_env_example_placeholders(tmp_path: Path) 
         assert "=" in text, "env placeholder file should define variable keys"
         assert "pk_live_" not in text
         assert "sk_live_" not in text
+
+
+def test_template_env_seed_files_exist_and_are_not_gitignored() -> None:
+    """Template env seed files must exist and not be hidden by ignore rules."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    required_template_env_files = [
+        "src/new_repo_template/snapshot_assets/templates/env/python.env",
+        "src/new_repo_template/snapshot_assets/templates/env/web.env",
+        "src/new_repo_template/snapshot_assets/templates/env/backend.env",
+        "src/new_repo_template/snapshot_assets/templates/env/desktop.env",
+        "src/new_repo_template/snapshot_assets/templates/env/mobile.env",
+        "src/new_repo_template/snapshot_assets/templates/env/tv.env",
+    ]
+
+    for file_path in required_template_env_files:
+        absolute_file_path = repo_root / file_path
+        assert absolute_file_path.exists(), (
+            "Expected template env seed file to exist for scaffold generation: "
+            f"{file_path}"
+        )
+
+        result = subprocess.run(
+            ["git", "check-ignore", "-q", file_path],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode != 0, (
+            "Template env seed file is ignored by git rules, which can cause "
+            f"clean CI checkouts to miss scaffold assets: {file_path}\n"
+            f"stderr:\n{result.stderr}"
+        )

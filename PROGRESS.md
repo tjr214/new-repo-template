@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 06:51:33 AM
-**Current Phase:** M5 in progress (`CI matrix/cache hardening + branch protection + preset regression suite + dependency versioning policy + optional signing/release checklist slices complete; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 07:03:15 AM
+**Current Phase:** M5 in progress (`all M5 implementation slices complete, including CI-failure hardening for env template asset tracking; final M5 gate remains verification that required CI checks are green on PR runs; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -497,6 +497,21 @@
 - [x] Verified BLUE for this slice:
   - [x] `uv run pytest tests/contracts/test_m5_release_hardening_contract.py` -> pass (3 tests)
   - [x] `uv run pytest` -> pass (112 tests)
+- [x] Continued M5 with explicit YELLOW-RED-GREEN-BLUE closeout slice to fix failing PR CI checks caused by missing scaffold env seed assets in clean checkouts.
+- [x] Ran M5 YELLOW research for CI-closeout slice:
+  - [x] inspected failing GitHub Actions runs with `gh run list` and `gh run view` (latest PR run failures)
+  - [x] identified root cause from job logs: scaffold failures in smoke contracts due to missing `src/new_repo_template/snapshot_assets/templates/env/*.env` on clean CI checkouts
+  - [x] read `.gitignore` + scaffold env template mapping in `src/new_repo_template/scaffold.py`
+- [x] Added RED contract coverage in `tests/contracts/test_security_baseline_contract.py` for template env seed presence + non-ignored git behavior.
+- [x] Verified RED:
+  - [x] `uv run pytest tests/contracts/test_security_baseline_contract.py::test_template_env_seed_files_are_tracked_in_git` -> fail (missing tracked env seed files)
+- [x] Implemented GREEN CI-fix updates:
+  - [x] updated `.gitignore` to unignore `src/new_repo_template/snapshot_assets/templates/env/*.env`
+  - [x] retained/validated env seed templates under `src/new_repo_template/snapshot_assets/templates/env/`
+  - [x] refined contract assertion to enforce env seed file existence + non-ignored status in `tests/contracts/test_security_baseline_contract.py`
+- [x] Verified BLUE for CI-closeout slice:
+  - [x] `uv run pytest tests/contracts/test_bun_workspace_install_contract.py tests/contracts/test_convex_backend_smoke_contract.py tests/contracts/test_desktop_runtime_smoke_contract.py tests/contracts/test_mobile_tv_runtime_smoke_contract.py tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_turbo_command_smoke_contract.py tests/contracts/test_python_lane_contract.py::test_python_target_scaffold_runs_baseline_commands tests/contracts/test_security_baseline_contract.py` -> pass (14 tests)
+  - [x] `uv run pytest` -> pass (113 tests)
 
 ## In Progress
 
