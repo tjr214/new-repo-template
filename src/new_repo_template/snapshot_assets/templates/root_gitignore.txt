@@ -1,0 +1,8 @@
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Common local secret artifacts
+*.pem
+*.key

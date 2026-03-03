@@ -1,0 +1,35 @@
+{
+  "name": "@generated/tv",
+  "private": true,
+  "version": "0.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "expo": "^55.0.4",
+    "expo-status-bar": "^55.0.4",
+    "react": "^19.2.4",
+    "react-native": "^0.84.1",
+    "react-native-tvos": "^0.83.2-0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@react-native-tvos/config-tv": "^0.1.5",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "dev": "bun run tv:start:smoke",
+    "build": "bun run tv:export:smoke",
+    "test": "bun run tv:test:smoke",
+    "lint": "bun run tv:lint:smoke",
+    "typecheck": "bun run tv:typecheck:smoke",
+    "tv:start": "expo start --non-interactive",
+    "tv:android": "expo run:android",
+    "tv:export": "expo export --non-interactive",
+    "tv:build:development": "bunx eas build --platform android --profile development --non-interactive",
+    "tv:build:preview": "bunx eas build --platform android --profile preview --non-interactive",
+    "tv:lint:smoke": "expo lint --help",
+    "tv:typecheck:smoke": "tsc --help",
+    "tv:test:smoke": "bun test --bail --timeout 10000 ./smoke.test.js",
+    "tv:start:smoke": "expo start --help",
+    "tv:export:smoke": "expo export --help"
+  }
+}

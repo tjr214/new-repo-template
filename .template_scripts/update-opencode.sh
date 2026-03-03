@@ -30,8 +30,27 @@ TABLE_COL2_HORIZONTAL=$((TABLE_STATUS_WIDTH + 2))
 TABLE_COL3_HORIZONTAL=$((TABLE_DETAILS_WIDTH + 2))
 TABLE_FULL_HORIZONTAL=$((TABLE_COL1_HORIZONTAL + TABLE_COL2_HORIZONTAL + TABLE_COL3_HORIZONTAL + 2))
 
+DRY_RUN=0
+
+for ARG in "$@"; do
+    case "$ARG" in
+        --dry-run|-n)
+            DRY_RUN=1
+            ;;
+        *)
+            printf "${RED}${BOLD}Error: Unknown argument: %s${NC}\n" "$ARG"
+            printf "Usage: sh .template_scripts/update-opencode.sh [--dry-run]\n"
+            exit 2
+            ;;
+    esac
+done
+
 printf "${CYAN}${BOLD}OpenCode Installation/Update Script${NC}\n"
 printf "${CYAN}=====================================${NC}\n"
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    printf "${YELLOW}${BOLD}DRY RUN: no system changes will be made.${NC}\n"
+fi
 
 print_section_separator() {
     printf "\n${SEPARATOR_COLOR}-------------------------------------------------------------------------------${NC}\n"
@@ -131,8 +150,10 @@ print_results_table() {
     printf "${TABLE_COLOR}├%s┼%s┼%s┤${NC}\n" "$COL1_HORIZONTAL" "$COL2_HORIZONTAL" "$COL3_HORIZONTAL"
     print_result_row "uv" "$UV_STATUS" "$UV_DETAIL"
     print_result_row "bun" "$BUN_STATUS" "$BUN_DETAIL"
+    print_result_row "turbo" "$TURBO_STATUS" "$TURBO_DETAIL"
     print_result_row "OpenCode" "$OPENCODE_STATUS" "$OPENCODE_DETAIL"
     print_result_row "btca" "$BTCA_STATUS" "$BTCA_DETAIL"
+    print_result_row "gh" "$GH_STATUS" "$GH_DETAIL"
     print_result_row "ripgrep" "$RG_STATUS" "$RG_DETAIL"
     printf "${TABLE_COLOR}└%s┴%s┴%s┘${NC}\n" "$COL1_HORIZONTAL" "$COL2_HORIZONTAL" "$COL3_HORIZONTAL"
 }
@@ -158,6 +179,9 @@ print_result_row() {
         UNSUPPORTED|PENDING)
             STATUS_COLOR="$YELLOW"
             ;;
+        DRY-RUN)
+            STATUS_COLOR="$YELLOW"
+            ;;
         *)
             STATUS_COLOR="$NC"
             ;;
@@ -178,10 +202,14 @@ UV_STATUS="PENDING"
 UV_DETAIL="not run"
 BUN_STATUS="PENDING"
 BUN_DETAIL="not run"
+TURBO_STATUS="PENDING"
+TURBO_DETAIL="not run"
 OPENCODE_STATUS="PENDING"
 OPENCODE_DETAIL="not run"
 BTCA_STATUS="PENDING"
 BTCA_DETAIL="not run"
+GH_STATUS="PENDING"
+GH_DETAIL="not run"
 RG_STATUS="PENDING"
 RG_DETAIL="not run"
 
@@ -245,6 +273,28 @@ print_opencode_update_result() {
         print_install_update_result "OpenCode" "$PREVIOUS_VERSION" "$CURRENT_VERSION"
     fi
 }
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    UV_STATUS="DRY-RUN"
+    UV_DETAIL="would install/update via astral installer"
+    BUN_STATUS="DRY-RUN"
+    BUN_DETAIL="would install/update via bun installer"
+    TURBO_STATUS="DRY-RUN"
+    TURBO_DETAIL="would install/update turbo via bun add -g turbo"
+    OPENCODE_STATUS="DRY-RUN"
+    OPENCODE_DETAIL="would install/update via opencode installer"
+    BTCA_STATUS="DRY-RUN"
+    BTCA_DETAIL="would install/update via bun add -g btca"
+    GH_STATUS="DRY-RUN"
+    GH_DETAIL="would install/update via platform package manager"
+    RG_STATUS="DRY-RUN"
+    RG_DETAIL="would install/update via platform package manager"
+
+    printf "\n\n"
+    print_results_table
+    printf "\n${GREEN}Dry run completed.${NC}\n"
+    exit 0
+fi
 
 # ============================================================================
 # Update uv first
@@ -340,6 +390,49 @@ else
         mark_failure "bun"
         BUN_STATUS="FAILED"
         BUN_DETAIL="installation failed"
+    fi
+fi
+
+
+# ============================================================================
+# Update turborepo third
+# ============================================================================
+print_section_separator
+printf "\n${CYAN}${BOLD}Checking turborepo...${NC}\n"
+
+if [ -d "$HOME/.bun/bin" ]; then
+    add_to_path_once "$HOME/.bun/bin"
+fi
+
+if ! command_exists bun; then
+    printf "${RED}${BOLD}Error: bun is required to install/update turborepo.${NC}\n"
+    mark_failure "turborepo"
+    TURBO_STATUS="FAILED"
+    TURBO_DETAIL="bun is required"
+else
+    if command_exists turbo; then
+        CURRENT_TURBO_VERSION=$(turbo --version 2>/dev/null | tr -d '\n')
+        if [ -n "$CURRENT_TURBO_VERSION" ]; then
+            printf "${BLUE}turborepo is already installed ${NC}(Version: ${BOLD}%s${NC})\n" "$CURRENT_TURBO_VERSION"
+        else
+            printf "${BLUE}turborepo is already installed${NC}\n"
+        fi
+        printf "${YELLOW}Updating turborepo...${NC}\n"
+    else
+        printf "${YELLOW}turborepo not found. Installing...${NC}\n"
+        CURRENT_TURBO_VERSION=""
+    fi
+
+    if bun add -g turbo; then
+        NEW_TURBO_VERSION=$(turbo --version 2>/dev/null | tr -d '\n')
+        print_install_update_result "turborepo" "$CURRENT_TURBO_VERSION" "$NEW_TURBO_VERSION"
+        TURBO_STATUS="$LAST_RESULT_STATUS"
+        TURBO_DETAIL="$LAST_RESULT_DETAIL"
+    else
+        printf "${RED}${BOLD}Error: turborepo installation/update failed${NC}\n"
+        mark_failure "turborepo"
+        TURBO_STATUS="FAILED"
+        TURBO_DETAIL="installation/update failed"
     fi
 fi
 
@@ -444,6 +537,158 @@ else
     fi
 fi
 
+# Detect OS once for platform-package-manager installs
+OS_TYPE=$(uname -s)
+
+# ============================================================================
+# Install/Update GitHub CLI (gh)
+# ============================================================================
+print_section_separator
+printf "\n${CYAN}${BOLD}Checking GitHub CLI (gh)...${NC}\n"
+
+# Check if gh is already installed
+if command_exists gh; then
+    CURRENT_GH_VERSION=$(gh --version 2>/dev/null | head -n1 | awk '{print $3}' | tr -d '\n')
+    if [ -n "$CURRENT_GH_VERSION" ]; then
+        printf "${BLUE}gh is already installed ${NC}(Version: ${BOLD}%s${NC})\n" "$CURRENT_GH_VERSION"
+    else
+        printf "${BLUE}gh is already installed${NC}\n"
+    fi
+    printf "${YELLOW}Checking for updates...${NC}\n"
+else
+    printf "${YELLOW}gh not found. Installing...${NC}\n"
+    CURRENT_GH_VERSION=""
+fi
+
+GH_ACTION_SUCCESS=0
+
+# Install/Update based on OS
+case "$OS_TYPE" in
+    Darwin)
+        # macOS - Use Homebrew
+        if command_exists brew; then
+            if [ -z "$CURRENT_GH_VERSION" ]; then
+                # Install
+                if brew install gh; then
+                    GH_ACTION_SUCCESS=1
+                else
+                    printf "${RED}${BOLD}Error: gh installation/update failed${NC}\n"
+                    mark_failure "gh"
+                    GH_STATUS="FAILED"
+                    GH_DETAIL="brew install failed"
+                fi
+            else
+                # Update
+                if brew upgrade gh; then
+                    GH_ACTION_SUCCESS=1
+                else
+                    printf "${YELLOW}brew upgrade did not complete; trying install command fallback...${NC}\n"
+                    if brew install gh; then
+                        GH_ACTION_SUCCESS=1
+                    else
+                        printf "${RED}${BOLD}Error: gh installation/update failed${NC}\n"
+                        mark_failure "gh"
+                        GH_STATUS="FAILED"
+                        GH_DETAIL="brew upgrade/install failed"
+                    fi
+                fi
+            fi
+        else
+            printf "${RED}${BOLD}Error: Homebrew not found. Please install Homebrew first: https://brew.sh${NC}\n"
+            mark_failure "gh"
+            GH_STATUS="FAILED"
+            GH_DETAIL="homebrew not found"
+        fi
+        ;;
+
+    Linux)
+        # Detect Linux distribution
+        if [ -f /etc/os-release ]; then
+            . /etc/os-release
+            DISTRO=$ID
+        else
+            DISTRO="unknown"
+        fi
+
+        case "$DISTRO" in
+            ubuntu|debian)
+                # Ubuntu/Debian - Use apt
+                printf "${YELLOW}Installing/updating via apt...${NC}\n"
+                if sudo apt update && sudo apt install -y gh; then
+                    GH_ACTION_SUCCESS=1
+                else
+                    printf "${RED}${BOLD}Error: gh installation/update failed${NC}\n"
+                    mark_failure "gh"
+                    GH_STATUS="FAILED"
+                    GH_DETAIL="apt install failed"
+                fi
+                ;;
+
+            fedora|rhel|centos)
+                # Fedora/RHEL/CentOS - Use dnf
+                printf "${YELLOW}Installing/updating via dnf...${NC}\n"
+                if sudo dnf install -y gh; then
+                    GH_ACTION_SUCCESS=1
+                else
+                    printf "${RED}${BOLD}Error: gh installation/update failed${NC}\n"
+                    mark_failure "gh"
+                    GH_STATUS="FAILED"
+                    GH_DETAIL="dnf install failed"
+                fi
+                ;;
+
+            arch|manjaro)
+                # Arch Linux - package is github-cli
+                printf "${YELLOW}Installing/updating via pacman...${NC}\n"
+                if sudo pacman -Sy --noconfirm github-cli; then
+                    GH_ACTION_SUCCESS=1
+                else
+                    printf "${RED}${BOLD}Error: gh installation/update failed${NC}\n"
+                    mark_failure "gh"
+                    GH_STATUS="FAILED"
+                    GH_DETAIL="pacman install failed"
+                fi
+                ;;
+
+            opensuse*|suse)
+                # openSUSE - Use zypper
+                printf "${YELLOW}Installing/updating via zypper...${NC}\n"
+                if sudo zypper install -y gh; then
+                    GH_ACTION_SUCCESS=1
+                else
+                    printf "${RED}${BOLD}Error: gh installation/update failed${NC}\n"
+                    mark_failure "gh"
+                    GH_STATUS="FAILED"
+                    GH_DETAIL="zypper install failed"
+                fi
+                ;;
+
+            *)
+                printf "${YELLOW}${BOLD}Unsupported Linux distribution: $DISTRO${NC}\n"
+                printf "${YELLOW}Please install gh manually from: https://cli.github.com/${NC}\n"
+                mark_failure "gh"
+                GH_STATUS="UNSUPPORTED"
+                GH_DETAIL="$DISTRO"
+                ;;
+        esac
+        ;;
+
+    *)
+        printf "${RED}${BOLD}Unsupported operating system: $OS_TYPE${NC}\n"
+        printf "${YELLOW}Please install gh manually from: https://cli.github.com/${NC}\n"
+        mark_failure "gh"
+        GH_STATUS="UNSUPPORTED"
+        GH_DETAIL="$OS_TYPE"
+        ;;
+esac
+
+if [ "$GH_ACTION_SUCCESS" -eq 1 ]; then
+    NEW_GH_VERSION=$(gh --version 2>/dev/null | head -n1 | awk '{print $3}' | tr -d '\n')
+    print_install_update_result "gh" "$CURRENT_GH_VERSION" "$NEW_GH_VERSION"
+    GH_STATUS="$LAST_RESULT_STATUS"
+    GH_DETAIL="$LAST_RESULT_DETAIL"
+fi
+
 
 
 # ============================================================================
@@ -451,9 +696,6 @@ fi
 # ============================================================================
 print_section_separator
 printf "\n${CYAN}${BOLD}Checking ripgrep...${NC}\n"
-
-# Detect OS
-OS_TYPE=$(uname -s)
 
 # Check if ripgrep is already installed
 if command_exists rg; then

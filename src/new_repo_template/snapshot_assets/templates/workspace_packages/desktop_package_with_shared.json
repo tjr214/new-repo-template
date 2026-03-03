@@ -1,0 +1,28 @@
+{
+  "name": "@generated/desktop",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@generated/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.1",
+    "electron": "^40.6.1",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "dev": "bun run desktop:start:smoke",
+    "build": "bun run desktop:package:smoke",
+    "test": "bun --version",
+    "lint": "bun --version",
+    "typecheck": "bun run typecheck:smoke",
+    "desktop:start": "electron-forge start",
+    "desktop:package": "electron-forge package --outDir out/unsigned/package",
+    "desktop:make": "electron-forge make --outDir out/unsigned/make",
+    "desktop:start:smoke": "electron-forge start --help",
+    "desktop:package:smoke": "electron-forge package --help --outDir out/unsigned-smoke/package",
+    "desktop:make:smoke": "electron-forge make --help --outDir out/unsigned-smoke/make",
+    "typecheck:smoke": "tsc --help"
+  }
+}

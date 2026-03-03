@@ -7,6 +7,25 @@ This repo supports two delivery lanes:
 
 Use this guide to choose the right lane and run the right commands.
 
+## Template Bootstrap (User Flow)
+
+For end users generating a new project from this template, the canonical flow is the global `nurt` CLI.
+
+1. Install `nurt` from git:
+   - `uv tool install --from git+https://github.com/<org>/<repo>.git nurt`
+2. Generate a project:
+   - `nurt new <project-name>`
+
+`install.sh` is retained for internal/legacy maintenance workflows, not as the primary end-user bootstrap path.
+
+For fullstack template setup/auth flow details, see `docs/FULLSTACK_SETUP.md`.
+For mobile/TV setup, caveats, and validation flow details, see `docs/MOBILE_TV_SETUP.md`.
+For CI branch protection and required status checks, see `docs/BRANCH_PROTECTION.md`.
+For preset-combination regression coverage policy, see `docs/REGRESSION_SUITE.md`.
+For dependency upgrade/versioning policy, see `docs/DEPENDENCY_UPGRADE_POLICY.md`.
+For optional signing workflow design, secrets map, and enablement flow, see `docs/OPTIONAL_SIGNING_PIPELINE.md`.
+For phased rollout release gates, see `docs/RELEASE_CHECKLIST.md`.
+
 ## Which Lane Should I Use?
 
 ### Use Quick Lane (`quick-spec` / `quick-dev`) when:

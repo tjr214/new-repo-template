@@ -1,0 +1,367 @@
+from __future__ import annotations
+
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+
+def run_nurt_command(
+    *,
+    cwd: Path,
+    args: list[str],
+    env: dict[str, str] | None = None,
+    input_text: str | None = None,
+) -> subprocess.CompletedProcess[str]:
+    command_env = os.environ.copy()
+    repo_root = Path(__file__).resolve().parents[2]
+    command_env["PYTHONPATH"] = str(repo_root / "src")
+    command_env.setdefault("NURT_UPDATE_CHECK_SIMULATE", "none")
+    if env is not None:
+        command_env.update(env)
+
+    return subprocess.run(
+        [sys.executable, "-m", "new_repo_template.nurt_cli", *args],
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        input=input_text,
+        env=command_env,
+        check=False,
+    )
+
+
+def test_nurt_new_dry_run_generates_scaffold_plan_without_writing(
+    tmp_path: Path,
+) -> None:
+    """RED: nurt new dry-run should route into scaffold plan generation."""
+
+    output_dir = tmp_path / "demo-web-backend"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "new",
+            output_dir.name,
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--auth",
+            "clerk",
+            "--dry-run",
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt new --dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "Resolved scaffold plan:" in combined_output
+    assert "- targets: web, backend" in combined_output
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
+def test_nurt_new_defaults_to_foundation_when_targets_omitted(tmp_path: Path) -> None:
+    """RED: nurt new should default to foundation in non-interactive mode."""
+
+    output_dir = tmp_path / "demo-foundation"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected default nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "- targets: foundation" in combined_output
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
+def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
+    tmp_path: Path,
+) -> None:
+    """Interactive wizard should resolve targets and auth without explicit flags."""
+
+    output_dir = tmp_path / "demo-interactive"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="3,4\n2\n",
+    )
+
+    assert result.returncode == 0, (
+        "Expected interactive nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "nurt new interactive mode" in combined_output
+    assert "- targets: web, backend" in combined_output
+    assert "- auth: better-auth" in combined_output
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
+def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
+    tmp_path: Path,
+) -> None:
+    """Rich/Textual mode should fall back cleanly when rich UI is unavailable."""
+
+    output_dir = tmp_path / "demo-rich-fallback"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="3,4\n2\n",
+        env={
+            "NURT_UI_MODE": "rich",
+            "NURT_SIMULATE_RICH_UNAVAILABLE": "1",
+        },
+    )
+
+    assert result.returncode == 0, (
+        "Expected rich-mode fallback interactive command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "Rich/Textual UI unavailable" in combined_output
+    assert "nurt new interactive mode" in combined_output
+    assert "- auth: better-auth" in combined_output
+
+
+def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) -> None:
+    """Plain UI mode should avoid rich fallback warnings and still work."""
+
+    output_dir = tmp_path / "demo-plain-ui"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="3,4\n1\n",
+        env={"NURT_UI_MODE": "plain", "NURT_SIMULATE_RICH_UNAVAILABLE": "1"},
+    )
+
+    assert result.returncode == 0, (
+        "Expected plain UI interactive command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "nurt new interactive mode" in combined_output
+    assert "Rich/Textual UI unavailable" not in combined_output
+    assert "- auth: clerk" in combined_output
+
+
+def test_nurt_new_interactive_without_stdin_fails_with_clear_remediation(
+    tmp_path: Path,
+) -> None:
+    """Interactive mode should fail cleanly when stdin is unavailable."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", "demo-no-stdin", "--dry-run"],
+        input_text="",
+    )
+
+    assert result.returncode == 1, (
+        "Expected interactive command to fail cleanly when stdin is unavailable.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "interactive input unavailable" in combined_output
+    assert "--no-interactive" in combined_output
+    assert "--target" in combined_output
+
+
+def test_nurt_new_interactive_auth_prompt_without_stdin_fails_with_remediation(
+    tmp_path: Path,
+) -> None:
+    """Auth prompt should fail cleanly when stdin closes before auth selection."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", "demo-auth-no-stdin", "--dry-run"],
+        input_text="3,4\n",
+    )
+
+    assert result.returncode == 1, (
+        "Expected auth prompt to fail cleanly when stdin closes early.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "interactive input unavailable" in combined_output
+    assert "--no-interactive" in combined_output
+    assert "--auth" in combined_output
+
+
+def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:
+    """RED: nurt update dry-run should be non-destructive and explicit."""
+
+    result = run_nurt_command(cwd=tmp_path, args=["update", "--dry-run"])
+
+    assert result.returncode == 0, (
+        "Expected nurt update --dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "DRY RUN" in combined_output
+    assert "uv tool upgrade nurt" in combined_output
+
+
+def test_nurt_startup_update_check_notice_appears_when_update_available(
+    tmp_path: Path,
+) -> None:
+    """RED: every nurt invocation should run update-check and notify when update exists."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", "demo-update-notice", "--dry-run", "--no-interactive"],
+        env={"NURT_UPDATE_CHECK_SIMULATE": "9.9.9"},
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt command to succeed with simulated update notice.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    assert "Update available for nurt: 9.9.9" in result.stderr
+
+
+def test_nurt_template_assets_sync_dry_run_reports_action(tmp_path: Path) -> None:
+    """RED: template-assets sync dry-run should report non-destructive action plan."""
+
+    result = run_nurt_command(
+        cwd=tmp_path, args=["template-assets", "sync", "--dry-run"]
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt template-assets sync --dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "DRY RUN" in combined_output
+    assert "template-assets sync" in combined_output
+    assert "update-template-from-git.sh" not in combined_output
+    assert "template source repo" in combined_output
+
+
+def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
+    """RED: tools sync dry-run should report non-destructive action plan."""
+
+    result = run_nurt_command(cwd=tmp_path, args=["tools", "sync", "--dry-run"])
+
+    assert result.returncode == 0, (
+        "Expected nurt tools sync --dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "DRY RUN" in combined_output
+    assert "tool sync plan" in combined_output
+    assert "uv" in combined_output
+    assert "bun" in combined_output
+    assert "turbo" in combined_output
+    assert "opencode" in combined_output
+    assert "btca" in combined_output
+    assert "ripgrep" in combined_output
+    assert "update-opencode.sh" not in combined_output
+
+
+def test_nurt_tools_sync_non_dry_run_reports_failures(tmp_path: Path) -> None:
+    """Non-dry tools sync should surface deterministic failure messaging."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["tools", "sync"],
+        env={"NURT_TOOLS_SYNC_SIMULATE_FAILURE": "1"},
+    )
+
+    assert result.returncode == 1, (
+        "Expected simulated tools sync failure to return non-zero.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "Running tool sync" in combined_output
+    assert "uv: FAILED (simulated failure)" in combined_output
+    assert "ripgrep: FAILED (simulated failure)" in combined_output
+
+
+def test_nurt_template_assets_sync_fails_outside_project_root(tmp_path: Path) -> None:
+    """Non-dry template-assets sync should fail with clear root-validation message."""
+
+    result = run_nurt_command(cwd=tmp_path, args=["template-assets", "sync"])
+
+    assert result.returncode == 1, (
+        "Expected template-assets sync to fail outside project root.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "template-assets sync must run from project root" in combined_output
+
+
+def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> None:
+    """Non-dry template-assets sync should fail when working tree is dirty."""
+
+    (tmp_path / ".opencode").mkdir()
+    (tmp_path / ".template_scripts").mkdir()
+    (tmp_path / ".opencode" / "placeholder.md").write_text(
+        "# placeholder\n", encoding="utf-8"
+    )
+
+    init_result = subprocess.run(
+        ["git", "init"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert init_result.returncode == 0, (
+        "Expected git init to succeed in test fixture.\n"
+        f"stdout:\n{init_result.stdout}\n"
+        f"stderr:\n{init_result.stderr}"
+    )
+
+    result = run_nurt_command(cwd=tmp_path, args=["template-assets", "sync"])
+
+    assert result.returncode == 1, (
+        "Expected template-assets sync to fail on dirty git repo.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "repository has uncommitted changes" in combined_output
+
+
+def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) -> None:
+    """template-assets snapshot dry-run should report snapshot planning details."""
+
+    (tmp_path / ".gitignore").write_text(".env\n", encoding="utf-8")
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "template-assets",
+            "snapshot",
+            "--dry-run",
+            "--source-root",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected template-assets snapshot dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "DRY RUN" in combined_output
+    assert "would copy: templates/root_gitignore.txt" in combined_output

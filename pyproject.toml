@@ -3,12 +3,18 @@ requires = ["hatchling>=1.26.3"]
 build-backend = "hatchling.build"
 
 [project]
-name = "new-project-sandbox" # Replace with name of actual project
+name = "nurt-ai"
 version = "0.1.0"
-description = "New Project Sandbox" # Also replace this with name of actual project
+description = "Nu-Repo Template AI-first project generator"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+  "rich>=14.3.3",
+  "textual>=8.0.1",
+]
+
+[project.scripts]
+nurt = "new_repo_template.nurt_cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -24,7 +30,16 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/directory_of_project"] # Update this with the correct project directory under `src/`
+packages = ["src/new_repo_template"]
+include = ["src/new_repo_template/snapshot_assets/**"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "README.md",
+  "pyproject.toml",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

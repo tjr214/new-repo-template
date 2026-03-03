@@ -1,0 +1,33 @@
+{
+  "name": "@generated/mobile",
+  "private": true,
+  "version": "0.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "expo": "^55.0.4",
+    "expo-status-bar": "^55.0.4",
+    "react": "^19.2.4",
+    "react-native": "^0.84.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "dev": "bun run mobile:start:smoke",
+    "build": "bun run mobile:export:smoke",
+    "test": "bun run mobile:test:smoke",
+    "lint": "bun run mobile:lint:smoke",
+    "typecheck": "bun run mobile:typecheck:smoke",
+    "mobile:start": "expo start --non-interactive",
+    "mobile:android": "expo run:android",
+    "mobile:ios": "expo run:ios",
+    "mobile:web": "expo start --web --non-interactive",
+    "mobile:export": "expo export --non-interactive",
+    "mobile:lint:smoke": "expo lint --help",
+    "mobile:typecheck:smoke": "tsc --help",
+    "mobile:test:smoke": "bun test --bail --timeout 10000 ./smoke.test.js",
+    "mobile:start:smoke": "expo start --help",
+    "mobile:export:smoke": "expo export --help"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@generated/web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@generated/shared": "workspace:*",
+    "@tanstack/react-router": "^1.163.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@tanstack/router-cli": "^1.164.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  },
+  "scripts": {
+    "dev": "bun run dev:smoke",
+    "build": "bun run build:smoke",
+    "test": "bun --version",
+    "lint": "bun --version",
+    "typecheck": "bun run typecheck:smoke",
+    "dev:app": "vite",
+    "build:app": "vite build",
+    "router:generate": "tsr generate",
+    "router:watch": "tsr watch",
+    "dev:smoke": "vite --help",
+    "build:smoke": "vite build --help",
+    "typecheck:smoke": "tsc --help"
+  }
+}
