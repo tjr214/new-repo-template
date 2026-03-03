@@ -24,6 +24,8 @@
     "tv:start": "expo start --non-interactive",
     "tv:android": "expo run:android",
     "tv:export": "expo export --non-interactive",
+    "tv:build:development": "bunx eas build --platform android --profile development --non-interactive",
+    "tv:build:preview": "bunx eas build --platform android --profile preview --non-interactive",
     "tv:start:smoke": "expo start --help",
     "tv:export:smoke": "expo export --help",
     "typecheck:smoke": "tsc --help"

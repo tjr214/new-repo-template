@@ -105,10 +105,12 @@ MOBILE_FRAMEWORK_PATHS: tuple[str, ...] = (
 
 TV_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/tv/app.json",
+    "apps/tv/eas.json",
     "apps/tv/babel.config.js",
     "apps/tv/index.js",
     "apps/tv/App.tsx",
     "apps/tv/tsconfig.json",
+    "apps/tv/TV_INPUT_CHECKLIST.md",
 )
 
 SHARED_WORKSPACE_PATHS: tuple[str, ...] = (
@@ -211,10 +213,12 @@ MOBILE_INDEX_TEMPLATE = load_template_text("mobile/mobile_index.js")
 MOBILE_APP_TEMPLATE = load_template_text("mobile/mobile_app.tsx")
 MOBILE_TSCONFIG_TEMPLATE = load_template_text("mobile/mobile_tsconfig.json")
 TV_APP_JSON_TEMPLATE = load_template_text("tv/tv_app.json")
+TV_EAS_JSON_TEMPLATE = load_template_text("tv/tv_eas.json")
 TV_BABEL_CONFIG_TEMPLATE = load_template_text("tv/tv_babel.config.js")
 TV_INDEX_TEMPLATE = load_template_text("tv/tv_index.js")
 TV_APP_TEMPLATE = load_template_text("tv/tv_app.tsx")
 TV_TSCONFIG_TEMPLATE = load_template_text("tv/tv_tsconfig.json")
+TV_INPUT_CHECKLIST_TEMPLATE = load_template_text("tv/tv_input_checklist.md")
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
 DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
     "workspace_packages/desktop_package_with_shared.json"
@@ -538,10 +542,15 @@ def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) 
     tv_root.mkdir(parents=True, exist_ok=True)
 
     (tv_root / "app.json").write_text(TV_APP_JSON_TEMPLATE, encoding="utf-8")
+    (tv_root / "eas.json").write_text(TV_EAS_JSON_TEMPLATE, encoding="utf-8")
     (tv_root / "babel.config.js").write_text(TV_BABEL_CONFIG_TEMPLATE, encoding="utf-8")
     (tv_root / "index.js").write_text(TV_INDEX_TEMPLATE, encoding="utf-8")
     (tv_root / "App.tsx").write_text(TV_APP_TEMPLATE, encoding="utf-8")
     (tv_root / "tsconfig.json").write_text(TV_TSCONFIG_TEMPLATE, encoding="utf-8")
+    (tv_root / "TV_INPUT_CHECKLIST.md").write_text(
+        TV_INPUT_CHECKLIST_TEMPLATE,
+        encoding="utf-8",
+    )
 
 
 def scaffold_target_env_examples(

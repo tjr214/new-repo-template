@@ -383,17 +383,17 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Scaffold `apps/mobile` with Expo mobile baseline
 - [x] Scaffold `apps/tv` with Expo AndroidTV baseline (separate app)
 - [x] Wire TV-related config/plugin conventions in `apps/tv` only
-- [ ] Add TV-focused env/build profile notes and scripts for dedicated TV app
-- [ ] Add TV focus/navigation baseline patterns checklist (remote-primary)
-- [ ] Add keyboard/mouse/gamepad fallback input support checklist for TV app
+- [x] Add TV-focused env/build profile notes and scripts for dedicated TV app
+- [x] Add TV focus/navigation baseline patterns checklist (remote-primary)
+- [x] Add keyboard/mouse/gamepad fallback input support checklist for TV app
 
 ### RED Tests
 
 - [x] Mobile scaffold contract test
 - [x] TV scaffold contract test (separate `apps/tv` output)
 - [x] TV config contract test (plugin/config presence and expected wiring in `apps/tv`)
-- [ ] Android build profile checks for TV app
-- [ ] HID contract test for TV app input handling (remote primary + keyboard/mouse/gamepad supported)
+- [x] Android build profile checks for TV app
+- [x] HID contract test for TV app input handling (remote primary + keyboard/mouse/gamepad supported)
 
 ### DoD Gates
 

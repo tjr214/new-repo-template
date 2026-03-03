@@ -86,6 +86,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Mobile and TV scaffold baselines are now concrete: generated `apps/mobile` and `apps/tv` outputs include Expo app entry/config files (`app.json`, `babel.config.js`, `index.js`, `App.tsx`, `tsconfig.json`) rather than package-manifest-only placeholders.
 - TV plugin/config isolation is now explicit in scaffolded TV config: `apps/tv/app.json` includes `@react-native-tvos/config-tv`, while mobile config remains plugin-free.
 - Mobile/TV workspace manifests now include Expo-oriented script surfaces and dependency baselines (`expo`, `react`, `react-native`, `expo-status-bar`, plus TV-specific `react-native-tvos` and `@react-native-tvos/config-tv`).
+- TV Android build-profile baseline is now scaffolded as dedicated TV config: `apps/tv/eas.json` includes `development` + `preview` EAS profiles with internal APK Android settings, and TV workspace scripts include profile-specific Android build commands.
+- TV HID/input baseline is now scaffolded as part of TV app output: `apps/tv/App.tsx` includes remote-primary focus/event starter wiring and generated TV outputs include `apps/tv/TV_INPUT_CHECKLIST.md` for keyboard/mouse/gamepad fallback validation steps.
 
 ## Validation Model
 
@@ -127,6 +129,10 @@ Current contract coverage:
   - Contract intent: generated `desktop` workspace installs cleanly, executes Forge start/package smoke commands, validates root `dev`/`build` desktop smoke paths, and asserts deterministic unsigned output path wiring.
 - `tests/contracts/test_mobile_tv_scaffold_contract.py`
   - Contract intent: generated `mobile` and `tv` scaffold outputs include concrete Expo baseline files, TV plugin/config isolation is enforced to `apps/tv`, and `mobile+tv` dry-run output reports distinct app wiring paths.
+- `tests/contracts/test_tv_android_build_profile_contract.py`
+  - Contract intent: generated `tv` scaffold includes Android EAS build profile config (`apps/tv/eas.json`), profile-aware TV Android build scripts, and dry-run visibility for TV build-profile output paths.
+- `tests/contracts/test_tv_input_hid_contract.py`
+  - Contract intent: generated `tv` scaffold includes remote-primary focus wiring markers in app baseline, includes a TV HID checklist covering keyboard/mouse/gamepad fallback validation, and reports checklist path in dry-run planning output.
 - `tests/contracts/test_convex_backend_smoke_contract.py`
   - Contract intent: generated backend workspace includes local Convex commands (`convex:codegen`, `convex:dev`), CI-safe smoke wrappers (`convex:*:smoke`), smoke-safe `dev`/`test` execution, and backend README cloud-dev/auth flow guidance.
 - `tests/contracts/test_security_baseline_contract.py`

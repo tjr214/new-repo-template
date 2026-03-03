@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-02 01:58:13 PM
-**Current Phase:** M4 in progress (`Expo mobile baseline + isolated Expo TV plugin/config baseline`)
+**Last Updated:** 2026-03-03 05:44:46 AM
+**Current Phase:** M4 in progress (`Expo mobile baseline + isolated Expo TV plugin/config + Android build profile checks + TV HID/input contracts`)
 
 ---
 
@@ -325,20 +325,53 @@
 - [x] Verified BLUE for M4 slice:
   - [x] `uv run pytest tests/contracts/test_mobile_tv_scaffold_contract.py` -> pass (3 tests)
   - [x] `uv run pytest` -> pass (95 tests)
+- [x] Continued M4 with explicit YELLOW-RED-GREEN-BLUE slice for TV Android build profile checks.
+- [x] Ran M4 YELLOW BTCA asks for dedicated TV build profile and script guidance:
+  - [x] `btca ask -r expo-docs -r expo-tv-config -r react-native-tvos` for EAS build profile baseline (`development`/`preview`) and Android CI-friendly settings.
+  - [x] `btca ask -r expo-docs -r react-native-tvos` for CI-safe smoke vs local TV development script split.
+  - [x] Executed `btca clear` after BTCA runtime reported `expo-docs` fetch failure, then retried successfully.
+- [x] Added RED Android build profile contracts in `tests/contracts/test_tv_android_build_profile_contract.py`:
+  - [x] TV scaffold includes `apps/tv/eas.json` with `development` + `preview` profiles and Android `apk` buildType.
+  - [x] TV manifest exposes profile-aware Android build scripts (`tv:build:development`, `tv:build:preview`).
+  - [x] TV dry-run plan output reports `apps/tv/eas.json` path.
+- [x] Implemented GREEN TV build-profile scaffolding:
+  - [x] added `src/new_repo_template/snapshot_assets/templates/tv/tv_eas.json`
+  - [x] added `apps/tv/eas.json` planning/writer wiring in `src/new_repo_template/scaffold.py`
+  - [x] updated `src/new_repo_template/snapshot_assets/templates/workspace_packages/tv_package.json` with EAS profile build scripts
+- [x] Updated `PLAN.md` M4 state for completed TV build-profile task + RED test checkbox.
+- [x] Verified BLUE for this slice:
+  - [x] `uv run pytest tests/contracts/test_tv_android_build_profile_contract.py` -> pass (3 tests)
+  - [x] `uv run pytest tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_tv_android_build_profile_contract.py` -> pass (6 tests)
+  - [x] `uv run pytest` -> pass (98 tests)
+- [x] Continued M4 with explicit YELLOW-RED-GREEN-BLUE slice for TV HID/input handling baseline.
+- [x] Ran M4 YELLOW BTCA asks for remote-primary focus and fallback input patterns:
+  - [x] `btca ask -r react-native-tvos -r expo-docs` for deterministic remote-first focus/navigation starter APIs.
+  - [x] `btca ask -r react-native-tvos -r expo-docs` for keyboard/mouse/gamepad fallback handling guidance.
+  - [x] Executed `btca clear` after BTCA runtime reported `expo-docs` fetch failure, then retried successfully.
+- [x] Added RED HID/input contracts in `tests/contracts/test_tv_input_hid_contract.py`:
+  - [x] TV scaffold includes remote-primary + fallback HID checklist file.
+  - [x] TV app baseline includes remote-primary focus wiring markers (`useTVEventHandler`, `hasTVPreferredFocus`, `onFocus`).
+  - [x] TV dry-run plan output reports HID checklist path.
+- [x] Implemented GREEN TV HID/input baseline scaffolding:
+  - [x] added `src/new_repo_template/snapshot_assets/templates/tv/tv_input_checklist.md`
+  - [x] updated `src/new_repo_template/snapshot_assets/templates/tv/tv_app.tsx` with remote-primary focus baseline and fallback input indicator wiring
+  - [x] updated `src/new_repo_template/scaffold.py` to plan/write `apps/tv/TV_INPUT_CHECKLIST.md`
+- [x] Updated `PLAN.md` M4 state for completed TV focus/fallback checklist tasks + HID RED test checkbox.
+- [x] Verified BLUE for this slice:
+  - [x] `uv run pytest tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_mobile_tv_scaffold_contract.py` -> pass (6 tests)
+  - [x] `uv run pytest` -> pass (101 tests)
 
 ## In Progress
 
 - [ ] M4 mobile/TV milestone execution:
   - [x] Scaffold Expo mobile baseline (`apps/mobile`) and Expo AndroidTV baseline (`apps/tv`) as separate apps.
   - [x] Enforce TV plugin/config isolation to `apps/tv` via scaffolded app config.
-  - [ ] Add Android build profile checks for TV app.
-  - [ ] Add TV HID contract checks (remote primary + keyboard/mouse/gamepad fallback).
+  - [x] Add Android build profile checks for TV app.
+  - [x] Add TV HID contract checks (remote primary + keyboard/mouse/gamepad fallback).
   - [ ] Add TV/mobile setup docs and validation checklist updates for emulator + Shield flow.
 
 ## Next Up
 
-- [ ] Add RED contracts + GREEN implementation for TV Android build profile checks (`apps/tv` specific).
-- [ ] Add RED contracts + GREEN implementation for TV input/HID baseline checklist scaffolding.
 - [ ] Continue M4 DoD completion, then move to M5 hardening slices.
 
 ## BTCA Governance Log
@@ -351,3 +384,5 @@
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `tanstack-router-start` resource load fetch failure; follow-up query succeeded.
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `bun` resource clone failure during M3 YELLOW combined ask; retry succeeded.
 - [x] 2026-03-02: `btca clear` executed after BTCA runtime reported `expo-docs` resource checkout failure during M4 YELLOW ask; both Expo baseline lookups then succeeded.
+- [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 TV build-profile YELLOW ask; follow-up Expo/TV guidance query succeeded.
+- [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 TV HID/input YELLOW ask; follow-up fallback-input query succeeded.
