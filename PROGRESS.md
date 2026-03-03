@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 08:38:42 AM
-**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; CI now uses a focused windows-latest critical-contract lane while non-Windows runners continue full-suite execution, secret-scan advisory now pins gitleaks action, disables PR-comment/artifact API calls, and fetches full history to avoid commit-range RequestError/ambiguous-revision failures, and final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 08:46:07 AM
+**Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness`)
 
 ---
 
@@ -574,6 +574,13 @@
 - [x] Verified BLUE for commit-range remediation:
   - [x] `uv run pytest tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (1 test)
   - [x] `uv run pytest` -> pass (113 tests)
+- [x] Confirmed required PR checks are green via live watch (`gh pr checks --watch`) for run `22625635975`:
+  - [x] `Tests (ubuntu-latest)`, `Tests (macos-latest)`, `Tests (windows-latest)` -> pass
+  - [x] `Preset Regression Suite` -> pass
+  - [x] `Version Baseline Guardrail` -> pass
+  - [x] `Secret Scan (Advisory)` -> pass
+- [x] Marked M5 complete in `PLAN.md` by checking the remaining M5 DoD gate (`Required CI jobs green on PRs`).
+- [x] Synced milestone closeout status across `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session artifact `docs/session-summaries/SESSION_57_SUMMARY.md`.
 
 ## In Progress
 
@@ -582,8 +589,6 @@
   - [ ] Execute Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
-- [ ] M5 hardening closeout:
-  - [ ] Confirm required CI jobs are green on active PR runs.
 
 ## Deferred / Blocked
 
@@ -591,7 +596,6 @@
 
 ## Next Up
 
-- [ ] Confirm required CI status checks stay green in PR execution after hardening changes.
 - [ ] Close deferred M4 carryover as soon as Android TV Emulator + Shield execution environment is available, then mark M4 fully complete.
 
 ## BTCA Governance Log

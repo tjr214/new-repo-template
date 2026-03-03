@@ -431,7 +431,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### DoD Gates
 
-- [ ] Required CI jobs green on PRs
+- [x] Required CI jobs green on PRs
 - [x] Preset combination matrix passes
 - [x] `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, `PROGRESS.md` fully synced
 - [x] Optional signing workflow documented with secrets map and enablement steps

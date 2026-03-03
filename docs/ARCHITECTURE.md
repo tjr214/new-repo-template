@@ -38,7 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestones M0-M3 are complete; M4 automatable slices are complete with manual Emulator/Shield carryover gates still open; M5 hardening is now in closeout with CI matrix/cache strategy expansion, branch-protection guidance, dedicated preset-regression CI coverage, dependency upgrade/versioning policy documentation, optional signing/release checklist design, CI env-template asset reliability hardening, Windows installer-script contract shell-resolution hardening, updater tooling support for GitHub CLI (`gh`), focused Windows-critical CI lane tuning, and advisory secret-scan stability hardening (pinned `gitleaks/gitleaks-action@v2.3.9`, comment/artifact upload API calls disabled, and full-history checkout enabled for commit-range scanning).
+- Milestones M0-M3 are complete; M4 automatable slices are complete with manual Emulator/Shield carryover gates still open; M5 hardening is complete with required PR checks now green and includes CI matrix/cache strategy expansion, branch-protection guidance, dedicated preset-regression CI coverage, dependency upgrade/versioning policy documentation, optional signing/release checklist design, CI env-template asset reliability hardening, Windows installer-script contract shell-resolution hardening, updater tooling support for GitHub CLI (`gh`), focused Windows-critical CI lane tuning, and advisory secret-scan stability hardening (pinned `gitleaks/gitleaks-action@v2.3.9`, comment/artifact upload API calls disabled, and full-history checkout enabled for commit-range scanning).
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -105,6 +105,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Mobile/TV runtime smoke coverage is now active in `tests/contracts/test_mobile_tv_runtime_smoke_contract.py`: generated `mobile+tv` scaffold installs with Bun and app-local `lint`/`typecheck`/`test` scripts execute in CI-safe mode for both targets.
 - Mobile/TV workspace script model now maps baseline commands to explicit smoke wrappers (`mobile|tv:lint:smoke`, `mobile|tv:typecheck:smoke`, `mobile|tv:test:smoke`) with scaffolded app-local smoke tests (`smoke.test.js`) for deterministic `test` viability.
 - TV scaffold output now includes `apps/tv/TV_VALIDATION_LOG.md` to record emulator and Shield execution metadata/results alongside checklist completion.
+- M5 milestone closeout state is now explicit in planning docs: required PR checks were confirmed green and the remaining M5 DoD gate in `PLAN.md` is checked complete.
 
 ## Validation Model
 

@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is now in closeout with CI matrix/cache hardening, branch-protection guidance, dedicated preset-regression coverage, dependency versioning policy, optional signing/release checklist design, CI env-template asset reliability fixes, Windows installer-script contract shell hardening in place, updater tooling expansion for GitHub CLI (`gh`) support, focused Windows-critical CI lane tuning, and advisory secret-scan hardening (pinned `gitleaks/gitleaks-action@v2.3.9`, disabled comment/artifact upload API paths, and `fetch-depth: 0` checkout to avoid commit-range PR scan failures).
+M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is complete for implementation/CI hardening scope with required PR checks now green (ubuntu/macos/windows test matrix, preset-regression suite, version baseline guardrail, and advisory secret scan). The remaining open program gate is M4 manual Android TV Emulator + NVIDIA Shield validation.
 
 ## Active Implementation Rules
 
@@ -129,3 +129,4 @@ M0-M3 execution is complete. M4 automatable slices are complete with manual Emul
 - Installer dry-run shell-script contracts are now explicitly POSIX-scoped in tests (skipped on Windows runners) while Windows CI continues to enforce core scaffold/runtime contracts.
 - Updater tooling now includes GitHub CLI (`gh`) in `.template_scripts/update-opencode.sh`, including dry-run visibility, status-table reporting, and install/update handling via platform package managers.
 - CI runner strategy now keeps full smoke + full-suite execution on Linux/macOS while `windows-latest` runs a focused critical contract subset (workspace install, backend/desktop/turbo/python command confidence) to reduce wall-clock time without dropping native Windows coverage.
+- M5 closeout is now complete in tracker state: required PR checks were confirmed green via `gh pr checks --watch`, and `PLAN.md` now marks the remaining M5 DoD gate complete.
