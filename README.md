@@ -20,6 +20,7 @@ For end users generating a new project from this template, the canonical flow is
 
 For fullstack template setup/auth flow details, see `docs/FULLSTACK_SETUP.md`.
 For mobile/TV setup, caveats, and validation flow details, see `docs/MOBILE_TV_SETUP.md`.
+For CI branch protection and required status checks, see `docs/BRANCH_PROTECTION.md`.
 
 ## Which Lane Should I Use?
 

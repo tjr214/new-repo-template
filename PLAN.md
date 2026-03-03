@@ -422,9 +422,9 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### Tasks
 
-- [ ] Begin hardening slices while preserving M4 deferred hardware-validation carryover as an explicit pre-release gate.
-- [ ] Expand GitHub Actions matrix and cache strategy
-- [ ] Add branch protection guidance (required status checks)
+- [x] Begin hardening slices while preserving M4 deferred hardware-validation carryover as an explicit pre-release gate.
+- [x] Expand GitHub Actions matrix and cache strategy
+- [x] Add branch protection guidance (required status checks)
 - [ ] Add regression suite across preset combinations
 - [ ] Add upgrade/versioning policy for template dependencies
 - [ ] Add optional signing pipeline design (disabled by default)
@@ -449,14 +449,14 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### 7.2 Required CI Matrix (initial)
 
-- [ ] OS matrix: `ubuntu-latest`, `macos-latest`, `windows-latest`
+- [x] OS matrix: `ubuntu-latest`, `macos-latest`, `windows-latest`
 - [ ] Foundation tasks: install, lint, typecheck, tests
-- [ ] Scaffold contract tests for selected presets
-- [ ] Required preset-combination matrix checks
-- [ ] Windows-native checks for JS/TS backend workflows
+- [x] Scaffold contract tests for selected presets
+- [x] Required preset-combination matrix checks
+- [x] Windows-native checks for JS/TS backend workflows
 - [x] Windows-native Electron package smoke check
-- [ ] Dedicated TV app scaffold and input-contract checks
-- [ ] Version baseline compliance check
+- [x] Dedicated TV app scaffold and input-contract checks
+- [x] Version baseline compliance check
 - [x] Lightweight secret scan job
 
 ### 7.3 Non-Blocking/Deferred CI

@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 06:20:44 AM
-**Current Phase:** Transitioning to M5 (`all automatable M4 checks complete; manual Android TV Emulator + NVIDIA Shield execution logs explicitly deferred and tracked as carryover gates`)
+**Last Updated:** 2026-03-03 06:33:02 AM
+**Current Phase:** M5 in progress (`CI matrix/cache hardening + branch protection guidance slices complete; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -422,6 +422,41 @@
   - [x] all automatable M4 gates remain complete
   - [x] manual Android TV Emulator + NVIDIA Shield execution remains required and tracked for future closeout
   - [x] M5 kickoff is allowed while this carryover remains an explicit pre-release gate
+- [x] Started M5 with explicit YELLOW-RED-GREEN-BLUE slice for CI matrix/cache hardening while preserving open M4 carryover gates.
+- [x] Ran M5 YELLOW BTCA asks for CI strategy guidance:
+  - [x] `btca ask -r turborepo` for cross-platform GitHub Actions cache/task-graph reliability recommendations.
+  - [x] `btca ask -r bun` for Bun installation/version-pin and deterministic CI guidance.
+- [x] Added RED CI workflow contract coverage in `tests/contracts/test_ci_versions_guardrail_contract.py` for:
+  - [x] top-level workflow concurrency guardrail
+  - [x] dependency cache strategy markers (`actions/cache@v4`, uv + Bun cache paths)
+  - [x] dedicated TV input contract execution in cross-platform smoke checks
+  - [x] required preset matrix contract execution visibility in CI
+- [x] Implemented GREEN CI workflow hardening in `.github/workflows/ci.yml`:
+  - [x] added top-level `concurrency` cancellation policy (`cancel-in-progress: true`)
+  - [x] added dependency cache restore steps in matrix + guardrail jobs (`actions/cache@v4` for uv and Bun cache paths)
+  - [x] expanded cross-platform smoke contracts to include `tests/contracts/test_tv_input_hid_contract.py`
+  - [x] added explicit required preset matrix contract execution step (`tests/contracts/test_required_preset_matrix_contract.py`) in guardrail flow
+- [x] Updated implementation tracking state in `PLAN.md`:
+  - [x] marked M5 kickoff + CI matrix/cache task checkboxes complete
+  - [x] marked CI matrix checklist items complete for OS coverage, selected preset contracts, required preset matrix checks, Windows backend checks, TV input contracts, and version baseline compliance checks
+- [x] Verified BLUE for M5 CI hardening slice:
+  - [x] `uv run pytest tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (1 test)
+  - [x] `uv run pytest` -> pass (105 tests)
+- [x] Continued M5 with explicit YELLOW-RED-GREEN-BLUE slice for branch-protection guidance.
+- [x] Completed M5 YELLOW scan for this slice by reading and aligning:
+  - [x] `.github/workflows/ci.yml` (authoritative CI job names and gating behavior)
+  - [x] `README.md` (maintainer-facing docs entrypoint)
+  - [x] existing contract-test style in `tests/contracts/`
+- [x] Added RED branch-protection documentation contracts in `tests/contracts/test_branch_protection_guidance_contract.py` for:
+  - [x] required branch-protection settings + required status checks guidance doc presence/content
+  - [x] README link coverage for branch-protection guidance discoverability
+- [x] Implemented GREEN documentation updates:
+  - [x] added `docs/BRANCH_PROTECTION.md` with required checks and advisory secret-scan handling policy
+  - [x] linked `docs/BRANCH_PROTECTION.md` from `README.md`
+  - [x] marked M5 branch-protection task complete in `PLAN.md`
+- [x] Verified BLUE for M5 branch-protection slice:
+  - [x] `uv run pytest tests/contracts/test_branch_protection_guidance_contract.py` -> pass (2 tests)
+  - [x] `uv run pytest` -> pass (107 tests)
 
 ## In Progress
 
@@ -430,8 +465,9 @@
   - [ ] Execute Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
-- [ ] M5 kickoff prep:
-  - [ ] Start first hardening slice while preserving M4 carryover as an explicit pre-release gate.
+- [ ] M5 hardening continuation:
+  - [ ] Add/validate regression suite policy across preset combinations.
+  - [ ] Add optional signing pipeline design docs (disabled-by-default path).
 
 ## Deferred / Blocked
 
@@ -439,7 +475,7 @@
 
 ## Next Up
 
-- [ ] Begin M5 hardening work now (starting with CI matrix/cache strategy) while keeping M4 manual hardware validation carryover open.
+- [ ] Continue M5 with regression-policy and signing-design hardening follow-ups while M4 manual carryover remains open.
 - [ ] Close deferred M4 carryover as soon as Android TV Emulator + Shield execution environment is available, then mark M4 fully complete.
 
 ## BTCA Governance Log

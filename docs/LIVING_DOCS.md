@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 is in progress with baseline, TV build-profile, TV HID/input, setup-doc/checklist, and runtime-smoke/logging slices now GREEN.
+M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is now in progress with CI matrix/cache hardening plus branch-protection guidance in place.
 
 ## Active Implementation Rules
 
@@ -118,3 +118,5 @@ M0-M3 execution is complete. M4 is in progress with baseline, TV build-profile, 
 - Mobile/TV runtime execution contract coverage is now active in `tests/contracts/test_mobile_tv_runtime_smoke_contract.py`: generated `mobile+tv` scaffold installs with Bun and runs app-local `lint`, `typecheck`, and `test` scripts in CI-safe mode for both apps.
 - Mobile/TV workspace scripts now route through explicit smoke wrappers (`mobile|tv:lint:smoke`, `mobile|tv:typecheck:smoke`, `mobile|tv:test:smoke`), with app-local smoke tests (`smoke.test.js`) scaffolded for deterministic baseline `test` execution.
 - Generated TV outputs now include `apps/tv/TV_VALIDATION_LOG.md` to capture emulator + Shield run metadata, remote-primary checkpoints, fallback-input outcomes, and evidence links.
+- M5 CI hardening is now started: `.github/workflows/ci.yml` includes top-level workflow concurrency cancellation, dependency cache restoration (`actions/cache@v4` for uv and Bun cache paths), explicit TV input contract execution in cross-platform smoke coverage, and an explicit required preset-matrix contract step in guardrail flow.
+- Branch protection guidance is now documented at `docs/BRANCH_PROTECTION.md`, including required status checks (`Tests` matrix + `Version Baseline Guardrail`) and non-blocking advisory treatment for `Secret Scan (Advisory)`.
