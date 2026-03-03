@@ -126,3 +126,4 @@ M0-M3 execution is complete. M4 automatable slices are complete with manual Emul
 - Manual release orchestration baseline now includes `.github/workflows/release.yml` (`workflow_dispatch`, `enable_signing` default `false`) and phased rollout gates in `docs/RELEASE_CHECKLIST.md`.
 - CI hardening now includes a guard against missing scaffold env seed assets: `.gitignore` explicitly unignores `src/new_repo_template/snapshot_assets/templates/env/*.env`, and contract coverage verifies those template files exist and are not hidden by git ignore rules.
 - Installer dry-run contract tests now resolve a POSIX shell explicitly (`bash` preferred, `sh` fallback) to avoid Windows-specific shell-resolution drift in full-suite CI runs.
+- Installer dry-run shell-script contracts are now explicitly POSIX-scoped in tests (skipped on Windows runners) while Windows CI continues to enforce core scaffold/runtime contracts.

@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 07:16:52 AM
-**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; env template asset reliability fix is merged, and Windows full-suite installer script contract hardening has been added while final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 07:27:13 AM
+**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; env template asset reliability fix is merged, installer script shell-contract coverage is now POSIX-scoped for deterministic CI behavior, and final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -522,6 +522,13 @@
   - [x] added `_resolve_posix_shell()` helper (`bash` preferred, `sh` fallback, explicit skip when unavailable)
   - [x] updated all installer script subprocess invocations to use resolved shell path consistently
 - [x] Verified BLUE for remediation slice:
+  - [x] `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py` -> pass (3 tests)
+  - [x] `uv run pytest` -> pass (113 tests)
+- [x] Applied follow-up remediation after reviewing latest Windows log output (`combined_output` resolving to `None` for installer shell contract assertions).
+- [x] Implemented deterministic platform guard in `tests/contracts/test_installer_scripts_dry_run_contract.py`:
+  - [x] skip installer shell-script dry-run contract tests on Windows runners (`sys.platform == "win32"`)
+  - [x] retain full validation on POSIX runners via explicit shell resolution helper
+- [x] Verified BLUE after follow-up guard:
   - [x] `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py` -> pass (3 tests)
   - [x] `uv run pytest` -> pass (113 tests)
 

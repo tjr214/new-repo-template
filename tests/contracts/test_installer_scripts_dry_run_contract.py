@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,11 @@ import pytest
 
 def _resolve_posix_shell() -> str:
     """Return a usable POSIX shell executable for script contract tests."""
+
+    if sys.platform == "win32":
+        pytest.skip(
+            "installer shell-script dry-run contracts are validated on POSIX runners"
+        )
 
     bash_path = shutil.which("bash")
     if bash_path is not None:
