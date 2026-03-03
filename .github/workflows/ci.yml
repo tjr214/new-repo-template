@@ -169,6 +169,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Run lightweight secret scan (advisory)
         uses: gitleaks/gitleaks-action@v2.3.9

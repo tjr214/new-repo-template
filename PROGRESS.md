@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 08:30:44 AM
-**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; CI now uses a focused windows-latest critical-contract lane while non-Windows runners continue full-suite execution, secret-scan advisory now pins gitleaks action and disables PR-comment/artifact API calls to avoid RequestError failures, and final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 08:38:42 AM
+**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; CI now uses a focused windows-latest critical-contract lane while non-Windows runners continue full-suite execution, secret-scan advisory now pins gitleaks action, disables PR-comment/artifact API calls, and fetches full history to avoid commit-range RequestError/ambiguous-revision failures, and final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -562,6 +562,16 @@
   - [x] switched token wiring to `${{ github.token }}`
   - [x] disabled PR-comment and SARIF artifact upload API paths for advisory runs to reduce RequestError risk on restricted PR contexts
 - [x] Verified BLUE for secret-scan remediation slice:
+  - [x] `uv run pytest tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (1 test)
+  - [x] `uv run pytest` -> pass (113 tests)
+- [x] Continued M5 with explicit YELLOW-RED-GREEN-BLUE follow-up for gitleaks commit-range failures (`ambiguous argument ... unknown revision`) in advisory secret scan.
+- [x] Ran M5 YELLOW follow-up analysis for this failure mode:
+  - [x] reviewed `Secret Scan (Advisory)` checkout depth in `.github/workflows/ci.yml`
+  - [x] validated that gitleaks PR-range scanning needs base/head commit ancestry available in local checkout
+- [x] Added RED contract expectation in `tests/contracts/test_ci_versions_guardrail_contract.py` requiring `fetch-depth: 0` presence for the workflow.
+- [x] Implemented GREEN workflow fix in `.github/workflows/ci.yml`:
+  - [x] set `actions/checkout@v4` to `fetch-depth: 0` for `secret-scan-advisory`
+- [x] Verified BLUE for commit-range remediation:
   - [x] `uv run pytest tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (1 test)
   - [x] `uv run pytest` -> pass (113 tests)
 
