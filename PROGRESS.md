@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 06:33:02 AM
-**Current Phase:** M5 in progress (`CI matrix/cache hardening + branch protection guidance slices complete; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 06:40:38 AM
+**Current Phase:** M5 in progress (`CI matrix/cache hardening + branch protection + preset regression suite slices complete; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -457,6 +457,24 @@
 - [x] Verified BLUE for M5 branch-protection slice:
   - [x] `uv run pytest tests/contracts/test_branch_protection_guidance_contract.py` -> pass (2 tests)
   - [x] `uv run pytest` -> pass (107 tests)
+- [x] Continued M5 with explicit YELLOW-RED-GREEN-BLUE slice for preset-regression suite policy and CI coverage.
+- [x] Ran M5 YELLOW research for regression-suite structuring:
+  - [x] file-scan/read pass on `PLAN.md`, `.github/workflows/ci.yml`, `tests/contracts/test_ci_versions_guardrail_contract.py`, and `docs/BRANCH_PROTECTION.md`
+  - [x] `btca ask -r turborepo` for CI job decomposition/filtering guidance for maintainable monorepo regression checks
+  - [x] `btca ask -r bun` for deterministic CI regression-job install guidance
+- [x] Added RED regression-suite contracts in `tests/contracts/test_preset_regression_suite_contract.py` for:
+  - [x] dedicated CI job presence (`Preset Regression Suite`) and required contract command coverage
+  - [x] regression-suite policy doc presence/linkage (`docs/REGRESSION_SUITE.md` + `README.md`)
+- [x] Implemented GREEN regression-suite hardening updates:
+  - [x] added dedicated CI job `preset-regression-suite` in `.github/workflows/ci.yml`
+  - [x] moved preset-matrix contract execution into dedicated regression suite step
+  - [x] added `docs/REGRESSION_SUITE.md` with scope, CI mapping, local command, and maintenance rules
+  - [x] linked regression policy from `README.md`
+  - [x] updated `docs/BRANCH_PROTECTION.md` required checks to include `Preset Regression Suite`
+  - [x] marked M5 regression-suite task complete in `PLAN.md`
+- [x] Verified BLUE for M5 preset-regression slice:
+  - [x] `uv run pytest tests/contracts/test_preset_regression_suite_contract.py tests/contracts/test_ci_versions_guardrail_contract.py tests/contracts/test_branch_protection_guidance_contract.py` -> pass (5 tests)
+  - [x] `uv run pytest` -> pass (109 tests)
 
 ## In Progress
 
@@ -466,7 +484,7 @@
   - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
 - [ ] M5 hardening continuation:
-  - [ ] Add/validate regression suite policy across preset combinations.
+  - [ ] Add upgrade/versioning policy for template dependencies.
   - [ ] Add optional signing pipeline design docs (disabled-by-default path).
 
 ## Deferred / Blocked
@@ -475,7 +493,7 @@
 
 ## Next Up
 
-- [ ] Continue M5 with regression-policy and signing-design hardening follow-ups while M4 manual carryover remains open.
+- [ ] Continue M5 with upgrade/versioning-policy and signing-design hardening follow-ups while M4 manual carryover remains open.
 - [ ] Close deferred M4 carryover as soon as Android TV Emulator + Shield execution environment is available, then mark M4 fully complete.
 
 ## BTCA Governance Log

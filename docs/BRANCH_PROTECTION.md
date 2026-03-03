@@ -23,6 +23,7 @@ Mark these checks as required:
 - `Tests (ubuntu-latest)`
 - `Tests (macos-latest)`
 - `Tests (windows-latest)`
+- `Preset Regression Suite`
 - `Version Baseline Guardrail`
 
 ## Advisory (Non-Blocking) Check

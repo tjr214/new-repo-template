@@ -19,6 +19,7 @@ def test_branch_protection_guidance_doc_lists_required_status_checks() -> None:
     assert "Tests (ubuntu-latest)" in guidance_text
     assert "Tests (macos-latest)" in guidance_text
     assert "Tests (windows-latest)" in guidance_text
+    assert "Preset Regression Suite" in guidance_text
     assert "Version Baseline Guardrail" in guidance_text
     assert "Secret Scan (Advisory)" in guidance_text
     assert "continue-on-error: true" in guidance_text

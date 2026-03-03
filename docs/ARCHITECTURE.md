@@ -38,7 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestones M0-M3 are complete; M4 automatable slices are complete with manual Emulator/Shield carryover gates still open; M5 hardening is now in progress with CI matrix/cache strategy expansion and branch-protection guidance.
+- Milestones M0-M3 are complete; M4 automatable slices are complete with manual Emulator/Shield carryover gates still open; M5 hardening is now in progress with CI matrix/cache strategy expansion, branch-protection guidance, and dedicated preset-regression CI coverage.
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -79,6 +79,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - CI workflow wiring now enforces version/lockfile governance using `nurt versions check --check-lockfiles --check-latest`, sets up Bun on matrix runners, runs cross-platform script smoke contracts on native Linux/macOS/Windows, and includes a non-blocking advisory secret scan job.
 - CI workflow now also includes top-level workflow concurrency cancellation (`cancel-in-progress: true`), dependency cache restoration for uv/Bun via `actions/cache@v4`, explicit TV HID/input contract execution in cross-platform smoke steps, and an explicit required preset-matrix contract step in guardrail flow.
 - Branch-protection policy is now documented in `docs/BRANCH_PROTECTION.md` with required status checks aligned to the CI workflow job names and advisory-only secret scan handling.
+- Preset-combination regression policy is now documented in `docs/REGRESSION_SUITE.md`, and CI includes a dedicated `Preset Regression Suite` job that runs required preset-matrix/auth/fullstack contract subsets.
 - Interactive prompt rendering now includes Rich/Textual-aware UI infrastructure in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback behavior.
 - Desktop scaffold baseline is now concrete for `desktop` target: generated outputs include Electron entry files (`src/main.ts`, `src/preload.ts`, `src/renderer.ts`), `forge.config.ts`, `tsconfig.json`, `index.html`, and desktop README distribution notes.
 - Desktop workspace scripts now include local Forge commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:start:smoke`, `desktop:package:smoke`, `desktop:make:smoke`) wired through root task scripts for non-GUI determinism.
@@ -161,3 +162,5 @@ Current contract coverage:
   - Contract intent: CI workflow includes required version guardrail command, cross-platform matrix smoke-check wiring (including desktop runtime smoke contract), and advisory secret-scan job presence.
 - `tests/contracts/test_branch_protection_guidance_contract.py`
   - Contract intent: branch-protection policy docs include required status checks aligned to CI job names, advisory secret-scan treatment, and README discoverability link.
+- `tests/contracts/test_preset_regression_suite_contract.py`
+  - Contract intent: CI includes a dedicated preset-regression job with required matrix/auth/fullstack contract commands, and regression policy docs are present and linked from README.

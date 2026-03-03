@@ -425,14 +425,14 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Begin hardening slices while preserving M4 deferred hardware-validation carryover as an explicit pre-release gate.
 - [x] Expand GitHub Actions matrix and cache strategy
 - [x] Add branch protection guidance (required status checks)
-- [ ] Add regression suite across preset combinations
+- [x] Add regression suite across preset combinations
 - [ ] Add upgrade/versioning policy for template dependencies
 - [ ] Add optional signing pipeline design (disabled by default)
 
 ### DoD Gates
 
 - [ ] Required CI jobs green on PRs
-- [ ] Preset combination matrix passes
+- [x] Preset combination matrix passes
 - [ ] `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, `PROGRESS.md` fully synced
 - [ ] Optional signing workflow documented with secrets map and enablement steps
 - [ ] Release checklist complete for phased rollout
