@@ -114,6 +114,8 @@ TV_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/tv/App.tsx",
     "apps/tv/smoke.test.js",
     "apps/tv/tsconfig.json",
+    "apps/tv/scripts/",
+    "apps/tv/scripts/patch-android-wrapper.mjs",
     "apps/tv/TV_INPUT_CHECKLIST.md",
     "apps/tv/TV_VALIDATION_LOG.md",
 )
@@ -226,6 +228,9 @@ TV_INDEX_TEMPLATE = load_template_text("tv/tv_index.js")
 TV_APP_TEMPLATE = load_template_text("tv/tv_app.tsx")
 TV_SMOKE_TEST_TEMPLATE = load_template_text("tv/tv_smoke.test.js")
 TV_TSCONFIG_TEMPLATE = load_template_text("tv/tv_tsconfig.json")
+TV_PATCH_ANDROID_WRAPPER_TEMPLATE = load_template_text(
+    "tv/tv_patch_android_wrapper.mjs"
+)
 TV_INPUT_CHECKLIST_TEMPLATE = load_template_text("tv/tv_input_checklist.md")
 TV_VALIDATION_LOG_TEMPLATE = load_template_text("tv/tv_validation_log.md")
 TV_README_TEMPLATE = load_template_text("tv/tv_readme.md")
@@ -554,7 +559,9 @@ def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) 
         return
 
     tv_root = output_root / "apps" / "tv"
+    tv_scripts_dir = tv_root / "scripts"
     tv_root.mkdir(parents=True, exist_ok=True)
+    tv_scripts_dir.mkdir(parents=True, exist_ok=True)
 
     (tv_root / "README.md").write_text(TV_README_TEMPLATE, encoding="utf-8")
     (tv_root / "app.json").write_text(TV_APP_JSON_TEMPLATE, encoding="utf-8")
@@ -564,6 +571,10 @@ def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) 
     (tv_root / "App.tsx").write_text(TV_APP_TEMPLATE, encoding="utf-8")
     (tv_root / "smoke.test.js").write_text(TV_SMOKE_TEST_TEMPLATE, encoding="utf-8")
     (tv_root / "tsconfig.json").write_text(TV_TSCONFIG_TEMPLATE, encoding="utf-8")
+    (tv_scripts_dir / "patch-android-wrapper.mjs").write_text(
+        TV_PATCH_ANDROID_WRAPPER_TEMPLATE,
+        encoding="utf-8",
+    )
     (tv_root / "TV_INPUT_CHECKLIST.md").write_text(
         TV_INPUT_CHECKLIST_TEMPLATE,
         encoding="utf-8",

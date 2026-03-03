@@ -93,6 +93,8 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
     assert "react" in dependencies
     assert "react-native" in dependencies
     assert "expo-status-bar" in dependencies
+    assert dependencies.get("react") == "^19.2.0"
+    assert dependencies.get("react-native") == "^0.83.2"
 
     app_json_text = (mobile_root / "app.json").read_text(encoding="utf-8")
     assert '"slug": "mobile"' in app_json_text
@@ -169,6 +171,9 @@ def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
     assert "react" in dependencies
     assert "react-native" in dependencies
     assert "react-native-tvos" in dependencies
+    assert dependencies.get("react") == "^19.2.0"
+    assert dependencies.get("react-native") == "^0.83.2"
+    assert dependencies.get("react-native-tvos") == "^0.81.4-0"
 
     dev_dependencies = tv_manifest.get("devDependencies")
     assert isinstance(dev_dependencies, dict)

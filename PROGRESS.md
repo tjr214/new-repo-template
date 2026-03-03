@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 09:22:32 AM
-**Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness`)
+**Last Updated:** 2026-03-03 03:26:36 PM
+**Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness, with Android SDK tooling/TV AVD now available in the local environment`)
 
 ---
 
@@ -592,18 +592,35 @@
   - [x] RED: added failing contract `test_configure_repo_protections_defaults_branch_and_auto_detects_repo` in `tests/contracts/test_installer_scripts_dry_run_contract.py`.
   - [x] GREEN: updated `.template_scripts/configure-repo-protections.sh` to auto-detect `--repo` when omitted and default `--branch` to `main` when omitted.
   - [x] BLUE: verified with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_branch_protection_guidance_contract.py` (7 passed).
+- [x] Completed targeted Android TV scaffold hardening slice with explicit YELLOW-RED-GREEN-BLUE loop:
+  - [x] YELLOW: reproduced `tv:android` failure path on generated TV scaffold, read generated Android/Gradle outputs, and ran BTCA asks for Expo TV dependency compatibility and Gradle support guidance (`btca ask -r expo-docs -r react-native-tvos -r expo-tv-config ...`).
+  - [x] RED: expanded contracts to require Expo-compatible mobile/TV dependency pins, root `.gitignore` node_modules guards, and a deterministic TV Android wrapper-patch script flow (`tests/contracts/test_mobile_tv_scaffold_contract.py`, `tests/contracts/test_security_baseline_contract.py`, `tests/contracts/test_tv_android_build_profile_contract.py`).
+  - [x] GREEN: implemented scaffold/template updates:
+    - [x] updated mobile/TV workspace dependency baselines (`react@^19.2.0`, `react-native@^0.83.2`, `react-native-tvos@^0.81.4-0`)
+    - [x] added TV Android compatibility script flow (`tv:android:prepare`, `tv:android:wrapper:patch`, `tv:android`) and helper `apps/tv/scripts/patch-android-wrapper.mjs`
+    - [x] added `cross-env` dev dependency in TV workspace manifest for cross-platform env wiring
+    - [x] updated generated root `.gitignore` baseline to include `node_modules/` and `**/node_modules/`
+  - [x] BLUE: verified contracts and full suite:
+    - [x] `uv run pytest tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_security_baseline_contract.py tests/contracts/test_tv_android_build_profile_contract.py` -> pass (10 tests)
+    - [x] `uv run pytest` -> pass (116 tests)
+  - [x] Synced tracker/docs and recorded session artifact:
+    - [x] `docs/LIVING_DOCS.md`
+    - [x] `docs/ARCHITECTURE.md`
+    - [x] `docs/MOBILE_TV_SETUP.md`
+    - [x] `docs/session-summaries/SESSION_60_SUMMARY.md`
+  - [x] Verified new generated `tv:android` flow now reaches native build stage with compatibility guardrails active; remaining local failure is environment-only NDK installation integrity (`source.properties` missing under `~/Library/Android/sdk/ndk/27.1.12297006`).
 
 ## In Progress
 
 - [ ] M4 manual hardware-validation carryover (deferred until required tooling/hardware is available in execution environment):
-  - [ ] Ensure `adb` + `emulator` + Android TV AVD are available where checks will run.
+  - [x] Ensure `adb` + `emulator` + Android TV AVD are available where checks will run.
   - [ ] Execute Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
 
 ## Deferred / Blocked
 
-- [ ] M4 manual execution checks are blocked in this environment until Android SDK tooling (`adb`, `emulator`, Android TV AVD) and Shield-device execution access are available.
+- [ ] M4 manual execution checks are partially blocked in this environment: Android SDK tooling (`adb`, `emulator`, Android TV AVD) is now available, but Shield-device execution access is still unavailable and local Android build currently requires NDK reinstall/repair.
 
 ## Next Up
 

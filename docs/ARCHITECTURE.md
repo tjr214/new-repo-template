@@ -27,7 +27,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - TV input contract: remote-primary navigation with keyboard/mouse/gamepad support as secondary inputs
 - Root metadata invariant: `pyproject.toml` exists at repository root for all generated repos regardless of selected targets
 - Python lane metadata boundary: Python app metadata/deps live in lane-local `apps/python/pyproject.toml`, while root `pyproject.toml` remains monorepo/tooling-level
-- Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards and selected targets scaffold placeholder-only `.env.example`
+- Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards, JS dependency directory ignores (`node_modules/`, `**/node_modules/`), and selected targets scaffold placeholder-only `.env.example`
 - Global UX direction: distribute and run as `nurt` global CLI installed via uv from git; user entrypoint is `nurt new <project-name>`
 
 ## Planned Topology
@@ -106,6 +106,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Mobile/TV runtime smoke coverage is now active in `tests/contracts/test_mobile_tv_runtime_smoke_contract.py`: generated `mobile+tv` scaffold installs with Bun and app-local `lint`/`typecheck`/`test` scripts execute in CI-safe mode for both targets.
 - Mobile/TV workspace script model now maps baseline commands to explicit smoke wrappers (`mobile|tv:lint:smoke`, `mobile|tv:typecheck:smoke`, `mobile|tv:test:smoke`) with scaffolded app-local smoke tests (`smoke.test.js`) for deterministic `test` viability.
 - TV scaffold output now includes `apps/tv/TV_VALIDATION_LOG.md` to record emulator and Shield execution metadata/results alongside checklist completion.
+- Generated TV Android run flow now includes a compatibility patch step: `apps/tv/scripts/patch-android-wrapper.mjs` pins the generated Android wrapper to Gradle `8.14.3`, and `tv:android` executes with community autolinking enabled (`EXPO_USE_COMMUNITY_AUTOLINKING=1`) after deterministic prebuild.
 - M5 milestone closeout state is now explicit in planning docs: required PR checks were confirmed green and the remaining M5 DoD gate in `PLAN.md` is checked complete.
 
 ## Validation Model
