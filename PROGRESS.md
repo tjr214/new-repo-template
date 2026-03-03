@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 07:03:15 AM
-**Current Phase:** M5 in progress (`all M5 implementation slices complete, including CI-failure hardening for env template asset tracking; final M5 gate remains verification that required CI checks are green on PR runs; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 07:16:52 AM
+**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; env template asset reliability fix is merged, and Windows full-suite installer script contract hardening has been added while final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -511,6 +511,18 @@
   - [x] refined contract assertion to enforce env seed file existence + non-ignored status in `tests/contracts/test_security_baseline_contract.py`
 - [x] Verified BLUE for CI-closeout slice:
   - [x] `uv run pytest tests/contracts/test_bun_workspace_install_contract.py tests/contracts/test_convex_backend_smoke_contract.py tests/contracts/test_desktop_runtime_smoke_contract.py tests/contracts/test_mobile_tv_runtime_smoke_contract.py tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_turbo_command_smoke_contract.py tests/contracts/test_python_lane_contract.py::test_python_target_scaffold_runs_baseline_commands tests/contracts/test_security_baseline_contract.py` -> pass (14 tests)
+  - [x] `uv run pytest` -> pass (113 tests)
+- [x] Continued M5 PR-check remediation after pushing CI-closeout commit and monitoring required checks.
+- [x] Ran YELLOW for this remediation slice:
+  - [x] observed latest PR workflow run via `gh pr checks --watch`
+  - [x] inspected failing Windows job logs with `gh run view --job ... --log`
+  - [x] identified failure source: `tests/contracts/test_installer_scripts_dry_run_contract.py` shell invocation assumptions on Windows full-suite run
+- [x] Added RED evidence for Windows failure path from CI logs (installer dry-run assertions receiving non-expected output via shell invocation path).
+- [x] Implemented GREEN test-hardening update in `tests/contracts/test_installer_scripts_dry_run_contract.py`:
+  - [x] added `_resolve_posix_shell()` helper (`bash` preferred, `sh` fallback, explicit skip when unavailable)
+  - [x] updated all installer script subprocess invocations to use resolved shell path consistently
+- [x] Verified BLUE for remediation slice:
+  - [x] `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py` -> pass (3 tests)
   - [x] `uv run pytest` -> pass (113 tests)
 
 ## In Progress

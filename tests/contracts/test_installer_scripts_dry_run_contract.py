@@ -4,6 +4,22 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
+
+def _resolve_posix_shell() -> str:
+    """Return a usable POSIX shell executable for script contract tests."""
+
+    bash_path = shutil.which("bash")
+    if bash_path is not None:
+        return bash_path
+
+    sh_path = shutil.which("sh")
+    if sh_path is not None:
+        return sh_path
+
+    pytest.skip("POSIX shell executable not available for installer script contract")
+
 
 def test_update_opencode_script_supports_dry_run_and_lists_turbo() -> None:
     """RED: update-opencode script should expose dry-run with turborepo coverage."""
@@ -11,8 +27,9 @@ def test_update_opencode_script_supports_dry_run_and_lists_turbo() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     script_path = repo_root / ".template_scripts" / "update-opencode.sh"
 
+    shell = _resolve_posix_shell()
     result = subprocess.run(
-        ["sh", str(script_path), "--dry-run"],
+        [shell, str(script_path), "--dry-run"],
         cwd=repo_root,
         capture_output=True,
         text=True,
@@ -54,8 +71,9 @@ def test_install_script_dry_run_is_non_destructive(tmp_path: Path) -> None:
         "ref: refs/heads/main\n", encoding="utf-8"
     )
 
+    shell = _resolve_posix_shell()
     result = subprocess.run(
-        ["sh", "install.sh", "--dry-run"],
+        [shell, "install.sh", "--dry-run"],
         cwd=sandbox_root,
         capture_output=True,
         text=True,
@@ -101,9 +119,10 @@ def test_install_dry_run_accepts_target_and_auth_inputs(tmp_path: Path) -> None:
         "ref: refs/heads/main\n", encoding="utf-8"
     )
 
+    shell = _resolve_posix_shell()
     result = subprocess.run(
         [
-            "sh",
+            shell,
             "install.sh",
             "--dry-run",
             "--target",
