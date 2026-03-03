@@ -408,12 +408,21 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [ ] TV input UX checks pass: remote-primary navigation and keyboard/mouse/gamepad support
 - [x] Docs updated for separate mobile/TV setup, caveats, and test flow
 
+### M4 Deferred Hardware Validation Carryover (must close before release)
+
+- [ ] Ensure execution environment has Android SDK tooling available (`adb`, `emulator`, Android TV AVD image).
+- [ ] Execute Android TV Emulator checklist and log outcomes in generated `apps/tv/TV_VALIDATION_LOG.md`.
+- [ ] Execute NVIDIA Shield checklist and log outcomes in generated `apps/tv/TV_VALIDATION_LOG.md`.
+- [ ] Confirm remote-primary + keyboard/mouse/gamepad fallback UX from recorded emulator + Shield runs.
+- [ ] Keep this carryover open while M5 begins; do not consider program-level release readiness complete until it is closed.
+
 ---
 
 ## M5 - Hardening, CI Maturity, and Release Readiness
 
 ### Tasks
 
+- [ ] Begin hardening slices while preserving M4 deferred hardware-validation carryover as an explicit pre-release gate.
 - [ ] Expand GitHub Actions matrix and cache strategy
 - [ ] Add branch protection guidance (required status checks)
 - [ ] Add regression suite across preset combinations

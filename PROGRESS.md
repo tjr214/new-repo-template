@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 06:08:51 AM
-**Current Phase:** M4 in progress (`mobile/TV runtime lint-typecheck-test smoke checks + TV validation log scaffolding complete; manual emulator/Shield/input UX execution logs pending`)
+**Last Updated:** 2026-03-03 06:20:44 AM
+**Current Phase:** Transitioning to M5 (`all automatable M4 checks complete; manual Android TV Emulator + NVIDIA Shield execution logs explicitly deferred and tracked as carryover gates`)
 
 ---
 
@@ -418,23 +418,29 @@
 - [x] Verified BLUE for this slice:
   - [x] `uv run pytest tests/contracts/test_mobile_tv_runtime_smoke_contract.py tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_mobile_tv_setup_docs_contract.py tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (8 tests)
   - [x] `uv run pytest` -> pass (105 tests)
+- [x] Explicitly documented M4 carryover policy in `PLAN.md` and `PROGRESS.md`:
+  - [x] all automatable M4 gates remain complete
+  - [x] manual Android TV Emulator + NVIDIA Shield execution remains required and tracked for future closeout
+  - [x] M5 kickoff is allowed while this carryover remains an explicit pre-release gate
 
 ## In Progress
 
-- [ ] M4 mobile/TV milestone execution:
-  - [x] Scaffold Expo mobile baseline (`apps/mobile`) and Expo AndroidTV baseline (`apps/tv`) as separate apps.
-  - [x] Enforce TV plugin/config isolation to `apps/tv` via scaffolded app config.
-  - [x] Add Android build profile checks for TV app.
-  - [x] Add TV HID contract checks (remote primary + keyboard/mouse/gamepad fallback).
-  - [x] Add TV/mobile setup docs and validation checklist updates for emulator + Shield flow.
-  - [x] Add CI-safe runtime command contracts for mobile/TV `lint`/`typecheck`/`test` baseline scripts.
+- [ ] M4 manual hardware-validation carryover (deferred until required tooling/hardware is available in execution environment):
+  - [ ] Ensure `adb` + `emulator` + Android TV AVD are available where checks will run.
   - [ ] Execute Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
+- [ ] M5 kickoff prep:
+  - [ ] Start first hardening slice while preserving M4 carryover as an explicit pre-release gate.
+
+## Deferred / Blocked
+
+- [ ] M4 manual execution checks are blocked in this environment until Android SDK tooling (`adb`, `emulator`, Android TV AVD) and Shield-device execution access are available.
 
 ## Next Up
 
-- [ ] Finish remaining M4 manual DoD execution checks (Android TV Emulator + NVIDIA Shield runs and logged input UX outcomes), then move to M5 hardening slices.
+- [ ] Begin M5 hardening work now (starting with CI matrix/cache strategy) while keeping M4 manual hardware validation carryover open.
+- [ ] Close deferred M4 carryover as soon as Android TV Emulator + Shield execution environment is available, then mark M4 fully complete.
 
 ## BTCA Governance Log
 
