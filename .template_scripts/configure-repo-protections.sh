@@ -16,7 +16,7 @@ set -eu
 SCRIPT_NAME=$(basename "$0")
 WORKFLOW_NAME="CI"
 REPO=""
-BRANCH=""
+BRANCH="main"
 DRY_RUN=0
 AUTO_DETECT_CHECKS=1
 INCLUDE_ADMINS=1
@@ -28,7 +28,7 @@ Usage: sh .template_scripts/$SCRIPT_NAME [options]
 
 Options:
   --repo <owner/name>          Target repository (default: current gh repo)
-  --branch <branch>            Target protected branch (default: repo default branch)
+  --branch <branch>            Target protected branch (default: main)
   --required-check <name>      Required status check name (repeatable)
   --workflow <name>            Workflow name used for check auto-discovery (default: CI)
   --no-auto-detect-checks      Disable check auto-discovery when none are supplied
@@ -37,8 +37,8 @@ Options:
   --help, -h                   Show this help text
 
 Examples:
-  sh .template_scripts/$SCRIPT_NAME --repo your-org/your-repo --branch main
-  sh .template_scripts/$SCRIPT_NAME --dry-run --repo your-org/your-repo --branch main \
+  sh .template_scripts/$SCRIPT_NAME --repo your-org/your-repo
+  sh .template_scripts/$SCRIPT_NAME --dry-run --repo your-org/your-repo \
     --required-check "Tests (ubuntu-latest)" --required-check "Version Baseline Guardrail"
 EOF
 }
@@ -118,7 +118,7 @@ need_gh=0
 if [ "$DRY_RUN" -eq 0 ]; then
     need_gh=1
 fi
-if [ -z "$REPO" ] || [ -z "$BRANCH" ]; then
+if [ -z "$REPO" ]; then
     need_gh=1
 fi
 if [ -z "$REQUIRED_CHECKS_RAW" ] && [ "$AUTO_DETECT_CHECKS" -eq 1 ]; then
@@ -131,10 +131,6 @@ fi
 
 if [ -z "$REPO" ]; then
     REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
-fi
-
-if [ -z "$BRANCH" ]; then
-    BRANCH=$(gh repo view --repo "$REPO" --json defaultBranchRef --jq '.defaultBranchRef.name')
 fi
 
 if [ -z "$REQUIRED_CHECKS_RAW" ] && [ "$AUTO_DETECT_CHECKS" -eq 1 ]; then

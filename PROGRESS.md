@@ -1,6 +1,6 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 09:15:53 AM
+**Last Updated:** 2026-03-03 09:22:32 AM
 **Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness`)
 
 ---
@@ -587,6 +587,11 @@
   - [x] GREEN: implemented `.template_scripts/configure-repo-protections.sh` with dry-run planning, required-check support/auto-discovery, branch-protection application, and `dependabot_security_updates` enablement.
   - [x] BLUE: verified script behavior via `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py` (4 passed).
 - [x] Updated branch-protection maintainer guidance in `docs/BRANCH_PROTECTION.md` to document the new automation script usage for template and generated repositories.
+- [x] Completed follow-up protections-script defaults slice with YELLOW-RED-GREEN-BLUE loop:
+  - [x] YELLOW: reviewed protections script + contracts and queried BTCA (`btca ask -r bun ...`) for POSIX-shell portability reminder.
+  - [x] RED: added failing contract `test_configure_repo_protections_defaults_branch_and_auto_detects_repo` in `tests/contracts/test_installer_scripts_dry_run_contract.py`.
+  - [x] GREEN: updated `.template_scripts/configure-repo-protections.sh` to auto-detect `--repo` when omitted and default `--branch` to `main` when omitted.
+  - [x] BLUE: verified with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_branch_protection_guidance_contract.py` (7 passed).
 
 ## In Progress
 
