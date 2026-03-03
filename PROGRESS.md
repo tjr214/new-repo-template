@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 06:40:38 AM
-**Current Phase:** M5 in progress (`CI matrix/cache hardening + branch protection + preset regression suite slices complete; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 06:51:33 AM
+**Current Phase:** M5 in progress (`CI matrix/cache hardening + branch protection + preset regression suite + dependency versioning policy + optional signing/release checklist slices complete; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -475,6 +475,28 @@
 - [x] Verified BLUE for M5 preset-regression slice:
   - [x] `uv run pytest tests/contracts/test_preset_regression_suite_contract.py tests/contracts/test_ci_versions_guardrail_contract.py tests/contracts/test_branch_protection_guidance_contract.py` -> pass (5 tests)
   - [x] `uv run pytest` -> pass (109 tests)
+- [x] Continued M5 with explicit YELLOW-RED-GREEN-BLUE slice for dependency upgrade policy, optional signing workflow design, and phased release checklist closure.
+- [x] Ran M5 YELLOW research for this slice:
+  - [x] file-scan/read pass on `PLAN.md`, `README.md`, `.github/workflows/ci.yml`, `docs/ARCHITECTURE.md`, and `docs/LIVING_DOCS.md`
+  - [x] `btca ask -r bun -r turborepo` for Bun/Turbo dependency governance cadence and lockfile CI guidance
+  - [x] `btca ask -r expo-docs` for optional Android signing secret-handling and disabled-by-default CI gating patterns
+  - [x] `btca ask -r react-native-tvos` for pre-rollout Android TV validation checklist expectations
+- [x] Added RED hardening contracts in `tests/contracts/test_m5_release_hardening_contract.py` for:
+  - [x] dependency upgrade/versioning policy doc presence and README linkage
+  - [x] optional signing design doc + disabled-by-default release workflow contract (`.github/workflows/release.yml`)
+  - [x] phased release checklist doc presence and README linkage
+- [x] Verified RED:
+  - [x] `uv run pytest tests/contracts/test_m5_release_hardening_contract.py` -> fail (3 tests)
+- [x] Implemented GREEN hardening updates:
+  - [x] added `docs/DEPENDENCY_UPGRADE_POLICY.md`
+  - [x] added `docs/OPTIONAL_SIGNING_PIPELINE.md` (secrets map + enablement flow + unsigned trust/warning guidance)
+  - [x] added `docs/RELEASE_CHECKLIST.md` with explicit M4 carryover gate + required CI checks
+  - [x] added `.github/workflows/release.yml` with manual `workflow_dispatch` and disabled-by-default signing gate (`enable_signing=false`)
+  - [x] updated `README.md` to link all new M5 hardening docs
+  - [x] updated M5/CI workflow checkboxes in `PLAN.md` for completed upgrade-policy, signing design, release checklist, docs-sync, and release workflow items
+- [x] Verified BLUE for this slice:
+  - [x] `uv run pytest tests/contracts/test_m5_release_hardening_contract.py` -> pass (3 tests)
+  - [x] `uv run pytest` -> pass (112 tests)
 
 ## In Progress
 
@@ -483,9 +505,8 @@
   - [ ] Execute Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
-- [ ] M5 hardening continuation:
-  - [ ] Add upgrade/versioning policy for template dependencies.
-  - [ ] Add optional signing pipeline design docs (disabled-by-default path).
+- [ ] M5 hardening closeout:
+  - [ ] Confirm required CI jobs are green on active PR runs.
 
 ## Deferred / Blocked
 
@@ -493,7 +514,7 @@
 
 ## Next Up
 
-- [ ] Continue M5 with upgrade/versioning-policy and signing-design hardening follow-ups while M4 manual carryover remains open.
+- [ ] Confirm required CI status checks stay green in PR execution after hardening changes.
 - [ ] Close deferred M4 carryover as soon as Android TV Emulator + Shield execution environment is available, then mark M4 fully complete.
 
 ## BTCA Governance Log

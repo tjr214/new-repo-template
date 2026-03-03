@@ -426,16 +426,16 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Expand GitHub Actions matrix and cache strategy
 - [x] Add branch protection guidance (required status checks)
 - [x] Add regression suite across preset combinations
-- [ ] Add upgrade/versioning policy for template dependencies
-- [ ] Add optional signing pipeline design (disabled by default)
+- [x] Add upgrade/versioning policy for template dependencies
+- [x] Add optional signing pipeline design (disabled by default)
 
 ### DoD Gates
 
 - [ ] Required CI jobs green on PRs
 - [x] Preset combination matrix passes
-- [ ] `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, `PROGRESS.md` fully synced
-- [ ] Optional signing workflow documented with secrets map and enablement steps
-- [ ] Release checklist complete for phased rollout
+- [x] `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, `PROGRESS.md` fully synced
+- [x] Optional signing workflow documented with secrets map and enablement steps
+- [x] Release checklist complete for phased rollout
 
 ---
 
@@ -444,7 +444,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### 7.1 Workflow Files
 
 - [x] `.github/workflows/ci.yml` (required)
-- [ ] `.github/workflows/release.yml` (later)
+- [x] `.github/workflows/release.yml` (later)
 - [ ] `.github/workflows/nightly.yml` (optional)
 
 ### 7.2 Required CI Matrix (initial)

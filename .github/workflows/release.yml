@@ -1,0 +1,66 @@
+name: Release (Optional Signing)
+
+on:
+  workflow_dispatch:
+    inputs:
+      enable_signing:
+        description: "Enable signing jobs (requires configured secrets)"
+        required: true
+        type: choice
+        default: "false"
+        options:
+          - "false"
+          - "true"
+      release_label:
+        description: "Human-readable release label"
+        required: true
+        default: "manual-release"
+
+jobs:
+  unsigned-release-readiness:
+    name: Unsigned Release Readiness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Record release mode
+        run: |
+          echo "Release label: ${{ inputs.release_label }}"
+          echo "Signing enabled: ${{ inputs.enable_signing }}"
+
+  optional-signing-secrets-check:
+    name: Optional Signing Secrets Check
+    if: ${{ inputs.enable_signing == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required signing secret presence
+        env:
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          APPLE_DEVELOPER_ID: ${{ secrets.APPLE_DEVELOPER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=0
+          for name in \
+            MACOS_CERTIFICATE_P12_BASE64 \
+            MACOS_CERTIFICATE_PASSWORD \
+            APPLE_DEVELOPER_ID \
+            APPLE_TEAM_ID \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD
+          do
+            if [ -z "${!name}" ]; then
+              echo "Missing required signing secret: ${name}" >&2
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi

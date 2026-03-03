@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is now in progress with CI matrix/cache hardening, branch-protection guidance, and dedicated preset-regression coverage in place.
+M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is now in progress with CI matrix/cache hardening, branch-protection guidance, dedicated preset-regression coverage, dependency versioning policy, and optional signing/release checklist design in place.
 
 ## Active Implementation Rules
 
@@ -121,3 +121,6 @@ M0-M3 execution is complete. M4 automatable slices are complete with manual Emul
 - M5 CI hardening is now started: `.github/workflows/ci.yml` includes top-level workflow concurrency cancellation, dependency cache restoration (`actions/cache@v4` for uv and Bun cache paths), explicit TV input contract execution in cross-platform smoke coverage, and an explicit required preset-matrix contract step in guardrail flow.
 - Branch protection guidance is now documented at `docs/BRANCH_PROTECTION.md`, including required status checks (`Tests` matrix + `Version Baseline Guardrail`) and non-blocking advisory treatment for `Secret Scan (Advisory)`.
 - A dedicated preset regression CI lane is now defined as `Preset Regression Suite`, executing required preset/auth/fullstack regression contracts and documented in `docs/REGRESSION_SUITE.md`.
+- Dependency governance policy is now documented in `docs/DEPENDENCY_UPGRADE_POLICY.md`, including cadence, version-range expectations, lockfile rules, and maintainer command flow (`nurt versions check/update`).
+- Optional signing workflow design is now documented in `docs/OPTIONAL_SIGNING_PIPELINE.md` with a concrete secrets map and disabled-by-default enablement model.
+- Manual release orchestration baseline now includes `.github/workflows/release.yml` (`workflow_dispatch`, `enable_signing` default `false`) and phased rollout gates in `docs/RELEASE_CHECKLIST.md`.

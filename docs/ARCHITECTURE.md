@@ -38,7 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 ## Current Implementation Status
 
-- Milestones M0-M3 are complete; M4 automatable slices are complete with manual Emulator/Shield carryover gates still open; M5 hardening is now in progress with CI matrix/cache strategy expansion, branch-protection guidance, and dedicated preset-regression CI coverage.
+- Milestones M0-M3 are complete; M4 automatable slices are complete with manual Emulator/Shield carryover gates still open; M5 hardening is now in progress with CI matrix/cache strategy expansion, branch-protection guidance, dedicated preset-regression CI coverage, dependency upgrade/versioning policy documentation, and optional signing/release checklist design.
 - Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -80,6 +80,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - CI workflow now also includes top-level workflow concurrency cancellation (`cancel-in-progress: true`), dependency cache restoration for uv/Bun via `actions/cache@v4`, explicit TV HID/input contract execution in cross-platform smoke steps, and an explicit required preset-matrix contract step in guardrail flow.
 - Branch-protection policy is now documented in `docs/BRANCH_PROTECTION.md` with required status checks aligned to the CI workflow job names and advisory-only secret scan handling.
 - Preset-combination regression policy is now documented in `docs/REGRESSION_SUITE.md`, and CI includes a dedicated `Preset Regression Suite` job that runs required preset-matrix/auth/fullstack contract subsets.
+- Dependency lifecycle governance is now documented in `docs/DEPENDENCY_UPGRADE_POLICY.md`, including cadence tiers, `workspace:*`/`^` range strategy, lockfile rules, and maintainer `nurt versions check/update` workflow.
+- Optional signing design is now documented in `docs/OPTIONAL_SIGNING_PIPELINE.md`, with secret-name map and disabled-by-default enablement strategy.
+- Manual release workflow scaffolding now includes `.github/workflows/release.yml` with `workflow_dispatch` and guarded signing path (`enable_signing` defaults to `false`), plus phased rollout criteria captured in `docs/RELEASE_CHECKLIST.md`.
 - Interactive prompt rendering now includes Rich/Textual-aware UI infrastructure in `src/new_repo_template/interactive_ui.py` with deterministic plain fallback behavior.
 - Desktop scaffold baseline is now concrete for `desktop` target: generated outputs include Electron entry files (`src/main.ts`, `src/preload.ts`, `src/renderer.ts`), `forge.config.ts`, `tsconfig.json`, `index.html`, and desktop README distribution notes.
 - Desktop workspace scripts now include local Forge commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:start:smoke`, `desktop:package:smoke`, `desktop:make:smoke`) wired through root task scripts for non-GUI determinism.
