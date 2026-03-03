@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 05:53:52 AM
-**Current Phase:** M4 in progress (`mobile/TV setup docs + emulator/Shield validation checklist scaffolding complete; remaining DoD execution checks pending`)
+**Last Updated:** 2026-03-03 06:08:51 AM
+**Current Phase:** M4 in progress (`mobile/TV runtime lint-typecheck-test smoke checks + TV validation log scaffolding complete; manual emulator/Shield/input UX execution logs pending`)
 
 ---
 
@@ -383,6 +383,41 @@
   - [x] `uv run pytest tests/contracts/test_mobile_tv_setup_docs_contract.py` -> pass (3 tests)
   - [x] `uv run pytest tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_tv_android_build_profile_contract.py tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_mobile_tv_setup_docs_contract.py` -> pass (12 tests)
   - [x] `uv run pytest` -> pass (104 tests)
+- [x] Continued M4 with explicit YELLOW-RED-GREEN-BLUE slice for runtime execution checks + validation logging.
+- [x] Ran M4 YELLOW BTCA asks for this runtime/logging slice:
+  - [x] `btca ask -r expo-docs -r react-native-tvos` for CI-safe, non-interactive lint/typecheck/test command patterns.
+  - [x] `btca ask -r expo-docs -r expo-tv-config -r react-native-tvos` for emulator/Shield validation logging structure expectations.
+  - [x] `btca ask -r react-native-tvos -r expo-docs` for concrete remote/fallback checkpoint fields and reproducible logging metadata.
+  - [x] Executed `btca clear` after BTCA runtime reported `expo-docs` fetch failure, then reran successfully.
+- [x] Added RED runtime contract coverage in `tests/contracts/test_mobile_tv_runtime_smoke_contract.py`:
+  - [x] `mobile+tv` scaffold install viability (`bun install --frozen-lockfile`)
+  - [x] CI-safe execution checks for app-local `lint`, `typecheck`, and `test` scripts in both `apps/mobile` and `apps/tv`
+  - [x] script-wiring assertions for mobile/TV lint-typecheck-test baseline commands
+- [x] Expanded RED scaffold/docs contracts:
+  - [x] `tests/contracts/test_mobile_tv_scaffold_contract.py` now asserts mobile/TV smoke test files and TV validation log path visibility.
+  - [x] `tests/contracts/test_mobile_tv_setup_docs_contract.py` now asserts `TV_VALIDATION_LOG.md` generation and guidance markers.
+- [x] Implemented GREEN mobile/TV runtime + logging scaffolding:
+  - [x] Updated mobile/TV workspace package templates for CI-safe script wiring:
+    - [x] `lint` -> `mobile|tv:lint:smoke` (`expo lint --help`)
+    - [x] `typecheck` -> `mobile|tv:typecheck:smoke` (`tsc --help`)
+    - [x] `test` -> `mobile|tv:test:smoke` (`bun test` on app-local smoke tests)
+  - [x] Added app-local smoke tests:
+    - [x] `apps/mobile/smoke.test.js`
+    - [x] `apps/tv/smoke.test.js`
+  - [x] Added TV validation log template output at `apps/tv/TV_VALIDATION_LOG.md`.
+  - [x] Updated scaffold path planning/writers in `src/new_repo_template/scaffold.py` for the new runtime/logging files.
+  - [x] Updated generated mobile/TV README guidance to use app-local `bun run lint/typecheck/test` flow.
+- [x] Implemented GREEN CI wiring updates:
+  - [x] Added `tests/contracts/test_mobile_tv_runtime_smoke_contract.py` to `.github/workflows/ci.yml` cross-platform smoke step.
+  - [x] Expanded `tests/contracts/test_ci_versions_guardrail_contract.py` assertions for the new mobile/TV runtime smoke contract step.
+- [x] Updated plan/documentation sync for this slice:
+  - [x] `PLAN.md` (M4 tasks + RED tests + DoD checkboxes for mobile/TV lint-typecheck-test baseline)
+  - [x] `docs/MOBILE_TV_SETUP.md`
+  - [x] `docs/LIVING_DOCS.md`
+  - [x] `docs/ARCHITECTURE.md`
+- [x] Verified BLUE for this slice:
+  - [x] `uv run pytest tests/contracts/test_mobile_tv_runtime_smoke_contract.py tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_mobile_tv_setup_docs_contract.py tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (8 tests)
+  - [x] `uv run pytest` -> pass (105 tests)
 
 ## In Progress
 
@@ -392,10 +427,14 @@
   - [x] Add Android build profile checks for TV app.
   - [x] Add TV HID contract checks (remote primary + keyboard/mouse/gamepad fallback).
   - [x] Add TV/mobile setup docs and validation checklist updates for emulator + Shield flow.
+  - [x] Add CI-safe runtime command contracts for mobile/TV `lint`/`typecheck`/`test` baseline scripts.
+  - [ ] Execute Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
+  - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
+  - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
 
 ## Next Up
 
-- [ ] Finish remaining M4 DoD execution checks (mobile/TV lint-typecheck-test, emulator run, Shield log), then move to M5 hardening slices.
+- [ ] Finish remaining M4 manual DoD execution checks (Android TV Emulator + NVIDIA Shield runs and logged input UX outcomes), then move to M5 hardening slices.
 
 ## BTCA Governance Log
 
@@ -410,3 +449,4 @@
 - [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 TV build-profile YELLOW ask; follow-up Expo/TV guidance query succeeded.
 - [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 TV HID/input YELLOW ask; follow-up fallback-input query succeeded.
 - [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 setup-doc/checklist YELLOW ask; follow-up emulator/Shield guidance query succeeded.
+- [x] 2026-03-03: `btca clear` executed after BTCA runtime reported `expo-docs` fetch failure during M4 runtime/logging YELLOW ask; follow-up mobile/TV runtime guidance query succeeded.

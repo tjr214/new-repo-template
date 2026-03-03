@@ -49,9 +49,10 @@ def test_mobile_scaffold_includes_setup_and_validation_readme(tmp_path: Path) ->
 
     readme_text = readme_path.read_text(encoding="utf-8")
     assert "Mobile Setup" in readme_text
-    assert "expo lint" in readme_text
-    assert "tsc --noEmit" in readme_text
-    assert "--non-interactive" in readme_text
+    assert "bun run lint" in readme_text
+    assert "bun run typecheck" in readme_text
+    assert "bun run test" in readme_text
+    assert "device-free" in readme_text
 
 
 def test_tv_scaffold_includes_emulator_and_shield_validation_docs(
@@ -88,6 +89,7 @@ def test_tv_scaffold_includes_emulator_and_shield_validation_docs(
     assert "Android TV Emulator" in readme_text
     assert "NVIDIA Shield" in readme_text
     assert "remote-primary" in readme_text
+    assert "TV_VALIDATION_LOG.md" in readme_text
 
     checklist_text = (tv_root / "TV_INPUT_CHECKLIST.md").read_text(encoding="utf-8")
     assert "Android TV Emulator" in checklist_text
@@ -95,6 +97,15 @@ def test_tv_scaffold_includes_emulator_and_shield_validation_docs(
     assert "keyboard" in checklist_text
     assert "mouse" in checklist_text
     assert "gamepad" in checklist_text
+
+    validation_log_text = (tv_root / "TV_VALIDATION_LOG.md").read_text(encoding="utf-8")
+    assert "Run Metadata" in validation_log_text
+    assert "Android TV Emulator Pass" in validation_log_text
+    assert "NVIDIA Shield Pass" in validation_log_text
+    assert "remote-primary" in validation_log_text
+    assert "keyboard" in validation_log_text
+    assert "mouse" in validation_log_text
+    assert "gamepad" in validation_log_text
 
 
 def test_mobile_tv_dry_run_reports_setup_docs_paths(tmp_path: Path) -> None:
@@ -126,4 +137,5 @@ def test_mobile_tv_dry_run_reports_setup_docs_paths(tmp_path: Path) -> None:
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "apps/mobile/README.md" in combined_output
     assert "apps/tv/README.md" in combined_output
+    assert "apps/tv/TV_VALIDATION_LOG.md" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"

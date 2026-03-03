@@ -18,16 +18,18 @@
   "scripts": {
     "dev": "bun run tv:start:smoke",
     "build": "bun run tv:export:smoke",
-    "test": "bun --version",
-    "lint": "bun --version",
-    "typecheck": "bun run typecheck:smoke",
+    "test": "bun run tv:test:smoke",
+    "lint": "bun run tv:lint:smoke",
+    "typecheck": "bun run tv:typecheck:smoke",
     "tv:start": "expo start --non-interactive",
     "tv:android": "expo run:android",
     "tv:export": "expo export --non-interactive",
     "tv:build:development": "bunx eas build --platform android --profile development --non-interactive",
     "tv:build:preview": "bunx eas build --platform android --profile preview --non-interactive",
+    "tv:lint:smoke": "expo lint --help",
+    "tv:typecheck:smoke": "tsc --help",
+    "tv:test:smoke": "bun test --bail --timeout 10000 ./smoke.test.js",
     "tv:start:smoke": "expo start --help",
-    "tv:export:smoke": "expo export --help",
-    "typecheck:smoke": "tsc --help"
+    "tv:export:smoke": "expo export --help"
   }
 }

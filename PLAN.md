@@ -386,6 +386,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Add TV-focused env/build profile notes and scripts for dedicated TV app
 - [x] Add TV focus/navigation baseline patterns checklist (remote-primary)
 - [x] Add keyboard/mouse/gamepad fallback input support checklist for TV app
+- [x] Add CI-safe runtime smoke contract for mobile/TV `lint`/`typecheck`/`test` baseline scripts
+- [x] Scaffold TV validation log artifact for emulator + Shield run tracking
 
 ### RED Tests
 
@@ -395,11 +397,12 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Android build profile checks for TV app
 - [x] HID contract test for TV app input handling (remote primary + keyboard/mouse/gamepad supported)
 - [x] Mobile/TV setup docs + validation checklist contract test coverage
+- [x] Mobile/TV runtime smoke contract coverage for CI-safe `lint`/`typecheck`/`test` command viability
 
 ### DoD Gates
 
-- [ ] Expo mobile baseline passes lint/typecheck/tests
-- [ ] Expo TV baseline passes lint/typecheck/tests
+- [x] Expo mobile baseline passes lint/typecheck/tests
+- [x] Expo TV baseline passes lint/typecheck/tests
 - [ ] AndroidTV emulator validation checklist completed
 - [ ] Manual Shield checklist completed and logged
 - [ ] TV input UX checks pass: remote-primary navigation and keyboard/mouse/gamepad support

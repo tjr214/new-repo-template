@@ -52,6 +52,7 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
         mobile_root / "babel.config.js",
         mobile_root / "index.js",
         mobile_root / "App.tsx",
+        mobile_root / "smoke.test.js",
         mobile_root / "tsconfig.json",
     )
     for path in expected_paths:
@@ -73,11 +74,18 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
         "mobile:ios",
         "mobile:web",
         "mobile:export",
+        "mobile:lint:smoke",
+        "mobile:typecheck:smoke",
+        "mobile:test:smoke",
         "mobile:start:smoke",
         "mobile:export:smoke",
     ):
         script_value = scripts.get(script_name)
         assert isinstance(script_value, str) and script_value != ""
+
+    assert scripts.get("lint") == "bun run mobile:lint:smoke"
+    assert scripts.get("typecheck") == "bun run mobile:typecheck:smoke"
+    assert scripts.get("test") == "bun run mobile:test:smoke"
 
     dependencies = mobile_manifest.get("dependencies")
     assert isinstance(dependencies, dict)
@@ -123,7 +131,9 @@ def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
         tv_root / "babel.config.js",
         tv_root / "index.js",
         tv_root / "App.tsx",
+        tv_root / "smoke.test.js",
         tv_root / "tsconfig.json",
+        tv_root / "TV_VALIDATION_LOG.md",
     )
     for path in expected_paths:
         assert path.exists(), f"Expected scaffolded tv file: {path}"
@@ -140,11 +150,18 @@ def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
         "tv:start",
         "tv:android",
         "tv:export",
+        "tv:lint:smoke",
+        "tv:typecheck:smoke",
+        "tv:test:smoke",
         "tv:start:smoke",
         "tv:export:smoke",
     ):
         script_value = scripts.get(script_name)
         assert isinstance(script_value, str) and script_value != ""
+
+    assert scripts.get("lint") == "bun run tv:lint:smoke"
+    assert scripts.get("typecheck") == "bun run tv:typecheck:smoke"
+    assert scripts.get("test") == "bun run tv:test:smoke"
 
     dependencies = tv_manifest.get("dependencies")
     assert isinstance(dependencies, dict)
@@ -191,7 +208,10 @@ def test_mobile_tv_dry_run_reports_separate_mobile_and_tv_paths(tmp_path: Path) 
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "apps/mobile/app.json" in combined_output
     assert "apps/mobile/App.tsx" in combined_output
+    assert "apps/mobile/smoke.test.js" in combined_output
     assert "apps/tv/app.json" in combined_output
     assert "apps/tv/App.tsx" in combined_output
+    assert "apps/tv/smoke.test.js" in combined_output
     assert "apps/tv/package.json" in combined_output
+    assert "apps/tv/TV_VALIDATION_LOG.md" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"

@@ -22,6 +22,7 @@ def test_ci_workflow_runs_versions_guardrail_cross_platform_smokes_and_advisory_
     assert "test_bun_workspace_install_contract.py" in workflow_text
     assert "test_convex_backend_smoke_contract.py" in workflow_text
     assert "test_desktop_runtime_smoke_contract.py" in workflow_text
+    assert "test_mobile_tv_runtime_smoke_contract.py" in workflow_text
     assert "test_turbo_command_smoke_contract.py" in workflow_text
     assert "test_python_target_scaffold_runs_baseline_commands" in workflow_text
     assert "nurt versions check --check-lockfiles --check-latest" in workflow_text

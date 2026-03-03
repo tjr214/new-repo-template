@@ -1,6 +1,7 @@
 # TV Input Checklist
 
 Use this checklist to keep TV behavior remote-primary while preserving keyboard/mouse/gamepad fallback support.
+Record execution details in `TV_VALIDATION_LOG.md` while completing each section.
 
 ## Focus and Navigation Baseline (remote-primary)
 

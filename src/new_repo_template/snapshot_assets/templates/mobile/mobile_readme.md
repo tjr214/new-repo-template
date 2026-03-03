@@ -11,13 +11,16 @@ This app is the dedicated Expo mobile baseline for the generated monorepo.
 
 ## CI-Safe Validation Commands
 
-Run these from `apps/mobile` for non-interactive verification:
+Run these from `apps/mobile` for non-interactive baseline verification:
 
-- `expo lint`
-- `tsc --noEmit`
-- `expo export --non-interactive`
+- `bun run lint`
+- `bun run typecheck`
+- `bun run test`
 
-Smoke alternatives already wired in package scripts:
+Additional smoke helpers:
 
+- `bun run mobile:lint:smoke`
 - `bun run mobile:start:smoke`
 - `bun run mobile:export:smoke`
+
+The default `test` command runs `smoke.test.ts` for a deterministic, device-free baseline.

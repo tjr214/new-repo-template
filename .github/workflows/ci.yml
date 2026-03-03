@@ -45,6 +45,7 @@ jobs:
           tests/contracts/test_bun_workspace_install_contract.py
           tests/contracts/test_convex_backend_smoke_contract.py
           tests/contracts/test_desktop_runtime_smoke_contract.py
+          tests/contracts/test_mobile_tv_runtime_smoke_contract.py
           tests/contracts/test_turbo_command_smoke_contract.py
           tests/contracts/test_python_lane_contract.py::test_python_target_scaffold_runs_baseline_commands
 

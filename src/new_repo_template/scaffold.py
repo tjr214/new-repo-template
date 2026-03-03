@@ -101,6 +101,7 @@ MOBILE_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/mobile/babel.config.js",
     "apps/mobile/index.js",
     "apps/mobile/App.tsx",
+    "apps/mobile/smoke.test.js",
     "apps/mobile/tsconfig.json",
 )
 
@@ -111,8 +112,10 @@ TV_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/tv/babel.config.js",
     "apps/tv/index.js",
     "apps/tv/App.tsx",
+    "apps/tv/smoke.test.js",
     "apps/tv/tsconfig.json",
     "apps/tv/TV_INPUT_CHECKLIST.md",
+    "apps/tv/TV_VALIDATION_LOG.md",
 )
 
 SHARED_WORKSPACE_PATHS: tuple[str, ...] = (
@@ -213,6 +216,7 @@ MOBILE_APP_JSON_TEMPLATE = load_template_text("mobile/mobile_app.json")
 MOBILE_BABEL_CONFIG_TEMPLATE = load_template_text("mobile/mobile_babel.config.js")
 MOBILE_INDEX_TEMPLATE = load_template_text("mobile/mobile_index.js")
 MOBILE_APP_TEMPLATE = load_template_text("mobile/mobile_app.tsx")
+MOBILE_SMOKE_TEST_TEMPLATE = load_template_text("mobile/mobile_smoke.test.js")
 MOBILE_TSCONFIG_TEMPLATE = load_template_text("mobile/mobile_tsconfig.json")
 MOBILE_README_TEMPLATE = load_template_text("mobile/mobile_readme.md")
 TV_APP_JSON_TEMPLATE = load_template_text("tv/tv_app.json")
@@ -220,8 +224,10 @@ TV_EAS_JSON_TEMPLATE = load_template_text("tv/tv_eas.json")
 TV_BABEL_CONFIG_TEMPLATE = load_template_text("tv/tv_babel.config.js")
 TV_INDEX_TEMPLATE = load_template_text("tv/tv_index.js")
 TV_APP_TEMPLATE = load_template_text("tv/tv_app.tsx")
+TV_SMOKE_TEST_TEMPLATE = load_template_text("tv/tv_smoke.test.js")
 TV_TSCONFIG_TEMPLATE = load_template_text("tv/tv_tsconfig.json")
 TV_INPUT_CHECKLIST_TEMPLATE = load_template_text("tv/tv_input_checklist.md")
+TV_VALIDATION_LOG_TEMPLATE = load_template_text("tv/tv_validation_log.md")
 TV_README_TEMPLATE = load_template_text("tv/tv_readme.md")
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
 DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
@@ -533,6 +539,10 @@ def scaffold_mobile_framework_files(
     )
     (mobile_root / "index.js").write_text(MOBILE_INDEX_TEMPLATE, encoding="utf-8")
     (mobile_root / "App.tsx").write_text(MOBILE_APP_TEMPLATE, encoding="utf-8")
+    (mobile_root / "smoke.test.js").write_text(
+        MOBILE_SMOKE_TEST_TEMPLATE,
+        encoding="utf-8",
+    )
     (mobile_root / "tsconfig.json").write_text(
         MOBILE_TSCONFIG_TEMPLATE,
         encoding="utf-8",
@@ -552,9 +562,14 @@ def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) 
     (tv_root / "babel.config.js").write_text(TV_BABEL_CONFIG_TEMPLATE, encoding="utf-8")
     (tv_root / "index.js").write_text(TV_INDEX_TEMPLATE, encoding="utf-8")
     (tv_root / "App.tsx").write_text(TV_APP_TEMPLATE, encoding="utf-8")
+    (tv_root / "smoke.test.js").write_text(TV_SMOKE_TEST_TEMPLATE, encoding="utf-8")
     (tv_root / "tsconfig.json").write_text(TV_TSCONFIG_TEMPLATE, encoding="utf-8")
     (tv_root / "TV_INPUT_CHECKLIST.md").write_text(
         TV_INPUT_CHECKLIST_TEMPLATE,
+        encoding="utf-8",
+    )
+    (tv_root / "TV_VALIDATION_LOG.md").write_text(
+        TV_VALIDATION_LOG_TEMPLATE,
         encoding="utf-8",
     )
 

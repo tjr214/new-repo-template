@@ -19,12 +19,13 @@ nurt new my-mobile-tv-app --target mobile --target tv --no-interactive
 
 From `apps/mobile`:
 
-- `expo lint`
-- `tsc --noEmit`
-- `expo export --non-interactive`
+- `bun run lint`
+- `bun run typecheck`
+- `bun run test`
 
 Smoke alternatives already scaffolded:
 
+- `bun run mobile:lint:smoke`
 - `bun run mobile:start:smoke`
 - `bun run mobile:export:smoke`
 
@@ -32,9 +33,9 @@ Smoke alternatives already scaffolded:
 
 From `apps/tv`:
 
-- `expo lint`
-- `tsc --noEmit`
-- `expo export --non-interactive`
+- `bun run lint`
+- `bun run typecheck`
+- `bun run test`
 
 TV build-profile scripts:
 
@@ -49,7 +50,10 @@ Manual validation:
    - verify remote-primary behavior
    - verify keyboard/mouse/gamepad fallback behavior
 
-Use `apps/tv/TV_INPUT_CHECKLIST.md` to track pass/fail notes for both passes.
+Use both files during manual validation:
+
+- `apps/tv/TV_INPUT_CHECKLIST.md` for checklist completion
+- `apps/tv/TV_VALIDATION_LOG.md` for run metadata, pass/fail status, and evidence links
 
 ## Caveats
 

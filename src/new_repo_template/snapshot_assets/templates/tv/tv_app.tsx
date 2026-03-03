@@ -11,7 +11,7 @@ import {
 
 const RAIL_ITEMS = ["Home", "Library", "Settings"] as const;
 
-export default function App(): JSX.Element {
+export default function App() {
   const [focusedIndex, setFocusedIndex] = useState<number>(0);
   const [lastInputHint, setLastInputHint] = useState<string>("remote-primary");
 

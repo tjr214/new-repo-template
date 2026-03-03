@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 is in progress with baseline, TV build-profile, TV HID/input, and setup-doc/checklist slices now GREEN.
+M0-M3 execution is complete. M4 is in progress with baseline, TV build-profile, TV HID/input, setup-doc/checklist, and runtime-smoke/logging slices now GREEN.
 
 ## Active Implementation Rules
 
@@ -115,3 +115,6 @@ M0-M3 execution is complete. M4 is in progress with baseline, TV build-profile, 
 - TV input checklist content now explicitly includes Android TV Emulator and NVIDIA Shield validation sections with remote-primary and keyboard/mouse/gamepad fallback pass criteria.
 - Setup-doc dry-run and scaffold coverage is now enforced in `tests/contracts/test_mobile_tv_setup_docs_contract.py`.
 - Template-level mobile/TV workflow documentation now exists at `docs/MOBILE_TV_SETUP.md` and is linked from `README.md`.
+- Mobile/TV runtime execution contract coverage is now active in `tests/contracts/test_mobile_tv_runtime_smoke_contract.py`: generated `mobile+tv` scaffold installs with Bun and runs app-local `lint`, `typecheck`, and `test` scripts in CI-safe mode for both apps.
+- Mobile/TV workspace scripts now route through explicit smoke wrappers (`mobile|tv:lint:smoke`, `mobile|tv:typecheck:smoke`, `mobile|tv:test:smoke`), with app-local smoke tests (`smoke.test.js`) scaffolded for deterministic baseline `test` execution.
+- Generated TV outputs now include `apps/tv/TV_VALIDATION_LOG.md` to capture emulator + Shield run metadata, remote-primary checkpoints, fallback-input outcomes, and evidence links.
