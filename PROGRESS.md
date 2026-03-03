@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 07:59:13 AM
-**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; CI now uses a focused windows-latest critical-contract lane while non-Windows runners continue full-suite execution, and final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
+**Last Updated:** 2026-03-03 08:30:44 AM
+**Current Phase:** M5 in progress (`all M5 implementation slices complete, with PR CI remediation in progress; CI now uses a focused windows-latest critical-contract lane while non-Windows runners continue full-suite execution, secret-scan advisory now pins gitleaks action and disables PR-comment/artifact API calls to avoid RequestError failures, and final required-check green verification is pending; M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate`)
 
 ---
 
@@ -549,6 +549,20 @@
   - [x] updated `docs/BRANCH_PROTECTION.md` to document focused Windows-critical lane intent
 - [x] Verified BLUE for Windows-lane tuning slice:
   - [x] `uv run pytest tests/contracts/test_ci_versions_guardrail_contract.py tests/contracts/test_branch_protection_guidance_contract.py` -> pass (3 tests)
+  - [x] `uv run pytest` -> pass (113 tests)
+- [x] Continued M5 with explicit YELLOW-RED-GREEN-BLUE slice to remediate `Secret Scan (Advisory)` RequestError failures in PR checks.
+- [x] Ran M5 YELLOW research for secret-scan remediation:
+  - [x] read `.github/workflows/ci.yml` and `tests/contracts/test_ci_versions_guardrail_contract.py` to confirm current secret-scan wiring and contract expectations.
+  - [x] validated upstream gitleaks action release baseline and env behavior via GitHub API/README review (`v2.3.9` latest; comment + artifact toggles available), since no dedicated BTCA `gitleaks` resource is currently configured.
+- [x] Added RED contract expectations in `tests/contracts/test_ci_versions_guardrail_contract.py` for:
+  - [x] pinned action reference `gitleaks/gitleaks-action@v2.3.9`
+  - [x] advisory-safe env toggles `GITLEAKS_ENABLE_COMMENTS: "false"` and `GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"`
+- [x] Implemented GREEN secret-scan workflow hardening in `.github/workflows/ci.yml`:
+  - [x] pinned secret-scan action to `gitleaks/gitleaks-action@v2.3.9`
+  - [x] switched token wiring to `${{ github.token }}`
+  - [x] disabled PR-comment and SARIF artifact upload API paths for advisory runs to reduce RequestError risk on restricted PR contexts
+- [x] Verified BLUE for secret-scan remediation slice:
+  - [x] `uv run pytest tests/contracts/test_ci_versions_guardrail_contract.py` -> pass (1 test)
   - [x] `uv run pytest` -> pass (113 tests)
 
 ## In Progress

@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is now in closeout with CI matrix/cache hardening, branch-protection guidance, dedicated preset-regression coverage, dependency versioning policy, optional signing/release checklist design, CI env-template asset reliability fixes, Windows installer-script contract shell hardening in place, updater tooling expansion for GitHub CLI (`gh`) support, and focused Windows-critical CI lane tuning.
+M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is now in closeout with CI matrix/cache hardening, branch-protection guidance, dedicated preset-regression coverage, dependency versioning policy, optional signing/release checklist design, CI env-template asset reliability fixes, Windows installer-script contract shell hardening in place, updater tooling expansion for GitHub CLI (`gh`) support, focused Windows-critical CI lane tuning, and advisory secret-scan hardening (pinned `gitleaks/gitleaks-action@v2.3.9` plus disabled comment/artifact upload API paths to avoid PR RequestError failures).
 
 ## Active Implementation Rules
 

@@ -38,4 +38,6 @@ def test_ci_workflow_runs_versions_guardrail_cross_platform_smokes_cache_and_adv
     assert "nurt versions check --check-lockfiles --check-latest" in workflow_text
     assert "secret-scan-advisory" in workflow_text
     assert "continue-on-error: true" in workflow_text
-    assert "gitleaks/gitleaks-action@v2" in workflow_text
+    assert "gitleaks/gitleaks-action@v2.3.9" in workflow_text
+    assert 'GITLEAKS_ENABLE_COMMENTS: "false"' in workflow_text
+    assert 'GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"' in workflow_text
