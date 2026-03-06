@@ -91,34 +91,6 @@ copy_file() {
     fi
 }
 
-# Helper function to copy directory with verification
-copy_directory() {
-    SOURCE="$1"
-    DEST="$2"
-    
-    if [ ! -d "$SOURCE" ]; then
-        printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
-        printf "Expected: ${SOURCE}\n"
-        printf "The template repository may be incomplete or corrupted.\n"
-        exit 1
-    fi
-    
-    # Remove destination if it exists
-    if [ -d "$DEST" ]; then
-        rm -rf "$DEST"
-        printf "  ${GREEN}✓${NC} Removed old ${DEST}\n"
-    fi
-    
-    cp -Rp "$SOURCE" "$DEST"
-    
-    if [ $? -eq 0 ]; then
-        printf "  ${GREEN}✓${NC} Copied ${DEST}\n"
-    else
-        printf "${RED}${BOLD}Error: Failed to copy ${DEST}${NC}\n"
-        exit 1
-    fi
-}
-
 # Helper function to copy directory contents without deleting destination
 copy_directory_contents() {
     SRC_DIR="$1"
@@ -162,38 +134,14 @@ copy_directory_contents() {
     fi
 }
 
-# Step 1: Update .claude/settings.json
-printf "${CYAN}${BOLD}Step 1/12: Updating .claude/settings.json${NC}\n"
-printf "${CYAN}------------------------------------------${NC}\n"
-copy_file "$CLONE_DIR/.claude/settings.json" ".claude/settings.json"
-printf "\n"
-
-# Step 2: Update .claude/statusline-script.sh
-printf "${CYAN}${BOLD}Step 2/12: Updating .claude/statusline-script.sh${NC}\n"
-printf "${CYAN}----------------------------------------------${NC}\n"
-copy_file "$CLONE_DIR/.claude/statusline-script.sh" ".claude/statusline-script.sh"
-printf "\n"
-
-# Step 3: Update .claude/commands/repo/
-printf "${CYAN}${BOLD}Step 3/12: Updating .claude/commands/repo/${NC}\n"
-printf "${CYAN}------------------------------------------${NC}\n"
-copy_directory "$CLONE_DIR/.claude/commands/repo" ".claude/commands/repo"
-printf "\n"
-
-# Step 4: Update AGENTS.md
-printf "${CYAN}${BOLD}Step 4/12: Updating AGENTS.md${NC}\n"
+# Step 1: Update AGENTS.md
+printf "${CYAN}${BOLD}Step 1/8: Updating AGENTS.md${NC}\n"
 printf "${CYAN}----------------------------${NC}\n"
 copy_file "$CLONE_DIR/AGENTS.md" "AGENTS.md"
 printf "\n"
 
-# Step 5: Update CLAUDE.md
-printf "${CYAN}${BOLD}Step 5/12: Updating CLAUDE.md${NC}\n"
-printf "${CYAN}----------------------------${NC}\n"
-copy_file "$CLONE_DIR/CLAUDE.md" "CLAUDE.md"
-printf "\n"
-
-# Step 6: Update .template_scripts/
-printf "${CYAN}${BOLD}Step 6/12: Updating .template_scripts/${NC}\n"
+# Step 2: Update .template_scripts/
+printf "${CYAN}${BOLD}Step 2/8: Updating .template_scripts/${NC}\n"
 printf "${CYAN}-------------------------------------${NC}\n"
 if [ ! -d "$CLONE_DIR/.template_scripts" ]; then
     printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
@@ -211,8 +159,8 @@ for script in "$CLONE_DIR/.template_scripts"/*; do
 done
 printf "\n"
 
-# Step 7: Update .opencode/command/ markdown files
-printf "${CYAN}${BOLD}Step 7/12: Updating .opencode/command/*.md${NC}\n"
+# Step 3: Update .opencode/command/ markdown files
+printf "${CYAN}${BOLD}Step 3/8: Updating .opencode/command/*.md${NC}\n"
 printf "${CYAN}------------------------------------------${NC}\n"
 if [ ! -d "$CLONE_DIR/.opencode/command" ]; then
     printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
@@ -236,8 +184,8 @@ if [ $MD_FILE_COUNT -eq 0 ]; then
 fi
 printf "\n"
 
-# Step 8: Update .agent/workflows/project/ markdown files
-printf "${CYAN}${BOLD}Step 8/12: Updating .agent/workflows/project/*.md${NC}\n"
+# Step 4: Update .agent/workflows/project/ markdown files
+printf "${CYAN}${BOLD}Step 4/8: Updating .agent/workflows/project/*.md${NC}\n"
 printf "${CYAN}--------------------------------------------------${NC}\n"
 if [ ! -d "$CLONE_DIR/.agent/workflows/project" ]; then
     printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
@@ -265,8 +213,8 @@ if [ $AGENT_MD_FILE_COUNT -eq 0 ]; then
 fi
 printf "\n"
 
-# Step 9: Update .agent/rules/ markdown files
-printf "${CYAN}${BOLD}Step 9/12: Updating .agent/rules/*.md${NC}\n"
+# Step 5: Update .agent/rules/ markdown files
+printf "${CYAN}${BOLD}Step 5/8: Updating .agent/rules/*.md${NC}\n"
 printf "${CYAN}------------------------------------${NC}\n"
 if [ ! -d "$CLONE_DIR/.agent/rules" ]; then
     printf "${RED}${BOLD}Error: Template directory missing${NC}\n"
@@ -294,8 +242,8 @@ if [ $AGENT_RULES_MD_FILE_COUNT -eq 0 ]; then
 fi
 printf "\n"
 
-# Step 10: Ensure docs/tasks directory exists
-printf "${CYAN}${BOLD}Step 10/12: Ensuring docs/tasks directory exists${NC}\n"
+# Step 6: Ensure docs/tasks directory exists
+printf "${CYAN}${BOLD}Step 6/8: Ensuring docs/tasks directory exists${NC}\n"
 printf "${CYAN}------------------------------------------------${NC}\n"
 if [ ! -d "docs/tasks" ]; then
     mkdir -p "docs/tasks"
@@ -305,15 +253,15 @@ else
 fi
 printf "\n"
 
-# Step 11: Update task template files
-printf "${CYAN}${BOLD}Step 11/12: Updating task template files${NC}\n"
+# Step 7: Update task template files
+printf "${CYAN}${BOLD}Step 7/8: Updating task template files${NC}\n"
 printf "${CYAN}----------------------------------------${NC}\n"
 copy_file "$CLONE_DIR/docs/tasks/task-template.yaml" "docs/tasks/task-template.yaml"
 copy_file "$CLONE_DIR/docs/tasks/task-template-example.yaml" "docs/tasks/task-template-example.yaml"
 printf "\n"
 
-# Step 12: Update docs/workflows/
-printf "${CYAN}${BOLD}Step 12/12: Updating docs/workflows/${NC}\n"
+# Step 8: Update docs/workflows/
+printf "${CYAN}${BOLD}Step 8/8: Updating docs/workflows/${NC}\n"
 printf "${CYAN}------------------------------------${NC}\n"
 copy_directory_contents "$CLONE_DIR/docs/workflows" "docs/workflows"
 printf "\n"

@@ -1,12 +1,13 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-06 05:56:47 PM
+**Last Updated:** 2026-03-06 06:16:29 PM
 **Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness, with Android TV emulator remote-primary validation now recorded locally and remaining work narrowed to keyboard/gamepad fallback confirmation plus Shield validation`)
 
 ---
 
 ## Completed
 
+- [x] Ran a YELLOW-RED-GREEN-BLUE assistant-asset removal slice for maintainer sync flows: inspected native and legacy template-sync paths, added RED coverage in `tests/contracts/test_template_asset_sync_contract.py` plus a legacy-script assertion in `tests/contracts/test_installer_scripts_dry_run_contract.py`, removed the root assistant shim file and assistant config tree from the repository, removed assistant-specific copy logic from `src/new_repo_template/sync_ops.py` and `.template_scripts/update-template-from-git.sh`, cleaned unused helper code, and verified GREEN/BLUE with `uv run pytest tests/contracts/test_template_asset_sync_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_nurt_cli_contract.py -q` (23 passed).
 - [x] Ran a YELLOW-RED-GREEN-BLUE maintainer-tooling slice for OpenCode updater behavior: reviewed `.template_scripts/update-opencode.sh`, synced implementation docs, queried BTCA for installed-vs-installer updater semantics, added RED contract coverage in `tests/contracts/test_installer_scripts_dry_run_contract.py`, then updated the script so existing OpenCode installs use `opencode upgrade` while missing installs still use the installer curl path; verified GREEN/BLUE with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py -q` (6 passed).
 - [x] Confirmed strategic direction for always-on monorepo template.
 - [x] Finalized core stack decisions (Turbo + Bun, cloud-first Convex, Electron Forge, Expo TV path).

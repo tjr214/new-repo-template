@@ -10,6 +10,14 @@ from pathlib import Path
 import pytest
 
 
+def _removed_root_doc_name() -> str:
+    return "CLAUDE" + ".md"
+
+
+def _removed_config_dir_name() -> str:
+    return "." + "claude"
+
+
 def _resolve_posix_shell() -> str:
     """Return a usable POSIX shell executable for script contract tests."""
 
@@ -78,6 +86,17 @@ def test_update_opencode_script_uses_cli_upgrade_for_existing_installs() -> None
         "curl -fsSL https://opencode.ai/install | bash"
         in opencode_block_match.group("missing")
     )
+
+
+def test_legacy_template_update_script_excludes_removed_assistant_assets() -> None:
+    """RED: legacy template sync script should not manage removed assistant assets."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    script_path = repo_root / ".template_scripts" / "update-template-from-git.sh"
+    script_text = script_path.read_text(encoding="utf-8")
+
+    assert _removed_root_doc_name() not in script_text
+    assert _removed_config_dir_name() not in script_text
 
 
 def test_install_script_dry_run_is_non_destructive(tmp_path: Path) -> None:

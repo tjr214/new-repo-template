@@ -76,7 +76,6 @@ Thumbs.db
 #_bmad/
 #_bmad-output/
 #.opencode/
-#.claude/
 #.mcp.json
 .env
 .env.*

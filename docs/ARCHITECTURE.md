@@ -58,6 +58,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Snapshot generation command path is implemented at `nurt template-assets snapshot` using manifest-driven source entries and metadata hashing.
 - Script-wrapper migration slice is complete for sync commands: `nurt tools sync` and `nurt template-assets sync` now call native Python operations in `src/new_repo_template/sync_ops.py`.
 - Contract coverage now includes non-dry-run sync failure messaging for native `nurt` sync commands (tools sync simulated failure output and template-assets sync validation failures).
+- Assistant-specific maintainer assets are intentionally excluded from the repository and sync surface: native template sync no longer copies them, and the legacy shell sync script no longer references them.
 - Interactive `nurt new` now handles stdin-closure failure paths with deterministic remediation output instead of raw EOF tracebacks.
 - Mixed-combo validation coverage now includes additional unsupported auth/target combinations in mixed presets.
 - Required preset-combination matrix coverage is now implemented for all `PLAN.md` Section 2.1 combinations in `tests/contracts/test_required_preset_matrix_contract.py`, including both auth variants and all-target (python-inclusive) sanity passes.
