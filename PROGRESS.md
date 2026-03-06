@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-06 05:09:42 PM
-**Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness, with Android SDK tooling/TV AVD now available in the local environment`)
+**Last Updated:** 2026-03-06 05:56:47 PM
+**Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness, with Android TV emulator remote-primary validation now recorded locally and remaining work narrowed to keyboard/gamepad fallback confirmation plus Shield validation`)
 
 ---
 
@@ -610,18 +610,41 @@
     - [x] `docs/MOBILE_TV_SETUP.md`
     - [x] `docs/session-summaries/SESSION_60_SUMMARY.md`
   - [x] Verified new generated `tv:android` flow now reaches native build stage with compatibility guardrails active; remaining local failure is environment-only NDK installation integrity (`source.properties` missing under `~/Library/Android/sdk/ndk/27.1.12297006`).
+- [x] Completed Android TV runtime follow-up slice with explicit YELLOW-RED-GREEN-BLUE loop:
+  - [x] YELLOW: reproduced emulator render failure on generated TV scaffold, inspected `adb logcat` runtime errors, read TV starter/HID contract files, and ran BTCA asks for Expo TV community-autolinking dependencies plus minimal TV-safe focus APIs.
+  - [x] RED: tightened contracts to require missing Expo TS/Babel toolchain deps and to forbid `useTVEventHandler` in the generated TV starter while preserving remote-primary focus wiring expectations (`tests/contracts/test_mobile_tv_scaffold_contract.py`, `tests/contracts/test_tv_android_build_profile_contract.py`, `tests/contracts/test_tv_input_hid_contract.py`).
+  - [x] GREEN: updated scaffold templates:
+    - [x] added `babel-preset-expo` + `@types/react` to generated mobile/TV app manifests
+    - [x] added `@react-native-community/cli` + `@react-native-community/cli-platform-android` to generated TV manifest for local Android autolinking
+    - [x] simplified generated TV `App.tsx` to focus-first `Pressable` wiring (`hasTVPreferredFocus`, `onFocus`, `onPress`) without `useTVEventHandler`
+  - [x] BLUE: verified focused suites + full suite:
+    - [x] `uv run pytest tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_tv_android_build_profile_contract.py` -> pass (10 tests)
+    - [x] `uv run pytest` -> pass (117 tests)
+  - [x] Verified fresh generated TV scaffold now builds, installs, launches, and renders on local Android TV emulator (baseline screen visible with `Expo TV baseline` and three focusable buttons).
+  - [x] Synced tracker/docs and recorded session artifact:
+    - [x] `docs/LIVING_DOCS.md`
+    - [x] `docs/ARCHITECTURE.md`
+    - [x] `docs/session-summaries/SESSION_61_SUMMARY.md`
+- [x] Completed Android TV emulator manual validation evidence capture:
+  - [x] Verified remote-primary behavior on local Android TV emulator using `adb`-driven input plus visual confirmation.
+  - [x] Confirmed initial focus lands on `Home` and visible focus styling tracks the focused control.
+  - [x] Confirmed deterministic D-pad navigation (`Home -> Library -> Settings`) and select keeps the app active on the focused item.
+  - [x] Confirmed back returns to Android TV home and direct relaunch restores initial focus to `Home`.
+  - [x] Confirmed pointer/tap activation updates the same control state path for the `Home` item.
+  - [x] Recorded durable summary in repo docs/session artifacts before deleting temporary generated validation projects.
+  - [x] Added session artifact `docs/session-summaries/SESSION_62_SUMMARY.md`.
 
 ## In Progress
 
 - [ ] M4 manual hardware-validation carryover (deferred until required tooling/hardware is available in execution environment):
   - [x] Ensure `adb` + `emulator` + Android TV AVD are available where checks will run.
-  - [ ] Execute Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
+  - [ ] Complete Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md` (remote-primary + mouse activation verified; keyboard and gamepad fallback confirmation still pending).
   - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
   - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
 
 ## Deferred / Blocked
 
-- [ ] M4 manual execution checks are partially blocked in this environment: Android SDK tooling (`adb`, `emulator`, Android TV AVD) is now available, but Shield-device execution access is still unavailable and local Android build currently requires NDK reinstall/repair.
+- [ ] M4 manual execution checks are partially blocked in this environment: Android SDK tooling + emulator app-launch are working locally and remote-primary evidence is recorded, but Shield-device execution access is still unavailable and emulator keyboard/gamepad fallback evidence is still outstanding.
 
 ## Next Up
 

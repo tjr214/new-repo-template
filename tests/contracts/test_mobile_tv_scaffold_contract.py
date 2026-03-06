@@ -96,6 +96,11 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
     assert dependencies.get("react") == "^19.2.0"
     assert dependencies.get("react-native") == "^0.83.2"
 
+    dev_dependencies = mobile_manifest.get("devDependencies")
+    assert isinstance(dev_dependencies, dict)
+    assert dev_dependencies.get("babel-preset-expo") == "^55.0.10"
+    assert dev_dependencies.get("@types/react") == "^19.2.14"
+
     app_json_text = (mobile_root / "app.json").read_text(encoding="utf-8")
     assert '"slug": "mobile"' in app_json_text
     assert "@react-native-tvos/config-tv" not in app_json_text
@@ -178,6 +183,12 @@ def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
     dev_dependencies = tv_manifest.get("devDependencies")
     assert isinstance(dev_dependencies, dict)
     assert "@react-native-tvos/config-tv" in dev_dependencies
+    assert dev_dependencies.get("@react-native-community/cli") == "^20.1.2"
+    assert dev_dependencies.get("@react-native-community/cli-platform-android") == (
+        "^20.1.2"
+    )
+    assert dev_dependencies.get("babel-preset-expo") == "^55.0.10"
+    assert dev_dependencies.get("@types/react") == "^19.2.14"
 
     app_json_text = (tv_root / "app.json").read_text(encoding="utf-8")
     assert '"slug": "tv"' in app_json_text

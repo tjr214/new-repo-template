@@ -1,44 +1,12 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  TVEventHandlerEvent,
-  useTVEventHandler,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 const RAIL_ITEMS = ["Home", "Library", "Settings"] as const;
 
 export default function App() {
   const [focusedIndex, setFocusedIndex] = useState<number>(0);
-  const [lastInputHint, setLastInputHint] = useState<string>("remote-primary");
-
-  useTVEventHandler((event: TVEventHandlerEvent | undefined) => {
-    const eventType = event?.eventType;
-    if (eventType === undefined) {
-      return;
-    }
-
-    if (
-      eventType === "up" ||
-      eventType === "down" ||
-      eventType === "left" ||
-      eventType === "right" ||
-      eventType === "select" ||
-      eventType === "playPause"
-    ) {
-      setLastInputHint("remote-primary");
-      return;
-    }
-
-    setLastInputHint("keyboard/mouse/gamepad fallback");
-  });
-
-  const message = useMemo(() => {
-    return `Focused item: ${RAIL_ITEMS[focusedIndex]} (${lastInputHint})`;
-  }, [focusedIndex, lastInputHint]);
+  const message = `Focused item: ${RAIL_ITEMS[focusedIndex]} (remote-primary focus ready; keyboard/mouse/gamepad fallback supported)`;
 
   return (
     <View style={styles.screen}>
@@ -52,6 +20,7 @@ export default function App() {
               key={item}
               hasTVPreferredFocus={index === 0}
               onFocus={() => setFocusedIndex(index)}
+              onPress={() => setFocusedIndex(index)}
               style={[styles.item, isFocused ? styles.itemFocused : undefined]}
             >
               <Text style={styles.itemText}>{item}</Text>

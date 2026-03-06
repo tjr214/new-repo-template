@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is complete for implementation/CI hardening scope with required PR checks now green (ubuntu/macos/windows test matrix, preset-regression suite, version baseline guardrail, and advisory secret scan). The remaining open program gate is M4 manual Android TV Emulator + NVIDIA Shield validation.
+ M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is complete for implementation/CI hardening scope with required PR checks now green (ubuntu/macos/windows test matrix, preset-regression suite, version baseline guardrail, and advisory secret scan). The remaining open program gate is M4 manual Android TV Emulator + NVIDIA Shield validation, but local emulator evidence now confirms remote-primary focus, D-pad navigation, select/back behavior, relaunch focus recovery, and mouse activation on the generated TV baseline.
 
 ## Active Implementation Rules
 
@@ -132,5 +132,7 @@ M0-M3 execution is complete. M4 automatable slices are complete with manual Emul
 - M5 closeout is now complete in tracker state: required PR checks were confirmed green via `gh pr checks --watch`, and `PLAN.md` now marks the remaining M5 DoD gate complete.
 - Repository-protection automation is now available via `.template_scripts/configure-repo-protections.sh`, with support for dry-run planning, required-check auto-discovery from latest successful `CI` run, branch-protection enforcement (default branch `main` when omitted), repository auto-detection via `gh repo view` when `--repo` is omitted, and repository-level `dependabot_security_updates` enablement.
 - TV local Android run flow now includes a compatibility guardrail: generated `apps/tv/package.json` wires `tv:android` through `tv:android:prepare` (`expo prebuild --clean --platform android`) + `tv:android:wrapper:patch` (`apps/tv/scripts/patch-android-wrapper.mjs`) and then runs `expo run:android --no-install` with `EXPO_USE_COMMUNITY_AUTOLINKING=1`.
+- Generated Expo mobile/TV TypeScript manifests now include the expected template-time dev tooling baseline: `babel-preset-expo` + `@types/react`, and generated TV manifests also include `@react-native-community/cli` + `@react-native-community/cli-platform-android` so local Android community-autolinking succeeds.
+- Generated TV starter UI now uses focus-first `Pressable` wiring (`hasTVPreferredFocus`, `onFocus`, `onPress`) instead of `useTVEventHandler`, which avoids the Expo Android TV runtime crash while still giving a manual remote-primary/fallback validation surface.
 - Generated root `.gitignore` baseline now explicitly ignores JS dependency directories (`node_modules/` and `**/node_modules/`) in addition to existing env/secret guards.
 - OpenCode updater behavior is now split correctly in `.template_scripts/update-opencode.sh`: existing installs use `opencode upgrade`, missing installs still bootstrap via the installer curl script, and contract coverage now asserts both the branch behavior and dry-run messaging in `tests/contracts/test_installer_scripts_dry_run_contract.py`.

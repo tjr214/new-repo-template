@@ -12,7 +12,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@react-native-community/cli": "^20.1.2",
+    "@react-native-community/cli-platform-android": "^20.1.2",
     "@react-native-tvos/config-tv": "^0.1.5",
+    "@types/react": "^19.2.14",
+    "babel-preset-expo": "^55.0.10",
     "cross-env": "^10.1.0",
     "typescript": "^5.9.3"
   },

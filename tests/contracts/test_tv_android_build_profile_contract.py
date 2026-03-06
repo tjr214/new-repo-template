@@ -172,6 +172,8 @@ def test_tv_scaffold_includes_android_wrapper_patch_flow_for_local_builds(
     )
     scripts = tv_manifest.get("scripts")
     assert isinstance(scripts, dict)
+    dev_dependencies = tv_manifest.get("devDependencies")
+    assert isinstance(dev_dependencies, dict)
 
     assert (
         scripts.get("tv:android:prepare") == "expo prebuild --clean --platform android"
@@ -183,6 +185,12 @@ def test_tv_scaffold_includes_android_wrapper_patch_flow_for_local_builds(
         "bun run tv:android:prepare && bun run tv:android:wrapper:patch && "
         "cross-env EXPO_USE_COMMUNITY_AUTOLINKING=1 expo run:android --no-install"
     )
+    assert dev_dependencies.get("@react-native-community/cli") == "^20.1.2"
+    assert dev_dependencies.get("@react-native-community/cli-platform-android") == (
+        "^20.1.2"
+    )
+    assert dev_dependencies.get("babel-preset-expo") == "^55.0.10"
+    assert dev_dependencies.get("@types/react") == "^19.2.14"
 
     patch_script_path = (
         output_dir / "apps" / "tv" / "scripts" / "patch-android-wrapper.mjs"

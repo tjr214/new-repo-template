@@ -53,6 +53,18 @@
 
 @docs/BTCA_RESOURCES.md
 
+- **CRITICAL: BE CAREFUL HOW YOU EXECUTE BTCA!!**
+- The following command will not execute correctly due to the usage of ` and escaped quotes in the command:
+
+  btca ask -r react-native-tvos -r expo-tv-config -q "For Expo TV package.json, what exact dependency syntax should be used so `react-native` aliases to react-native-tvos? Should it be `\"react-native\": \"npm:react-native-tvos@^0.81.4-1\"`?" --sub-agent
+
+- The above command will send part of the message to btca BUT you will also get these errors:
+
+  zsh:1: command not found: react-native
+  zsh:1: command not found: react-native:
+
+- Keep this in mind and ensure all btca query strings are plain and simple.
+
 #### 1.3.1 When Agents Should Use BTCA
 
 - Use BTCA during YELLOW phase research for framework/tool behavior, API specifics, config semantics, and version-specific guidance.
