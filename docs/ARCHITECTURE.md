@@ -108,6 +108,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - TV scaffold output now includes `apps/tv/TV_VALIDATION_LOG.md` to record emulator and Shield execution metadata/results alongside checklist completion.
 - Generated TV Android run flow now includes a compatibility patch step: `apps/tv/scripts/patch-android-wrapper.mjs` pins the generated Android wrapper to Gradle `8.14.3`, and `tv:android` executes with community autolinking enabled (`EXPO_USE_COMMUNITY_AUTOLINKING=1`) after deterministic prebuild.
 - M5 milestone closeout state is now explicit in planning docs: required PR checks were confirmed green and the remaining M5 DoD gate in `PLAN.md` is checked complete.
+- The maintainer OpenCode updater path now distinguishes install vs upgrade semantics: `.template_scripts/update-opencode.sh` runs `opencode upgrade` when the CLI is already present in `PATH`, while retaining the installer curl flow only for first-time bootstrap.
 
 ## Validation Model
 

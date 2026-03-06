@@ -1,12 +1,13 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 03:26:36 PM
+**Last Updated:** 2026-03-06 05:09:42 PM
 **Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness, with Android SDK tooling/TV AVD now available in the local environment`)
 
 ---
 
 ## Completed
 
+- [x] Ran a YELLOW-RED-GREEN-BLUE maintainer-tooling slice for OpenCode updater behavior: reviewed `.template_scripts/update-opencode.sh`, synced implementation docs, queried BTCA for installed-vs-installer updater semantics, added RED contract coverage in `tests/contracts/test_installer_scripts_dry_run_contract.py`, then updated the script so existing OpenCode installs use `opencode upgrade` while missing installs still use the installer curl path; verified GREEN/BLUE with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py -q` (6 passed).
 - [x] Confirmed strategic direction for always-on monorepo template.
 - [x] Finalized core stack decisions (Turbo + Bun, cloud-first Convex, Electron Forge, Expo TV path).
 - [x] Defined CI direction (GitHub Actions with required native Windows checks).

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -53,6 +54,30 @@ def test_update_opencode_script_supports_dry_run_and_lists_turbo_and_gh() -> Non
     assert "DRY-RUN" in combined_output
     assert "turbo" in combined_output
     assert "gh" in combined_output
+    assert "opencode upgrade" in combined_output
+
+
+def test_update_opencode_script_uses_cli_upgrade_for_existing_installs() -> None:
+    """RED: installed OpenCode should upgrade in place; missing OpenCode should install."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    script_path = repo_root / ".template_scripts" / "update-opencode.sh"
+    script_text = script_path.read_text(encoding="utf-8")
+
+    opencode_block_match = re.search(
+        r"# Check if opencode is installed\nif command_exists opencode; then(?P<installed>.*?)^else(?P<missing>.*?)^fi",
+        script_text,
+        re.DOTALL | re.MULTILINE,
+    )
+
+    assert opencode_block_match is not None, (
+        "Expected an explicit opencode install/update branch."
+    )
+    assert "opencode upgrade" in opencode_block_match.group("installed")
+    assert (
+        "curl -fsSL https://opencode.ai/install | bash"
+        in opencode_block_match.group("missing")
+    )
 
 
 def test_install_script_dry_run_is_non_destructive(tmp_path: Path) -> None:
