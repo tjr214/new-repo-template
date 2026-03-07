@@ -19,10 +19,18 @@ The current implementation lives in the template repo release workflow and provi
 - Signing gate input: `enable_signing`
   - default: `false`
   - signing jobs run only when `enable_signing=true`
+- Publishing input: `publish_release`
+  - default: `false`
+  - when `true`, the workflow creates or updates a draft GitHub release for template artifacts using `release_tag`
+- Release tag input: `release_tag`
+  - default: `v0.1.0-template`
 - Unsigned artifact lane: `Unsigned Release Readiness` builds template distributables and uploads a release bundle via `actions/upload-artifact@v4`.
 - Optional signing-prep lanes:
   - `Desktop Signing Prep`
   - `Android Signing Prep`
+  - `iOS Packaging Preview`
+- Publishing lane:
+  - `Publish Template Release`
 
 ## Secrets Map
 
@@ -47,6 +55,14 @@ Optional for notarization tooling flows (if used):
 - `ANDROID_KEY_ALIAS`
 - `ANDROID_KEY_PASSWORD`
 
+### iOS Expo/EAS packaging
+
+- `EXPO_TOKEN`
+- `EXPO_PROJECT_ID`
+- `EXPO_ASC_KEY_ID`
+- `EXPO_ASC_ISSUER_ID`
+- `EXPO_ASC_API_KEY_BASE64`
+
 ## Enablement Steps
 
 1. Add required secrets in repository settings.
@@ -55,6 +71,7 @@ Optional for notarization tooling flows (if used):
 4. Confirm the release workflow validates required secrets before signing steps.
 5. Keep unsigned artifact paths available for fallback/internal distribution.
 6. Treat the template workflow as signing-prep infrastructure; implement repo-specific build/sign commands in downstream generated app repos before public distribution.
+7. If publishing template artifacts, set `publish_release=true` and supply the desired `release_tag` so the workflow creates or updates a draft GitHub release.
 
 ## Safety Rules
 
@@ -62,6 +79,7 @@ Optional for notarization tooling flows (if used):
 - Keep signing jobs out of required PR checks until fully hardened.
 - Keep this file synchronized with workflow inputs, secret names, and release policy docs.
 - Use uploaded prep artifacts for operator/debug validation only; they must not contain secrets.
+- Treat `iOS Packaging Preview` as a template-repo validation lane for generated mobile scaffold behavior plus EAS submission wiring; it is not a complete substitute for downstream app-repo iOS release management.
 
 ## Unsigned Artifact Trust/Warning Expectations
 

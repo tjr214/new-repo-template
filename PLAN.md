@@ -462,8 +462,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### 7.3 Non-Blocking/Deferred CI
 
 - [x] Signing/notarization jobs (run only if secrets exist)
-- [ ] iOS packaging (macOS + signing assets) deferred
-- [ ] Full installer publishing deferred until hardening
+- [x] iOS packaging (macOS + signing assets) deferred
+- [x] Full installer publishing deferred until hardening
 
 ---
 

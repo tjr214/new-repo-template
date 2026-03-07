@@ -112,6 +112,7 @@ DESKTOP_FRAMEWORK_PATHS: tuple[str, ...] = (
 MOBILE_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/mobile/README.md",
     "apps/mobile/app.json",
+    "apps/mobile/eas.json",
     "apps/mobile/babel.config.js",
     "apps/mobile/index.js",
     "apps/mobile/App.tsx",
@@ -229,6 +230,7 @@ DESKTOP_TSCONFIG_TEMPLATE = load_template_text("desktop/desktop_tsconfig.json")
 DESKTOP_FORGE_CONFIG_TEMPLATE = load_template_text("desktop/desktop_forge.config.ts")
 DESKTOP_README_TEMPLATE = load_template_text("desktop/desktop_readme.md")
 MOBILE_APP_JSON_TEMPLATE = load_template_text("mobile/mobile_app.json")
+MOBILE_EAS_JSON_TEMPLATE = load_template_text("mobile/mobile_eas.json")
 MOBILE_BABEL_CONFIG_TEMPLATE = load_template_text("mobile/mobile_babel.config.js")
 MOBILE_INDEX_TEMPLATE = load_template_text("mobile/mobile_index.js")
 MOBILE_APP_TEMPLATE = load_template_text("mobile/mobile_app.tsx")
@@ -616,6 +618,7 @@ def scaffold_mobile_framework_files(
 
     (mobile_root / "README.md").write_text(MOBILE_README_TEMPLATE, encoding="utf-8")
     (mobile_root / "app.json").write_text(MOBILE_APP_JSON_TEMPLATE, encoding="utf-8")
+    (mobile_root / "eas.json").write_text(MOBILE_EAS_JSON_TEMPLATE, encoding="utf-8")
     (mobile_root / "babel.config.js").write_text(
         MOBILE_BABEL_CONFIG_TEMPLATE,
         encoding="utf-8",

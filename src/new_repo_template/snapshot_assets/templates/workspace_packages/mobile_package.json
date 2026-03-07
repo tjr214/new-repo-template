@@ -27,6 +27,8 @@
     "mobile:ios": "expo run:ios",
     "mobile:web": "expo start --web --non-interactive",
     "mobile:export": "expo export --non-interactive",
+    "mobile:build:ios:development": "bunx eas-cli build --platform ios --profile development --non-interactive",
+    "mobile:build:ios:preview": "bunx eas-cli build --platform ios --profile preview --non-interactive",
     "mobile:lint:smoke": "expo lint --help",
     "mobile:typecheck:smoke": "tsc --help",
     "mobile:test:smoke": "bun test --bail --timeout 10000 ./smoke.test.js",

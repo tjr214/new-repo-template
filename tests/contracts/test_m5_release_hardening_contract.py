@@ -43,6 +43,13 @@ def test_optional_signing_design_is_documented_and_has_disabled_default_workflow
     assert "actions/upload-artifact@v4" in signing_text
     assert "Desktop Signing Prep" in signing_text
     assert "Android Signing Prep" in signing_text
+    assert "iOS Packaging Preview" in signing_text
+    assert "Publish Template Release" in signing_text
+    assert "EXPO_TOKEN" in signing_text
+    assert "EXPO_PROJECT_ID" in signing_text
+    assert "EXPO_ASC_KEY_ID" in signing_text
+    assert "EXPO_ASC_ISSUER_ID" in signing_text
+    assert "EXPO_ASC_API_KEY_BASE64" in signing_text
     assert "MACOS_CERTIFICATE_P12_BASE64" in signing_text
     assert "MACOS_CERTIFICATE_PASSWORD" in signing_text
     assert "APPLE_DEVELOPER_ID" in signing_text
@@ -60,7 +67,19 @@ def test_optional_signing_design_is_documented_and_has_disabled_default_workflow
     assert "Unsigned Release Readiness" in release_workflow_text
     assert "Desktop Signing Prep" in release_workflow_text
     assert "Android Signing Prep" in release_workflow_text
+    assert "iOS Packaging Preview" in release_workflow_text
+    assert "Publish Template Release" in release_workflow_text
     assert "actions/upload-artifact@v4" in release_workflow_text
+    assert "actions/download-artifact@v5" in release_workflow_text
+    assert "publish_release" in release_workflow_text
+    assert "release_tag" in release_workflow_text
+    assert "gh release create" in release_workflow_text
+    assert "gh release upload" in release_workflow_text
+    assert (
+        "bunx eas-cli build --platform ios --profile preview --non-interactive --no-wait"
+        in release_workflow_text
+    )
+    assert "EXPO_TOKEN" in release_workflow_text
     assert "macos-latest" in release_workflow_text
     assert "actions/setup-java@v4" in release_workflow_text
     assert "security import" in release_workflow_text
@@ -82,6 +101,8 @@ def test_release_checklist_doc_is_present_and_linked() -> None:
     assert "NVIDIA Shield" in checklist_text
     assert "Preset Regression Suite" in checklist_text
     assert "Version Baseline Guardrail" in checklist_text
+    assert "Publish Template Release" in checklist_text
+    assert "iOS Packaging Preview" in checklist_text
 
     readme_text = (repo_root / "README.md").read_text(encoding="utf-8")
     assert "docs/RELEASE_CHECKLIST.md" in readme_text
