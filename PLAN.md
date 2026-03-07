@@ -18,7 +18,7 @@
 - [x] **Python lane pyproject boundary**: root `pyproject.toml` remains repo/tooling-level; Python target also scaffolds a lane-local `pyproject.toml` under the Python app directory.
 - [x] **Primary UX tool**: global CLI is `nurt` (Nu-Repo Template).
 - [x] **Project brand**: project identity is `nurt.ai`; CLI command remains `nurt`.
-- [x] **Distribution model**: install `nurt` directly from git via `uv tool install --from git+... nurt`.
+- [x] **Distribution model**: install `nurt` directly from git via `uv tool install git+...`.
 - [x] **Execution entrypoint**: `nurt new <project-name>` (no `install.sh` fallback path).
 - [x] **Tool update policy**: `nurt` checks for updates on every command run; explicit upgrade command is `nurt update`.
 - [x] **Template sync command naming**: use `nurt template-assets sync`.
@@ -70,9 +70,9 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 ### 1.1 Version Baseline Policy (Locked Behavior)
 
 - [x] Keep a "latest known-good" baseline for core toolchain (`bun`, `turbo`, `typescript`, `python`) in template metadata.
-- [ ] New project generation uses the latest known-good baseline and writes/retains lockfiles so first install is deterministic.
-- [ ] For JS/TS dependencies: follow project rule to use `^` ranges while lockfiles pin concrete versions.
-- [ ] For Python lane: keep pinned minimums compatible with `>=3.14` and generate deterministic `uv.lock` state.
+- [x] New project generation uses the latest known-good baseline and writes/retains lockfiles so first install is deterministic.
+- [x] For JS/TS dependencies: follow project rule to use `^` ranges while lockfiles pin concrete versions.
+- [x] For Python lane: keep pinned minimums compatible with `>=3.14` and generate deterministic workspace `uv.lock` state.
 - [x] Provide an easy one-command update flow to refresh baseline versions and regenerate lockfiles.
 - [x] RED/CI must validate baseline versions are present and lockfiles are generated.
 
@@ -91,14 +91,14 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 ### Runtime/Dev Scope
 
-- [ ] Native macOS support
-- [ ] Native Linux support
-- [ ] Native Windows support (no WSL dependency for core JS/TS flow)
+- [x] Native macOS support
+- [x] Native Linux support
+- [x] Native Windows support (no WSL dependency for core JS/TS flow)
 
 ### Windows Clarification
 
-- [ ] Windows CI validates native Windows behavior for Bun scripts, TypeScript tooling, TanStack app flows, Convex CLI flows, and Electron packaging.
-- [ ] WSL checks (if added later) are non-blocking supplemental validation.
+- [x] Windows CI validates native Windows behavior for Bun scripts, TypeScript tooling, TanStack app flows, Convex CLI flows, and Electron packaging.
+- [x] WSL checks (if added later) are non-blocking supplemental validation.
 
 ### 2.1 Required Preset Combination Matrix
 
@@ -169,16 +169,16 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 ## 4) Target Monorepo Architecture (Template Output)
 
 - [x] Root workspace with `apps/*` and `packages/*`
-- [ ] Root `pyproject.toml` is always scaffolded and retained for template/runtime tooling requirements.
-- [ ] Root `pyproject.toml` is repo-level metadata/tooling anchor, not a replacement for app-local Python package metadata.
+- [x] Root `pyproject.toml` is always scaffolded and retained for template/runtime tooling requirements.
+- [x] Root `pyproject.toml` is repo-level metadata/tooling anchor, not a replacement for app-local Python package metadata.
 - [ ] Shared infra packages for lint/tsconfig/tooling presets
-- [ ] Selectable app targets generated into monorepo:
-  - [ ] `apps/web` (TanStack Start)
-  - [ ] `apps/backend` (Convex functions/config)
+- [x] Selectable app targets generated into monorepo:
+  - [x] `apps/web` (TanStack Start)
+  - [x] `apps/backend` (Convex functions/config)
   - [x] `apps/desktop` (Electron)
-  - [ ] `apps/mobile` (Expo mobile app)
-  - [ ] `apps/tv` (Expo AndroidTV app, separate from mobile)
-  - [ ] Python target lane (for CLI/TUI, optional FastAPI experiments) with lane-local `pyproject.toml`
+  - [x] `apps/mobile` (Expo mobile app)
+  - [x] `apps/tv` (Expo AndroidTV app, separate from mobile)
+  - [x] Python target lane (for CLI/TUI, optional FastAPI experiments) with lane-local `pyproject.toml`
 - [x] Shared UI/util package(s) for web + desktop reuse where practical
 - [x] Root scripts route through Turbo (`dev`, `build`, `test`, `lint`, `typecheck`)
 
@@ -186,10 +186,10 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 - [x] Support explicit non-interactive mode for CI (`--no-interactive`).
 - [x] In non-interactive mode, missing required options fail with non-zero exit and clear remediation text.
-- [ ] In interactive mode, wizard prompts can resolve missing options.
+- [x] In user-facing interactive mode, wizard prompts can resolve missing options.
 - [x] Any configuration that includes both `web` and `backend` requires explicit auth choice (`clerk` or `better-auth`).
-- [ ] If `web` and `backend` are selected and auth is omitted:
-  - [ ] interactive: prompt user
+- [x] If `web` and `backend` are selected and auth is omitted during user-facing generation:
+  - [x] interactive: prompt user
   - [x] non-interactive: hard fail with validation error
 - [x] If auth is provided without both `web` and `backend`: hard fail with deterministic validation error.
 - [x] Mixed preset entries with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed presets).
@@ -206,13 +206,13 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 ### 4.2 Installation Orchestration Contract (`nurt` Global CLI)
 
 - [x] Primary execution flow is `nurt new <project-name>` (no `install.sh` fallback path).
-- [ ] `nurt` is installed from git using uv tools (`uv tool install --from git+... nurt`).
+- [x] `nurt` is installed from git using uv tools (`uv tool install git+...`).
 - [x] `nurt` always performs update-check logic at command startup and prints deterministic notice when an update exists.
 - [x] `nurt update` performs explicit tool upgrade flow.
 - [x] `nurt new` supports both interactive wizard/TUI mode and non-interactive flag mode.
 - [x] If no targets are provided to `nurt new`, interactive mode should resolve target/auth selection via prompts.
 - [x] `nurt new --dry-run` is non-destructive and validates full scaffold plan resolution.
-- [ ] Existing template governance/workflow assets remain in generated repos; scaffold output overlays app/runtime files only.
+- [x] Fresh repos created by `nurt new` are scaffolded from bundled runtime/template assets, while governance/workflow assets remain managed through template sync flows for template-maintained repos.
 - [x] `nurt template-assets sync` replaces template asset sync script behavior with one cohesive command.
 - [x] `nurt tools sync` consolidates tool update/install behavior currently spread across scripts.
 
@@ -233,17 +233,17 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 
 For each implementation unit, follow:
 
-- [ ] **YELLOW**: scan/read all relevant files + run BTCA resource-specific asks before coding.
-- [ ] **RED**: add failing tests first (contract/integration-first for template scaffolding).
-- [ ] **GREEN**: implement minimum code required to pass RED tests.
-- [ ] **BLUE**: refactor/harden while preserving passing tests.
+- [x] **YELLOW**: scan/read all relevant files + run BTCA resource-specific asks before coding.
+- [x] **RED**: add failing tests first (contract/integration-first for template scaffolding).
+- [x] **GREEN**: implement minimum code required to pass RED tests.
+- [x] **BLUE**: refactor/harden while preserving passing tests.
 
 Documentation must be updated continuously during GREEN/BLUE:
 
-- [ ] `docs/LIVING_DOCS.md`
-- [ ] `docs/ARCHITECTURE.md`
-- [ ] `PROGRESS.md`
-- [ ] New `docs/session-summaries/SESSION_X_SUMMARY.md` (never overwrite existing summaries)
+- [x] `docs/LIVING_DOCS.md`
+- [x] `docs/ARCHITECTURE.md`
+- [x] `PROGRESS.md`
+- [x] New `docs/session-summaries/SESSION_X_SUMMARY.md` (never overwrite existing summaries)
 
 ---
 
@@ -471,8 +471,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### Current Policy (development phase)
 
-- [ ] Unsigned builds are acceptable for local/internal use.
-- [ ] CI requires successful unsigned packaging, not signed release artifacts.
+- [x] Unsigned builds are acceptable for local/internal use.
+- [x] CI requires successful unsigned packaging, not signed release artifacts.
 
 ### Future Policy (hardening/release phase)
 
@@ -547,11 +547,11 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 During implementation, after each substantial slice:
 
-- [ ] Update `PROGRESS.md` with timestamp, phase, completed items, and next tasks
-- [ ] Update `docs/LIVING_DOCS.md` with practical notes and known caveats
-- [ ] Update `docs/ARCHITECTURE.md` with decision/rationale updates
+- [x] Update `PROGRESS.md` with timestamp, phase, completed items, and next tasks
+- [x] Update `docs/LIVING_DOCS.md` with practical notes and known caveats
+- [x] Update `docs/ARCHITECTURE.md` with decision/rationale updates
 - [ ] Update `docs/BTCA_RESOURCES.md` if BTCA resources changed
-- [ ] Create a new session summary (`docs/session-summaries/SESSION_X_SUMMARY.md`) without overwriting existing files
+- [x] Create a new session summary (`docs/session-summaries/SESSION_X_SUMMARY.md`) without overwriting existing files
 
 ---
 
@@ -572,17 +572,17 @@ During implementation, after each substantial slice:
 
 The program is complete when:
 
-- [ ] Always-monorepo template generation works with flags + wizard.
-- [ ] Presets are available: web/backend/auth variants, desktop Electron, separate mobile app, separate TV app, python lane.
-- [ ] Required CI matrix is green on Linux/macOS/Windows.
-- [ ] Required preset combination matrix (Section 2.1) is green, including auth variants for every `web` + `backend` preset.
-- [ ] Native Windows backend and Electron checks are passing.
-- [ ] TV app guarantees remote-primary UX with keyboard/mouse/gamepad support.
-- [ ] Contract tests in `tests/` comprehensively cover scaffold outputs.
-- [ ] Root `pyproject.toml` invariant holds for all generated repositories.
-- [ ] Generator failure atomicity is guaranteed by implementation and tests.
-- [ ] Core docs and trackers are synchronized and current.
-- [ ] Phased release notes/checklists are complete.
+- [x] Always-monorepo template generation works with flags + wizard.
+- [x] Presets are available: web/backend/auth variants, desktop Electron, separate mobile app, separate TV app, python lane.
+- [x] Required CI matrix is green on Linux/macOS/Windows.
+- [x] Required preset combination matrix (Section 2.1) is green, including auth variants for every `web` + `backend` preset.
+- [x] Native Windows backend and Electron checks are passing.
+- [x] TV app guarantees remote-primary UX with keyboard/mouse/gamepad support.
+- [x] Contract tests in `tests/` comprehensively cover scaffold outputs.
+- [x] Root `pyproject.toml` invariant holds for all generated repositories.
+- [x] Generator failure atomicity is guaranteed by implementation and tests.
+- [x] Core docs and trackers are synchronized and current.
+- [x] Phased release notes/checklists are complete.
 
 ---
 
@@ -595,4 +595,4 @@ The program is complete when:
 - [x] Replace script-wrapper behavior inside `nurt tools sync` / `nurt template-assets sync` with native Python command implementations.
 - [x] Implement polished Rich/Textual interactive UI for `nurt new` (Rich table/panel prompt layer with deterministic plain fallback).
 - [x] Wire CI guardrail execution for `nurt versions check --check-lockfiles --check-latest` in GitHub Actions.
-- [ ] Keep documentation synchronized continuously during implementation.
+- [x] Keep documentation synchronized continuously during implementation.

@@ -12,7 +12,7 @@ Use this guide to choose the right lane and run the right commands.
 For end users generating a new project from this template, the canonical flow is the global `nurt` CLI.
 
 1. Install `nurt` from git:
-   - `uv tool install --from git+https://github.com/<org>/<repo>.git nurt`
+   - `uv tool install git+https://github.com/<org>/<repo>.git`
 2. Generate a project:
    - `nurt new <project-name>`
 

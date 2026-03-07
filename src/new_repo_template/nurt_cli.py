@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -16,7 +17,11 @@ from new_repo_template.interactive_ui import (
 )
 from new_repo_template.snapshot_builder import build_snapshot_assets
 from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
-from new_repo_template.version_baseline import run_versions_check, run_versions_update
+from new_repo_template.version_baseline import (
+    generate_project_lockfiles,
+    run_versions_check,
+    run_versions_update,
+)
 
 
 AUTH_CHOICES: tuple[str, str] = ("clerk", "better-auth")
@@ -246,10 +251,24 @@ def handle_new(args: argparse.Namespace) -> int:
         scaffold_args.append("--dry-run")
 
     try:
-        return int(scaffold.main(scaffold_args))
+        scaffold_status = int(scaffold.main(scaffold_args))
     except SystemExit as exc:
         code = exc.code
-        return int(code) if isinstance(code, int) else 1
+        scaffold_status = int(code) if isinstance(code, int) else 1
+
+    if scaffold_status != 0 or args.dry_run:
+        return scaffold_status
+
+    lockfile_status = generate_project_lockfiles(project_root=output_path)
+    if lockfile_status == 0:
+        return 0
+
+    shutil.rmtree(output_path, ignore_errors=True)
+    print(
+        "Error: lockfile generation failed; removed scaffold output to keep `nurt new` deterministic.",
+        file=sys.stderr,
+    )
+    return 1
 
 
 def handle_update(args: argparse.Namespace) -> int:

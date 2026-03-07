@@ -37,7 +37,7 @@ The canonical execution checklist is in `PLAN.md`.
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
 - Root `pyproject.toml` invariant: always present, even when Python target is not selected
 - Python lane metadata boundary: Python target scaffolds `apps/python/pyproject.toml`; root `pyproject.toml` remains monorepo/tooling-level
-- Global execution UX pivot: primary user flow is moving to globally installed `nurt` (`nurt new <project-name>`) with no `install.sh` fallback user path
+- Global execution UX pivot: primary user flow is globally installed `nurt` (`uv tool install git+...` then `nurt new <project-name>`) with no `install.sh` fallback user path
 
 ## Known Constraints
 
@@ -65,7 +65,11 @@ The canonical execution checklist is in `PLAN.md`.
 - Auth wiring placeholder slice complete: `web+backend` auth variants now scaffold minimal placeholder wiring files for frontend/backend auth integration points (`apps/backend/convex/auth.config.ts`, plus auth-specific web wiring stubs).
 - Security baseline slice complete: generated outputs now copy the root `.gitignore` baseline (with env/secret guards) and include target-local `.env.example` placeholders; baseline policy is documented in `docs/SECURITY_BASELINE.md`.
 - Installer/tooling script slice complete: `install.sh` and `.template_scripts/update-opencode.sh` support `--dry-run`, and updater flow includes turborepo (`turbo`) install/update handling for maintainer/legacy flows.
-- User-facing bootstrap path is now fully `nurt`-first (`uv tool install --from git+... nurt` then `nurt new <project-name>`); script-first bootstrap is not the default user guidance.
+- User-facing bootstrap path is now fully `nurt`-first (`uv tool install git+...` then `nurt new <project-name>`); script-first bootstrap is not the default user guidance.
+- `nurt new` now generates deterministic root lockfiles for fresh outputs (`uv.lock` + `bun.lock`), and Python-enabled outputs keep the Python lane on `>=3.14` minimums while relying on the workspace root `uv.lock` as the authoritative lock state.
+- The generated root `pyproject.toml` now includes minimal repo-level project metadata in addition to the build backend so `uv lock` succeeds while preserving the rule that app-local Python metadata stays in `apps/python/pyproject.toml`.
+- The documented git-install workflow has been validated against current uv behavior using `uv tool install git+...`; the older `--from ... nurt` syntax is no longer used in repository docs.
+- Fresh repos created by `nurt new` are runtime/template scaffold outputs; governance/workflow assets remain part of template-maintained repos and are updated through template sync flows rather than copied into every fresh generated project.
 - New strategic direction: migrate fully to global `nurt` command model (`new`, `update`, `tools sync`, `template-assets sync`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
 - `nurt` bootstrap implementation is now in place with command routing and startup update-check hook.
 - `nurt new` now supports interactive target/auth prompt flow when flags are omitted.

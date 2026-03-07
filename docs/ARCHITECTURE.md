@@ -28,7 +28,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Root metadata invariant: `pyproject.toml` exists at repository root for all generated repos regardless of selected targets
 - Python lane metadata boundary: Python app metadata/deps live in lane-local `apps/python/pyproject.toml`, while root `pyproject.toml` remains monorepo/tooling-level
 - Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards, JS dependency directory ignores (`node_modules/`, `**/node_modules/`), and selected targets scaffold placeholder-only `.env.example`
-- Global UX direction: distribute and run as `nurt` global CLI installed via uv from git; user entrypoint is `nurt new <project-name>`
+- Global UX direction: distribute and run as `nurt` global CLI installed via `uv tool install git+...`; user entrypoint is `nurt new <project-name>`
 
 ## Planned Topology
 
@@ -51,10 +51,14 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Current scaffold implementation supports `foundation`, `python`, `web`, `backend`, `desktop`, `mobile`, and `tv` targets with non-interactive mode, dry-run support, deterministic auth validation for `web+backend`, duplicate-target validation, auth-variant env placeholders, minimal auth wiring placeholders, root `.gitignore` secret guards, and transactional scaffold writes.
 - Installer tooling now supports non-destructive script-level dry-runs and includes turborepo (`turbo`) update/install in the updater workflow.
 - Installer support remains available for legacy/maintainer operations, but user bootstrap is standardized on global `nurt` command flow.
-- Script-first UX has been superseded: primary execution is `uv tool install --from git+... nurt` followed by `nurt new <project-name>` with bundled snapshot assets and explicit `nurt update` lifecycle.
+- Script-first UX has been superseded: primary execution is `uv tool install git+...` followed by `nurt new <project-name>` with bundled snapshot assets and explicit `nurt update` lifecycle.
 - `nurt` command bootstrap is implemented at `src/new_repo_template/nurt_cli.py` with command routing (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check hook.
 - `nurt new` now includes interactive prompt-based target/auth resolution path.
 - Snapshot assets are bundled under `src/new_repo_template/snapshot_assets/` and loaded at runtime via `importlib.resources`.
+- Fresh `nurt new` generation now performs deterministic post-scaffold lockfile creation for generated repos: root outputs include `uv.lock` and `bun.lock`, while Python-enabled outputs keep Python dependency metadata lane-local and rely on the workspace root `uv.lock` as the canonical Python lock state.
+- Generated root `pyproject.toml` outputs now include minimal repo-level `[project]` metadata in addition to the build backend so uv can lock the workspace without collapsing the Python-lane metadata boundary.
+- The user-facing uv install workflow has been revalidated against current uv semantics via local git install smoke coverage: the correct command shape is `uv tool install git+...`, not the older `--from ... nurt` form.
+- Governance/workflow assets are intentionally separated from fresh generated repo output: `nurt new` creates runtime/template scaffold files, while template-maintained repos receive governance/workflow asset updates through the template sync paths covered by `tests/contracts/test_template_asset_sync_contract.py`.
 - Snapshot generation command path is implemented at `nurt template-assets snapshot` using manifest-driven source entries and metadata hashing.
 - Script-wrapper migration slice is complete for sync commands: `nurt tools sync` and `nurt template-assets sync` now call native Python operations in `src/new_repo_template/sync_ops.py`.
 - Contract coverage now includes non-dry-run sync failure messaging for native `nurt` sync commands (tools sync simulated failure output and template-assets sync validation failures).
