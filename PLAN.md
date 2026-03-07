@@ -171,7 +171,7 @@ This plan is comprehensive and execution-ready so a fresh Build Mode context can
 - [x] Root workspace with `apps/*` and `packages/*`
 - [x] Root `pyproject.toml` is always scaffolded and retained for template/runtime tooling requirements.
 - [x] Root `pyproject.toml` is repo-level metadata/tooling anchor, not a replacement for app-local Python package metadata.
-- [ ] Shared infra packages for lint/tsconfig/tooling presets
+- [x] Shared infra packages for lint/tsconfig/tooling presets
 - [x] Selectable app targets generated into monorepo:
   - [x] `apps/web` (TanStack Start)
   - [x] `apps/backend` (Convex functions/config)
@@ -477,8 +477,8 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### Future Policy (hardening/release phase)
 
 - [ ] Add optional signing jobs behind secrets and release flags.
-- [ ] Keep unsigned path available for internal/private distribution.
-- [ ] Document trust/warning expectations for unsigned apps.
+- [x] Keep unsigned path available for internal/private distribution.
+- [x] Document trust/warning expectations for unsigned apps.
 
 ---
 
@@ -557,14 +557,14 @@ During implementation, after each substantial slice:
 
 ## 12) Risks and Mitigations
 
-- [ ] **Cross-platform shell breakage (Windows):** prefer Node-based scripts and cross-platform command patterns.
-- [ ] **Toolchain drift across presets:** pin versions with policy and run matrix CI.
-- [ ] **Auth integration churn:** keep variant-specific tests and template fixtures.
-- [ ] **Electron packaging complexity:** use Forge defaults and incremental packaging gates.
-- [ ] **AndroidTV ecosystem instability:** lock known-good config paths and maintain manual Shield checklist.
-- [ ] **TV UX quality drift:** enforce remote-primary focus checks and fallback HID tests (keyboard/mouse/gamepad).
-- [ ] **Partial scaffold output on failure:** use transactional writes or strict cleanup-on-failure and test both paths.
-- [ ] **Scope creep:** phased release with strict DoD per milestone.
+- [x] **Cross-platform shell breakage (Windows):** prefer Node-based scripts and cross-platform command patterns.
+- [x] **Toolchain drift across presets:** pin versions with policy and run matrix CI.
+- [x] **Auth integration churn:** keep variant-specific tests and template fixtures.
+- [x] **Electron packaging complexity:** use Forge defaults and incremental packaging gates.
+- [x] **AndroidTV ecosystem instability:** lock known-good config paths and maintain manual Shield checklist.
+- [x] **TV UX quality drift:** enforce remote-primary focus checks and fallback HID tests (keyboard/mouse/gamepad).
+- [x] **Partial scaffold output on failure:** use transactional writes or strict cleanup-on-failure and test both paths.
+- [x] **Scope creep:** phased release with strict DoD per milestone.
 
 ---
 

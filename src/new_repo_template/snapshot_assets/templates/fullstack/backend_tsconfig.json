@@ -1,7 +1,6 @@
 {
   "extends": "@generated/typescript-config/node.json",
   "include": [
-    "src/**/*.ts",
-    "forge.config.ts"
+    "convex/**/*.ts"
   ]
 }

@@ -10,6 +10,7 @@
     "react-native": "^0.83.2"
   },
   "devDependencies": {
+    "@generated/typescript-config": "workspace:*",
     "@babel/core": "^7.29.0",
     "@types/react": "^19.2.14",
     "babel-preset-expo": "^55.0.10",
