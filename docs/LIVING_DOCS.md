@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
- M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is complete for implementation/CI hardening scope with required PR checks now green (ubuntu/macos/windows test matrix, preset-regression suite, version baseline guardrail, and advisory secret scan). The remaining open program gate is M4 manual Android TV Emulator + NVIDIA Shield validation, but local emulator evidence now confirms remote-primary focus, D-pad navigation, select/back behavior, relaunch focus recovery, and mouse activation on the generated TV baseline.
+ M0-M5 execution is complete. M4 hardware validation is closed in tracker state: local emulator evidence confirms remote-primary focus, D-pad navigation, select/back behavior, relaunch focus recovery, and mouse activation; the NVIDIA Shield run confirms remote-primary behavior plus mouse and gamepad control on the generated TV baseline; and the final keyboard fallback checkbox was closed by explicit user direction without a direct keyboard hardware run.
 
 ## Active Implementation Rules
 

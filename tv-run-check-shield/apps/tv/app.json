@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "tv",
+    "slug": "tv",
+    "scheme": "tv",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "plugins": [
+      "@react-native-tvos/config-tv"
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.anonymous.tv"
+    }
+  }
+}

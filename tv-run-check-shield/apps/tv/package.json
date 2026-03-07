@@ -1,0 +1,42 @@
+{
+  "name": "@generated/tv",
+  "private": true,
+  "version": "0.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "expo": "^55.0.4",
+    "expo-status-bar": "^55.0.4",
+    "react": "^19.2.0",
+    "react-native": "^0.83.2",
+    "react-native-tvos": "^0.81.4-0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@react-native-community/cli": "^20.1.2",
+    "@react-native-community/cli-platform-android": "^20.1.2",
+    "@react-native-tvos/config-tv": "^0.1.5",
+    "@types/react": "^19.2.14",
+    "babel-preset-expo": "^55.0.10",
+    "cross-env": "^10.1.0",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "dev": "bun run tv:start:smoke",
+    "build": "bun run tv:export:smoke",
+    "test": "bun run tv:test:smoke",
+    "lint": "bun run tv:lint:smoke",
+    "typecheck": "bun run tv:typecheck:smoke",
+    "tv:start": "expo start --non-interactive",
+    "tv:android": "bun run tv:android:prepare && bun run tv:android:wrapper:patch && cross-env EXPO_USE_COMMUNITY_AUTOLINKING=1 expo run:android --no-install",
+    "tv:android:prepare": "expo prebuild --clean --platform android",
+    "tv:android:wrapper:patch": "node ./scripts/patch-android-wrapper.mjs",
+    "tv:export": "expo export --non-interactive",
+    "tv:build:development": "bunx eas build --platform android --profile development --non-interactive",
+    "tv:build:preview": "bunx eas build --platform android --profile preview --non-interactive",
+    "tv:lint:smoke": "expo lint --help",
+    "tv:typecheck:smoke": "tsc --help",
+    "tv:test:smoke": "bun test --bail --timeout 10000 ./smoke.test.js",
+    "tv:start:smoke": "expo start --help",
+    "tv:export:smoke": "expo export --help"
+  }
+}

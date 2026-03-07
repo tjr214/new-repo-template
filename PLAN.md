@@ -404,16 +404,16 @@ Documentation must be updated continuously during GREEN/BLUE:
 - [x] Expo mobile baseline passes lint/typecheck/tests
 - [x] Expo TV baseline passes lint/typecheck/tests
 - [x] AndroidTV emulator validation checklist completed
-- [ ] Manual Shield checklist completed and logged
-- [ ] TV input UX checks pass: remote-primary navigation and keyboard/mouse/gamepad support
+- [x] Manual Shield checklist completed and logged
+- [x] TV input UX checks pass: remote-primary navigation and keyboard/mouse/gamepad support (keyboard fallback closeout accepted by user without a direct keyboard run after Shield remote/mouse/gamepad validation)
 - [x] Docs updated for separate mobile/TV setup, caveats, and test flow
 
 ### M4 Deferred Hardware Validation Carryover (must close before release)
 
 - [x] Ensure execution environment has Android SDK tooling available (`adb`, `emulator`, Android TV AVD image).
 - [x] Execute Android TV Emulator checklist and log outcomes in generated `apps/tv/TV_VALIDATION_LOG.md`.
-- [ ] Execute NVIDIA Shield checklist and log outcomes in generated `apps/tv/TV_VALIDATION_LOG.md`.
-- [ ] Confirm remote-primary + keyboard/mouse/gamepad fallback UX from recorded emulator + Shield runs.
+- [x] Execute NVIDIA Shield checklist and log outcomes in generated `apps/tv/TV_VALIDATION_LOG.md`.
+- [x] Confirm remote-primary + keyboard/mouse/gamepad fallback UX from recorded emulator + Shield runs (keyboard fallback closeout accepted by user without a direct keyboard run).
 - [x] Keep this carryover open while M5 begins; do not consider program-level release readiness complete until it is closed.
 
 ---

@@ -1,7 +1,7 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-06 06:16:29 PM
-**Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness, with Android TV emulator remote-primary validation now recorded locally and remaining work narrowed to keyboard/gamepad fallback confirmation plus Shield validation`)
+**Last Updated:** 2026-03-07 02:45:10 PM
+**Current Phase:** M4 and M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); Shield validation confirms remote-primary, back/relaunch, mouse, and gamepad behavior on physical hardware, and the final keyboard fallback closeout was accepted by user direction without a direct hardware run`)
 
 ---
 
@@ -634,22 +634,29 @@
   - [x] Confirmed pointer/tap activation updates the same control state path for the `Home` item.
   - [x] Recorded durable summary in repo docs/session artifacts before deleting temporary generated validation projects.
   - [x] Added session artifact `docs/session-summaries/SESSION_62_SUMMARY.md`.
+- [x] Completed NVIDIA Shield manual validation evidence capture on fresh scaffold output `tv-run-check-shield`:
+  - [x] Reread M4 plan/docs/checklists, ran `btca ask -r react-native-tvos -r expo-docs ...` for physical-device input expectations, scaffolded a fresh `tv`-only validation project, and verified app-local `bun run lint`, `bun run typecheck`, and `bun run test`.
+  - [x] Connected the Shield over wireless ADB, authorized the device, and launched the generated TV app on physical hardware.
+  - [x] Confirmed Shield remote-primary behavior, back-to-exit, relaunch, mouse control, and gamepad control on the generated TV baseline.
+  - [x] Recorded Shield outcomes in `tv-run-check-shield/apps/tv/TV_INPUT_CHECKLIST.md` and `tv-run-check-shield/apps/tv/TV_VALIDATION_LOG.md`.
+  - [x] Captured runtime note: dev launches briefly show the Expo/Android loading surface before the app renders; this is acceptable for the current validation flow and is not the intended production startup UX.
+  - [x] Added session artifact `docs/session-summaries/SESSION_64_SUMMARY.md`.
+- [x] Closed the final M4 carryover gate by user direction:
+  - [x] accepted keyboard fallback as validated for milestone closeout despite no direct keyboard hardware run in this environment
+  - [x] updated `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and the generated Shield validation artifacts to record that this was a user-directed assumption rather than direct device evidence
+  - [x] added session artifact `docs/session-summaries/SESSION_65_SUMMARY.md`
 
 ## In Progress
 
-- [ ] M4 manual hardware-validation carryover (deferred until required tooling/hardware is available in execution environment):
-  - [x] Ensure `adb` + `emulator` + Android TV AVD are available where checks will run.
-  - [ ] Complete Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md` (remote-primary + mouse activation verified; keyboard and gamepad fallback confirmation still pending).
-  - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
-  - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
+- No active implementation slice; M0-M5 are complete in tracker state.
 
 ## Deferred / Blocked
 
-- [ ] M4 manual execution checks are partially blocked in this environment: Android SDK tooling + emulator app-launch are working locally and remote-primary evidence is recorded, but Shield-device execution access is still unavailable and emulator keyboard/gamepad fallback evidence is still outstanding.
+- No active milestone blockers in tracker state.
 
 ## Next Up
 
-- [ ] Close deferred M4 carryover as soon as Android TV Emulator + Shield execution environment is available, then mark M4 fully complete.
+- [ ] Optional follow-up: run one true physical-keyboard pass later if you want empirical evidence for the assumption-based M4 closeout.
 
 ## BTCA Governance Log
 
