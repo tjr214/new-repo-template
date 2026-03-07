@@ -69,7 +69,7 @@
 
 - Use BTCA during YELLOW phase research for framework/tool behavior, API specifics, config semantics, and version-specific guidance.
 - Prefer BTCA over web search when configured resources already cover the question.
-- If we need to add a dependency, library or package to the project, make sure to also add it to BTCA via `btca add ...` and then update the BTCA_RESOURCES.md file (see below for more on adding resources).
+- **IMPORTANT**: If we need to add a dependency, library or package to the project (it is not listed via `btca resources`), make sure to also add it to BTCA via `btca add ...` and then update the BTCA_RESOURCES.md file (see below for more on adding resources).
 - If a needed dependency is missing, propose adding a resource (with the user's confirmation) before deep implementation.
 
 #### 1.3.2 Core BTCA Commands (Agent Reference)
