@@ -16,18 +16,56 @@ on:
         required: true
         default: "manual-release"
 
+permissions:
+  contents: read
+
 jobs:
   unsigned-release-readiness:
     name: Unsigned Release Readiness
     runs-on: ubuntu-latest
+    env:
+      NURT_UPDATE_CHECK_SIMULATE: none
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        run: python -m pip install --upgrade uv
+
+      - name: Install project dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Build template distributables
+        run: uv build
 
       - name: Record release mode
         run: |
           echo "Release label: ${{ inputs.release_label }}"
           echo "Signing enabled: ${{ inputs.enable_signing }}"
+
+      - name: Write release summary artifact
+        run: |
+          mkdir -p release-output
+          cat <<'EOF' > release-output/template-release-summary.txt
+          release_label=${{ inputs.release_label }}
+          signing_enabled=${{ inputs.enable_signing }}
+          artifact_scope=template repo unsigned dist bundle
+          note=downstream generated app repos still need repo-specific signing/package execution
+          EOF
+
+      - name: Upload unsigned release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-dist-${{ inputs.release_label }}
+          path: |
+            dist
+            release-output/template-release-summary.txt
+          retention-days: 7
 
   optional-signing-secrets-check:
     name: Optional Signing Secrets Check
@@ -64,3 +102,108 @@ jobs:
           if [ "$missing" -ne 0 ]; then
             exit 1
           fi
+
+  desktop-signing-prep:
+    name: Desktop Signing Prep
+    if: ${{ inputs.enable_signing == 'true' }}
+    needs:
+      - unsigned-release-readiness
+      - optional-signing-secrets-check
+    runs-on: macos-latest
+    env:
+      MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+      MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+      APPLE_DEVELOPER_ID: ${{ secrets.APPLE_DEVELOPER_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
+      APPLE_NOTARY_APP_PASSWORD: ${{ secrets.APPLE_NOTARY_APP_PASSWORD }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare macOS signing materials
+        shell: bash
+        run: |
+          export CERT_PATH="$RUNNER_TEMP/developer-id.p12"
+          export KEYCHAIN_PATH="$RUNNER_TEMP/release-signing.keychain-db"
+          export KEYCHAIN_PASSWORD="$(uuidgen)"
+          python - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+          cert_data = os.environ["MACOS_CERTIFICATE_P12_BASE64"]
+          Path(os.environ["CERT_PATH"]).write_bytes(base64.b64decode(cert_data))
+          PY
+          test -s "$CERT_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security find-identity -v "$KEYCHAIN_PATH" > "$RUNNER_TEMP/macos-signing-identities.txt"
+          {
+            echo "developer_id=$APPLE_DEVELOPER_ID"
+            echo "team_id=$APPLE_TEAM_ID"
+            if [ -n "$APPLE_NOTARY_APPLE_ID" ] && [ -n "$APPLE_NOTARY_APP_PASSWORD" ]; then
+              echo "notarization_credentials=present"
+            else
+              echo "notarization_credentials=absent"
+            fi
+          } > "$RUNNER_TEMP/macos-signing-summary.txt"
+
+      - name: Upload macOS signing prep artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-signing-prep-${{ inputs.release_label }}
+          path: |
+            ${{ runner.temp }}/macos-signing-identities.txt
+            ${{ runner.temp }}/macos-signing-summary.txt
+          retention-days: 7
+
+  android-signing-prep:
+    name: Android Signing Prep
+    if: ${{ inputs.enable_signing == 'true' }}
+    needs:
+      - unsigned-release-readiness
+      - optional-signing-secrets-check
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare Android signing materials
+        shell: bash
+        run: |
+          export KEYSTORE_PATH="$RUNNER_TEMP/release-signing.keystore"
+          python - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+          keystore_data = os.environ["ANDROID_KEYSTORE_BASE64"]
+          Path(os.environ["KEYSTORE_PATH"]).write_bytes(base64.b64decode(keystore_data))
+          PY
+          test -s "$KEYSTORE_PATH"
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" > "$RUNNER_TEMP/android-keystore-summary.txt"
+          {
+            echo "alias=$ANDROID_KEY_ALIAS"
+            echo "keystore_path=$KEYSTORE_PATH"
+          } > "$RUNNER_TEMP/android-signing-summary.txt"
+
+      - name: Upload Android signing prep artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-signing-prep-${{ inputs.release_label }}
+          path: |
+            ${{ runner.temp }}/android-keystore-summary.txt
+            ${{ runner.temp }}/android-signing-summary.txt
+          retention-days: 7

@@ -450,7 +450,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 ### 7.2 Required CI Matrix (initial)
 
 - [x] OS matrix: `ubuntu-latest`, `macos-latest`, `windows-latest`
-- [ ] Foundation tasks: install, lint, typecheck, tests
+- [x] Foundation tasks: install, lint, typecheck, tests
 - [x] Scaffold contract tests for selected presets
 - [x] Required preset-combination matrix checks
 - [x] Windows-native checks for JS/TS backend workflows
@@ -461,7 +461,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### 7.3 Non-Blocking/Deferred CI
 
-- [ ] Signing/notarization jobs (run only if secrets exist)
+- [x] Signing/notarization jobs (run only if secrets exist)
 - [ ] iOS packaging (macOS + signing assets) deferred
 - [ ] Full installer publishing deferred until hardening
 
@@ -476,7 +476,7 @@ Documentation must be updated continuously during GREEN/BLUE:
 
 ### Future Policy (hardening/release phase)
 
-- [ ] Add optional signing jobs behind secrets and release flags.
+- [x] Add optional signing jobs behind secrets and release flags.
 - [x] Keep unsigned path available for internal/private distribution.
 - [x] Document trust/warning expectations for unsigned apps.
 

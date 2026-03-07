@@ -73,6 +73,10 @@ The canonical execution checklist is in `PLAN.md`.
 - Shared infra workspace packages are now scaffolded into generated repos: `packages/typescript-config` centralizes TypeScript presets (`react-app`, `node`, `expo`), `packages/eslint-config` centralizes base lint ignores/policy, and the root workspace now includes `eslint.config.mjs` wired to the shared lint package.
 - Generated app configs now consume the shared TypeScript presets: web extends `@generated/typescript-config/react-app.json`, backend and desktop extend `@generated/typescript-config/node.json`, and mobile/TV extend `@generated/typescript-config/expo.json`.
 - Backend scaffold output now includes `apps/backend/tsconfig.json`, and backend workspace manifests now carry the shared TypeScript config dependency and a CI-safe `typecheck:smoke` path.
+- CI now includes an explicit `Foundation Baseline` lane in `.github/workflows/ci.yml`: it scaffolds the foundation preset, generates a `bun.lock`, runs `bun install --frozen-lockfile`, then executes root `lint`, `typecheck`, and `test` commands so the zero-app workspace baseline stays validated separately from the larger preset matrix.
+- CI now also listens for GitHub merge queue runs via `merge_group` with `checks_requested`, so required checks continue to report correctly when merge queues are enabled.
+- The release workflow now has three practical lanes: unsigned template distributable bundle upload, secret-gated macOS signing-prep validation, and secret-gated Android signing-prep validation. This is template-repo hardening infrastructure, not a substitute for downstream generated-app packaging/signing jobs.
+- Nightly workflow automation remains intentionally deferred; there is still no `.github/workflows/nightly.yml`.
 - New strategic direction: migrate fully to global `nurt` command model (`new`, `update`, `tools sync`, `template-assets sync`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
 - `nurt` bootstrap implementation is now in place with command routing and startup update-check hook.
 - `nurt new` now supports interactive target/auth prompt flow when flags are omitted.

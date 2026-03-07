@@ -14,6 +14,8 @@ def test_ci_workflow_runs_versions_guardrail_cross_platform_smokes_cache_and_adv
     assert workflow_path.exists(), "Expected CI workflow at .github/workflows/ci.yml"
     workflow_text = workflow_path.read_text(encoding="utf-8")
 
+    assert "merge_group:" in workflow_text
+    assert "checks_requested" in workflow_text
     assert "windows-latest" in workflow_text
     assert "macos-latest" in workflow_text
     assert "ubuntu-latest" in workflow_text
@@ -27,9 +29,15 @@ def test_ci_workflow_runs_versions_guardrail_cross_platform_smokes_cache_and_adv
     assert "if: ${{ runner.os == 'Windows' }}" in workflow_text
     assert "Run full test suite (non-Windows)" in workflow_text
     assert "if: ${{ runner.os != 'Windows' }}" in workflow_text
+    assert "Foundation Baseline" in workflow_text
+    assert "--target foundation" in workflow_text
+    assert 'bun run --cwd "$FOUNDATION_OUTPUT" lint' in workflow_text
+    assert 'bun run --cwd "$FOUNDATION_OUTPUT" typecheck' in workflow_text
+    assert 'bun run --cwd "$FOUNDATION_OUTPUT" test' in workflow_text
     assert "test_bun_workspace_install_contract.py" in workflow_text
     assert "test_convex_backend_smoke_contract.py" in workflow_text
     assert "test_desktop_runtime_smoke_contract.py" in workflow_text
+    assert "test_foundation_runtime_smoke_contract.py" in workflow_text
     assert "test_mobile_tv_runtime_smoke_contract.py" in workflow_text
     assert "test_tv_input_hid_contract.py" in workflow_text
     assert "test_turbo_command_smoke_contract.py" in workflow_text

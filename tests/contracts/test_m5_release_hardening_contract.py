@@ -38,6 +38,11 @@ def test_optional_signing_design_is_documented_and_has_disabled_default_workflow
     signing_text = signing_path.read_text(encoding="utf-8")
     assert "Optional Signing Pipeline" in signing_text
     assert "disabled by default" in signing_text
+    assert "template repo" in signing_text.lower()
+    assert "downstream generated app repos" in signing_text.lower()
+    assert "actions/upload-artifact@v4" in signing_text
+    assert "Desktop Signing Prep" in signing_text
+    assert "Android Signing Prep" in signing_text
     assert "MACOS_CERTIFICATE_P12_BASE64" in signing_text
     assert "MACOS_CERTIFICATE_PASSWORD" in signing_text
     assert "APPLE_DEVELOPER_ID" in signing_text
@@ -52,6 +57,14 @@ def test_optional_signing_design_is_documented_and_has_disabled_default_workflow
     assert "enable_signing" in release_workflow_text
     assert 'default: "false"' in release_workflow_text
     assert "if: ${{ inputs.enable_signing == 'true' }}" in release_workflow_text
+    assert "Unsigned Release Readiness" in release_workflow_text
+    assert "Desktop Signing Prep" in release_workflow_text
+    assert "Android Signing Prep" in release_workflow_text
+    assert "actions/upload-artifact@v4" in release_workflow_text
+    assert "macos-latest" in release_workflow_text
+    assert "actions/setup-java@v4" in release_workflow_text
+    assert "security import" in release_workflow_text
+    assert "keytool -list" in release_workflow_text
 
 
 def test_release_checklist_doc_is_present_and_linked() -> None:

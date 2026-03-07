@@ -27,6 +27,8 @@ These manual items must be complete before release sign-off:
 
 - If release requires signed artifacts, follow `docs/OPTIONAL_SIGNING_PIPELINE.md`.
 - If signing is not required for the release phase, confirm unsigned distribution policy is acceptable for target audience.
+- Confirm the `Unsigned Release Readiness` workflow job uploaded the expected template dist bundle.
+- If `enable_signing=true`, confirm `Desktop Signing Prep` and/or `Android Signing Prep` artifacts completed successfully before treating secrets as validated.
 
 ## Documentation synchronization
 
