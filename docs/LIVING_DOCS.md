@@ -2,15 +2,12 @@
 
 ## Current State
 
-The template is in planning-to-implementation transition for a major expansion:
-- Always-on monorepo support
-- Fullstack web support
-- Desktop support
-- Mobile and AndroidTV support
+The template implementation remains intact, and the previous execution cycle is now archived.
 
-The canonical execution checklist is in `PLAN.md`.
-
- M0-M5 execution is complete. M4 hardware validation is closed in tracker state: local emulator evidence confirms remote-primary focus, D-pad navigation, select/back behavior, relaunch focus recovery, and mouse activation; the NVIDIA Shield run confirms remote-primary behavior plus mouse and gamepad control on the generated TV baseline; and the final keyboard fallback checkbox was closed by explicit user direction without a direct keyboard hardware run.
+- Archived planning records live at `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` and `docs/archive/plans/PROGRESS_2026-03-08_07-49-04_PM.md`.
+- Root `PLAN.md` and `PROGRESS.md` are reset as next-cycle stubs for the upcoming endeavour.
+- The architecture and implementation notes in this file still describe the current repository baseline.
+- The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 
 ## Active Implementation Rules
 
@@ -96,7 +93,7 @@ The canonical execution checklist is in `PLAN.md`.
 - Interactive UI layer is now Rich/Textual-aware: `nurt new` renders enhanced target/auth menus when Rich is available and falls back deterministically to plain prompts when unavailable.
 - Mixed preset validation contracts now include additional unsupported auth/target mixed-combo checks.
 - Non-interactive scaffold validation coverage has been expanded across target modes: omitted `--no-interactive` is now contract-tested for foundation/python/web+backend/mobile+tv, and parser-level missing/invalid argument failures (`--target`, `--output`, invalid `--target`/`--auth`) are now explicitly covered.
-- Required preset matrix coverage from `PLAN.md` Section 2.1 is now implemented in `tests/contracts/test_required_preset_matrix_contract.py`, including all-target (python-inclusive) sanity passes for both auth variants.
+- Required preset matrix coverage from the archived implementation plan (`docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`, Section 2.1) is now implemented in `tests/contracts/test_required_preset_matrix_contract.py`, including all-target (python-inclusive) sanity passes for both auth variants.
 - BTCA `bun` clone/fetch hardening follow-up has been explicitly deprioritized for now so implementation can continue on core PLAN milestones.
 - Root workspace bootstrap slice is now in place: scaffold outputs include root `package.json` (Bun workspaces + Turbo-routed `dev/build/test/lint/typecheck` scripts) and root `turbo.json` (minimal task graph for those commands), with contract coverage in `tests/contracts/test_root_workspace_contract.py`.
 - JS-target app manifests are now scaffolded (`apps/{web,backend,desktop,mobile,tv}/package.json`), and Bun workspace install viability is contract-tested in `tests/contracts/test_bun_workspace_install_contract.py` (including `bun install` and `bun install --frozen-lockfile` on generated `web+backend` output).
@@ -112,7 +109,7 @@ The canonical execution checklist is in `PLAN.md`.
 - Backend local-dev flow guidance is now scaffolded into generated outputs at `apps/backend/README.md`, covering cloud-first Convex steps, auth decision alignment (`AUTH_PROVIDER`), and separation between credentialed local commands and CI-safe smoke commands.
 - Fullstack setup/auth decision documentation is now centralized in `docs/FULLSTACK_SETUP.md` and linked from `README.md`.
 - Backend workspace scripts now distinguish credentialed local commands (`convex:dev`, `convex:codegen`) from CI-safe wrappers (`convex:dev:smoke`, `convex:codegen:smoke`), while `dev`/`test` remain smoke-safe for cross-platform CI.
-- M0 governance baseline is now fully closed: `PLAN.md` is explicitly marked and maintained as canonical implementation source-of-truth.
+- M0 governance baseline is now fully closed in the archived delivery record: `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` remains the canonical source-of-truth for that completed cycle.
 - M2 web scaffold now includes a fuller TanStack Start-style baseline beyond route stubs: `app.config.ts`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/routeTree.gen.ts`, and base styles in `apps/web/src/styles.css`.
 - Fullstack shared workspace integration is now active for `web+backend` presets via `packages/shared` (`@generated/shared`), with both web and backend manifests wired through `workspace:*` dependencies and baseline web route consumption.
 - Desktop Electron Forge baseline scaffold is now concrete for `desktop` target: generated output includes `apps/desktop/README.md`, `forge.config.ts`, `tsconfig.json`, `index.html`, and `src/{main,preload,renderer}.ts`.
@@ -146,7 +143,7 @@ The canonical execution checklist is in `PLAN.md`.
 - Installer dry-run shell-script contracts are now explicitly POSIX-scoped in tests (skipped on Windows runners) while Windows CI continues to enforce core scaffold/runtime contracts.
 - Updater tooling now includes GitHub CLI (`gh`) in `.template_scripts/update-opencode.sh`, including dry-run visibility, status-table reporting, and install/update handling via platform package managers.
 - CI runner strategy now keeps full smoke + full-suite execution on Linux/macOS while `windows-latest` runs a focused critical contract subset (workspace install, backend/desktop/turbo/python command confidence) to reduce wall-clock time without dropping native Windows coverage.
-- M5 closeout is now complete in tracker state: required PR checks were confirmed green via `gh pr checks --watch`, and `PLAN.md` now marks the remaining M5 DoD gate complete.
+- M5 closeout is now complete in tracker state: required PR checks were confirmed green via `gh pr checks --watch`, and the archived implementation plan records the final M5 DoD gate as complete.
 - Repository-protection automation is now available via `.template_scripts/configure-repo-protections.sh`, with support for dry-run planning, required-check auto-discovery from latest successful `CI` run, branch-protection enforcement (default branch `main` when omitted), repository auto-detection via `gh repo view` when `--repo` is omitted, and repository-level `dependabot_security_updates` enablement.
 - TV local Android run flow now includes a compatibility guardrail: generated `apps/tv/package.json` wires `tv:android` through `tv:android:prepare` (`expo prebuild --clean --platform android`) + `tv:android:wrapper:patch` (`apps/tv/scripts/patch-android-wrapper.mjs`) and then runs `expo run:android --no-install` with `EXPO_USE_COMMUNITY_AUTOLINKING=1`.
 - Generated Expo mobile/TV TypeScript manifests now include the expected template-time dev tooling baseline: `babel-preset-expo` + `@types/react`, and generated TV manifests also include `@react-native-community/cli` + `@react-native-community/cli-platform-android` so local Android community-autolinking succeeds.
