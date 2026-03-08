@@ -39,7 +39,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 ## Current Implementation Status
 
 - Milestones M0-M5 are complete in tracker state; M4 hardware validation now includes durable emulator evidence plus a physical NVIDIA Shield pass, and the remaining keyboard-only fallback gap was explicitly closed by user direction rather than a direct keyboard hardware run. M5 hardening is complete with required PR checks now green and includes CI matrix/cache strategy expansion, branch-protection guidance, dedicated preset-regression CI coverage, dependency upgrade/versioning policy documentation, optional signing/release checklist design, CI env-template asset reliability hardening, Windows installer-script contract shell-resolution hardening, updater tooling support for GitHub CLI (`gh`), focused Windows-critical CI lane tuning, and advisory secret-scan stability hardening (pinned `gitleaks/gitleaks-action@v2.3.9`, comment/artifact upload API calls disabled, and full-history checkout enabled for commit-range scanning).
-- Project BTCA resource layer is now configured for the locked dependency set in `PLAN.md`.
+- The previous root planning trackers are archived at `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` and `docs/archive/plans/PROGRESS_2026-03-08_07-49-04_PM.md`, and the root `PLAN.md` / `PROGRESS.md` files are now reset as next-cycle stubs without changing the implemented system architecture.
+- Project BTCA resource layer is now configured for the locked dependency set captured in `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
 - Python lane RED/GREEN slice is complete with `tests/contracts/test_python_lane_contract.py`, including baseline command execution checks.
@@ -75,7 +76,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Assistant-specific maintainer assets are intentionally excluded from the repository and sync surface: native template sync no longer copies them, and the legacy shell sync script no longer references them.
 - Interactive `nurt new` now handles stdin-closure failure paths with deterministic remediation output instead of raw EOF tracebacks.
 - Mixed-combo validation coverage now includes additional unsupported auth/target combinations in mixed presets.
-- Required preset-combination matrix coverage is now implemented for all `PLAN.md` Section 2.1 combinations in `tests/contracts/test_required_preset_matrix_contract.py`, including both auth variants and all-target (python-inclusive) sanity passes.
+- Required preset-combination matrix coverage is now implemented for all combinations defined in `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` Section 2.1, including both auth variants and all-target (python-inclusive) sanity passes.
 - Root workspace scaffold now emits `package.json` and `turbo.json` at repository root for all outputs, with Bun workspaces (`apps/*`, `packages/*`) and Turbo-routed root scripts (`dev`, `build`, `test`, `lint`, `typecheck`).
 - Root workspace contract coverage now verifies dry-run visibility and scaffolded workspace/task wiring in `tests/contracts/test_root_workspace_contract.py`.
 - JS app targets scaffold workspace-local `package.json` manifests (`apps/web`, `apps/backend`, `apps/desktop`, `apps/mobile`, `apps/tv`) with target-aware script wiring.
@@ -127,7 +128,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Local Android TV emulator evidence now confirms the generated TV baseline supports initial focus placement, deterministic D-pad progression across the starter rail, select stability, back-to-home behavior with relaunch focus recovery, and pointer/tap activation for the same controls.
 - Physical NVIDIA Shield validation now confirms the generated TV baseline launches successfully on-device, supports remote-primary control, exits cleanly via Back, relaunches correctly, and accepts mouse and gamepad fallback input on the same focus-first UI.
 - Keyboard fallback was not directly exercised during the Shield run because no keyboard was available; tracker closeout for that final checkbox was accepted by explicit user direction.
-- M5 milestone closeout state is now explicit in planning docs: required PR checks were confirmed green and the remaining M5 DoD gate in `PLAN.md` is checked complete.
+- M5 milestone closeout state is now explicit in the archived planning record: required PR checks were confirmed green and the remaining M5 DoD gate in `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` is checked complete.
 - The maintainer OpenCode updater path now distinguishes install vs upgrade semantics: `.template_scripts/update-opencode.sh` runs `opencode upgrade` when the CLI is already present in `PATH`, while retaining the installer curl flow only for first-time bootstrap.
 
 ## Validation Model
@@ -155,7 +156,7 @@ Current contract coverage:
 - `tests/contracts/test_target_matrix_and_auth_contract.py`
   - Contract intent: multi-target validation/auth rules, duplicate target rejection, unsupported mixed-combo auth validation, auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
 - `tests/contracts/test_required_preset_matrix_contract.py`
-  - Contract intent: full required preset matrix from `PLAN.md` Section 2.1 scaffolds successfully with root `pyproject.toml` invariant, expected target directories, python-lane pyproject inclusion when selected, and auth-variant wiring assertions.
+- Contract intent: full required preset matrix from `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` Section 2.1 scaffolds successfully with root `pyproject.toml` invariant, expected target directories, python-lane pyproject inclusion when selected, and auth-variant wiring assertions.
 - `tests/contracts/test_root_workspace_contract.py`
   - Contract intent: root workspace config files (`package.json`, `turbo.json`) are present in dry-run/scaffold output and include baseline cross-platform script/task wiring for `dev`, `build`, `test`, `lint`, and `typecheck`.
 - `tests/contracts/test_bun_workspace_install_contract.py`
