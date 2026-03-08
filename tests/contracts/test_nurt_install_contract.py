@@ -29,6 +29,20 @@ def test_uv_tool_install_from_local_git_repo_exposes_nurt_executable(
         pytest.skip("uv executable is required for install workflow contract")
 
     repo_root = Path(__file__).resolve().parents[2]
+    revision_result = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert revision_result.returncode == 0, (
+        "Expected to resolve the repository HEAD revision for uv install smoke.\n"
+        f"stdout:\n{revision_result.stdout}\n"
+        f"stderr:\n{revision_result.stderr}"
+    )
+    repo_revision = revision_result.stdout.strip()
+
     tool_dir = tmp_path / "uv-tools"
     tool_bin_dir = tmp_path / "uv-bin"
     cache_dir = tmp_path / "uv-cache"
@@ -55,7 +69,7 @@ def test_uv_tool_install_from_local_git_repo_exposes_nurt_executable(
             "--python",
             sys.executable,
             "--force",
-            f"git+file://{repo_root}",
+            f"git+file://{repo_root}@{repo_revision}",
         ],
         cwd=tmp_path,
         capture_output=True,
