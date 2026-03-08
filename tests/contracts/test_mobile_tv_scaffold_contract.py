@@ -49,6 +49,7 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
     expected_paths = (
         mobile_root / "package.json",
         mobile_root / "app.json",
+        mobile_root / "eas.json",
         mobile_root / "babel.config.js",
         mobile_root / "index.js",
         mobile_root / "App.tsx",
@@ -74,6 +75,8 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
         "mobile:ios",
         "mobile:web",
         "mobile:export",
+        "mobile:build:ios:development",
+        "mobile:build:ios:preview",
         "mobile:lint:smoke",
         "mobile:typecheck:smoke",
         "mobile:test:smoke",
@@ -86,6 +89,10 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
     assert scripts.get("lint") == "bun run mobile:lint:smoke"
     assert scripts.get("typecheck") == "bun run mobile:typecheck:smoke"
     assert scripts.get("test") == "bun run mobile:test:smoke"
+    assert (
+        scripts.get("mobile:build:ios:preview")
+        == "bunx eas-cli build --platform ios --profile preview --non-interactive"
+    )
 
     dependencies = mobile_manifest.get("dependencies")
     assert isinstance(dependencies, dict)
@@ -93,10 +100,22 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
     assert "react" in dependencies
     assert "react-native" in dependencies
     assert "expo-status-bar" in dependencies
+    assert dependencies.get("react") == "^19.2.0"
+    assert dependencies.get("react-native") == "^0.83.2"
+
+    dev_dependencies = mobile_manifest.get("devDependencies")
+    assert isinstance(dev_dependencies, dict)
+    assert dev_dependencies.get("babel-preset-expo") == "^55.0.10"
+    assert dev_dependencies.get("@types/react") == "^19.2.14"
 
     app_json_text = (mobile_root / "app.json").read_text(encoding="utf-8")
     assert '"slug": "mobile"' in app_json_text
     assert "@react-native-tvos/config-tv" not in app_json_text
+
+    eas_json_text = (mobile_root / "eas.json").read_text(encoding="utf-8")
+    assert '"preview"' in eas_json_text
+    assert '"development"' in eas_json_text
+    assert '"distribution": "internal"' in eas_json_text
 
 
 def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
@@ -169,10 +188,19 @@ def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
     assert "react" in dependencies
     assert "react-native" in dependencies
     assert "react-native-tvos" in dependencies
+    assert dependencies.get("react") == "^19.2.0"
+    assert dependencies.get("react-native") == "^0.83.2"
+    assert dependencies.get("react-native-tvos") == "^0.81.4-0"
 
     dev_dependencies = tv_manifest.get("devDependencies")
     assert isinstance(dev_dependencies, dict)
     assert "@react-native-tvos/config-tv" in dev_dependencies
+    assert dev_dependencies.get("@react-native-community/cli") == "^20.1.2"
+    assert dev_dependencies.get("@react-native-community/cli-platform-android") == (
+        "^20.1.2"
+    )
+    assert dev_dependencies.get("babel-preset-expo") == "^55.0.10"
+    assert dev_dependencies.get("@types/react") == "^19.2.14"
 
     app_json_text = (tv_root / "app.json").read_text(encoding="utf-8")
     assert '"slug": "tv"' in app_json_text

@@ -23,4 +23,11 @@ Additional smoke helpers:
 - `bun run mobile:start:smoke`
 - `bun run mobile:export:smoke`
 
+## Optional iOS Packaging Commands
+
+When Expo/EAS credentials are configured for a real project, these commands provide non-interactive iOS packaging entrypoints:
+
+- `bun run mobile:build:ios:development`
+- `bun run mobile:build:ios:preview`
+
 The default `test` command runs `smoke.test.ts` for a deterministic, device-free baseline.

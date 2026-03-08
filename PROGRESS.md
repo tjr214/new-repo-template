@@ -1,12 +1,20 @@
 # New Repo Template - Development Progress
 
-**Last Updated:** 2026-03-03 09:15:53 AM
-**Current Phase:** M5 complete (`required PR checks are green, including ubuntu/macos/windows Tests, Preset Regression Suite, Version Baseline Guardrail, and Secret Scan (Advisory); M4 manual Android TV Emulator + NVIDIA Shield carryover remains open as explicit pre-release gate before release readiness`)
+**Last Updated:** 2026-03-08 07:24:47 PM
+**Current Phase:** M0-M5 complete with managed baseline refresh (the PR-blocking version guardrail is satisfied locally, `turbo` is refreshed to the latest known-good baseline, and the full contract suite remains green)
 
 ---
 
 ## Completed
 
+- [x] Ran a YELLOW-RED-GREEN-BLUE managed-baseline refresh slice after the PR guardrail reported stale core tooling: reproduced `nurt versions check --check-lockfiles --check-latest`, confirmed only `turbo` was outdated while the other managed tools were already current, used `btca ask -r bun -r turborepo` to reconfirm that within-major/caret-based upgrades are the expected maintenance path when lockfiles are regenerated and validation reruns, refreshed the managed baseline to `turbo 2.8.14`, updated scaffold/template references and contract fixtures to match, revalidated lockfiles, and verified GREEN/BLUE with `uv run nurt versions check --check-lockfiles --check-latest`, `uv run pytest tests/contracts/test_version_baseline_contract.py -q`, and `uv run pytest -q`.
+- [x] Ran a YELLOW-RED-GREEN-BLUE PR CI-fix slice after checking failed PR jobs with GitHub CLI: identified that Linux/macOS failures were isolated to `tests/contracts/test_nurt_install_contract.py` because `uv tool install git+file://...` tried to infer `origin/HEAD` inside GitHub Actions checkouts, confirmed the fix path by probing a pinned local git revision install, updated the contract test to resolve `git rev-parse HEAD` and install from `git+file://...@<sha>` instead of relying on default-branch discovery, synced implementation docs/trackers, and verified GREEN/BLUE with `uv run pytest -q` (128 passed).
+- [x] Ran a YELLOW-RED-GREEN-BLUE iOS-packaging + template-publishing slice: re-read the release workflow/docs/contracts, used `btca ask -r expo-docs` plus official GitHub release docs to ground the workflow shape, added RED assertions for mobile `eas.json` + iOS build scripts and for release workflow/docs coverage, implemented generated mobile `eas.json` plus non-interactive iOS EAS build commands, expanded `.github/workflows/release.yml` with `publish_release`/`release_tag` inputs, a secret-gated `iOS Packaging Preview` lane that scaffolds a temporary mobile app and submits a preview EAS iOS build, and a `Publish Template Release` lane that creates or updates a draft GitHub release for template dist artifacts; then synced docs/trackers and verified GREEN/BLUE with `uv run pytest -q` (128 passed).
+- [x] Ran a YELLOW-RED-GREEN-BLUE CI/release-hardening slice: inspected the current workflow files, release docs, workflow contracts, and template-vs-generated-repo boundaries; verified official GitHub Actions guidance for `workflow_dispatch`, secrets handling, merge-queue `merge_group`, and artifact uploads; added RED coverage in `tests/contracts/test_foundation_runtime_smoke_contract.py` and tightened workflow contract assertions; implemented `merge_group` CI triggering plus a dedicated `Foundation Baseline` job that scaffolds the foundation preset and runs install/lint/typecheck/test commands; expanded the optional release workflow into an unsigned template-dist artifact lane plus secret-gated `Desktop Signing Prep` and `Android Signing Prep` jobs with artifacted summaries; synced release/signing docs and closeout trackers; and verified GREEN/BLUE with `uv run pytest -q` (127 passed).
+- [x] Ran a YELLOW-RED-GREEN-BLUE shared-infra + doc-closeout slice: inspected the remaining doc-only PLAN items plus scaffold/template/test coverage, used `btca ask -r turborepo -r bun` to confirm workspace config-package guidance, added RED coverage in `tests/contracts/test_shared_infra_packages_contract.py`, implemented shared infra workspace packages for TypeScript and lint presets (`packages/typescript-config`, `packages/eslint-config`, root `eslint.config.mjs`), wired generated app tsconfigs to shared TypeScript presets and added backend `tsconfig.json` coverage, marked truthful doc-only/risk-mitigation PLAN items complete, synced implementation docs, and verified GREEN/BLUE with `uv run pytest -q` (124 passed).
+- [x] Ran a YELLOW-RED-GREEN-BLUE plan-closeout reconciliation slice for the remaining meaningful open items: inspected `PLAN.md`, `README.md`, `src/new_repo_template/{nurt_cli.py,version_baseline.py,scaffold.py}`, and the contract suite, used `btca ask -r bun` to confirm Bun workspace lockfile semantics, verified current `uv tool install` behavior against official uv docs/help, added RED/GREEN contract coverage in `tests/contracts/test_generation_lockfiles_contract.py` and `tests/contracts/test_nurt_install_contract.py`, updated `nurt new` to generate deterministic root lockfiles after scaffold success, upgraded the generated root `pyproject.toml` baseline to a minimal repo-level project anchor so `uv lock` succeeds, corrected the documented git-install command from stale `--from` syntax to current `uv tool install git+...`, reconciled stale PLAN checkboxes with validated implementation state, and verified GREEN/BLUE with `uv run pytest -q` (124 passed).
+- [x] Ran a YELLOW-RED-GREEN-BLUE assistant-asset removal slice for maintainer sync flows: inspected native and legacy template-sync paths, added RED coverage in `tests/contracts/test_template_asset_sync_contract.py` plus a legacy-script assertion in `tests/contracts/test_installer_scripts_dry_run_contract.py`, removed the root assistant shim file and assistant config tree from the repository, removed assistant-specific copy logic from `src/new_repo_template/sync_ops.py` and `.template_scripts/update-template-from-git.sh`, cleaned unused helper code, and verified GREEN/BLUE with `uv run pytest tests/contracts/test_template_asset_sync_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_nurt_cli_contract.py -q` (23 passed).
+- [x] Ran a YELLOW-RED-GREEN-BLUE maintainer-tooling slice for OpenCode updater behavior: reviewed `.template_scripts/update-opencode.sh`, synced implementation docs, queried BTCA for installed-vs-installer updater semantics, added RED contract coverage in `tests/contracts/test_installer_scripts_dry_run_contract.py`, then updated the script so existing OpenCode installs use `opencode upgrade` while missing installs still use the installer curl path; verified GREEN/BLUE with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py -q` (6 passed).
 - [x] Confirmed strategic direction for always-on monorepo template.
 - [x] Finalized core stack decisions (Turbo + Bun, cloud-first Convex, Electron Forge, Expo TV path).
 - [x] Defined CI direction (GitHub Actions with required native Windows checks).
@@ -170,7 +178,7 @@
   - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/tv_package.json`
 - [x] Updated scaffold path planning + write flow to emit app-level `package.json` files for JS targets.
 - [x] Verified full suite GREEN after Bun install viability slice (`uv run pytest`: 81 passed).
-- [x] Added root workspace toolchain metadata to scaffolded `package.json` template (`packageManager: bun@1.3.10`, `devDependencies.turbo: ^2.8.12`) so Turbo commands resolve after install.
+- [x] Added root workspace toolchain metadata to scaffolded `package.json` template (`packageManager: bun@1.3.10`, `devDependencies.turbo: ^2.8.14`) so Turbo commands resolve after install.
 - [x] Added RED command-smoke contract at `tests/contracts/test_turbo_command_smoke_contract.py` for selected minimal JS preset (`web+backend+clerk`) covering:
   - [x] install viability via `bun install --frozen-lockfile`
   - [x] root script viability for `bun run dev`, `build`, `test`, `lint`, and `typecheck`
@@ -587,22 +595,74 @@
   - [x] GREEN: implemented `.template_scripts/configure-repo-protections.sh` with dry-run planning, required-check support/auto-discovery, branch-protection application, and `dependabot_security_updates` enablement.
   - [x] BLUE: verified script behavior via `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py` (4 passed).
 - [x] Updated branch-protection maintainer guidance in `docs/BRANCH_PROTECTION.md` to document the new automation script usage for template and generated repositories.
+- [x] Completed follow-up protections-script defaults slice with YELLOW-RED-GREEN-BLUE loop:
+  - [x] YELLOW: reviewed protections script + contracts and queried BTCA (`btca ask -r bun ...`) for POSIX-shell portability reminder.
+  - [x] RED: added failing contract `test_configure_repo_protections_defaults_branch_and_auto_detects_repo` in `tests/contracts/test_installer_scripts_dry_run_contract.py`.
+  - [x] GREEN: updated `.template_scripts/configure-repo-protections.sh` to auto-detect `--repo` when omitted and default `--branch` to `main` when omitted.
+  - [x] BLUE: verified with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_branch_protection_guidance_contract.py` (7 passed).
+- [x] Completed targeted Android TV scaffold hardening slice with explicit YELLOW-RED-GREEN-BLUE loop:
+  - [x] YELLOW: reproduced `tv:android` failure path on generated TV scaffold, read generated Android/Gradle outputs, and ran BTCA asks for Expo TV dependency compatibility and Gradle support guidance (`btca ask -r expo-docs -r react-native-tvos -r expo-tv-config ...`).
+  - [x] RED: expanded contracts to require Expo-compatible mobile/TV dependency pins, root `.gitignore` node_modules guards, and a deterministic TV Android wrapper-patch script flow (`tests/contracts/test_mobile_tv_scaffold_contract.py`, `tests/contracts/test_security_baseline_contract.py`, `tests/contracts/test_tv_android_build_profile_contract.py`).
+  - [x] GREEN: implemented scaffold/template updates:
+    - [x] updated mobile/TV workspace dependency baselines (`react@^19.2.0`, `react-native@^0.83.2`, `react-native-tvos@^0.81.4-0`)
+    - [x] added TV Android compatibility script flow (`tv:android:prepare`, `tv:android:wrapper:patch`, `tv:android`) and helper `apps/tv/scripts/patch-android-wrapper.mjs`
+    - [x] added `cross-env` dev dependency in TV workspace manifest for cross-platform env wiring
+    - [x] updated generated root `.gitignore` baseline to include `node_modules/` and `**/node_modules/`
+  - [x] BLUE: verified contracts and full suite:
+    - [x] `uv run pytest tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_security_baseline_contract.py tests/contracts/test_tv_android_build_profile_contract.py` -> pass (10 tests)
+    - [x] `uv run pytest` -> pass (116 tests)
+  - [x] Synced tracker/docs and recorded session artifact:
+    - [x] `docs/LIVING_DOCS.md`
+    - [x] `docs/ARCHITECTURE.md`
+    - [x] `docs/MOBILE_TV_SETUP.md`
+    - [x] `docs/session-summaries/SESSION_60_SUMMARY.md`
+  - [x] Verified new generated `tv:android` flow now reaches native build stage with compatibility guardrails active; remaining local failure is environment-only NDK installation integrity (`source.properties` missing under `~/Library/Android/sdk/ndk/27.1.12297006`).
+- [x] Completed Android TV runtime follow-up slice with explicit YELLOW-RED-GREEN-BLUE loop:
+  - [x] YELLOW: reproduced emulator render failure on generated TV scaffold, inspected `adb logcat` runtime errors, read TV starter/HID contract files, and ran BTCA asks for Expo TV community-autolinking dependencies plus minimal TV-safe focus APIs.
+  - [x] RED: tightened contracts to require missing Expo TS/Babel toolchain deps and to forbid `useTVEventHandler` in the generated TV starter while preserving remote-primary focus wiring expectations (`tests/contracts/test_mobile_tv_scaffold_contract.py`, `tests/contracts/test_tv_android_build_profile_contract.py`, `tests/contracts/test_tv_input_hid_contract.py`).
+  - [x] GREEN: updated scaffold templates:
+    - [x] added `babel-preset-expo` + `@types/react` to generated mobile/TV app manifests
+    - [x] added `@react-native-community/cli` + `@react-native-community/cli-platform-android` to generated TV manifest for local Android autolinking
+    - [x] simplified generated TV `App.tsx` to focus-first `Pressable` wiring (`hasTVPreferredFocus`, `onFocus`, `onPress`) without `useTVEventHandler`
+  - [x] BLUE: verified focused suites + full suite:
+    - [x] `uv run pytest tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_tv_android_build_profile_contract.py` -> pass (10 tests)
+    - [x] `uv run pytest` -> pass (117 tests)
+  - [x] Verified fresh generated TV scaffold now builds, installs, launches, and renders on local Android TV emulator (baseline screen visible with `Expo TV baseline` and three focusable buttons).
+  - [x] Synced tracker/docs and recorded session artifact:
+    - [x] `docs/LIVING_DOCS.md`
+    - [x] `docs/ARCHITECTURE.md`
+    - [x] `docs/session-summaries/SESSION_61_SUMMARY.md`
+- [x] Completed Android TV emulator manual validation evidence capture:
+  - [x] Verified remote-primary behavior on local Android TV emulator using `adb`-driven input plus visual confirmation.
+  - [x] Confirmed initial focus lands on `Home` and visible focus styling tracks the focused control.
+  - [x] Confirmed deterministic D-pad navigation (`Home -> Library -> Settings`) and select keeps the app active on the focused item.
+  - [x] Confirmed back returns to Android TV home and direct relaunch restores initial focus to `Home`.
+  - [x] Confirmed pointer/tap activation updates the same control state path for the `Home` item.
+  - [x] Recorded durable summary in repo docs/session artifacts before deleting temporary generated validation projects.
+  - [x] Added session artifact `docs/session-summaries/SESSION_62_SUMMARY.md`.
+- [x] Completed NVIDIA Shield manual validation evidence capture on fresh scaffold output `tv-run-check-shield`:
+  - [x] Reread M4 plan/docs/checklists, ran `btca ask -r react-native-tvos -r expo-docs ...` for physical-device input expectations, scaffolded a fresh `tv`-only validation project, and verified app-local `bun run lint`, `bun run typecheck`, and `bun run test`.
+  - [x] Connected the Shield over wireless ADB, authorized the device, and launched the generated TV app on physical hardware.
+  - [x] Confirmed Shield remote-primary behavior, back-to-exit, relaunch, mouse control, and gamepad control on the generated TV baseline.
+  - [x] Recorded Shield outcomes in `tv-run-check-shield/apps/tv/TV_INPUT_CHECKLIST.md` and `tv-run-check-shield/apps/tv/TV_VALIDATION_LOG.md`.
+  - [x] Captured runtime note: dev launches briefly show the Expo/Android loading surface before the app renders; this is acceptable for the current validation flow and is not the intended production startup UX.
+  - [x] Added session artifact `docs/session-summaries/SESSION_64_SUMMARY.md`.
+- [x] Closed the final M4 carryover gate by user direction:
+  - [x] accepted keyboard fallback as validated for milestone closeout despite no direct keyboard hardware run in this environment
+  - [x] updated `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and the generated Shield validation artifacts to record that this was a user-directed assumption rather than direct device evidence
+  - [x] added session artifact `docs/session-summaries/SESSION_65_SUMMARY.md`
 
 ## In Progress
 
-- [ ] M4 manual hardware-validation carryover (deferred until required tooling/hardware is available in execution environment):
-  - [ ] Ensure `adb` + `emulator` + Android TV AVD are available where checks will run.
-  - [ ] Execute Android TV Emulator checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
-  - [ ] Execute NVIDIA Shield checklist and record outcomes in generated `TV_VALIDATION_LOG.md`.
-  - [ ] Confirm manual TV input UX pass criteria (remote-primary + keyboard/mouse/gamepad fallback) from run logs.
+- No active implementation slice; M0-M5 are complete in tracker state.
 
 ## Deferred / Blocked
 
-- [ ] M4 manual execution checks are blocked in this environment until Android SDK tooling (`adb`, `emulator`, Android TV AVD) and Shield-device execution access are available.
+- No active milestone blockers in tracker state.
 
 ## Next Up
 
-- [ ] Close deferred M4 carryover as soon as Android TV Emulator + Shield execution environment is available, then mark M4 fully complete.
+- [ ] Optional follow-up: run one true physical-keyboard pass later if you want empirical evidence for the assumption-based M4 closeout.
 
 ## BTCA Governance Log
 

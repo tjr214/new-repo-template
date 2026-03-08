@@ -6,11 +6,14 @@
   "dependencies": {
     "expo": "^55.0.4",
     "expo-status-bar": "^55.0.4",
-    "react": "^19.2.4",
-    "react-native": "^0.84.1"
+    "react": "^19.2.0",
+    "react-native": "^0.83.2"
   },
   "devDependencies": {
+    "@generated/typescript-config": "workspace:*",
     "@babel/core": "^7.29.0",
+    "@types/react": "^19.2.14",
+    "babel-preset-expo": "^55.0.10",
     "typescript": "^5.9.3"
   },
   "scripts": {
@@ -24,6 +27,8 @@
     "mobile:ios": "expo run:ios",
     "mobile:web": "expo start --web --non-interactive",
     "mobile:export": "expo export --non-interactive",
+    "mobile:build:ios:development": "bunx eas-cli build --platform ios --profile development --non-interactive",
+    "mobile:build:ios:preview": "bunx eas-cli build --platform ios --profile preview --non-interactive",
     "mobile:lint:smoke": "expo lint --help",
     "mobile:typecheck:smoke": "tsc --help",
     "mobile:test:smoke": "bun test --bail --timeout 10000 ./smoke.test.js",

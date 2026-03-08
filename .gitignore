@@ -61,6 +61,10 @@ dmypy.json
 # Logs
 *.log
 
+# JS dependencies
+node_modules/
+**/node_modules/
+
 # OS
 .DS_Store
 Thumbs.db
@@ -72,7 +76,6 @@ Thumbs.db
 #_bmad/
 #_bmad-output/
 #.opencode/
-#.claude/
 #.mcp.json
 .env
 .env.*

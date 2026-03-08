@@ -253,27 +253,6 @@ extract_opencode_target_version() {
     printf "%s\n" "$INSTALL_OUTPUT" | awk -F': ' '/Installing opencode version:/ {print $2; exit}' | tr -d '\r\n'
 }
 
-print_opencode_update_result() {
-    PREVIOUS_VERSION="$1"
-    CURRENT_VERSION="$2"
-    TARGET_VERSION="$3"
-
-    if [ -n "$TARGET_VERSION" ] && [ "$TARGET_VERSION" != "$PREVIOUS_VERSION" ] && { [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" = "$PREVIOUS_VERSION" ]; }; then
-        LAST_RESULT_STATUS="UPDATED"
-        LAST_RESULT_DETAIL="$PREVIOUS_VERSION -> $TARGET_VERSION"
-        printf "${GREEN}${BOLD}OpenCode updated successfully!${NC}\n"
-        printf "${BLUE}Previous version: ${NC}%s\n" "$PREVIOUS_VERSION"
-        printf "${BLUE}Installer target version: ${NC}${BOLD}%s${NC}\n" "$TARGET_VERSION"
-        if [ -n "$CURRENT_VERSION" ]; then
-            printf "${YELLOW}Current shell still reports version %s. A new shell may be required.${NC}\n" "$CURRENT_VERSION"
-        else
-            printf "${YELLOW}Current shell cannot resolve the installed version yet. A new shell may be required.${NC}\n"
-        fi
-    else
-        print_install_update_result "OpenCode" "$PREVIOUS_VERSION" "$CURRENT_VERSION"
-    fi
-}
-
 if [ "$DRY_RUN" -eq 1 ]; then
     UV_STATUS="DRY-RUN"
     UV_DETAIL="would install/update via astral installer"
@@ -282,7 +261,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
     TURBO_STATUS="DRY-RUN"
     TURBO_DETAIL="would install/update turbo via bun add -g turbo"
     OPENCODE_STATUS="DRY-RUN"
-    OPENCODE_DETAIL="would install/update via opencode installer"
+    OPENCODE_DETAIL="would install via curl or upgrade via opencode upgrade"
     BTCA_STATUS="DRY-RUN"
     BTCA_DETAIL="would install/update via bun add -g btca"
     GH_STATUS="DRY-RUN"
@@ -452,22 +431,21 @@ if command_exists opencode; then
     CURRENT_VERSION=$(opencode --version 2>/dev/null | tr -d '\n')
     printf "${BLUE}OpenCode is already installed ${NC}(Version: ${BOLD}%s${NC})\n" "$CURRENT_VERSION"
     printf "${YELLOW}Updating OpenCode...${NC}\n"
-    
-    # Update opencode
-    if OPENCODE_INSTALL_OUTPUT=$(curl -fsSL https://opencode.ai/install | bash 2>&1); then
-        printf "%s\n" "$OPENCODE_INSTALL_OUTPUT"
+
+    # Upgrade opencode in place
+    if OPENCODE_UPGRADE_OUTPUT=$(opencode upgrade 2>&1); then
+        printf "%s\n" "$OPENCODE_UPGRADE_OUTPUT"
         hash -r 2>/dev/null
         NEW_VERSION=$(opencode --version 2>/dev/null | tr -d '\n')
-        OPENCODE_TARGET_VERSION=$(extract_opencode_target_version "$OPENCODE_INSTALL_OUTPUT")
-        print_opencode_update_result "$CURRENT_VERSION" "$NEW_VERSION" "$OPENCODE_TARGET_VERSION"
+        print_install_update_result "OpenCode" "$CURRENT_VERSION" "$NEW_VERSION"
         OPENCODE_STATUS="$LAST_RESULT_STATUS"
         OPENCODE_DETAIL="$LAST_RESULT_DETAIL"
     else
-        printf "%s\n" "$OPENCODE_INSTALL_OUTPUT"
-        printf "${RED}${BOLD}Error: Update failed${NC}\n"
+        printf "%s\n" "$OPENCODE_UPGRADE_OUTPUT"
+        printf "${RED}${BOLD}Error: Upgrade failed${NC}\n"
         mark_failure "opencode"
         OPENCODE_STATUS="FAILED"
-        OPENCODE_DETAIL="update failed"
+        OPENCODE_DETAIL="upgrade failed"
     fi
 else
     printf "${YELLOW}OpenCode not found. Installing...${NC}\n"

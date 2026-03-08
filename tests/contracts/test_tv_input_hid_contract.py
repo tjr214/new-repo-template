@@ -80,10 +80,12 @@ def test_tv_app_baseline_includes_remote_primary_focus_wiring(tmp_path: Path) ->
     )
 
     app_tsx = (output_dir / "apps" / "tv" / "App.tsx").read_text(encoding="utf-8")
-    assert "useTVEventHandler" in app_tsx
+    assert "Pressable" in app_tsx
     assert "hasTVPreferredFocus" in app_tsx
     assert "onFocus" in app_tsx
     assert "remote-primary" in app_tsx
+    assert "keyboard/mouse/gamepad fallback" in app_tsx
+    assert "useTVEventHandler" not in app_tsx
 
 
 def test_tv_dry_run_reports_input_hid_checklist_path(tmp_path: Path) -> None:

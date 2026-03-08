@@ -6,15 +6,20 @@
     "@generated/shared": "workspace:*",
     "convex": "^1.32.0"
   },
+  "devDependencies": {
+    "@generated/typescript-config": "workspace:*",
+    "typescript": "^5.9.3"
+  },
   "scripts": {
     "dev": "bun run convex:dev:smoke",
     "build": "bun --version",
     "test": "bun run convex:codegen:smoke",
     "lint": "bun --version",
-    "typecheck": "bun --version",
+    "typecheck": "bun run typecheck:smoke",
     "convex:codegen": "convex codegen",
     "convex:dev": "convex dev",
     "convex:codegen:smoke": "convex codegen --help",
-    "convex:dev:smoke": "convex dev --help"
+    "convex:dev:smoke": "convex dev --help",
+    "typecheck:smoke": "tsc --help"
   }
 }

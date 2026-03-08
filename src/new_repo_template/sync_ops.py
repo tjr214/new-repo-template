@@ -389,14 +389,6 @@ def _copy_file(source: Path, destination: Path) -> None:
     shutil.copy2(source, destination)
 
 
-def _replace_directory(source: Path, destination: Path) -> None:
-    if not source.exists() or not source.is_dir():
-        raise FileNotFoundError(f"missing template directory: {source}")
-    if destination.exists():
-        shutil.rmtree(destination)
-    shutil.copytree(source, destination)
-
-
 def _copy_globbed_files(source_root: Path, pattern: str, destination_root: Path) -> int:
     if not source_root.exists() or not source_root.is_dir():
         raise FileNotFoundError(f"missing template directory: {source_root}")
@@ -425,20 +417,7 @@ def _copy_directory_contents(source_root: Path, destination_root: Path) -> int:
 
 
 def _apply_template_sync(clone_root: Path, project_root: Path) -> None:
-    _copy_file(
-        clone_root / ".claude" / "settings.json",
-        project_root / ".claude" / "settings.json",
-    )
-    _copy_file(
-        clone_root / ".claude" / "statusline-script.sh",
-        project_root / ".claude" / "statusline-script.sh",
-    )
-    _replace_directory(
-        clone_root / ".claude" / "commands" / "repo",
-        project_root / ".claude" / "commands" / "repo",
-    )
     _copy_file(clone_root / "AGENTS.md", project_root / "AGENTS.md")
-    _copy_file(clone_root / "CLAUDE.md", project_root / "CLAUDE.md")
 
     template_scripts_dir = clone_root / ".template_scripts"
     if not template_scripts_dir.exists() or not template_scripts_dir.is_dir():

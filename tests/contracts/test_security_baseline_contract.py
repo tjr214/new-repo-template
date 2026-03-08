@@ -48,6 +48,8 @@ def test_root_gitignore_includes_secret_env_guards(tmp_path: Path) -> None:
     assert gitignore_path.exists(), "Root .gitignore should be scaffolded"
 
     gitignore_text = gitignore_path.read_text(encoding="utf-8")
+    assert "node_modules/" in gitignore_text
+    assert "**/node_modules/" in gitignore_text
     assert ".env" in gitignore_text
     assert ".env.*" in gitignore_text
     assert "!.env.example" in gitignore_text

@@ -10,7 +10,7 @@ The template is in planning-to-implementation transition for a major expansion:
 
 The canonical execution checklist is in `PLAN.md`.
 
-M0-M3 execution is complete. M4 automatable slices are complete with manual Emulator/Shield hardware validation deferred as carryover gates, and M5 is complete for implementation/CI hardening scope with required PR checks now green (ubuntu/macos/windows test matrix, preset-regression suite, version baseline guardrail, and advisory secret scan). The remaining open program gate is M4 manual Android TV Emulator + NVIDIA Shield validation.
+ M0-M5 execution is complete. M4 hardware validation is closed in tracker state: local emulator evidence confirms remote-primary focus, D-pad navigation, select/back behavior, relaunch focus recovery, and mouse activation; the NVIDIA Shield run confirms remote-primary behavior plus mouse and gamepad control on the generated TV baseline; and the final keyboard fallback checkbox was closed by explicit user direction without a direct keyboard hardware run.
 
 ## Active Implementation Rules
 
@@ -37,7 +37,7 @@ M0-M3 execution is complete. M4 automatable slices are complete with manual Emul
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
 - Root `pyproject.toml` invariant: always present, even when Python target is not selected
 - Python lane metadata boundary: Python target scaffolds `apps/python/pyproject.toml`; root `pyproject.toml` remains monorepo/tooling-level
-- Global execution UX pivot: primary user flow is moving to globally installed `nurt` (`nurt new <project-name>`) with no `install.sh` fallback user path
+- Global execution UX pivot: primary user flow is globally installed `nurt` (`uv tool install git+...` then `nurt new <project-name>`) with no `install.sh` fallback user path
 
 ## Known Constraints
 
@@ -65,13 +65,30 @@ M0-M3 execution is complete. M4 automatable slices are complete with manual Emul
 - Auth wiring placeholder slice complete: `web+backend` auth variants now scaffold minimal placeholder wiring files for frontend/backend auth integration points (`apps/backend/convex/auth.config.ts`, plus auth-specific web wiring stubs).
 - Security baseline slice complete: generated outputs now copy the root `.gitignore` baseline (with env/secret guards) and include target-local `.env.example` placeholders; baseline policy is documented in `docs/SECURITY_BASELINE.md`.
 - Installer/tooling script slice complete: `install.sh` and `.template_scripts/update-opencode.sh` support `--dry-run`, and updater flow includes turborepo (`turbo`) install/update handling for maintainer/legacy flows.
-- User-facing bootstrap path is now fully `nurt`-first (`uv tool install --from git+... nurt` then `nurt new <project-name>`); script-first bootstrap is not the default user guidance.
+- User-facing bootstrap path is now fully `nurt`-first (`uv tool install git+...` then `nurt new <project-name>`); script-first bootstrap is not the default user guidance.
+- `nurt new` now generates deterministic root lockfiles for fresh outputs (`uv.lock` + `bun.lock`), and Python-enabled outputs keep the Python lane on `>=3.14` minimums while relying on the workspace root `uv.lock` as the authoritative lock state.
+- The generated root `pyproject.toml` now includes minimal repo-level project metadata in addition to the build backend so `uv lock` succeeds while preserving the rule that app-local Python metadata stays in `apps/python/pyproject.toml`.
+- The documented git-install workflow has been validated against current uv behavior using `uv tool install git+...`; the older `--from ... nurt` syntax is no longer used in repository docs.
+- The local git-install smoke contract now pins a concrete repository revision (`git+file://...@<sha>`) instead of relying on git default-branch discovery, which keeps Linux/macOS CI compatible with Actions checkouts that do not expose `refs/remotes/origin/HEAD`.
+- Managed version-baseline policy is now current again for the tracked core toolchain: `turbo` was refreshed from `2.8.12` to `2.8.14`, and the latest-check guardrail confirmed the other managed tools (`bun`, `typescript`, `python`) were already current.
+- Fresh repos created by `nurt new` are runtime/template scaffold outputs; governance/workflow assets remain part of template-maintained repos and are updated through template sync flows rather than copied into every fresh generated project.
+- Shared infra workspace packages are now scaffolded into generated repos: `packages/typescript-config` centralizes TypeScript presets (`react-app`, `node`, `expo`), `packages/eslint-config` centralizes base lint ignores/policy, and the root workspace now includes `eslint.config.mjs` wired to the shared lint package.
+- Generated app configs now consume the shared TypeScript presets: web extends `@generated/typescript-config/react-app.json`, backend and desktop extend `@generated/typescript-config/node.json`, and mobile/TV extend `@generated/typescript-config/expo.json`.
+- Backend scaffold output now includes `apps/backend/tsconfig.json`, and backend workspace manifests now carry the shared TypeScript config dependency and a CI-safe `typecheck:smoke` path.
+- CI now includes an explicit `Foundation Baseline` lane in `.github/workflows/ci.yml`: it scaffolds the foundation preset, generates a `bun.lock`, runs `bun install --frozen-lockfile`, then executes root `lint`, `typecheck`, and `test` commands so the zero-app workspace baseline stays validated separately from the larger preset matrix.
+- CI now also listens for GitHub merge queue runs via `merge_group` with `checks_requested`, so required checks continue to report correctly when merge queues are enabled.
+- The release workflow now has three practical lanes: unsigned template distributable bundle upload, secret-gated macOS signing-prep validation, and secret-gated Android signing-prep validation. This is template-repo hardening infrastructure, not a substitute for downstream generated-app packaging/signing jobs.
+- Generated mobile apps now include `apps/mobile/eas.json` plus non-interactive EAS iOS packaging commands (`mobile:build:ios:development` and `mobile:build:ios:preview`) so downstream repos have a baseline iOS packaging entrypoint once Expo credentials are configured.
+- The template release workflow now also includes `iOS Packaging Preview`, which scaffolds a temporary mobile app, injects Expo/EAS project wiring from secrets, and submits a preview iOS EAS build on `macos-latest`.
+- Template artifact publishing is no longer docs-only: `Publish Template Release` can create or update a draft GitHub release for the template dist bundle when `publish_release=true` and `release_tag` is supplied.
+- Nightly workflow automation remains intentionally deferred; there is still no `.github/workflows/nightly.yml`.
 - New strategic direction: migrate fully to global `nurt` command model (`new`, `update`, `tools sync`, `template-assets sync`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
 - `nurt` bootstrap implementation is now in place with command routing and startup update-check hook.
 - `nurt new` now supports interactive target/auth prompt flow when flags are omitted.
 - Snapshot asset pipeline is now active: scaffold content is loaded from bundled package templates, and `nurt template-assets snapshot` can regenerate packaged assets + metadata.
 - `nurt tools sync` and `nurt template-assets sync` now execute native Python operations (no script wrapper dependency in CLI command handlers).
 - `nurt` sync contracts now include non-dry-run failure-path assertions for clear operator feedback (project-root/dirty-git validation for template sync and deterministic failure reporting for tools sync).
+- Assistant-specific maintainer assets have been fully removed from the repository, and neither native nor legacy template-sync flows copy them into managed projects.
 - `nurt new` interactive flow now handles closed stdin (EOF) with deterministic remediation messaging instead of tracebacks.
 - Version baseline workflow is now codified: `version-baseline.json` tracks managed toolchain versions and `nurt versions check/update` provides maintainer validation/update flows (including latest-version comparison and dry-run planning).
 - Version baseline workflow now includes lockfile governance: `nurt versions update` regenerates lockfiles by default and `nurt versions check --check-lockfiles` enforces required lockfile presence.
@@ -130,4 +147,9 @@ M0-M3 execution is complete. M4 automatable slices are complete with manual Emul
 - Updater tooling now includes GitHub CLI (`gh`) in `.template_scripts/update-opencode.sh`, including dry-run visibility, status-table reporting, and install/update handling via platform package managers.
 - CI runner strategy now keeps full smoke + full-suite execution on Linux/macOS while `windows-latest` runs a focused critical contract subset (workspace install, backend/desktop/turbo/python command confidence) to reduce wall-clock time without dropping native Windows coverage.
 - M5 closeout is now complete in tracker state: required PR checks were confirmed green via `gh pr checks --watch`, and `PLAN.md` now marks the remaining M5 DoD gate complete.
-- Repository-protection automation is now available via `.template_scripts/configure-repo-protections.sh`, with support for dry-run planning, required-check auto-discovery from latest successful `CI` run, branch-protection enforcement on a target branch, and repository-level `dependabot_security_updates` enablement.
+- Repository-protection automation is now available via `.template_scripts/configure-repo-protections.sh`, with support for dry-run planning, required-check auto-discovery from latest successful `CI` run, branch-protection enforcement (default branch `main` when omitted), repository auto-detection via `gh repo view` when `--repo` is omitted, and repository-level `dependabot_security_updates` enablement.
+- TV local Android run flow now includes a compatibility guardrail: generated `apps/tv/package.json` wires `tv:android` through `tv:android:prepare` (`expo prebuild --clean --platform android`) + `tv:android:wrapper:patch` (`apps/tv/scripts/patch-android-wrapper.mjs`) and then runs `expo run:android --no-install` with `EXPO_USE_COMMUNITY_AUTOLINKING=1`.
+- Generated Expo mobile/TV TypeScript manifests now include the expected template-time dev tooling baseline: `babel-preset-expo` + `@types/react`, and generated TV manifests also include `@react-native-community/cli` + `@react-native-community/cli-platform-android` so local Android community-autolinking succeeds.
+- Generated TV starter UI now uses focus-first `Pressable` wiring (`hasTVPreferredFocus`, `onFocus`, `onPress`) instead of `useTVEventHandler`, which avoids the Expo Android TV runtime crash while still giving a manual remote-primary/fallback validation surface.
+- Generated root `.gitignore` baseline now explicitly ignores JS dependency directories (`node_modules/` and `**/node_modules/`) in addition to existing env/secret guards.
+- OpenCode updater behavior is now split correctly in `.template_scripts/update-opencode.sh`: existing installs use `opencode upgrade`, missing installs still bootstrap via the installer curl script, and contract coverage now asserts both the branch behavior and dry-run messaging in `tests/contracts/test_installer_scripts_dry_run_contract.py`.

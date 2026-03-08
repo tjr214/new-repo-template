@@ -140,3 +140,61 @@ def test_tv_dry_run_reports_android_build_profile_config_path(tmp_path: Path) ->
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "apps/tv/eas.json" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"
+
+
+def test_tv_scaffold_includes_android_wrapper_patch_flow_for_local_builds(
+    tmp_path: Path,
+) -> None:
+    """TV scripts should include local patch flow for Expo Android wrapper compatibility."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "tv-android-wrapper-patch"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "tv",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected tv-only scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    tv_manifest = json.loads(
+        (output_dir / "apps" / "tv" / "package.json").read_text(encoding="utf-8")
+    )
+    scripts = tv_manifest.get("scripts")
+    assert isinstance(scripts, dict)
+    dev_dependencies = tv_manifest.get("devDependencies")
+    assert isinstance(dev_dependencies, dict)
+
+    assert (
+        scripts.get("tv:android:prepare") == "expo prebuild --clean --platform android"
+    )
+    assert scripts.get("tv:android:wrapper:patch") == (
+        "node ./scripts/patch-android-wrapper.mjs"
+    )
+    assert scripts.get("tv:android") == (
+        "bun run tv:android:prepare && bun run tv:android:wrapper:patch && "
+        "cross-env EXPO_USE_COMMUNITY_AUTOLINKING=1 expo run:android --no-install"
+    )
+    assert dev_dependencies.get("@react-native-community/cli") == "^20.1.2"
+    assert dev_dependencies.get("@react-native-community/cli-platform-android") == (
+        "^20.1.2"
+    )
+    assert dev_dependencies.get("babel-preset-expo") == "^55.0.10"
+    assert dev_dependencies.get("@types/react") == "^19.2.14"
+
+    patch_script_path = (
+        output_dir / "apps" / "tv" / "scripts" / "patch-android-wrapper.mjs"
+    )
+    assert patch_script_path.exists(), (
+        f"Expected scaffolded Android wrapper patch helper at {patch_script_path}"
+    )

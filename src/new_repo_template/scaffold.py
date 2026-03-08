@@ -34,8 +34,21 @@ FOUNDATION_PATHS: tuple[str, ...] = (
     "packages/",
     "pyproject.toml",
     ".gitignore",
+    "eslint.config.mjs",
     "package.json",
     "turbo.json",
+)
+
+SHARED_INFRA_PACKAGE_PATHS: tuple[str, ...] = (
+    "packages/typescript-config/",
+    "packages/typescript-config/package.json",
+    "packages/typescript-config/base.json",
+    "packages/typescript-config/react-app.json",
+    "packages/typescript-config/node.json",
+    "packages/typescript-config/expo.json",
+    "packages/eslint-config/",
+    "packages/eslint-config/package.json",
+    "packages/eslint-config/base.mjs",
 )
 
 APP_TARGET_DIRS: dict[str, str] = {
@@ -81,6 +94,7 @@ BACKEND_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/backend/convex/",
     "apps/backend/convex/http.ts",
     "apps/backend/convex/schema.ts",
+    "apps/backend/tsconfig.json",
     "apps/backend/README.md",
 )
 
@@ -98,6 +112,7 @@ DESKTOP_FRAMEWORK_PATHS: tuple[str, ...] = (
 MOBILE_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/mobile/README.md",
     "apps/mobile/app.json",
+    "apps/mobile/eas.json",
     "apps/mobile/babel.config.js",
     "apps/mobile/index.js",
     "apps/mobile/App.tsx",
@@ -114,6 +129,8 @@ TV_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/tv/App.tsx",
     "apps/tv/smoke.test.js",
     "apps/tv/tsconfig.json",
+    "apps/tv/scripts/",
+    "apps/tv/scripts/patch-android-wrapper.mjs",
     "apps/tv/TV_INPUT_CHECKLIST.md",
     "apps/tv/TV_VALIDATION_LOG.md",
 )
@@ -213,6 +230,7 @@ DESKTOP_TSCONFIG_TEMPLATE = load_template_text("desktop/desktop_tsconfig.json")
 DESKTOP_FORGE_CONFIG_TEMPLATE = load_template_text("desktop/desktop_forge.config.ts")
 DESKTOP_README_TEMPLATE = load_template_text("desktop/desktop_readme.md")
 MOBILE_APP_JSON_TEMPLATE = load_template_text("mobile/mobile_app.json")
+MOBILE_EAS_JSON_TEMPLATE = load_template_text("mobile/mobile_eas.json")
 MOBILE_BABEL_CONFIG_TEMPLATE = load_template_text("mobile/mobile_babel.config.js")
 MOBILE_INDEX_TEMPLATE = load_template_text("mobile/mobile_index.js")
 MOBILE_APP_TEMPLATE = load_template_text("mobile/mobile_app.tsx")
@@ -226,6 +244,9 @@ TV_INDEX_TEMPLATE = load_template_text("tv/tv_index.js")
 TV_APP_TEMPLATE = load_template_text("tv/tv_app.tsx")
 TV_SMOKE_TEST_TEMPLATE = load_template_text("tv/tv_smoke.test.js")
 TV_TSCONFIG_TEMPLATE = load_template_text("tv/tv_tsconfig.json")
+TV_PATCH_ANDROID_WRAPPER_TEMPLATE = load_template_text(
+    "tv/tv_patch_android_wrapper.mjs"
+)
 TV_INPUT_CHECKLIST_TEMPLATE = load_template_text("tv/tv_input_checklist.md")
 TV_VALIDATION_LOG_TEMPLATE = load_template_text("tv/tv_validation_log.md")
 TV_README_TEMPLATE = load_template_text("tv/tv_readme.md")
@@ -235,8 +256,23 @@ DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
 )
 SHARED_INDEX_TEMPLATE = load_template_text("shared/shared_index.ts")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
+ROOT_ESLINT_CONFIG = load_template_text("root_eslint.config.mjs")
 ROOT_PACKAGE_JSON = load_template_text("root_package.json")
 ROOT_TURBO_JSON = load_template_text("root_turbo.json")
+TYPESCRIPT_CONFIG_PACKAGE_TEMPLATE = load_template_text(
+    "workspace_packages/typescript_config_package.json"
+)
+TYPESCRIPT_CONFIG_BASE_TEMPLATE = load_template_text("typescript_configs/base.json")
+TYPESCRIPT_CONFIG_REACT_APP_TEMPLATE = load_template_text(
+    "typescript_configs/react-app.json"
+)
+TYPESCRIPT_CONFIG_NODE_TEMPLATE = load_template_text("typescript_configs/node.json")
+TYPESCRIPT_CONFIG_EXPO_TEMPLATE = load_template_text("typescript_configs/expo.json")
+ESLINT_CONFIG_PACKAGE_TEMPLATE = load_template_text(
+    "workspace_packages/eslint_config_package.json"
+)
+ESLINT_CONFIG_BASE_TEMPLATE = load_template_text("eslint/base.mjs")
+BACKEND_TSCONFIG_TEMPLATE = load_template_text("fullstack/backend_tsconfig.json")
 
 SIMULATE_FAILURE_ENV = "NEW_REPO_TEMPLATE_SIMULATE_FAILURE"
 
@@ -303,6 +339,7 @@ def validate_args(
 
 def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, ...]:
     paths: list[str] = list(FOUNDATION_PATHS)
+    paths.extend(SHARED_INFRA_PACKAGE_PATHS)
 
     for target in targets:
         if target in APP_TARGET_DIRS:
@@ -373,6 +410,13 @@ def write_root_gitignore(*, output_root: Path) -> None:
     (output_root / ".gitignore").write_text(ROOT_GITIGNORE, encoding="utf-8")
 
 
+def write_root_eslint_config(*, output_root: Path) -> None:
+    (output_root / "eslint.config.mjs").write_text(
+        ROOT_ESLINT_CONFIG,
+        encoding="utf-8",
+    )
+
+
 def write_root_package_json(*, output_root: Path) -> None:
     (output_root / "package.json").write_text(ROOT_PACKAGE_JSON, encoding="utf-8")
 
@@ -392,8 +436,45 @@ def scaffold_foundation_core(
         include_python_workspace=include_python_workspace,
     )
     write_root_gitignore(output_root=output_root)
+    write_root_eslint_config(output_root=output_root)
     write_root_package_json(output_root=output_root)
     write_root_turbo_json(output_root=output_root)
+
+
+def scaffold_shared_infra_packages(*, output_root: Path) -> None:
+    typescript_config_root = output_root / "packages" / "typescript-config"
+    typescript_config_root.mkdir(parents=True, exist_ok=True)
+    (typescript_config_root / "package.json").write_text(
+        TYPESCRIPT_CONFIG_PACKAGE_TEMPLATE,
+        encoding="utf-8",
+    )
+    (typescript_config_root / "base.json").write_text(
+        TYPESCRIPT_CONFIG_BASE_TEMPLATE,
+        encoding="utf-8",
+    )
+    (typescript_config_root / "react-app.json").write_text(
+        TYPESCRIPT_CONFIG_REACT_APP_TEMPLATE,
+        encoding="utf-8",
+    )
+    (typescript_config_root / "node.json").write_text(
+        TYPESCRIPT_CONFIG_NODE_TEMPLATE,
+        encoding="utf-8",
+    )
+    (typescript_config_root / "expo.json").write_text(
+        TYPESCRIPT_CONFIG_EXPO_TEMPLATE,
+        encoding="utf-8",
+    )
+
+    eslint_config_root = output_root / "packages" / "eslint-config"
+    eslint_config_root.mkdir(parents=True, exist_ok=True)
+    (eslint_config_root / "package.json").write_text(
+        ESLINT_CONFIG_PACKAGE_TEMPLATE,
+        encoding="utf-8",
+    )
+    (eslint_config_root / "base.mjs").write_text(
+        ESLINT_CONFIG_BASE_TEMPLATE,
+        encoding="utf-8",
+    )
 
 
 def scaffold_python_lane(*, output_root: Path) -> None:
@@ -463,6 +544,10 @@ def scaffold_backend_framework_files(
 
     (convex_dir / "http.ts").write_text(BACKEND_HTTP_TEMPLATE, encoding="utf-8")
     (convex_dir / "schema.ts").write_text(BACKEND_SCHEMA_TEMPLATE, encoding="utf-8")
+    (output_root / "apps" / "backend" / "tsconfig.json").write_text(
+        BACKEND_TSCONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
     (output_root / "apps" / "backend" / "README.md").write_text(
         BACKEND_README_TEMPLATE,
         encoding="utf-8",
@@ -533,6 +618,7 @@ def scaffold_mobile_framework_files(
 
     (mobile_root / "README.md").write_text(MOBILE_README_TEMPLATE, encoding="utf-8")
     (mobile_root / "app.json").write_text(MOBILE_APP_JSON_TEMPLATE, encoding="utf-8")
+    (mobile_root / "eas.json").write_text(MOBILE_EAS_JSON_TEMPLATE, encoding="utf-8")
     (mobile_root / "babel.config.js").write_text(
         MOBILE_BABEL_CONFIG_TEMPLATE,
         encoding="utf-8",
@@ -554,7 +640,9 @@ def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) 
         return
 
     tv_root = output_root / "apps" / "tv"
+    tv_scripts_dir = tv_root / "scripts"
     tv_root.mkdir(parents=True, exist_ok=True)
+    tv_scripts_dir.mkdir(parents=True, exist_ok=True)
 
     (tv_root / "README.md").write_text(TV_README_TEMPLATE, encoding="utf-8")
     (tv_root / "app.json").write_text(TV_APP_JSON_TEMPLATE, encoding="utf-8")
@@ -564,6 +652,10 @@ def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) 
     (tv_root / "App.tsx").write_text(TV_APP_TEMPLATE, encoding="utf-8")
     (tv_root / "smoke.test.js").write_text(TV_SMOKE_TEST_TEMPLATE, encoding="utf-8")
     (tv_root / "tsconfig.json").write_text(TV_TSCONFIG_TEMPLATE, encoding="utf-8")
+    (tv_scripts_dir / "patch-android-wrapper.mjs").write_text(
+        TV_PATCH_ANDROID_WRAPPER_TEMPLATE,
+        encoding="utf-8",
+    )
     (tv_root / "TV_INPUT_CHECKLIST.md").write_text(
         TV_INPUT_CHECKLIST_TEMPLATE,
         encoding="utf-8",
@@ -649,6 +741,7 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
         output_root=plan.output,
         include_python_workspace=plan.include_python_workspace,
     )
+    scaffold_shared_infra_packages(output_root=plan.output)
     scaffold_app_targets(output_root=plan.output, targets=plan.targets)
     scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_backend_framework_files(output_root=plan.output, targets=plan.targets)

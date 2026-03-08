@@ -33,6 +33,8 @@ class VersionDiff:
 class LockfileTarget:
     lockfile_path: Path
     command: tuple[str, ...]
+    working_directory: Path
+    display_path: str
 
 
 @dataclass(frozen=True)
@@ -231,6 +233,8 @@ def _resolve_lockfile_targets(*, project_root: Path) -> list[LockfileTarget]:
             LockfileTarget(
                 lockfile_path=project_root / "uv.lock",
                 command=("uv", "lock"),
+                working_directory=project_root,
+                display_path="uv.lock",
             )
         )
 
@@ -245,6 +249,8 @@ def _resolve_lockfile_targets(*, project_root: Path) -> list[LockfileTarget]:
                     "--frozen-lockfile",
                     "--lockfile-only",
                 ),
+                working_directory=project_root,
+                display_path="bun.lock",
             )
         )
 
@@ -270,9 +276,9 @@ def _display_command(command: tuple[str, ...]) -> str:
 
 
 def _execute_lockfile_target(
-    *, target: LockfileTarget, project_root: Path, dry_run: bool
+    *, target: LockfileTarget, dry_run: bool
 ) -> LockfileRunResult:
-    lockfile_name = target.lockfile_path.name
+    lockfile_name = target.display_path
     command_display = _display_command(target.command)
 
     before_digest = _digest_file(target.lockfile_path)
@@ -287,7 +293,7 @@ def _execute_lockfile_target(
     try:
         result = subprocess.run(
             list(target.command),
-            cwd=project_root,
+            cwd=target.working_directory,
             capture_output=True,
             text=True,
             check=False,
@@ -366,7 +372,6 @@ def _run_lockfile_regeneration(*, project_root: Path, dry_run: bool) -> int:
     for target in targets:
         result = _execute_lockfile_target(
             target=target,
-            project_root=project_root,
             dry_run=dry_run,
         )
         print(f"- {result.lockfile_name}: {result.status} ({result.detail})")
@@ -383,7 +388,7 @@ def _check_lockfiles(*, project_root: Path) -> int:
         return 0
 
     missing = [
-        target.lockfile_path.name
+        target.display_path
         for target in targets
         if not target.lockfile_path.exists() or not target.lockfile_path.is_file()
     ]
@@ -488,3 +493,7 @@ def run_versions_update(
         return 0
 
     return _run_lockfile_regeneration(project_root=project_root, dry_run=dry_run)
+
+
+def generate_project_lockfiles(*, project_root: Path) -> int:
+    return _run_lockfile_regeneration(project_root=project_root, dry_run=False)

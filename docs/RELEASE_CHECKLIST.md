@@ -27,6 +27,9 @@ These manual items must be complete before release sign-off:
 
 - If release requires signed artifacts, follow `docs/OPTIONAL_SIGNING_PIPELINE.md`.
 - If signing is not required for the release phase, confirm unsigned distribution policy is acceptable for target audience.
+- Confirm the `Unsigned Release Readiness` workflow job uploaded the expected template dist bundle.
+- If `enable_signing=true`, confirm `Desktop Signing Prep`, `Android Signing Prep`, and `iOS Packaging Preview` completed successfully before treating secrets as validated.
+- If `publish_release=true`, confirm `Publish Template Release` created or updated the expected draft GitHub release tag with the template dist bundle attached.
 
 ## Documentation synchronization
 

@@ -36,6 +36,13 @@ From `apps/tv`:
 - `bun run lint`
 - `bun run typecheck`
 - `bun run test`
+- `bun run tv:android` (local emulator/device build + install)
+
+`tv:android` now includes a compatibility preflight for local Android TV runs:
+
+- runs `expo prebuild --clean --platform android`
+- patches the generated Android wrapper to Gradle `8.14.3`
+- executes `expo run:android --no-install` with community autolinking enabled
 
 TV build-profile scripts:
 
