@@ -177,7 +177,7 @@
   - [x] `src/new_repo_template/snapshot_assets/templates/workspace_packages/tv_package.json`
 - [x] Updated scaffold path planning + write flow to emit app-level `package.json` files for JS targets.
 - [x] Verified full suite GREEN after Bun install viability slice (`uv run pytest`: 81 passed).
-- [x] Added root workspace toolchain metadata to scaffolded `package.json` template (`packageManager: bun@1.3.10`, `devDependencies.turbo: ^2.8.12`) so Turbo commands resolve after install.
+- [x] Added root workspace toolchain metadata to scaffolded `package.json` template (`packageManager: bun@1.3.10`, `devDependencies.turbo: ^2.8.14`) so Turbo commands resolve after install.
 - [x] Added RED command-smoke contract at `tests/contracts/test_turbo_command_smoke_contract.py` for selected minimal JS preset (`web+backend+clerk`) covering:
   - [x] install viability via `bun install --frozen-lockfile`
   - [x] root script viability for `bun run dev`, `build`, `test`, `lint`, and `typecheck`
