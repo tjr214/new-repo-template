@@ -168,3 +168,49 @@ def test_python_target_scaffold_runs_baseline_commands(tmp_path: Path) -> None:
             f"stdout:\n{command_result.stdout}\n"
             f"stderr:\n{command_result.stderr}"
         )
+
+
+def test_python_target_scaffold_supports_legacy_extra_dev_sync_compatibility(
+    tmp_path: Path,
+) -> None:
+    """Python lane should tolerate legacy `uv sync --extra dev` flows."""
+
+    uv_binary = shutil.which("uv")
+    if uv_binary is None:
+        pytest.skip("uv executable is required for python lane command contract")
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "python-output-extra-dev"
+
+    scaffold_result = run_scaffold_command(
+        repo_root=repo_root, output_dir=output_dir, dry_run=False
+    )
+    assert scaffold_result.returncode == 0, (
+        "Expected python scaffold command to succeed before legacy sync checks.\n"
+        f"stdout:\n{scaffold_result.stdout}\n"
+        f"stderr:\n{scaffold_result.stderr}"
+    )
+
+    lane_root = output_dir / "apps" / "python"
+
+    sync_result = run_lane_command(
+        lane_root=lane_root,
+        uv_binary=uv_binary,
+        args=["sync", "--extra", "dev"],
+    )
+    assert sync_result.returncode == 0, (
+        "Expected `uv sync --extra dev` to succeed for generated python lane.\n"
+        f"stdout:\n{sync_result.stdout}\n"
+        f"stderr:\n{sync_result.stderr}"
+    )
+
+    pytest_result = run_lane_command(
+        lane_root=lane_root,
+        uv_binary=uv_binary,
+        args=["run", "pytest"],
+    )
+    assert pytest_result.returncode == 0, (
+        "Expected `uv run pytest` to succeed after `uv sync --extra dev`.\n"
+        f"stdout:\n{pytest_result.stdout}\n"
+        f"stderr:\n{pytest_result.stderr}"
+    )

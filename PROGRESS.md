@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-11 09:11:17 PM
-**Current Phase:** Completed Python metadata relocation into the Python lane
+**Last Updated:** 2026-03-11 10:13:50 PM
+**Current Phase:** Completed foundation governance asset scaffold sync and Python lane uv compatibility follow-up
 
 ## Previous Cycle Archives
 
@@ -18,6 +18,9 @@
 - [x] Removed scaffolded root `.python-version` and root `pyproject.toml` so Python metadata now lives only under `apps/python`.
 - [x] Moved generated Python lockfile placement from root `uv.lock` to `apps/python/uv.lock` while keeping root `bun.lock` generation for the monorepo workspace.
 - [x] Updated bundled snapshot assets/manifests and contract coverage for the lane-only Python metadata model.
+- [x] Added the foundation governance baseline to scaffold output: `btca.config.jsonc`, `AGENTS.md`, `PROGRESS.md`, `scripts/RALPH.sh`, `docs/{archive,session-summaries,tasks,workflows}`, `.agent`, and `.opencode/command`.
+- [x] Mirrored the new foundation governance assets into bundled snapshot templates and expanded scaffold/snapshot contracts to enforce their presence.
+- [x] Restored Python lane compatibility for legacy `uv sync --extra dev` flows while keeping the preferred `[dependency-groups].dev` baseline intact.
 - [x] Verified the full repository test suite with `uv run pytest`.
 
 ## Next Up

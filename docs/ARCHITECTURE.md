@@ -60,7 +60,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - The user-facing uv install workflow has been revalidated against current uv semantics via local git install smoke coverage: the correct command shape is `uv tool install git+...`, not the older `--from ... nurt` form.
 - The local git-install contract implementation now pins the current commit SHA when exercising `git+file://...` installs in CI, avoiding fragile dependence on checkout-provided default-branch refs like `origin/HEAD` while preserving end-to-end validation of the git-based `nurt` install path.
 - Managed core-tool versions continue to follow the latest-known-good baseline model rather than exact manifest pinning: after the most recent guardrail refresh, `turbo` now tracks `2.8.14`, while manifest specs remain caret-based and determinism continues to come from committed lockfiles plus the `Version Baseline Guardrail`.
-- Governance/workflow assets are intentionally separated from fresh generated repo output: `nurt new` creates runtime/template scaffold files, while template-maintained repos receive governance/workflow asset updates through the template sync paths covered by `tests/contracts/test_template_asset_sync_contract.py`.
+- Governance/workflow assets are now part of the foundation scaffold baseline: fresh `nurt new` output writes bundled copies of `btca.config.jsonc`, `AGENTS.md`, `PROGRESS.md`, `scripts/RALPH.sh`, `docs/{archive,session-summaries,tasks,workflows}`, `.agent`, and `.opencode/command`, while template sync remains available for maintainer update flows.
 - Shared infra config packages are now part of the generated monorepo baseline: `packages/typescript-config` provides reusable `base`, `react-app`, `node`, and `expo` presets, while `packages/eslint-config` provides the shared lint baseline consumed by the root `eslint.config.mjs`.
 - Generated app/workspace wiring now depends on internal config packages using the Bun workspace protocol where appropriate: app manifests include `@generated/typescript-config` as an internal dev dependency, and generated tsconfigs extend the shared package paths rather than duplicating compiler-option baselines per app.
 - Backend scaffold output now includes an explicit `apps/backend/tsconfig.json`, which brings the Convex workspace into the shared infra package model alongside web, desktop, mobile, and TV outputs.
@@ -148,7 +148,7 @@ Current contract coverage:
 - `tests/contracts/test_monorepo_foundation_contract.py`
   - Contract intent: non-interactive `--dry-run` foundation scaffold path succeeds, reports monorepo shape (`apps`, `packages`, `.gitignore`), and writes no files.
 - `tests/contracts/test_python_lane_contract.py`
-  - Contract intent: Python target dry-run/write flows keep Python metadata exclusively inside `apps/python` (`pyproject.toml` and `.python-version`), keep root Python metadata absent, and baseline lane commands execute (`uv sync --group dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
+  - Contract intent: Python target dry-run/write flows keep Python metadata exclusively inside `apps/python` (`pyproject.toml` and `.python-version`), keep root Python metadata absent, and baseline lane commands execute for both preferred and compatibility sync flows (`uv sync --group dev`, `uv sync --extra dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
 - `tests/contracts/test_cli_validation_and_python_commands_contract.py`
   - Contract intent: deterministic CLI validation failures (including missing `--no-interactive` across foundation/python/web+backend/mobile+tv modes, missing required args, and invalid choice handling) and Python lane baseline command documentation generation.
 - `tests/contracts/test_failure_atomicity_contract.py`
@@ -158,7 +158,7 @@ Current contract coverage:
 - `tests/contracts/test_required_preset_matrix_contract.py`
   - Contract intent: full required preset matrix from `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` Section 2.1 scaffolds successfully with root Python metadata absent, expected target directories, python-lane metadata inclusion when selected, and auth-variant wiring assertions.
 - `tests/contracts/test_root_workspace_contract.py`
-  - Contract intent: root workspace config files (`package.json`, `turbo.json`) are present in dry-run/scaffold output and include baseline cross-platform script/task wiring for `dev`, `build`, `test`, `lint`, and `typecheck`.
+  - Contract intent: root workspace config files (`package.json`, `turbo.json`) are present in dry-run/scaffold output, include baseline cross-platform script/task wiring for `dev`, `build`, `test`, `lint`, and `typecheck`, and mirror the foundation governance/agent asset baseline (`btca.config.jsonc`, `AGENTS.md`, `PROGRESS.md`, `scripts/RALPH.sh`, `docs/tasks`, `docs/workflows`, `.agent`, and `.opencode/command`).
 - `tests/contracts/test_bun_workspace_install_contract.py`
   - Contract intent: JS workspace manifests are scaffolded for `web+backend` outputs and generated workspace installs remain viable via `bun install` and `bun install --frozen-lockfile`.
 - `tests/contracts/test_turbo_command_smoke_contract.py`

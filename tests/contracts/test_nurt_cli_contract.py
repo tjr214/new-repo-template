@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from new_repo_template.snapshot_assets_loader import load_source_manifest
+
 
 def run_nurt_command(
     *,
@@ -344,8 +346,20 @@ def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> 
 def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) -> None:
     """template-assets snapshot dry-run should report snapshot planning details."""
 
-    (tmp_path / ".gitignore").write_text(".env\n", encoding="utf-8")
-    (tmp_path / ".python-version").write_text("3.14.2", encoding="utf-8")
+    source_manifest = load_source_manifest()
+    entries = source_manifest.get("entries")
+    assert isinstance(entries, list)
+
+    for index, entry in enumerate(entries, start=1):
+        assert isinstance(entry, dict)
+        source_relative = entry.get("source")
+        assert isinstance(source_relative, str)
+        source_path = tmp_path / source_relative
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        source_path.write_text(
+            f"snapshot dry-run fixture {index}: {source_relative}\n",
+            encoding="utf-8",
+        )
 
     result = run_nurt_command(
         cwd=tmp_path,
@@ -367,3 +381,4 @@ def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) ->
     assert "DRY RUN" in combined_output
     assert "would copy: templates/root_gitignore.txt" in combined_output
     assert "would copy: templates/python_lane_python_version.txt" in combined_output
+    assert "would copy: templates/foundation/btca.config.jsonc" in combined_output
