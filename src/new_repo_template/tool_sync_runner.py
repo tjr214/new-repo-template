@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 from collections.abc import Callable
@@ -10,6 +11,18 @@ from platform import system
 
 
 SIMULATE_TOOLS_SYNC_FAILURE_ENV = "NURT_TOOLS_SYNC_SIMULATE_FAILURE"
+
+ANSI_RESET = "\033[0m"
+ANSI_RED = "\033[0;31m"
+ANSI_BOLD_RED = "\033[1;31m"
+ANSI_GREEN = "\033[0;32m"
+ANSI_YELLOW = "\033[1;33m"
+ANSI_BLUE = "\033[0;34m"
+ANSI_CYAN = "\033[0;36m"
+ANSI_DULL_YELLOW = "\033[2;33m"
+ANSI_BOLD = "\033[1m"
+
+ANSI_PATTERN = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]")
 
 LogCallback = Callable[[str], None]
 UpdateCallback = Callable[["ToolSyncUpdate"], None]
@@ -53,6 +66,103 @@ class ToolSyncSummary:
 class _StreamedCommandResult:
     returncode: int
     output: str
+
+
+def _style(text: str, *styles: str) -> str:
+    return f"{''.join(styles)}{text}{ANSI_RESET}"
+
+
+def _plain_text(text: str) -> str:
+    return ANSI_PATTERN.sub("", text)
+
+
+def _log_header(log: LogCallback) -> None:
+    log(_style("OpenCode Installation/Update Script", ANSI_CYAN, ANSI_BOLD))
+    log(_style("=====================================", ANSI_CYAN))
+
+
+def _log_separator(log: LogCallback) -> None:
+    log("")
+    log(
+        _style(
+            "-------------------------------------------------------------------------------",
+            ANSI_DULL_YELLOW,
+        )
+    )
+
+
+def _log_checking(log: LogCallback, label: str) -> None:
+    log("")
+    log(_style(f"Checking {label}...", ANSI_CYAN, ANSI_BOLD))
+
+
+def _log_installed_version(
+    log: LogCallback, tool_name: str, version: str | None
+) -> None:
+    if version:
+        log(
+            f"{ANSI_BLUE}{tool_name} is already installed {ANSI_RESET}"
+            f"(Version: {ANSI_BOLD}{version}{ANSI_RESET})"
+        )
+        return
+    log(_style(f"{tool_name} is already installed", ANSI_BLUE))
+
+
+def _log_not_found(log: LogCallback, tool_name: str) -> None:
+    log(_style(f"{tool_name} not found. Installing...", ANSI_YELLOW))
+
+
+def _log_updating(log: LogCallback, tool_name: str) -> None:
+    log(_style(f"Updating {tool_name}...", ANSI_YELLOW))
+
+
+def _log_platform_action(log: LogCallback, action: str) -> None:
+    log(_style(action, ANSI_YELLOW))
+
+
+def _log_result(
+    log: LogCallback,
+    *,
+    tool_name: str,
+    before: str | None,
+    after: str | None,
+) -> None:
+    if before is None:
+        if after is not None:
+            log(
+                f"{ANSI_GREEN}{ANSI_BOLD}{tool_name} installed successfully!{ANSI_RESET} "
+                f"(Version: {ANSI_BOLD}{after}{ANSI_RESET})"
+            )
+        else:
+            log(_style(f"{tool_name} installed successfully!", ANSI_GREEN, ANSI_BOLD))
+        return
+
+    if after is not None and before == after:
+        log(
+            f"{ANSI_GREEN}{tool_name} is already up to date {ANSI_RESET}"
+            f"(Version: {ANSI_BOLD}{after}{ANSI_RESET})"
+        )
+        return
+
+    if after is not None:
+        log(_style(f"{tool_name} updated successfully!", ANSI_GREEN, ANSI_BOLD))
+        log(f"{ANSI_BLUE}Previous version: {ANSI_RESET}{before}")
+        log(f"{ANSI_BLUE}Current version: {ANSI_RESET}{ANSI_BOLD}{after}{ANSI_RESET}")
+        return
+
+    log(
+        _style(
+            f"{tool_name} install/update completed successfully!", ANSI_GREEN, ANSI_BOLD
+        )
+    )
+
+
+def _log_error(log: LogCallback, message: str) -> None:
+    log(_style(f"Error: {message}", ANSI_RED, ANSI_BOLD))
+
+
+def _log_warning(log: LogCallback, message: str) -> None:
+    log(_style(message, ANSI_YELLOW))
 
 
 def _is_truthy_env(value: str | None) -> bool:
@@ -168,8 +278,6 @@ def _run_streamed_command(
     log: LogCallback,
     cwd: Path | None = None,
 ) -> _StreamedCommandResult:
-    log(f"$ {' '.join(command)}")
-
     try:
         process = subprocess.Popen(
             command,
@@ -177,6 +285,8 @@ def _run_streamed_command(
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             bufsize=1,
         )
     except FileNotFoundError:
@@ -217,17 +327,25 @@ def _failed(tool: str, detail: str) -> ToolSyncResult:
 
 def _sync_uv(*, cwd: Path | None) -> TaskRunner:
     def runner(log: LogCallback) -> ToolSyncResult:
+        tool_name = "uv"
         before = (
             _capture_version(["uv", "--version"]) if _command_exists("uv") else None
         )
+        if before is not None:
+            _log_installed_version(log, tool_name, before)
+            _log_updating(log, tool_name)
+        else:
+            _log_not_found(log, tool_name)
         result = _run_streamed_shell(
             "curl -LsSf https://astral.sh/uv/install.sh | sh",
             log=log,
             cwd=cwd,
         )
         if result.returncode != 0:
+            _log_error(log, "uv installation/update failed")
             return _failed("uv", result.output or "install/update failed")
         after = _capture_version(["uv", "--version"]) or before
+        _log_result(log, tool_name=tool_name, before=before, after=after)
         return _result_from_versions(tool="uv", before=before, after=after)
 
     return runner
@@ -235,12 +353,18 @@ def _sync_uv(*, cwd: Path | None) -> TaskRunner:
 
 def _sync_bun(*, cwd: Path | None) -> TaskRunner:
     def runner(log: LogCallback) -> ToolSyncResult:
+        tool_name = "bun"
         bun_executable = _resolve_bun_executable()
         before = (
             _capture_version([bun_executable, "--version"])
             if bun_executable is not None
             else None
         )
+        if before is not None:
+            _log_installed_version(log, tool_name, before)
+            _log_updating(log, tool_name)
+        else:
+            _log_not_found(log, tool_name)
 
         if bun_executable is None:
             result = _run_streamed_shell(
@@ -256,6 +380,7 @@ def _sync_bun(*, cwd: Path | None) -> TaskRunner:
             )
 
         if result.returncode != 0:
+            _log_error(log, "bun installation/update failed")
             return _failed("bun", result.output or "install/update failed")
 
         refreshed_bun = _resolve_bun_executable()
@@ -264,6 +389,12 @@ def _sync_bun(*, cwd: Path | None) -> TaskRunner:
             if refreshed_bun is not None
             else before
         )
+        _log_result(log, tool_name=tool_name, before=before, after=after)
+        if bun_executable is None and after is None:
+            _log_warning(
+                log,
+                "bun installed, but it is not yet available in PATH for this shell.",
+            )
         return _result_from_versions(tool="bun", before=before, after=after)
 
     return runner
@@ -271,8 +402,10 @@ def _sync_bun(*, cwd: Path | None) -> TaskRunner:
 
 def _sync_turbo(*, cwd: Path | None) -> TaskRunner:
     def runner(log: LogCallback) -> ToolSyncResult:
+        tool_name = "turborepo"
         bun_executable = _resolve_bun_executable()
         if bun_executable is None:
+            _log_error(log, "bun is required to install/update turborepo.")
             return _failed("turbo", "bun is required")
 
         before = (
@@ -280,14 +413,21 @@ def _sync_turbo(*, cwd: Path | None) -> TaskRunner:
             if _command_exists("turbo")
             else None
         )
+        if before is not None:
+            _log_installed_version(log, tool_name, before)
+            _log_updating(log, tool_name)
+        else:
+            _log_not_found(log, tool_name)
         result = _run_streamed_command(
             [bun_executable, "add", "--global", "turbo"],
             log=log,
             cwd=cwd,
         )
         if result.returncode != 0:
+            _log_error(log, "turborepo installation/update failed")
             return _failed("turbo", result.output or "install/update failed")
         after = _capture_version(["turbo", "--version"]) or before
+        _log_result(log, tool_name=tool_name, before=before, after=after)
         return _result_from_versions(tool="turbo", before=before, after=after)
 
     return runner
@@ -295,6 +435,7 @@ def _sync_turbo(*, cwd: Path | None) -> TaskRunner:
 
 def _sync_opencode(*, cwd: Path | None) -> TaskRunner:
     def runner(log: LogCallback) -> ToolSyncResult:
+        tool_name = "OpenCode"
         cache_path = (
             Path.home()
             / ".cache"
@@ -310,6 +451,11 @@ def _sync_opencode(*, cwd: Path | None) -> TaskRunner:
             else None
         )
         if before is not None:
+            _log_installed_version(log, tool_name, before)
+            _log_updating(log, tool_name)
+        else:
+            _log_not_found(log, tool_name)
+        if before is not None:
             result = _run_streamed_command(["opencode", "upgrade"], log=log, cwd=cwd)
         else:
             result = _run_streamed_shell(
@@ -319,9 +465,11 @@ def _sync_opencode(*, cwd: Path | None) -> TaskRunner:
             )
 
         if result.returncode != 0:
+            _log_error(log, "OpenCode installation/update failed")
             return _failed("opencode", result.output or "install/update failed")
 
         after = _capture_version(["opencode", "--version"]) or before
+        _log_result(log, tool_name=tool_name, before=before, after=after)
         return _result_from_versions(tool="opencode", before=before, after=after)
 
     return runner
@@ -329,21 +477,30 @@ def _sync_opencode(*, cwd: Path | None) -> TaskRunner:
 
 def _sync_btca(*, cwd: Path | None) -> TaskRunner:
     def runner(log: LogCallback) -> ToolSyncResult:
+        tool_name = "btca"
         bun_executable = _resolve_bun_executable()
         if bun_executable is None:
+            _log_error(log, "bun is required to install/update btca.")
             return _failed("btca", "bun is required")
 
         before = (
             _capture_version(["btca", "--version"]) if _command_exists("btca") else None
         )
+        if before is not None:
+            _log_installed_version(log, tool_name, before)
+            _log_updating(log, tool_name)
+        else:
+            _log_not_found(log, tool_name)
         result = _run_streamed_command(
             [bun_executable, "add", "--global", "btca"],
             log=log,
             cwd=cwd,
         )
         if result.returncode != 0:
+            _log_error(log, "btca installation/update failed")
             return _failed("btca", result.output or "install/update failed")
         after = _capture_version(["btca", "--version"]) or before
+        _log_result(log, tool_name=tool_name, before=before, after=after)
         return _result_from_versions(tool="btca", before=before, after=after)
 
     return runner
@@ -351,11 +508,22 @@ def _sync_btca(*, cwd: Path | None) -> TaskRunner:
 
 def _sync_gh(*, cwd: Path | None) -> TaskRunner:
     def runner(log: LogCallback) -> ToolSyncResult:
+        tool_name = "gh"
         before = _capture_gh_version() if _command_exists("gh") else None
         os_name = system()
 
+        if before is not None:
+            _log_installed_version(log, tool_name, before)
+            _log_platform_action(log, "Checking for updates...")
+        else:
+            _log_not_found(log, tool_name)
+
         if os_name == "Darwin":
             if not _command_exists("brew"):
+                _log_error(
+                    log,
+                    "Homebrew not found. Please install Homebrew first: https://brew.sh",
+                )
                 return _failed("gh", "homebrew not found")
             commands = [["brew", "install", "gh"]]
             if before is not None:
@@ -373,9 +541,14 @@ def _sync_gh(*, cwd: Path | None) -> TaskRunner:
             elif distro.startswith("opensuse") or distro == "suse":
                 commands = [["sudo", "zypper", "install", "-y", "gh"]]
             else:
+                _log_warning(log, f"Unsupported Linux distribution: {distro}")
+                _log_warning(
+                    log, "Please install gh manually from: https://cli.github.com/"
+                )
                 return ToolSyncResult(tool="gh", status="UNSUPPORTED", detail=distro)
         elif os_name == "Windows":
             if not _command_exists("winget"):
+                _log_warning(log, "Unsupported environment: winget not found")
                 return ToolSyncResult(
                     tool="gh", status="UNSUPPORTED", detail="winget not found"
                 )
@@ -390,9 +563,11 @@ def _sync_gh(*, cwd: Path | None) -> TaskRunner:
                 ]
             ]
         else:
+            _log_warning(log, f"Unsupported operating system: {os_name}")
             return ToolSyncResult(tool="gh", status="UNSUPPORTED", detail=os_name)
 
         if any(command is None for command in commands):
+            _log_error(log, "No shell available to install or update gh")
             return _failed("gh", "no shell available")
         final_result: _StreamedCommandResult | None = None
         for index, command in enumerate(commands):
@@ -401,9 +576,11 @@ def _sync_gh(*, cwd: Path | None) -> TaskRunner:
             if final_result.returncode == 0:
                 break
             if index == len(commands) - 1:
+                _log_error(log, "gh installation/update failed")
                 return _failed("gh", final_result.output or "install/update failed")
 
         after = _capture_gh_version() or before
+        _log_result(log, tool_name=tool_name, before=before, after=after)
         return _result_from_versions(tool="gh", before=before, after=after)
 
     return runner
@@ -411,11 +588,22 @@ def _sync_gh(*, cwd: Path | None) -> TaskRunner:
 
 def _sync_ripgrep(*, cwd: Path | None) -> TaskRunner:
     def runner(log: LogCallback) -> ToolSyncResult:
+        tool_name = "ripgrep"
         before = _capture_first_version_token(["rg", "--version"])
         os_name = system()
 
+        if before is not None:
+            _log_installed_version(log, tool_name, before)
+            _log_platform_action(log, "Checking for updates...")
+        else:
+            _log_not_found(log, tool_name)
+
         if os_name == "Darwin":
             if not _command_exists("brew"):
+                _log_error(
+                    log,
+                    "Homebrew not found. Please install Homebrew first: https://brew.sh",
+                )
                 return _failed("ripgrep", "homebrew not found")
             commands = [["brew", "install", "ripgrep"]]
             if before is not None:
@@ -435,11 +623,17 @@ def _sync_ripgrep(*, cwd: Path | None) -> TaskRunner:
             elif distro.startswith("opensuse") or distro == "suse":
                 commands = [["sudo", "zypper", "install", "-y", "ripgrep"]]
             else:
+                _log_warning(log, f"Unsupported Linux distribution: {distro}")
+                _log_warning(
+                    log,
+                    "Please install ripgrep manually from: https://github.com/BurntSushi/ripgrep",
+                )
                 return ToolSyncResult(
                     tool="ripgrep", status="UNSUPPORTED", detail=distro
                 )
         elif os_name == "Windows":
             if not _command_exists("winget"):
+                _log_warning(log, "Unsupported environment: winget not found")
                 return ToolSyncResult(
                     tool="ripgrep", status="UNSUPPORTED", detail="winget not found"
                 )
@@ -454,9 +648,11 @@ def _sync_ripgrep(*, cwd: Path | None) -> TaskRunner:
                 ]
             ]
         else:
+            _log_warning(log, f"Unsupported operating system: {os_name}")
             return ToolSyncResult(tool="ripgrep", status="UNSUPPORTED", detail=os_name)
 
         if any(command is None for command in commands):
+            _log_error(log, "No shell available to install or update ripgrep")
             return _failed("ripgrep", "no shell available")
         final_result: _StreamedCommandResult | None = None
         for index, command in enumerate(commands):
@@ -465,11 +661,13 @@ def _sync_ripgrep(*, cwd: Path | None) -> TaskRunner:
             if final_result.returncode == 0:
                 break
             if index == len(commands) - 1:
+                _log_error(log, "ripgrep installation/update failed")
                 return _failed(
                     "ripgrep", final_result.output or "install/update failed"
                 )
 
         after = _capture_first_version_token(["rg", "--version"]) or before
+        _log_result(log, tool_name=tool_name, before=before, after=after)
         return _result_from_versions(tool="ripgrep", before=before, after=after)
 
     return runner
@@ -491,7 +689,7 @@ def default_tool_tasks(*, cwd: Path | None = None) -> tuple[ToolSyncTask, ...]:
         ),
         ToolSyncTask(
             tool="turbo",
-            label="turbo",
+            label="turborepo",
             dry_run_detail="would install/update via bun add --global turbo",
             runner=_sync_turbo(cwd=cwd),
         ),
@@ -509,7 +707,7 @@ def default_tool_tasks(*, cwd: Path | None = None) -> tuple[ToolSyncTask, ...]:
         ),
         ToolSyncTask(
             tool="gh",
-            label="gh",
+            label="GitHub CLI (gh)",
             dry_run_detail="would install/update via platform package manager",
             runner=_sync_gh(cwd=cwd),
         ),
@@ -575,7 +773,11 @@ def run_tool_sync(
         return ToolSyncSummary(results=simulated_results)
 
     results: list[ToolSyncResult] = []
-    for task in resolved_tasks:
+    _log_header(emit_log)
+    for index, task in enumerate(resolved_tasks):
+        if index:
+            _log_separator(emit_log)
+        _log_checking(emit_log, task.label)
         emit_update(ToolSyncUpdate(tool=task.tool, status="RUNNING", detail=task.label))
         result = task.runner(emit_log)
         results.append(result)
@@ -587,4 +789,20 @@ def run_tool_sync(
             )
         )
 
-    return ToolSyncSummary(results=tuple(results))
+    summary = ToolSyncSummary(results=tuple(results))
+    emit_log("")
+    if summary.succeeded:
+        emit_log(_style("Done.", ANSI_GREEN))
+    else:
+        failed_tools = ", ".join(
+            result.tool
+            for result in summary.results
+            if result.status in {"FAILED", "UNSUPPORTED"}
+        )
+        emit_log(_style("Done with errors.", ANSI_YELLOW, ANSI_BOLD))
+        if failed_tools:
+            emit_log(
+                f"{ANSI_YELLOW}Failed components: {ANSI_BOLD}{failed_tools}{ANSI_RESET}"
+            )
+
+    return summary

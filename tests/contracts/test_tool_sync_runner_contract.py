@@ -49,7 +49,10 @@ def test_run_tool_sync_emits_running_and_final_updates_for_custom_tasks() -> Non
     )
 
     assert summary.succeeded is True
-    assert logs == ["installing demo tool"]
+    assert any("OpenCode Installation/Update Script" in line for line in logs)
+    assert any("Checking Demo Tool..." in line for line in logs)
+    assert "installing demo tool" in logs
+    assert any("Done." in line for line in logs)
     assert updates[0] == ToolSyncUpdate(
         tool="demo",
         status="RUNNING",
