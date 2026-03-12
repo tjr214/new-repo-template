@@ -48,7 +48,7 @@ The template implementation remains intact, and the previous execution cycle is 
 
 ## Implementation Notes (M0-M1)
 
-- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`.
+- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`, `textual`, `rich-docs`, and `pytest-textual-snapshot`.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.
@@ -88,7 +88,23 @@ The template implementation remains intact, and the previous execution cycle is 
 - Version baseline workflow is now codified: `version-baseline.json` tracks managed toolchain versions and `nurt versions check/update` provides maintainer validation/update flows (including latest-version comparison and dry-run planning).
 - Version baseline workflow now includes lockfile governance: `nurt versions update` regenerates lockfiles by default and `nurt versions check --check-lockfiles` enforces required lockfile presence.
 - CI guardrail wiring is now active in `.github/workflows/ci.yml`, including required native OS test matrix and `nurt versions check --check-lockfiles --check-latest` enforcement.
-- Interactive UI layer is now Rich/Textual-aware: `nurt new` renders enhanced target/auth menus when Rich is available and falls back deterministically to plain prompts when unavailable.
+- Interactive UI layer now has a real Textual wizard path for interactive TTY sessions: `src/new_repo_template/interactive_tui.py` provides a multi-step shell with progress rail, direct target multi-select, conditional auth selection, live scaffold summary, and review/confirm handoff to `nurt` CLI execution.
+- `nurt new` now routes rich interactive target resolution through the Textual wizard in `src/new_repo_template/nurt_cli.py`, while plain prompt fallback remains deterministic for non-TTY sessions or when enhanced UI is unavailable.
+- Explicit rich mode now degrades safely when the session is not attached to an interactive terminal, preventing Textual launch attempts in captured/non-TTY environments while preserving the warning/fallback contract.
+- Dedicated Textual wizard contract coverage is now active in `tests/contracts/test_interactive_tui_contract.py`, covering keyboard multi-select, `foundation` exclusivity, conditional auth flow, and review confirmation result handoff.
+- Interactive wizard state is now centralized in a typed `WizardState` model that owns target normalization, auth requirement detection, step transitions, highlighted-target tracking, and final typed CLI handoff.
+- The Textual wizard now has an explicit compact layout mode for narrow terminals and `80x24` sessions: progress, main content, and summary stack vertically, while target details stack beneath the selection list instead of forcing side-by-side panes.
+- Interactive contract coverage now also asserts stale-auth clearing when users step backward and change targets, explicit rich-mode no-TTY fallback behavior, and layout invariants for both standard-width and constrained terminal sizes.
+- `pytest-textual-snapshot` was evaluated for visual regression coverage during closeout, but adoption is deferred for now because the latest upstream release (`1.1.0`) requires `pytest<9` while this repository baseline is `pytest>=9.0.2`.
+- `nurt new` no longer requires a positional project name in interactive mode: both the Textual wizard and the plain fallback can collect the name, normalize it to a kebab-case directory, and use that normalized value for the resolved output path.
+- The first Textual step is now project naming rather than a welcome screen, so the flow begins directly with the actionable input instead of an introductory panel.
+- Backend now drives auth requirements across the interactive CLI and scaffold validation model; users must make an explicit backend auth choice (`clerk`, `better-auth`, or `none`), and `none` is now a supported first-class path.
+- Textual keyboard behavior now aligns with the revised UX contract: Enter advances or confirms, Space remains the `SelectionList` toggle key, Escape navigates back or exits from the first step, and Ctrl+Q / Ctrl+C quit the wizard.
+- The interactive cancel message is now intentionally friendly and non-error-prefixed: `Interactive wizzard cancelled. Maybe next time!`.
+- The right-hand scaffold summary now wraps long output paths across multiple lines so the full resolved destination remains visible even in narrower summary widths.
+- The project-name input step now updates the hero/summary/review surfaces with targeted refreshes instead of broad whole-wizard refreshes, which avoids the visual churn and dropped-keystroke behavior that could appear during fast typing.
+- When `nurt new <project-name>` already supplies the name, the Textual wizard now starts directly on target selection rather than showing the project-name step.
+- Advisory Gitleaks PR scanning now carries a repo-local `.gitleaksignore` entry for the known documentation-only false-positive fingerprint triggered by this branch's `PROGRESS.md` wording, keeping the non-blocking secret-scan signal clean without broadly disabling the underlying rule.
 - Mixed preset validation contracts now include additional unsupported auth/target mixed-combo checks.
 - Non-interactive scaffold validation coverage has been expanded across target modes: omitted `--no-interactive` is now contract-tested for foundation/python/web+backend/mobile+tv, and parser-level missing/invalid argument failures (`--target`, `--output`, invalid `--target`/`--auth`) are now explicitly covered.
 - Required preset matrix coverage from the archived implementation plan (`docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`, Section 2.1) is now implemented in `tests/contracts/test_required_preset_matrix_contract.py`, including all-target (python-inclusive) sanity passes for both auth variants.

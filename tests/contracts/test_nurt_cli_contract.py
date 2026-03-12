@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import argparse
 import os
 import subprocess
 import sys
 from pathlib import Path
 
+from new_repo_template import nurt_cli
 from new_repo_template.snapshot_assets_loader import load_source_manifest
 
 
@@ -108,6 +110,31 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
+def test_nurt_new_without_project_name_prompts_and_normalizes_directory(
+    tmp_path: Path,
+) -> None:
+    """Interactive flow should collect and normalize the project name when omitted."""
+
+    output_dir = tmp_path / "my-cool-app"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", "--dry-run"],
+        input_text="My Cool App\n4\n3\n",
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt new without a project name to succeed interactively.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "Project name" in combined_output
+    assert "- targets: backend" in combined_output
+    assert f"- output: {output_dir}" in combined_output
+    assert "- auth: none" in combined_output
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
 def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
     tmp_path: Path,
 ) -> None:
@@ -133,6 +160,28 @@ def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
     assert "Rich/Textual UI unavailable" in combined_output
     assert "nurt new interactive mode" in combined_output
     assert "- auth: better-auth" in combined_output
+
+
+def test_nurt_new_interactive_rich_mode_falls_back_without_tty(tmp_path: Path) -> None:
+    """Explicit rich mode should fall back cleanly when no interactive TTY exists."""
+
+    output_dir = tmp_path / "demo-rich-no-tty"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="3,4\n1\n",
+        env={"NURT_UI_MODE": "rich"},
+    )
+
+    assert result.returncode == 0, (
+        "Expected explicit rich-mode fallback to succeed without a TTY.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "requires an interactive terminal" in combined_output
+    assert "nurt new interactive mode" in combined_output
+    assert "- auth: clerk" in combined_output
 
 
 def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) -> None:
@@ -187,7 +236,7 @@ def test_nurt_new_interactive_auth_prompt_without_stdin_fails_with_remediation(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", "demo-auth-no-stdin", "--dry-run"],
-        input_text="3,4\n",
+        input_text="4\n",
     )
 
     assert result.returncode == 1, (
@@ -199,6 +248,34 @@ def test_nurt_new_interactive_auth_prompt_without_stdin_fails_with_remediation(
     assert "interactive input unavailable" in combined_output
     assert "--no-interactive" in combined_output
     assert "--auth" in combined_output
+
+
+def test_handle_new_reports_friendly_cancel_message(
+    monkeypatch, capsys, tmp_path: Path
+) -> None:
+    """Rich wizard cancellation should use the friendly cancellation copy."""
+
+    monkeypatch.setattr(
+        nurt_cli,
+        "resolve_ui_config",
+        lambda: nurt_cli.InteractiveUIConfig(mode="rich", use_rich=True, warning=None),
+    )
+    monkeypatch.setattr(nurt_cli, "run_interactive_wizard", lambda **_: None)
+
+    exit_code = nurt_cli.handle_new(
+        argparse.Namespace(
+            project_name="demo-friendly-cancel",
+            target=None,
+            auth=None,
+            no_interactive=False,
+            dry_run=True,
+        )
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "Interactive wizzard cancelled. Maybe next time!" in captured.err
+    assert "Error:" not in captured.err
 
 
 def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:

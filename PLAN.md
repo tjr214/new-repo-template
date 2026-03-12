@@ -1,39 +1,43 @@
-# Python Metadata Relocation
+# Interactive TUI Stability Fixes + CI Follow-Up
 
-**Last Updated:** 2026-03-11 09:11:17 PM
-**Status:** Completed
-**Previous Cycle Archive:** `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`
+**Last Updated:** 2026-03-12 04:45:09 PM
+**Status:** Complete
+**Previous Cycle Summary:** `docs/session-summaries/SESSION_80_SUMMARY.md`
+
+---
+
+## Goal
+
+Fix the project-name input instability in the Textual wizard and ensure the project-name step appears only when the project name is not already provided on the command line.
 
 ---
 
 ## YELLOW
 
-- [x] Read the scaffold, snapshot-asset, root baseline, contract, and documentation files before editing.
-- [x] Run `btca status`; no additional `btca ask ...` lookup was required because this slice stayed within repo-local scaffold file handling.
-- [x] Confirm the updated scope: `.python-version`, `pyproject.toml`, and `uv.lock` must exist only in `apps/python` and must not be scaffolded at repo root or in foundation-only output.
+- [x] Reread `src/new_repo_template/interactive_tui.py`, `src/new_repo_template/nurt_cli.py`, and `tests/contracts/test_interactive_tui_contract.py` before editing.
+- [x] Reread `PROGRESS.md`, `docs/LIVING_DOCS.md`, and `docs/ARCHITECTURE.md` before editing.
+- [x] Run `btca status` and use `btca ask` for Textual guidance on stable `Input.Changed` handling and conditional first-step flow.
 
 ## RED
 
-- [x] Updated contract coverage in `tests/` so root Python metadata is absent, Python lane metadata is file-local, JS/foundation presets omit root Python files, and `nurt new` emits `apps/python/uv.lock` instead of root `uv.lock`.
+- [x] Add failing tests for stable project-name typing under rapid spacing/special-character-like input.
+- [x] Add failing tests so the project-name step is skipped when a project name is already known.
 
 ## GREEN
 
-- [x] Removed root `.python-version` and root `pyproject.toml` from scaffold generation, and now write a real `apps/python/.python-version` file beside the lane-local `apps/python/pyproject.toml`.
-- [x] Updated lockfile generation so Python-enabled outputs produce `apps/python/uv.lock` while root generation keeps only `bun.lock`.
-- [x] Renamed the bundled Python-version snapshot asset to `python_lane_python_version.txt` to match the new placement.
+- [x] Stop broad wizard refresh/refocus work on every project-name `Input.Changed` event.
+- [x] Keep derived summary/output-path updates live while leaving the active input widget stable.
+- [x] Skip the project-name step entirely when `nurt new <project-name>` already supplied a normalized project name.
 
 ## BLUE
 
-- [x] Revalidated targeted contracts, then reran the full suite with `uv run pytest`.
+- [x] Tighten first-step/back-navigation semantics so Escape exits when the first real step is `targets`.
+- [x] Re-run targeted tests, then the full suite once the fix is stable.
+- [x] Fix the advisory Gitleaks PR false-positive by ignoring the specific documentation-only fingerprint reported in this branch range.
 
 ## Documentation Sync
 
 - [x] Update `PROGRESS.md`.
 - [x] Update `docs/LIVING_DOCS.md`.
 - [x] Update `docs/ARCHITECTURE.md`.
-- [x] Create `docs/session-summaries/SESSION_74_SUMMARY.md`.
-
-## Work Items
-
-- [x] Remove root-scaffolded Python metadata from foundation and all generated repo roots.
-- [x] Move generated `.python-version`, `pyproject.toml`, and `uv.lock` into `apps/python` only.
+- [x] Create a new session summary in `docs/session-summaries/` for this execution cycle.

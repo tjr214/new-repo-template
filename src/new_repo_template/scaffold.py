@@ -413,7 +413,7 @@ def build_parser() -> argparse.ArgumentParser:
         choices=TARGET_CHOICES,
     )
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--auth", choices=("clerk", "better-auth"))
+    parser.add_argument("--auth", choices=("clerk", "better-auth", "none"))
     parser.add_argument("--no-interactive", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     return parser
@@ -432,7 +432,7 @@ def normalize_targets(raw_targets: list[str]) -> tuple[str, ...]:
 
 def validate_args(
     parser: argparse.ArgumentParser, args: argparse.Namespace
-) -> tuple[str, ...]:
+) -> tuple[tuple[str, ...], str | None]:
     duplicate_targets: list[str] = []
     seen: set[str] = set()
     for target in args.target:
@@ -450,18 +450,17 @@ def validate_args(
     if "foundation" in selected_targets and len(selected_targets) > 1:
         parser.error("foundation target cannot be combined with other targets")
 
-    has_web_backend = "web" in selected_targets and "backend" in selected_targets
-    if has_web_backend and args.auth is None:
+    has_backend = "backend" in selected_targets
+    if has_backend and args.auth is None:
         parser.error(
-            "auth option is required when both web and backend targets are selected"
+            "auth option is required when backend target is selected; use clerk, better-auth, or none"
         )
 
-    if args.auth is not None and not has_web_backend:
-        parser.error(
-            "auth option is only valid when both web and backend targets are selected"
-        )
+    if args.auth is not None and not has_backend:
+        parser.error("auth option is only valid when backend target is selected")
 
-    return selected_targets
+    resolved_auth = None if args.auth in {None, "none"} else str(args.auth)
+    return selected_targets, resolved_auth
 
 
 def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, ...]:
@@ -492,12 +491,13 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
     if has_shared_workspace:
         paths.extend(SHARED_WORKSPACE_PATHS)
 
-    has_web_backend = "web" in targets and "backend" in targets
-    if has_web_backend and auth is not None:
-        if auth == "clerk":
-            paths.extend(CLERK_WIRING_PATHS)
-        if auth == "better-auth":
-            paths.extend(BETTER_AUTH_WIRING_PATHS)
+    has_backend = "backend" in targets
+    if has_backend and auth is not None:
+        paths.append("apps/backend/convex/auth.config.ts")
+        if "web" in targets and auth == "clerk":
+            paths.append("apps/web/src/auth-provider.ts")
+        if "web" in targets and auth == "better-auth":
+            paths.append("apps/web/src/auth-client.ts")
 
     return tuple(paths)
 
@@ -841,15 +841,12 @@ def scaffold_web_backend_env_examples(
 def scaffold_web_backend_auth_wiring(
     *, output_root: Path, auth: str | None, targets: tuple[str, ...]
 ) -> None:
-    has_web_backend = "web" in targets and "backend" in targets
-    if not has_web_backend or auth is None:
+    has_backend = "backend" in targets
+    if not has_backend or auth is None:
         return
 
     backend_convex_dir = output_root / "apps" / "backend" / "convex"
     backend_convex_dir.mkdir(parents=True, exist_ok=True)
-
-    web_src_dir = output_root / "apps" / "web" / "src"
-    web_src_dir.mkdir(parents=True, exist_ok=True)
 
     backend_auth_config = BACKEND_AUTH_CONFIG_TEMPLATE.replace(
         "{{AUTH_PROVIDER}}", auth
@@ -858,6 +855,13 @@ def scaffold_web_backend_auth_wiring(
         backend_auth_config,
         encoding="utf-8",
     )
+
+    has_web = "web" in targets
+    if not has_web:
+        return
+
+    web_src_dir = output_root / "apps" / "web" / "src"
+    web_src_dir.mkdir(parents=True, exist_ok=True)
 
     if auth == "clerk":
         (web_src_dir / "auth-provider.ts").write_text(
@@ -930,12 +934,14 @@ def execute_scaffold(plan: ScaffoldPlan) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    selected_targets = validate_args(parser, args)
+    selected_targets, resolved_auth = validate_args(parser, args)
 
     if not args.no_interactive:
         parser.error("interactive mode is not implemented yet; use --no-interactive")
 
-    plan = resolve_plan(targets=selected_targets, output=args.output, auth=args.auth)
+    plan = resolve_plan(
+        targets=selected_targets, output=args.output, auth=resolved_auth
+    )
 
     if args.dry_run:
         print(render_plan(plan))
