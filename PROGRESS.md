@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 04:45:09 PM
-**Current Phase:** Interactive TUI stability fixes complete for `nurt new`
+**Last Updated:** 2026-03-12 05:08:14 PM
+**Current Phase:** README workflow split complete for `nurt`, BMAD, and RALPH guidance
 
 ## Previous Cycle Archives
 
@@ -48,6 +48,8 @@
 - [x] Expanded interactive contract coverage for rapid project-name typing stability and conditional skipping of the project-name step when the CLI already provided the name.
 - [x] Revalidated the repository after the stability fix with `uv run pytest` (146 passed).
 - [x] Added `.gitleaksignore` coverage for the branch-specific documentation false positive (`PROGRESS.md` fingerprint `1987fd9e30da377670eae257b23b5f1f778d85e2:PROGRESS.md:generic-api-key:43`) so the advisory secret-scan PR check reports cleanly without masking real findings.
+- [x] Split the mixed workflow guidance in `README.md` so `nurt` usage stays in the root README while BMAD and RALPH now have dedicated guides at `README.BMAD-GUIDE.md` and `README.RALPH.md`.
+- [x] Synced the documentation split across `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
 
 ## Next Up
 
