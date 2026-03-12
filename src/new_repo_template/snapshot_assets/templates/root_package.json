@@ -8,7 +8,7 @@
   ],
   "devDependencies": {
     "@generated/eslint-config": "workspace:*",
-    "turbo": "^2.8.14"
+    "turbo": "^2.8.16"
   },
   "scripts": {
     "dev": "turbo run dev",

@@ -102,7 +102,7 @@ def test_nurt_versions_update_from_source_file_writes_new_versions(
         {
             "bun": "1.3.10",
             "python": "3.14.3",
-            "turbo": "2.8.14",
+            "turbo": "2.8.16",
             "typescript": "5.9.3",
         },
     )
@@ -133,7 +133,7 @@ def test_nurt_versions_update_from_source_file_writes_new_versions(
     managed_tools = updated["managed_tools"]
     assert managed_tools["bun"]["version"] == "1.3.10"
     assert managed_tools["python"]["version"] == "3.14.3"
-    assert managed_tools["turbo"]["version"] == "2.8.14"
+    assert managed_tools["turbo"]["version"] == "2.8.16"
     assert managed_tools["typescript"]["version"] == "5.9.3"
 
 
@@ -156,7 +156,7 @@ def test_nurt_versions_check_latest_reports_stale_baseline(tmp_path: Path) -> No
         {
             "bun": "1.3.10",
             "python": "3.14.3",
-            "turbo": "2.8.14",
+            "turbo": "2.8.16",
             "typescript": "5.9.3",
         },
     )
@@ -205,7 +205,7 @@ def test_nurt_versions_update_dry_run_does_not_modify_baseline(tmp_path: Path) -
         {
             "bun": "1.3.10",
             "python": "3.14.3",
-            "turbo": "2.8.14",
+            "turbo": "2.8.16",
             "typescript": "5.9.3",
         },
     )
@@ -247,7 +247,7 @@ def test_nurt_versions_check_lockfiles_fails_when_uv_lock_missing(
         {
             "bun": "1.3.10",
             "python": "3.14.3",
-            "turbo": "2.8.14",
+            "turbo": "2.8.16",
             "typescript": "5.9.3",
         },
     )
@@ -309,7 +309,7 @@ def test_nurt_versions_update_regenerates_uv_lockfile_and_reports_summary(
         {
             "bun": "1.3.10",
             "python": "3.14.3",
-            "turbo": "2.8.14",
+            "turbo": "2.8.16",
             "typescript": "5.9.3",
         },
     )
@@ -373,7 +373,7 @@ def test_nurt_versions_update_dry_run_reports_lockfile_plan_without_writing(
         {
             "bun": "1.3.10",
             "python": "3.14.3",
-            "turbo": "2.8.14",
+            "turbo": "2.8.16",
             "typescript": "5.9.3",
         },
     )
