@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 05:15:50 PM
-**Current Phase:** PLAN archive complete and next-cycle stub reset
+**Last Updated:** 2026-03-12 06:18:18 PM
+**Current Phase:** Post-create automation + updater TUI slice complete
 
 ## Previous Cycle Archives
 
@@ -55,6 +55,13 @@
 - [x] Archived the completed root `PLAN.md` to `docs/archive/plans/PLAN_2026-03-12_05-15-50_PM.md`.
 - [x] Reset root `PLAN.md` as a fresh next-cycle stub with YELLOW/RED/GREEN/BLUE and documentation-sync sections.
 - [x] Synced the plan reset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `docs/session-summaries/SESSION_84_SUMMARY.md`.
+- [x] Ran the new YELLOW phase for the post-create automation slice: reread the relevant CLI/TUI/sync/version files, reviewed the legacy updater scripts for behavioral parity, ran `btca status`, and used `btca ask` for Textual status-table/log-layout, background subprocess, and external-TUI handoff guidance.
+- [x] Added RED coverage for the new optional-install wizard state, post-create pipeline ordering, BMAD runner, reusable tool-sync runner, and the new core-tools updater TUI.
+- [x] Extended `nurt new` so both the Textual wizard and plain interactive fallback now collect optional core-tools and BMAD decisions, while non-interactive CLI usage can drive the same behavior with explicit flags.
+- [x] Added native post-create orchestration in `src/new_repo_template/post_create.py` so generated projects now follow the requested lifecycle: optional BMAD -> lockfiles/revalidation -> `git init` -> `git add .` -> `git commit -m "Initial Commit"` -> optional core-tools updater.
+- [x] Added a dedicated BMAD runner in `src/new_repo_template/bmad_runner.py` plus a direct `nurt bmad sync` command for standalone BMAD install/update flows.
+- [x] Refactored the native core-tools updater into `src/new_repo_template/tool_sync_runner.py` and `src/new_repo_template/tool_sync_tui.py`, bringing `nurt tools sync` to native parity for `uv`, `bun`, `turbo`, `opencode`, `btca`, `gh`, and `ripgrep` with a persistent Textual status table and live scrolling log output in rich TTY sessions.
+- [x] Revalidated the slice with targeted contract coverage and the full repository test suite via `uv run pytest` (158 passed).
 
 ## Next Up
 

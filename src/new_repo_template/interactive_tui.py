@@ -31,6 +31,8 @@ from new_repo_template.project_naming import normalize_project_name
 WIZARD_STEP_PROJECT = "project"
 WIZARD_STEP_TARGETS = "targets"
 WIZARD_STEP_AUTH = "auth"
+WIZARD_STEP_TOOLS = "tools"
+WIZARD_STEP_BMAD = "bmad"
 WIZARD_STEP_REVIEW = "review"
 
 AUTH_CHOICES: tuple[str, str, str] = ("clerk", "better-auth", "none")
@@ -38,6 +40,8 @@ ALL_WIZARD_STEPS: tuple[str, ...] = (
     WIZARD_STEP_PROJECT,
     WIZARD_STEP_TARGETS,
     WIZARD_STEP_AUTH,
+    WIZARD_STEP_TOOLS,
+    WIZARD_STEP_BMAD,
     WIZARD_STEP_REVIEW,
 )
 
@@ -106,6 +110,18 @@ STEP_DEFINITIONS: dict[str, WizardStepDefinition] = {
         title="Resolve backend auth",
         description="Backend selections require an explicit auth choice, including the no-auth path.",
     ),
+    WIZARD_STEP_TOOLS: WizardStepDefinition(
+        key=WIZARD_STEP_TOOLS,
+        label="Tools",
+        title="Choose the core-tools updater",
+        description="Decide whether the generated-project flow should launch the native core-tools installer after the initial commit.",
+    ),
+    WIZARD_STEP_BMAD: WizardStepDefinition(
+        key=WIZARD_STEP_BMAD,
+        label="BMAD",
+        title="Choose BMAD Method installation",
+        description="Decide whether the generated-project flow should launch the BMAD installer before lockfile generation and git setup.",
+    ),
     WIZARD_STEP_REVIEW: WizardStepDefinition(
         key=WIZARD_STEP_REVIEW,
         label="Review",
@@ -141,6 +157,8 @@ class InteractiveWizardResult:
     project_name: str
     targets: tuple[str, ...]
     auth: str | None
+    install_core_tools: bool
+    install_bmad: bool
 
 
 @dataclass(frozen=True)
@@ -151,6 +169,8 @@ class WizardState:
     current_step: str
     selected_targets: tuple[str, ...]
     selected_auth: str | None
+    install_core_tools: bool
+    install_bmad: bool
     highlighted_target: str
 
     @classmethod
@@ -161,6 +181,8 @@ class WizardState:
         output_root: Path,
         initial_targets: tuple[str, ...] | None,
         initial_auth: str | None,
+        initial_install_core_tools: bool | None,
+        initial_install_bmad: bool | None,
     ) -> WizardState:
         selected_targets = _normalize_targets(initial_targets)
         selected_auth = (
@@ -180,6 +202,8 @@ class WizardState:
             current_step=initial_step,
             selected_targets=selected_targets,
             selected_auth=selected_auth,
+            install_core_tools=bool(initial_install_core_tools),
+            install_bmad=bool(initial_install_bmad),
             highlighted_target=selected_targets[0],
         )._clamp_step()
 
@@ -195,6 +219,8 @@ class WizardState:
         step_order.append(WIZARD_STEP_TARGETS)
         if self.auth_required:
             step_order.append(WIZARD_STEP_AUTH)
+        step_order.append(WIZARD_STEP_TOOLS)
+        step_order.append(WIZARD_STEP_BMAD)
         step_order.append(WIZARD_STEP_REVIEW)
         return tuple(step_order)
 
@@ -272,6 +298,12 @@ class WizardState:
         )
         return replace(self, selected_auth=resolved_auth)
 
+    def with_install_core_tools(self, install_core_tools: bool) -> WizardState:
+        return replace(self, install_core_tools=install_core_tools)
+
+    def with_install_bmad(self, install_bmad: bool) -> WizardState:
+        return replace(self, install_bmad=install_bmad)
+
     def next_step(self) -> WizardState:
         if (
             self.current_step == WIZARD_STEP_PROJECT
@@ -304,6 +336,8 @@ class WizardState:
             project_name=project_name,
             targets=self.selected_targets,
             auth=self.resolved_auth,
+            install_core_tools=self.install_core_tools,
+            install_bmad=self.install_bmad,
         )
 
     def _clamp_step(self) -> WizardState:
@@ -367,6 +401,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     #project,
     #targets,
     #auth,
+    #tools,
+    #bmad,
     #review {
         height: 1fr;
     }
@@ -396,6 +432,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
 
     #target_details,
     #auth_notes,
+    #tools_notes,
+    #bmad_notes,
     #summary_column {
         border: round #2b6674;
         background: #0b1d28;
@@ -408,6 +446,14 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     }
 
     #auth_options {
+        border: round #3f9cae;
+        background: #0b1d28;
+        padding: 1 1;
+        margin-bottom: 1;
+    }
+
+    #tools_options,
+    #bmad_options {
         border: round #3f9cae;
         background: #0b1d28;
         padding: 1 1;
@@ -466,6 +512,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     Screen.compact #project,
     Screen.compact #targets,
     Screen.compact #auth,
+    Screen.compact #tools,
+    Screen.compact #bmad,
     Screen.compact #review,
     Screen.compact #targets_layout,
     Screen.compact #progress_rail,
@@ -508,6 +556,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         output_root: Path,
         initial_targets: tuple[str, ...] | None = None,
         initial_auth: str | None = None,
+        initial_install_core_tools: bool | None = None,
+        initial_install_bmad: bool | None = None,
     ) -> None:
         super().__init__()
         self.state = WizardState.create(
@@ -515,6 +565,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             output_root=output_root,
             initial_targets=initial_targets,
             initial_auth=initial_auth,
+            initial_install_core_tools=initial_install_core_tools,
+            initial_install_bmad=initial_install_bmad,
         )
         self.final_result: InteractiveWizardResult | None = None
         self._syncing_targets = False
@@ -539,6 +591,14 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     @property
     def selected_auth(self) -> str | None:
         return self.state.selected_auth
+
+    @property
+    def install_core_tools(self) -> bool:
+        return self.state.install_core_tools
+
+    @property
+    def install_bmad(self) -> bool:
+        return self.state.install_bmad
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=False)
@@ -577,6 +637,16 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
                             yield RadioButton("Better Auth", id="auth-better-auth")
                             yield RadioButton("No auth", id="auth-none")
                         yield Static(id="auth_notes")
+                    with Vertical(id=WIZARD_STEP_TOOLS):
+                        with RadioSet(id="tools_options"):
+                            yield RadioButton("Yes", id="tools-yes")
+                            yield RadioButton("No", id="tools-no")
+                        yield Static(id="tools_notes")
+                    with Vertical(id=WIZARD_STEP_BMAD):
+                        with RadioSet(id="bmad_options"):
+                            yield RadioButton("Yes", id="bmad-yes")
+                            yield RadioButton("No", id="bmad-no")
+                        yield Static(id="bmad_notes")
                     yield Static(id=WIZARD_STEP_REVIEW)
                 yield Static(id="status_message")
                 with Horizontal(id="actions"):
@@ -737,6 +807,36 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             )
         return Panel(body, title="Auth Notes", border_style="#2b6674")
 
+    def _render_tools_notes(self) -> Panel:
+        body = Group(
+            Text(
+                "Do you want to install/update the core set of tools?",
+                style="#edf6f7",
+            ),
+            Text(
+                "Yes" if self.state.install_core_tools else "No", style="bold #79e0d4"
+            ),
+            Text(
+                "This runs after `git init`, `git add .`, and the initial commit.",
+                style="#c5d8de",
+            ),
+        )
+        return Panel(body, title="Core Tools", border_style="#2b6674")
+
+    def _render_bmad_notes(self) -> Panel:
+        body = Group(
+            Text(
+                "Do you want to install the BMAD Method?",
+                style="#edf6f7",
+            ),
+            Text("Yes" if self.state.install_bmad else "No", style="bold #79e0d4"),
+            Text(
+                "This runs before lockfile generation/revalidation and git setup.",
+                style="#c5d8de",
+            ),
+        )
+        return Panel(body, title="BMAD Method", border_style="#2b6674")
+
     def _render_summary_panel(self) -> Panel:
         project_name = self.state.project_name or "Pending"
         output_path = _format_output_path(self.state.output_path)
@@ -753,6 +853,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             self.state.resolved_auth
             or ("Choose one" if self.state.auth_required else "Not needed"),
         )
+        grid.add_row("Core tools", "Yes" if self.state.install_core_tools else "No")
+        grid.add_row("BMAD", "Yes" if self.state.install_bmad else "No")
 
         notes: list[RenderableType] = []
         if self.state.project_name_note is not None:
@@ -790,6 +892,11 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         plan_table.add_row("Output", _format_output_path(self.state.output_path))
         plan_table.add_row("Targets", ", ".join(self.state.selected_targets))
         plan_table.add_row("Auth", self.state.resolved_auth or "Not required")
+        plan_table.add_row(
+            "Core tools",
+            "Yes" if self.state.install_core_tools else "No",
+        )
+        plan_table.add_row("BMAD", "Yes" if self.state.install_bmad else "No")
 
         return Panel(
             Group(
@@ -824,6 +931,12 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             )
         if self.state.current_step == WIZARD_STEP_AUTH:
             return "Choose an auth strategy for backend, then press Enter to continue."
+        if self.state.current_step == WIZARD_STEP_TOOLS:
+            return (
+                "Choose whether to run the core-tools updater after the initial commit."
+            )
+        if self.state.current_step == WIZARD_STEP_BMAD:
+            return "Choose whether to run the BMAD installer before lockfiles and git setup."
         return "Press Enter to confirm, Escape to go back, or Ctrl+Q / Ctrl+C to quit."
 
     def _sync_project_input(self) -> None:
@@ -853,6 +966,22 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         finally:
             self._syncing_auth = False
 
+    def _sync_boolean_controls(
+        self,
+        *,
+        radio_set_id: str,
+        selected: bool,
+        yes_id: str,
+        no_id: str,
+    ) -> None:
+        radio_set = self.query_one(radio_set_id, RadioSet)
+        current_button = radio_set.pressed_button
+        current_id = current_button.id if current_button is not None else None
+        desired_id = yes_id if selected else no_id
+        if current_id == desired_id:
+            return
+        self.query_one(f"#{desired_id}", RadioButton).value = True
+
     def _refresh_ui(self) -> None:
         self.query_one("#hero_panel", Static).update(self._render_hero_panel())
         self.query_one("#progress_rail", Static).update(self._render_progress_rail())
@@ -863,6 +992,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self.query_one("#summary_panel", Static).update(self._render_summary_panel())
         self.query_one("#target_details", Static).update(self._render_target_details())
         self.query_one("#auth_notes", Static).update(self._render_auth_notes())
+        self.query_one("#tools_notes", Static).update(self._render_tools_notes())
+        self.query_one("#bmad_notes", Static).update(self._render_bmad_notes())
         self.query_one("#review", Static).update(self._render_review_panel())
         self.query_one("#project_name_note", Static).update(
             self.state.project_name_note
@@ -871,6 +1002,18 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self.query_one("#status_message", Static).update(self._status_text())
         self._sync_project_input()
         self._sync_auth_controls()
+        self._sync_boolean_controls(
+            radio_set_id="#tools_options",
+            selected=self.state.install_core_tools,
+            yes_id="tools-yes",
+            no_id="tools-no",
+        )
+        self._sync_boolean_controls(
+            radio_set_id="#bmad_options",
+            selected=self.state.install_bmad,
+            yes_id="bmad-yes",
+            no_id="bmad-no",
+        )
         self._refresh_actions()
         self.call_after_refresh(self._focus_current_step)
 
@@ -912,6 +1055,12 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             return
         if self.state.current_step == WIZARD_STEP_AUTH:
             self.query_one("#auth_options", RadioSet).focus()
+            return
+        if self.state.current_step == WIZARD_STEP_TOOLS:
+            self.query_one("#tools_options", RadioSet).focus()
+            return
+        if self.state.current_step == WIZARD_STEP_BMAD:
+            self.query_one("#bmad_options", RadioSet).focus()
             return
         self.query_one("#confirm_button", Button).focus()
 
@@ -1034,6 +1183,16 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         else:
             self._set_state(self.state.with_selected_auth(None))
 
+    @on(RadioSet.Changed, "#tools_options")
+    def _handle_tools_changed(self, event: RadioSet.Changed) -> None:
+        pressed_id = event.pressed.id
+        self._set_state(self.state.with_install_core_tools(pressed_id == "tools-yes"))
+
+    @on(RadioSet.Changed, "#bmad_options")
+    def _handle_bmad_changed(self, event: RadioSet.Changed) -> None:
+        pressed_id = event.pressed.id
+        self._set_state(self.state.with_install_bmad(pressed_id == "bmad-yes"))
+
 
 def run_interactive_wizard(
     *,
@@ -1041,10 +1200,14 @@ def run_interactive_wizard(
     output_root: Path,
     initial_targets: tuple[str, ...] | None = None,
     initial_auth: str | None = None,
+    initial_install_core_tools: bool | None = None,
+    initial_install_bmad: bool | None = None,
 ) -> InteractiveWizardResult | None:
     return NewProjectWizardApp(
         project_name=project_name,
         output_root=output_root,
         initial_targets=initial_targets,
         initial_auth=initial_auth,
+        initial_install_core_tools=initial_install_core_tools,
+        initial_install_bmad=initial_install_bmad,
     ).run()

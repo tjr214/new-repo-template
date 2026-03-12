@@ -8,6 +8,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from platform import system
 
+from new_repo_template.tool_sync_runner import run_tool_sync
+from new_repo_template.tool_sync_tui import run_tool_sync_tui
+
 
 TEMPLATE_REPO_HTTPS = "https://github.com/tjr214/new-repo-template.git"
 TEMPLATE_REPO_SSH = "git@github.com:tjr214/new-repo-template.git"
@@ -308,38 +311,24 @@ def _sync_ripgrep() -> ToolSyncResult:
     )
 
 
-def run_tools_sync(*, dry_run: bool) -> int:
+def run_tools_sync(
+    *, dry_run: bool, cwd: Path | None = None, use_tui: bool = False
+) -> int:
     if dry_run:
         print("DRY RUN: tool sync plan (native Python implementation)")
-        print("  - uv: install/update via astral installer")
-        print("  - bun: install/update via bun installer")
-        print("  - turbo: install/update via `bun add --global turbo`")
-        print("  - opencode: install/update via opencode installer")
-        print("  - btca: install/update via `bun add --global btca`")
-        print("  - ripgrep: install/update via platform package manager")
+        summary = run_tool_sync(dry_run=True, cwd=cwd)
+        for result in summary.results:
+            print(f"- {result.tool}: {result.status} ({result.detail})")
         return 0
 
-    if _is_truthy_env(os.environ.get(SIMULATE_TOOLS_SYNC_FAILURE_ENV)):
-        print("Running tool sync (native Python implementation)...")
-        for tool in ("uv", "bun", "turbo", "opencode", "btca", "ripgrep"):
-            print(f"- {tool}: FAILED (simulated failure)")
-        return 1
+    if use_tui:
+        return run_tool_sync_tui(cwd=cwd)
 
     print("Running tool sync (native Python implementation)...")
-    results = [
-        _sync_uv(),
-        _sync_bun(),
-        _sync_turbo(),
-        _sync_opencode(),
-        _sync_btca(),
-        _sync_ripgrep(),
-    ]
-
-    for result in results:
+    summary = run_tool_sync(dry_run=False, cwd=cwd)
+    for result in summary.results:
         print(f"- {result.tool}: {result.status} ({result.detail})")
-
-    has_failures = any(result.status in {"FAILED", "UNSUPPORTED"} for result in results)
-    return 1 if has_failures else 0
+    return 0 if summary.succeeded else 1
 
 
 def _validate_template_sync_root(project_root: Path) -> None:

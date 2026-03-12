@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import argparse
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 
+from new_repo_template.bmad_runner import run_bmad_sync
+from new_repo_template.post_create import (
+    render_post_create_plan,
+    run_post_create_pipeline,
+)
 from new_repo_template import scaffold
 from new_repo_template.interactive_ui import (
     InteractiveUIConfig,
@@ -14,6 +18,7 @@ from new_repo_template.interactive_ui import (
     render_project_name_prompt,
     render_auth_menu,
     render_target_menu,
+    render_yes_no_menu,
     resolve_ui_config,
 )
 from new_repo_template.interactive_tui import run_interactive_wizard
@@ -21,7 +26,6 @@ from new_repo_template.project_naming import normalize_project_name
 from new_repo_template.snapshot_builder import build_snapshot_assets
 from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
 from new_repo_template.version_baseline import (
-    generate_project_lockfiles,
     run_versions_check,
     run_versions_update,
 )
@@ -44,6 +48,16 @@ INTERACTIVE_TARGETS_REMEDIATION = (
 INTERACTIVE_AUTH_REMEDIATION = (
     "interactive input unavailable while selecting auth; rerun with "
     "--no-interactive and provide --auth clerk, --auth better-auth, or --auth none"
+)
+
+INTERACTIVE_CORE_TOOLS_REMEDIATION = (
+    "interactive input unavailable while selecting the core-tools updater; rerun with "
+    "--no-interactive and provide --install-core-tools or --no-install-core-tools"
+)
+
+INTERACTIVE_BMAD_REMEDIATION = (
+    "interactive input unavailable while selecting BMAD Method installation; rerun with "
+    "--no-interactive and provide --install-bmad or --no-install-bmad"
 )
 
 
@@ -172,6 +186,50 @@ def prompt_auth(*, ui_config: InteractiveUIConfig) -> str:
         )
 
 
+def prompt_yes_no_choice(
+    *,
+    ui_config: InteractiveUIConfig,
+    title: str,
+    question: str,
+    remediation: str,
+) -> bool:
+    render_yes_no_menu(config=ui_config, title=title, question=question)
+
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt=f"{question} [y/N]: ",
+                default="n",
+            ).lower()
+        except EOFError as exc:
+            raise RuntimeError(remediation) from exc
+
+        if user_input in {"", "n", "no"}:
+            return False
+        if user_input in {"y", "yes"}:
+            return True
+        print("Invalid choice. Use y, yes, n, or no.", file=sys.stderr)
+
+
+def prompt_install_core_tools(*, ui_config: InteractiveUIConfig) -> bool:
+    return prompt_yes_no_choice(
+        ui_config=ui_config,
+        title="Core tools updater",
+        question="Do you want to install/update the core set of tools?",
+        remediation=INTERACTIVE_CORE_TOOLS_REMEDIATION,
+    )
+
+
+def prompt_install_bmad(*, ui_config: InteractiveUIConfig) -> bool:
+    return prompt_yes_no_choice(
+        ui_config=ui_config,
+        title="BMAD Method",
+        question="Do you want to install the BMAD Method?",
+        remediation=INTERACTIVE_BMAD_REMEDIATION,
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nurt")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -182,6 +240,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--target", action="append", choices=scaffold.TARGET_CHOICES
     )
     new_parser.add_argument("--auth", choices=AUTH_CHOICES)
+    new_parser.add_argument(
+        "--install-core-tools",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+    )
+    new_parser.add_argument(
+        "--install-bmad",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+    )
     new_parser.add_argument("--no-interactive", action="store_true")
     new_parser.add_argument("--dry-run", action="store_true")
     new_parser.set_defaults(handler=handle_new)
@@ -197,6 +265,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     tools_sync_parser.add_argument("--dry-run", action="store_true")
     tools_sync_parser.set_defaults(handler=handle_tools_sync)
+
+    bmad_parser = subparsers.add_parser("bmad", help="BMAD Method operations")
+    bmad_subparsers = bmad_parser.add_subparsers(dest="bmad_command", required=True)
+    bmad_sync_parser = bmad_subparsers.add_parser(
+        "sync", help="Install or update the BMAD Method"
+    )
+    bmad_sync_parser.add_argument("--dry-run", action="store_true")
+    bmad_sync_parser.set_defaults(handler=handle_bmad_sync)
 
     template_assets_parser = subparsers.add_parser(
         "template-assets", help="Template asset operations"
@@ -276,11 +352,17 @@ def handle_new(args: argparse.Namespace) -> int:
 
     selected_targets: list[str]
     selected_auth = args.auth
+    install_core_tools = args.install_core_tools
+    install_bmad = args.install_bmad
     try:
         if project_name is None and not args.no_interactive and ui_config.use_rich:
             wizard_result = run_interactive_wizard(
                 project_name=None,
                 output_root=Path.cwd().resolve(),
+                initial_targets=tuple(args.target) if args.target else None,
+                initial_auth=selected_auth,
+                initial_install_core_tools=install_core_tools,
+                initial_install_bmad=install_bmad,
             )
             if wizard_result is None:
                 print(INTERACTIVE_WIZARD_CANCELLED, file=sys.stderr)
@@ -288,11 +370,12 @@ def handle_new(args: argparse.Namespace) -> int:
             project_name = wizard_result.project_name
             selected_targets = list(wizard_result.targets)
             selected_auth = wizard_result.auth
+            install_core_tools = wizard_result.install_core_tools
+            install_bmad = wizard_result.install_bmad
         else:
             if project_name is None:
                 project_name = prompt_project_name(ui_config=ui_config)
 
-            output_path = (Path.cwd() / project_name).resolve()
             if args.target:
                 selected_targets = list(args.target)
             elif args.no_interactive:
@@ -301,6 +384,10 @@ def handle_new(args: argparse.Namespace) -> int:
                 wizard_result = run_interactive_wizard(
                     project_name=project_name,
                     output_root=Path.cwd().resolve(),
+                    initial_targets=tuple(args.target) if args.target else None,
+                    initial_auth=selected_auth,
+                    initial_install_core_tools=install_core_tools,
+                    initial_install_bmad=install_bmad,
                 )
                 if wizard_result is None:
                     print(INTERACTIVE_WIZARD_CANCELLED, file=sys.stderr)
@@ -308,6 +395,8 @@ def handle_new(args: argparse.Namespace) -> int:
                 project_name = wizard_result.project_name
                 selected_targets = list(wizard_result.targets)
                 selected_auth = wizard_result.auth
+                install_core_tools = wizard_result.install_core_tools
+                install_bmad = wizard_result.install_bmad
             else:
                 selected_targets = prompt_targets(ui_config=ui_config)
 
@@ -315,6 +404,20 @@ def handle_new(args: argparse.Namespace) -> int:
         has_backend = "backend" in selected_targets
         if has_backend and selected_auth is None and not args.no_interactive:
             selected_auth = prompt_auth(ui_config=ui_config)
+
+        if install_core_tools is None:
+            install_core_tools = (
+                False
+                if args.no_interactive
+                else prompt_install_core_tools(ui_config=ui_config)
+            )
+
+        if install_bmad is None:
+            install_bmad = (
+                False
+                if args.no_interactive
+                else prompt_install_bmad(ui_config=ui_config)
+            )
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
@@ -336,19 +439,25 @@ def handle_new(args: argparse.Namespace) -> int:
         code = exc.code
         scaffold_status = int(code) if isinstance(code, int) else 1
 
-    if scaffold_status != 0 or args.dry_run:
+    if scaffold_status != 0:
         return scaffold_status
 
-    lockfile_status = generate_project_lockfiles(project_root=output_path)
-    if lockfile_status == 0:
+    if args.dry_run:
+        print(
+            render_post_create_plan(
+                project_root=output_path,
+                install_bmad=bool(install_bmad),
+                install_core_tools=bool(install_core_tools),
+            )
+        )
         return 0
 
-    shutil.rmtree(output_path, ignore_errors=True)
-    print(
-        "Error: lockfile generation failed; removed scaffold output to keep `nurt new` deterministic.",
-        file=sys.stderr,
+    return run_post_create_pipeline(
+        project_root=output_path,
+        install_bmad=bool(install_bmad),
+        install_core_tools=bool(install_core_tools),
+        use_tui=ui_config.use_rich,
     )
-    return 1
 
 
 def handle_update(args: argparse.Namespace) -> int:
@@ -367,7 +476,18 @@ def handle_update(args: argparse.Namespace) -> int:
 
 
 def handle_tools_sync(args: argparse.Namespace) -> int:
-    return run_tools_sync(dry_run=args.dry_run)
+    ui_config = resolve_ui_config()
+    if ui_config.warning is not None:
+        print(f"Warning: {ui_config.warning}", file=sys.stderr)
+    return run_tools_sync(
+        dry_run=args.dry_run,
+        cwd=Path.cwd().resolve(),
+        use_tui=ui_config.use_rich and not args.dry_run,
+    )
+
+
+def handle_bmad_sync(args: argparse.Namespace) -> int:
+    return run_bmad_sync(project_root=Path.cwd().resolve(), dry_run=args.dry_run)
 
 
 def handle_template_assets_sync(args: argparse.Namespace) -> int:

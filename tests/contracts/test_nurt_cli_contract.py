@@ -53,6 +53,8 @@ def test_nurt_new_dry_run_generates_scaffold_plan_without_writing(
             "--auth",
             "clerk",
             "--dry-run",
+            "--install-core-tools",
+            "--install-bmad",
         ],
     )
 
@@ -64,6 +66,9 @@ def test_nurt_new_dry_run_generates_scaffold_plan_without_writing(
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "Resolved scaffold plan:" in combined_output
     assert "- targets: web, backend" in combined_output
+    assert "Post-create automation plan:" in combined_output
+    assert "BMAD Method: yes" in combined_output
+    assert "Core tools updater: yes" in combined_output
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -95,7 +100,7 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n2\n",
+        input_text="3,4\n2\n\n\n",
     )
 
     assert result.returncode == 0, (
@@ -107,6 +112,8 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     assert "nurt new interactive mode" in combined_output
     assert "- targets: web, backend" in combined_output
     assert "- auth: better-auth" in combined_output
+    assert "Core tools updater: no" in combined_output
+    assert "BMAD Method: no" in combined_output
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -119,7 +126,7 @@ def test_nurt_new_without_project_name_prompts_and_normalizes_directory(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", "--dry-run"],
-        input_text="My Cool App\n4\n3\n",
+        input_text="My Cool App\n4\n3\n\n\n",
     )
 
     assert result.returncode == 0, (
@@ -132,6 +139,8 @@ def test_nurt_new_without_project_name_prompts_and_normalizes_directory(
     assert "- targets: backend" in combined_output
     assert f"- output: {output_dir}" in combined_output
     assert "- auth: none" in combined_output
+    assert "Core tools updater: no" in combined_output
+    assert "BMAD Method: no" in combined_output
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -144,7 +153,7 @@ def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n2\n",
+        input_text="3,4\n2\n\n\n",
         env={
             "NURT_UI_MODE": "rich",
             "NURT_SIMULATE_RICH_UNAVAILABLE": "1",
@@ -169,7 +178,7 @@ def test_nurt_new_interactive_rich_mode_falls_back_without_tty(tmp_path: Path) -
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n1\n",
+        input_text="3,4\n1\n\n\n",
         env={"NURT_UI_MODE": "rich"},
     )
 
@@ -191,7 +200,7 @@ def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) 
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n1\n",
+        input_text="3,4\n1\n\n\n",
         env={"NURT_UI_MODE": "plain", "NURT_SIMULATE_RICH_UNAVAILABLE": "1"},
     )
 
@@ -267,6 +276,8 @@ def test_handle_new_reports_friendly_cancel_message(
             project_name="demo-friendly-cancel",
             target=None,
             auth=None,
+            install_core_tools=None,
+            install_bmad=None,
             no_interactive=False,
             dry_run=True,
         )
@@ -349,8 +360,24 @@ def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
     assert "turbo" in combined_output
     assert "opencode" in combined_output
     assert "btca" in combined_output
+    assert "gh" in combined_output
     assert "ripgrep" in combined_output
     assert "update-opencode.sh" not in combined_output
+
+
+def test_nurt_bmad_sync_dry_run_reports_action(tmp_path: Path) -> None:
+    """RED: bmad sync dry-run should report non-destructive action plan."""
+
+    result = run_nurt_command(cwd=tmp_path, args=["bmad", "sync", "--dry-run"])
+
+    assert result.returncode == 0, (
+        "Expected nurt bmad sync --dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "DRY RUN" in combined_output
+    assert "bmad-method@latest install" in combined_output
 
 
 def test_nurt_tools_sync_non_dry_run_reports_failures(tmp_path: Path) -> None:
