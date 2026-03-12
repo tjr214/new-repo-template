@@ -137,6 +137,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Keyboard fallback was not directly exercised during the Shield run because no keyboard was available; tracker closeout for that final checkbox was accepted by explicit user direction.
 - M5 milestone closeout state is now explicit in the archived planning record: required PR checks were confirmed green and the remaining M5 DoD gate in `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` is checked complete.
 - The maintainer OpenCode updater path now distinguishes install vs upgrade semantics: `.template_scripts/update-opencode.sh` runs `opencode upgrade` when the CLI is already present in `PATH`, while retaining the installer curl flow only for first-time bootstrap.
+- Root repository guidance is now deliberately split by operating mode: `README.md` stays focused on end-user `nurt` bootstrap, `README.BMAD-GUIDE.md` covers BMAD planning workflows, and `README.RALPH.md` covers task-driven RALPH execution.
 
 ## Validation Model
 
