@@ -1,10 +1,11 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 06:39:59 PM
-**Current Phase:** Tools-sync TUI polish follow-up complete
+**Last Updated:** 2026-03-12 06:50:03 PM
+**Current Phase:** Legacy updater cleanup complete and next-cycle stub reset
 
 ## Previous Cycle Archives
 
+- `docs/archive/plans/PLAN_2026-03-12_06-50-03_PM.md`
 - `docs/archive/plans/PLAN_2026-03-12_05-15-50_PM.md`
 - `docs/archive/plans/PLAN_2026-03-12_02-32-23_PM.md`
 - `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`
@@ -63,8 +64,12 @@
 - [x] Refactored the native core-tools updater into `src/new_repo_template/tool_sync_runner.py` and `src/new_repo_template/tool_sync_tui.py`, bringing `nurt tools sync` to native parity for `uv`, `bun`, `turbo`, `opencode`, `btca`, `gh`, and `ripgrep` with a persistent Textual status table and live scrolling log output in rich TTY sessions.
 - [x] Revalidated the slice with targeted contract coverage and the full repository test suite via `uv run pytest` (158 passed).
 - [x] Polished the `nurt tools sync` TUI so the table uses slightly wider Tool/Status columns and the Details column stretches to absorb the remaining width responsively.
-- [x] Replaced the plain-text log pane with ANSI-aware Rich rendering so streamed updater output now preserves full color/styling, avoids raw-escape corruption in the scrollable transcript, and stays closer to the original `.template_scripts/update-opencode.sh` presentation.
+- [x] Replaced the plain-text log pane with ANSI-aware Rich rendering so streamed updater output now preserves full color/styling, avoids raw-escape corruption in the scrollable transcript, and stays close to the original legacy updater presentation.
 - [x] Added follow-up contracts for RichLog usage, ANSI rendering preservation, and responsive table-width behavior, then revalidated with `uv run pytest` (160 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
+- [x] Removed the legacy updater shell scripts `.template_scripts/update-opencode.sh` and `.template_scripts/update-bmad-method.sh` now that `nurt tools sync` and `nurt bmad sync` are the supported native paths.
+- [x] Updated the legacy `install.sh` maintainer path to call native repo-local `nurt` commands instead of the deleted shell updaters, while preserving dry-run visibility and setup flow.
+- [x] Removed obsolete updater-script contract coverage, updated remaining installer dry-run contracts to assert native `nurt` command usage, and kept the protections/template-maintenance script coverage intact.
+- [x] Archived the completed root `PLAN.md` and reset `PLAN.md` to a fresh next-cycle stub, then synced the reset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
 
 ## Next Up
 

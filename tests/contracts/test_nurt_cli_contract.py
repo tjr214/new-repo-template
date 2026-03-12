@@ -362,7 +362,7 @@ def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
     assert "btca" in combined_output
     assert "gh" in combined_output
     assert "ripgrep" in combined_output
-    assert "update-opencode.sh" not in combined_output
+    assert ".template_scripts" not in combined_output
 
 
 def test_nurt_bmad_sync_dry_run_reports_action(tmp_path: Path) -> None:
