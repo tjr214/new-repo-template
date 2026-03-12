@@ -34,6 +34,7 @@ FOUNDATION_PATHS: tuple[str, ...] = (
     "packages/",
     "pyproject.toml",
     ".gitignore",
+    ".python-version",
     "eslint.config.mjs",
     "package.json",
     "turbo.json",
@@ -144,6 +145,7 @@ SHARED_WORKSPACE_PATHS: tuple[str, ...] = (
 
 PYTHON_PATHS: tuple[str, ...] = (
     "apps/python/",
+    "apps/python/.python-version",
     "apps/python/pyproject.toml",
     "apps/python/README.md",
     "apps/python/src/python_app/",
@@ -256,6 +258,7 @@ DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
 )
 SHARED_INDEX_TEMPLATE = load_template_text("shared/shared_index.ts")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
+ROOT_PYTHON_VERSION = load_template_text("root_python_version.txt").rstrip("\n")
 ROOT_ESLINT_CONFIG = load_template_text("root_eslint.config.mjs")
 ROOT_PACKAGE_JSON = load_template_text("root_package.json")
 ROOT_TURBO_JSON = load_template_text("root_turbo.json")
@@ -410,6 +413,13 @@ def write_root_gitignore(*, output_root: Path) -> None:
     (output_root / ".gitignore").write_text(ROOT_GITIGNORE, encoding="utf-8")
 
 
+def write_root_python_version(*, output_root: Path) -> None:
+    (output_root / ".python-version").write_text(
+        ROOT_PYTHON_VERSION,
+        encoding="utf-8",
+    )
+
+
 def write_root_eslint_config(*, output_root: Path) -> None:
     (output_root / "eslint.config.mjs").write_text(
         ROOT_ESLINT_CONFIG,
@@ -436,6 +446,7 @@ def scaffold_foundation_core(
         include_python_workspace=include_python_workspace,
     )
     write_root_gitignore(output_root=output_root)
+    write_root_python_version(output_root=output_root)
     write_root_eslint_config(output_root=output_root)
     write_root_package_json(output_root=output_root)
     write_root_turbo_json(output_root=output_root)
@@ -484,6 +495,7 @@ def scaffold_python_lane(*, output_root: Path) -> None:
     lane_root = output_root / "apps" / "python"
     (lane_root / "src" / "python_app").mkdir(parents=True)
     (lane_root / "tests").mkdir()
+    (lane_root / ".python-version").symlink_to(Path("../../.python-version"))
     (lane_root / "pyproject.toml").write_text(PYTHON_LANE_PYPROJECT, encoding="utf-8")
     (lane_root / "README.md").write_text(PYTHON_LANE_README, encoding="utf-8")
     (lane_root / "src" / "python_app" / "__init__.py").write_text(

@@ -4,6 +4,10 @@
     {
       "source": ".gitignore",
       "destination": "templates/root_gitignore.txt"
+    },
+    {
+      "source": ".python-version",
+      "destination": "templates/root_python_version.txt"
     }
   ]
 }

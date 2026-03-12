@@ -21,8 +21,8 @@ def run_scaffold_command(
     )
 
 
-def test_root_gitignore_includes_secret_env_guards(tmp_path: Path) -> None:
-    """RED: generated root should include .gitignore env-secret baseline."""
+def test_root_gitignore_matches_template_root_baseline(tmp_path: Path) -> None:
+    """RED: generated root should inherit the exact template-root .gitignore."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "security-gitignore-output"
@@ -47,12 +47,9 @@ def test_root_gitignore_includes_secret_env_guards(tmp_path: Path) -> None:
     gitignore_path = output_dir / ".gitignore"
     assert gitignore_path.exists(), "Root .gitignore should be scaffolded"
 
+    expected_gitignore = (repo_root / ".gitignore").read_text(encoding="utf-8")
     gitignore_text = gitignore_path.read_text(encoding="utf-8")
-    assert "node_modules/" in gitignore_text
-    assert "**/node_modules/" in gitignore_text
-    assert ".env" in gitignore_text
-    assert ".env.*" in gitignore_text
-    assert "!.env.example" in gitignore_text
+    assert gitignore_text == expected_gitignore
 
 
 def test_selected_targets_each_receive_env_example_placeholders(tmp_path: Path) -> None:

@@ -2,6 +2,7 @@
   "version": 1,
   "templates": [
     "root_gitignore.txt",
+    "root_python_version.txt",
     "root_pyproject_base.toml",
     "python_workspace_section.toml",
     "python_lane_pyproject.toml",

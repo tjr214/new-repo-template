@@ -30,6 +30,7 @@ def test_snapshot_builder_writes_deterministic_metadata(tmp_path: Path) -> None:
     source_root = tmp_path / "source"
     source_root.mkdir(parents=True)
     (source_root / ".gitignore").write_text(".env\n.env.*\n", encoding="utf-8")
+    (source_root / ".python-version").write_text("3.14.2\n", encoding="utf-8")
 
     output_a = tmp_path / "snapshot-a"
     output_b = tmp_path / "snapshot-b"
