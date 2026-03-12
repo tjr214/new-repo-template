@@ -105,11 +105,28 @@ def render_target_menu(
     console.print(table)
 
 
+def render_project_name_prompt(*, config: InteractiveUIConfig) -> None:
+    if not config.use_rich:
+        print("nurt new interactive mode")
+        print("Enter a project name. It will be normalized to a kebab-case directory.")
+        return
+
+    from rich.console import Console
+    from rich.panel import Panel
+
+    console = Console()
+    console.print(Panel("nurt new interactive mode", style="cyan"))
+    console.print(
+        "Enter a project name. It will be normalized to a kebab-case directory."
+    )
+
+
 def render_auth_menu(*, config: InteractiveUIConfig) -> None:
     if not config.use_rich:
-        print("Select auth provider for web+backend:")
+        print("Select auth strategy for backend:")
         print("  1) clerk")
         print("  2) better-auth")
+        print("  3) none")
         return
 
     from rich.console import Console
@@ -124,8 +141,10 @@ def render_auth_menu(*, config: InteractiveUIConfig) -> None:
     table.add_row("1", "clerk", "Hosted auth stack")
     table.add_row("2", "better-auth", "Self-hostable auth stack")
 
+    table.add_row("3", "none", "No auth wiring")
+
     console.print(Panel("Auth provider selection", style="cyan"))
-    console.print("Select auth provider for web+backend:")
+    console.print("Select auth strategy for backend:")
     console.print(table)
 
 

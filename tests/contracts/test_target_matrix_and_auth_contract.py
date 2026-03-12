@@ -24,7 +24,7 @@ def run_scaffold_command(
 def test_web_backend_requires_explicit_auth_in_non_interactive_mode(
     tmp_path: Path,
 ) -> None:
-    """RED: web+backend without auth should fail deterministically."""
+    """RED: any backend selection without explicit auth choice should fail."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "web-backend-no-auth"
@@ -44,25 +44,20 @@ def test_web_backend_requires_explicit_auth_in_non_interactive_mode(
     )
 
     assert result.returncode == 2
-    assert (
-        "auth option is required when both web and backend targets are selected"
-        in result.stderr
-    )
+    assert "auth option is required when backend target is selected" in result.stderr
 
 
-def test_web_backend_desktop_requires_explicit_auth_in_non_interactive_mode(
+def test_backend_desktop_requires_explicit_auth_in_non_interactive_mode(
     tmp_path: Path,
 ) -> None:
-    """RED: any mixed preset containing web+backend must require auth."""
+    """RED: backend mixed presets must still force an explicit auth choice."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    output_dir = tmp_path / "web-backend-desktop-no-auth"
+    output_dir = tmp_path / "backend-desktop-no-auth"
 
     result = run_scaffold_command(
         repo_root=repo_root,
         args=[
-            "--target",
-            "web",
             "--target",
             "backend",
             "--target",
@@ -75,10 +70,38 @@ def test_web_backend_desktop_requires_explicit_auth_in_non_interactive_mode(
     )
 
     assert result.returncode == 2
-    assert (
-        "auth option is required when both web and backend targets are selected"
-        in result.stderr
+    assert "auth option is required when backend target is selected" in result.stderr
+
+
+def test_backend_with_none_auth_succeeds_and_is_dry_run_only(tmp_path: Path) -> None:
+    """RED: backend-only preset should accept an explicit no-auth choice."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "backend-with-no-auth"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "backend",
+            "--auth",
+            "none",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
     )
+
+    assert result.returncode == 0, (
+        "Expected backend-only dry-run with explicit no-auth to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "apps/backend/" in combined_output
+    assert "- auth: none" in combined_output
+    assert not output_dir.exists(), "--dry-run should not write scaffold output"
 
 
 def test_web_backend_with_auth_succeeds_and_is_dry_run_only(tmp_path: Path) -> None:
@@ -272,19 +295,16 @@ def test_auth_with_web_desktop_without_backend_fails_deterministically(
     )
 
     assert result.returncode == 2
-    assert (
-        "auth option is only valid when both web and backend targets are selected"
-        in result.stderr
-    )
+    assert "auth option is only valid when backend target is selected" in result.stderr
 
 
-def test_auth_with_backend_desktop_without_web_fails_deterministically(
+def test_auth_with_backend_desktop_without_web_succeeds(
     tmp_path: Path,
 ) -> None:
-    """RED: auth must fail when backend is selected without web in mixed presets."""
+    """RED: backend mixed presets may choose auth even when web is absent."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    output_dir = tmp_path / "backend-desktop-auth-invalid"
+    output_dir = tmp_path / "backend-desktop-auth-valid"
 
     result = run_scaffold_command(
         repo_root=repo_root,
@@ -302,11 +322,15 @@ def test_auth_with_backend_desktop_without_web_fails_deterministically(
         ],
     )
 
-    assert result.returncode == 2
-    assert (
-        "auth option is only valid when both web and backend targets are selected"
-        in result.stderr
+    assert result.returncode == 0, (
+        "Expected backend+desktop dry-run with auth to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
     )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "apps/backend/" in combined_output
+    assert "apps/desktop/" in combined_output
+    assert "- auth: better-auth" in combined_output
 
 
 def test_web_backend_clerk_env_examples_include_required_placeholders(

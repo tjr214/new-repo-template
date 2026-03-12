@@ -26,7 +26,7 @@ def run_scaffold_command(
 def test_auth_without_web_backend_fails_with_deterministic_error(
     tmp_path: Path,
 ) -> None:
-    """RED: auth flag without web+backend must fail with deterministic message."""
+    """RED: auth flag without backend must fail with deterministic message."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "foundation-auth-output"
@@ -46,10 +46,7 @@ def test_auth_without_web_backend_fails_with_deterministic_error(
     )
 
     assert result.returncode == 2
-    assert (
-        "auth option is only valid when both web and backend targets are selected"
-        in result.stderr
-    )
+    assert "auth option is only valid when backend target is selected" in result.stderr
 
 
 def test_missing_no_interactive_fails_with_clear_error(tmp_path: Path) -> None:

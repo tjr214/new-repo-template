@@ -11,11 +11,13 @@ from new_repo_template import scaffold
 from new_repo_template.interactive_ui import (
     InteractiveUIConfig,
     ask_user_input,
+    render_project_name_prompt,
     render_auth_menu,
     render_target_menu,
     resolve_ui_config,
 )
 from new_repo_template.interactive_tui import run_interactive_wizard
+from new_repo_template.project_naming import normalize_project_name
 from new_repo_template.snapshot_builder import build_snapshot_assets
 from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
 from new_repo_template.version_baseline import (
@@ -25,9 +27,14 @@ from new_repo_template.version_baseline import (
 )
 
 
-AUTH_CHOICES: tuple[str, str] = ("clerk", "better-auth")
+AUTH_CHOICES: tuple[str, str, str] = ("clerk", "better-auth", "none")
 
-INTERACTIVE_WIZARD_CANCELLED = "interactive wizard cancelled"
+INTERACTIVE_WIZARD_CANCELLED = "Interactive wizzard cancelled. Maybe next time!"
+
+INTERACTIVE_PROJECT_NAME_REMEDIATION = (
+    "interactive input unavailable while selecting project name; rerun with "
+    "`nurt new <project-name>` or provide a project name before --no-interactive"
+)
 
 INTERACTIVE_TARGETS_REMEDIATION = (
     "interactive input unavailable while selecting targets; rerun with "
@@ -36,8 +43,31 @@ INTERACTIVE_TARGETS_REMEDIATION = (
 
 INTERACTIVE_AUTH_REMEDIATION = (
     "interactive input unavailable while selecting auth; rerun with "
-    "--no-interactive and provide --auth"
+    "--no-interactive and provide --auth clerk, --auth better-auth, or --auth none"
 )
+
+
+def resolve_project_name(raw_project_name: str) -> str:
+    return normalize_project_name(raw_project_name)
+
+
+def prompt_project_name(*, ui_config: InteractiveUIConfig) -> str:
+    render_project_name_prompt(config=ui_config)
+
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt="Project name: ",
+                default="",
+            )
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_PROJECT_NAME_REMEDIATION) from exc
+
+        try:
+            return resolve_project_name(user_input)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
 
 
 def perform_startup_update_check() -> None:
@@ -125,16 +155,21 @@ def prompt_auth(*, ui_config: InteractiveUIConfig) -> str:
         try:
             user_input = ask_user_input(
                 config=ui_config,
-                prompt="Auth [clerk]: ",
-                default="clerk",
+                prompt="Auth [none]: ",
+                default="none",
             ).lower()
         except EOFError as exc:
             raise RuntimeError(INTERACTIVE_AUTH_REMEDIATION) from exc
-        if user_input in {"", "1", "clerk"}:
+        if user_input in {"1", "clerk"}:
             return "clerk"
         if user_input in {"2", "better-auth"}:
             return "better-auth"
-        print("Invalid auth choice. Use 1, 2, clerk, or better-auth.", file=sys.stderr)
+        if user_input in {"", "3", "none"}:
+            return "none"
+        print(
+            "Invalid auth choice. Use 1, 2, 3, clerk, better-auth, or none.",
+            file=sys.stderr,
+        )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -142,7 +177,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     new_parser = subparsers.add_parser("new", help="Create a new project")
-    new_parser.add_argument("project_name")
+    new_parser.add_argument("project_name", nargs="?")
     new_parser.add_argument(
         "--target", action="append", choices=scaffold.TARGET_CHOICES
     )
@@ -220,33 +255,65 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def handle_new(args: argparse.Namespace) -> int:
-    output_path = (Path.cwd() / args.project_name).resolve()
     ui_config = resolve_ui_config()
     if ui_config.warning is not None:
         print(f"Warning: {ui_config.warning}", file=sys.stderr)
 
+    project_name = None
+    if args.project_name is not None:
+        try:
+            project_name = resolve_project_name(args.project_name)
+        except ValueError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+
+    if project_name is None and args.no_interactive:
+        print(
+            "Error: project name is required when using --no-interactive.",
+            file=sys.stderr,
+        )
+        return 1
+
     selected_targets: list[str]
     selected_auth = args.auth
     try:
-        if args.target:
-            selected_targets = list(args.target)
-        elif args.no_interactive:
-            selected_targets = ["foundation"]
-        elif ui_config.use_rich:
+        if project_name is None and not args.no_interactive and ui_config.use_rich:
             wizard_result = run_interactive_wizard(
-                project_name=args.project_name,
-                output_path=output_path,
+                project_name=None,
+                output_root=Path.cwd().resolve(),
             )
             if wizard_result is None:
-                print(f"Error: {INTERACTIVE_WIZARD_CANCELLED}", file=sys.stderr)
+                print(INTERACTIVE_WIZARD_CANCELLED, file=sys.stderr)
                 return 1
+            project_name = wizard_result.project_name
             selected_targets = list(wizard_result.targets)
             selected_auth = wizard_result.auth
         else:
-            selected_targets = prompt_targets(ui_config=ui_config)
+            if project_name is None:
+                project_name = prompt_project_name(ui_config=ui_config)
 
-        has_web_backend = "web" in selected_targets and "backend" in selected_targets
-        if has_web_backend and selected_auth is None and not args.no_interactive:
+            output_path = (Path.cwd() / project_name).resolve()
+            if args.target:
+                selected_targets = list(args.target)
+            elif args.no_interactive:
+                selected_targets = ["foundation"]
+            elif ui_config.use_rich:
+                wizard_result = run_interactive_wizard(
+                    project_name=project_name,
+                    output_root=Path.cwd().resolve(),
+                )
+                if wizard_result is None:
+                    print(INTERACTIVE_WIZARD_CANCELLED, file=sys.stderr)
+                    return 1
+                project_name = wizard_result.project_name
+                selected_targets = list(wizard_result.targets)
+                selected_auth = wizard_result.auth
+            else:
+                selected_targets = prompt_targets(ui_config=ui_config)
+
+        output_path = (Path.cwd() / project_name).resolve()
+        has_backend = "backend" in selected_targets
+        if has_backend and selected_auth is None and not args.no_interactive:
             selected_auth = prompt_auth(ui_config=ui_config)
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)

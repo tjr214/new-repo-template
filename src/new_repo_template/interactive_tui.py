@@ -8,7 +8,7 @@ from rich.console import Group, RenderableType
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
-from textual import on
+from textual import events, on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -17,6 +17,7 @@ from textual.widgets import (
     ContentSwitcher,
     Footer,
     Header,
+    Input,
     RadioButton,
     RadioSet,
     SelectionList,
@@ -24,15 +25,17 @@ from textual.widgets import (
 )
 from textual.widgets.selection_list import Selection
 
+from new_repo_template.project_naming import normalize_project_name
 
-WIZARD_STEP_WELCOME = "welcome"
+
+WIZARD_STEP_PROJECT = "project"
 WIZARD_STEP_TARGETS = "targets"
 WIZARD_STEP_AUTH = "auth"
 WIZARD_STEP_REVIEW = "review"
 
-AUTH_CHOICES: tuple[str, str] = ("clerk", "better-auth")
+AUTH_CHOICES: tuple[str, str, str] = ("clerk", "better-auth", "none")
 ALL_WIZARD_STEPS: tuple[str, ...] = (
-    WIZARD_STEP_WELCOME,
+    WIZARD_STEP_PROJECT,
     WIZARD_STEP_TARGETS,
     WIZARD_STEP_AUTH,
     WIZARD_STEP_REVIEW,
@@ -55,7 +58,7 @@ TARGET_NOTES: dict[str, str] = {
     "foundation": "Baseline workspace only. This stays mutually exclusive with all app lanes.",
     "python": "Scaffolds the Python lane under apps/python with uv-based tooling.",
     "web": "Adds the TanStack Start web frontend lane.",
-    "backend": "Adds the Convex backend lane. Pair with web for fullstack auth selection.",
+    "backend": "Adds the Convex backend lane and requires an explicit auth choice, including no auth.",
     "desktop": "Adds the Electron desktop lane.",
     "mobile": "Adds the Expo mobile app lane.",
     "tv": "Adds the Expo Android TV lane with remote-first starter wiring.",
@@ -64,6 +67,7 @@ TARGET_NOTES: dict[str, str] = {
 AUTH_NOTES: dict[str, str] = {
     "clerk": "Hosted authentication stack with Clerk-oriented wiring placeholders.",
     "better-auth": "Self-hostable authentication path with Better Auth-oriented wiring placeholders.",
+    "none": "Skip auth wiring while still keeping the backend scaffold path explicit.",
 }
 
 TARGET_CHOICES: tuple[str, ...] = tuple(TARGET_DESCRIPTIONS)
@@ -78,11 +82,11 @@ class WizardStepDefinition:
 
 
 STEP_DEFINITIONS: dict[str, WizardStepDefinition] = {
-    WIZARD_STEP_WELCOME: WizardStepDefinition(
-        key=WIZARD_STEP_WELCOME,
-        label="Kickoff",
-        title="Confirm project context",
-        description="Start from the resolved project name and output path before choosing scaffold targets.",
+    WIZARD_STEP_PROJECT: WizardStepDefinition(
+        key=WIZARD_STEP_PROJECT,
+        label="Project",
+        title="Name the project",
+        description="Set the project name first. The wizard converts it to a kebab-case directory before generation.",
     ),
     WIZARD_STEP_TARGETS: WizardStepDefinition(
         key=WIZARD_STEP_TARGETS,
@@ -93,14 +97,14 @@ STEP_DEFINITIONS: dict[str, WizardStepDefinition] = {
     WIZARD_STEP_AUTH: WizardStepDefinition(
         key=WIZARD_STEP_AUTH,
         label="Auth",
-        title="Resolve auth only when required",
-        description="Choose the auth strategy only for the web plus backend fullstack path.",
+        title="Resolve backend auth",
+        description="Backend selections require an explicit auth choice, including the no-auth path.",
     ),
     WIZARD_STEP_REVIEW: WizardStepDefinition(
         key=WIZARD_STEP_REVIEW,
         label="Review",
         title="Review the resolved plan",
-        description="Confirm the exact scaffold inputs that will be handed back to the CLI for deterministic generation.",
+        description="Press Enter to return the final typed plan to the CLI and start scaffold generation.",
     ),
 }
 
@@ -128,14 +132,15 @@ def _normalize_targets(selected_targets: Iterable[str] | None) -> tuple[str, ...
 
 @dataclass(frozen=True)
 class InteractiveWizardResult:
+    project_name: str
     targets: tuple[str, ...]
     auth: str | None
 
 
 @dataclass(frozen=True)
 class WizardState:
-    project_name: str
-    output_path: Path
+    output_root: Path
+    project_name_input: str
     current_step: str
     selected_targets: tuple[str, ...]
     selected_auth: str | None
@@ -145,23 +150,22 @@ class WizardState:
     def create(
         cls,
         *,
-        project_name: str,
-        output_path: Path,
+        project_name: str | None,
+        output_root: Path,
         initial_targets: tuple[str, ...] | None,
         initial_auth: str | None,
     ) -> WizardState:
         selected_targets = _normalize_targets(initial_targets)
         selected_auth = (
             initial_auth
-            if initial_auth in AUTH_CHOICES
-            and "web" in selected_targets
-            and "backend" in selected_targets
+            if initial_auth in AUTH_CHOICES and "backend" in selected_targets
             else None
         )
+        initial_name = project_name or ""
         return cls(
-            project_name=project_name,
-            output_path=output_path,
-            current_step=WIZARD_STEP_WELCOME,
+            output_root=output_root,
+            project_name_input=initial_name,
+            current_step=WIZARD_STEP_PROJECT,
             selected_targets=selected_targets,
             selected_auth=selected_auth,
             highlighted_target=selected_targets[0],
@@ -169,14 +173,14 @@ class WizardState:
 
     @property
     def auth_required(self) -> bool:
-        return "web" in self.selected_targets and "backend" in self.selected_targets
+        return "backend" in self.selected_targets
 
     @property
     def step_order(self) -> tuple[str, ...]:
         if self.auth_required:
             return ALL_WIZARD_STEPS
         return (
-            WIZARD_STEP_WELCOME,
+            WIZARD_STEP_PROJECT,
             WIZARD_STEP_TARGETS,
             WIZARD_STEP_REVIEW,
         )
@@ -193,8 +197,40 @@ class WizardState:
         )
 
     @property
+    def normalized_project_name(self) -> str | None:
+        if self.project_name_input.strip() == "":
+            return None
+        try:
+            return normalize_project_name(self.project_name_input)
+        except ValueError:
+            return None
+
+    @property
+    def project_name(self) -> str:
+        return self.normalized_project_name or ""
+
+    @property
+    def output_path(self) -> Path | None:
+        if self.normalized_project_name is None:
+            return None
+        return self.output_root / self.normalized_project_name
+
+    @property
     def resolved_auth(self) -> str | None:
         return self.selected_auth if self.auth_required else None
+
+    @property
+    def project_name_note(self) -> str | None:
+        normalized = self.normalized_project_name
+        raw_name = self.project_name_input.strip()
+        if normalized is None or raw_name == "":
+            return None
+        if normalized == raw_name:
+            return None
+        return f"Directory will be created as {normalized}."
+
+    def with_project_name_input(self, project_name_input: str) -> WizardState:
+        return replace(self, project_name_input=project_name_input)
 
     def with_targets(self, selected_targets: Iterable[str]) -> WizardState:
         normalized_targets = _normalize_targets(selected_targets)
@@ -202,11 +238,7 @@ class WizardState:
         if highlighted_target not in normalized_targets:
             highlighted_target = normalized_targets[0]
 
-        selected_auth = (
-            self.selected_auth
-            if "web" in normalized_targets and "backend" in normalized_targets
-            else None
-        )
+        selected_auth = self.selected_auth if "backend" in normalized_targets else None
         return replace(
             self,
             selected_targets=normalized_targets,
@@ -228,6 +260,11 @@ class WizardState:
         return replace(self, selected_auth=resolved_auth)
 
     def next_step(self) -> WizardState:
+        if (
+            self.current_step == WIZARD_STEP_PROJECT
+            and self.normalized_project_name is None
+        ):
+            return self
         if self.current_step == WIZARD_STEP_TARGETS and not self.selected_targets:
             return self
         if self.current_step == WIZARD_STEP_AUTH and self.selected_auth is None:
@@ -247,7 +284,11 @@ class WizardState:
         return replace(self, current_step=step_order[current_index - 1])._clamp_step()
 
     def build_result(self) -> InteractiveWizardResult:
+        project_name = self.normalized_project_name
+        if project_name is None:
+            raise ValueError("Project name must be valid before confirm.")
         return InteractiveWizardResult(
+            project_name=project_name,
             targets=self.selected_targets,
             auth=self.resolved_auth,
         )
@@ -310,11 +351,21 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         height: 1fr;
     }
 
-    #welcome,
+    #project,
     #targets,
     #auth,
     #review {
         height: 1fr;
+    }
+
+    #project_name_input {
+        margin-top: 1;
+        margin-bottom: 1;
+    }
+
+    #project_name_note {
+        color: #c5d8de;
+        min-height: 2;
     }
 
     #targets_layout {
@@ -369,8 +420,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     }
 
     #summary_column {
-        width: 34;
-        min-width: 28;
+        width: 38;
+        min-width: 32;
     }
 
     #summary_panel {
@@ -399,7 +450,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     }
 
     Screen.compact #step_switcher,
-    Screen.compact #welcome,
+    Screen.compact #project,
     Screen.compact #targets,
     Screen.compact #auth,
     Screen.compact #review,
@@ -431,24 +482,24 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     SUB_TITLE = "Interactive project wizard"
 
     BINDINGS = [
-        Binding("ctrl+n", "next_step", "Next"),
-        Binding("ctrl+b", "prev_step", "Back"),
-        Binding("ctrl+r", "confirm_step", "Confirm"),
-        Binding("q", "cancel", "Cancel"),
+        Binding("enter", "next_step", "Next"),
+        Binding("escape", "back_or_exit", "Back"),
+        Binding("ctrl+q", "quit_app", "Quit"),
+        Binding("ctrl+c", "quit_app", show=False),
     ]
 
     def __init__(
         self,
         *,
-        project_name: str,
-        output_path: Path,
+        project_name: str | None,
+        output_root: Path,
         initial_targets: tuple[str, ...] | None = None,
         initial_auth: str | None = None,
     ) -> None:
         super().__init__()
         self.state = WizardState.create(
             project_name=project_name,
-            output_path=output_path,
+            output_root=output_root,
             initial_targets=initial_targets,
             initial_auth=initial_auth,
         )
@@ -461,16 +512,20 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         return self.state.current_step
 
     @property
+    def project_name(self) -> str:
+        return self.state.project_name
+
+    @property
+    def output_path(self) -> Path | None:
+        return self.state.output_path
+
+    @property
     def selected_targets(self) -> tuple[str, ...]:
         return self.state.selected_targets
 
     @property
     def selected_auth(self) -> str | None:
         return self.state.selected_auth
-
-    @property
-    def highlighted_target(self) -> str:
-        return self.state.highlighted_target
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=False)
@@ -482,8 +537,18 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             with Vertical(id="main_column"):
                 yield Static(id="hero_panel")
                 yield Static(id="step_copy")
-                with ContentSwitcher(initial=WIZARD_STEP_WELCOME, id="step_switcher"):
-                    yield Static(id=WIZARD_STEP_WELCOME)
+                with ContentSwitcher(initial=WIZARD_STEP_PROJECT, id="step_switcher"):
+                    with Vertical(id=WIZARD_STEP_PROJECT):
+                        yield Static(
+                            "Type a project name and press Enter. The wizard normalizes it into the directory name.",
+                            id="project_intro",
+                        )
+                        yield Input(
+                            value=self.state.project_name_input,
+                            placeholder="my-awesome-project",
+                            id="project_name_input",
+                        )
+                        yield Static(id="project_name_note")
                     with Vertical(id=WIZARD_STEP_TARGETS):
                         with Horizontal(id="targets_layout"):
                             yield SelectionList[str](
@@ -493,16 +558,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
                             yield Static(id="target_details")
                     with Vertical(id=WIZARD_STEP_AUTH):
                         with RadioSet(id="auth_options"):
-                            yield RadioButton(
-                                "Clerk",
-                                id="auth-clerk",
-                                value=self.state.selected_auth == "clerk",
-                            )
-                            yield RadioButton(
-                                "Better Auth",
-                                id="auth-better-auth",
-                                value=self.state.selected_auth == "better-auth",
-                            )
+                            yield RadioButton("Clerk", id="auth-clerk")
+                            yield RadioButton("Better Auth", id="auth-better-auth")
+                            yield RadioButton("No auth", id="auth-none")
                         yield Static(id="auth_notes")
                     yield Static(id=WIZARD_STEP_REVIEW)
                 yield Static(id="status_message")
@@ -510,7 +568,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
                     yield Button("Back", id="back_button")
                     yield Button("Next", id="next_button", variant="primary")
                     yield Button("Confirm", id="confirm_button", variant="success")
-                    yield Button("Cancel", id="cancel_button")
+                    yield Button("Quit", id="cancel_button")
 
             with Vertical(id="summary_column"):
                 yield Static(id="summary_panel")
@@ -526,6 +584,13 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             return
         self._refresh_responsive_mode()
         self._refresh_ui()
+
+    def on_key(self, event: events.Key) -> None:
+        if event.key != "enter" or self.state.current_step == WIZARD_STEP_PROJECT:
+            return
+        self.action_next_step()
+        event.stop()
+        event.prevent_default()
 
     def _build_target_selections(self) -> tuple[Selection[str], ...]:
         return tuple(
@@ -563,21 +628,26 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self._refresh_ui()
 
     def _render_hero_panel(self) -> Panel:
+        project_name = self.state.project_name or "Pending"
+        output_path = (
+            str(self.state.output_path) if self.state.output_path else "Pending"
+        )
+
         eyebrow = Text.assemble(
             ("nurt new", "bold #79e0d4"),
             "  ",
             (self.state.active_step.label.upper(), "bold #f5cf85"),
         )
         support_copy = Text(
-            "A typed Textual wizard that keeps scaffold decisions visible and hands a deterministic plan back to the CLI.",
+            "A typed Textual wizard that keeps project details and scaffold choices visible while you work.",
             style="#d7e7ec",
         )
 
         details_table = Table.grid(expand=True)
         details_table.add_column(style="bold #95dbe8", ratio=1)
         details_table.add_column(style="#edf6f7", ratio=3)
-        details_table.add_row("Project", self.state.project_name)
-        details_table.add_row("Output", str(self.state.output_path))
+        details_table.add_row("Project", project_name)
+        details_table.add_row("Output", output_path)
 
         return Panel(
             Group(eyebrow, Text(""), support_copy, Text(""), details_table),
@@ -644,9 +714,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     def _render_auth_notes(self) -> Panel:
         if self.state.selected_auth is None:
             body = Group(
-                Text("Select an auth provider to continue.", style="#edf6f7"),
+                Text("Select an auth strategy to continue.", style="#edf6f7"),
                 Text(
-                    "This step appears only when both web and backend are selected.",
+                    "Backend selections must choose Clerk, Better Auth, or No auth.",
                     style="#c5d8de",
                 ),
             )
@@ -658,23 +728,33 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         return Panel(body, title="Auth Notes", border_style="#2b6674")
 
     def _render_summary_panel(self) -> Panel:
+        project_name = self.state.project_name or "Pending"
+        output_path = (
+            str(self.state.output_path) if self.state.output_path else "Pending"
+        )
+
         grid = Table.grid(expand=True, padding=(0, 1))
         grid.add_column(style="bold #95dbe8", ratio=1)
         grid.add_column(style="#edf6f7", ratio=3)
         grid.add_row("Step", self.state.active_step.label)
-        grid.add_row("Project", self.state.project_name)
-        grid.add_row("Output", str(self.state.output_path))
+        grid.add_row("Project", project_name)
+        grid.add_row("Output", output_path)
         grid.add_row("Targets", ", ".join(self.state.selected_targets))
         grid.add_row(
             "Auth",
             self.state.resolved_auth
-            or ("Required" if self.state.auth_required else "Not needed"),
+            or ("Choose one" if self.state.auth_required else "Not needed"),
         )
 
         notes: list[RenderableType] = []
+        if self.state.project_name_note is not None:
+            notes.append(Text(self.state.project_name_note, style="#c5d8de"))
         if self.state.auth_required and self.state.selected_auth is None:
             notes.append(
-                Text("Auth is still required for web + backend.", style="bold yellow")
+                Text(
+                    "Backend needs an explicit auth choice before review.",
+                    style="bold yellow",
+                )
             )
         if self.state.selected_targets == ("foundation",):
             notes.append(
@@ -698,45 +778,24 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         plan_table = Table.grid(expand=True, padding=(0, 1))
         plan_table.add_column(style="bold #95dbe8", ratio=1)
         plan_table.add_column(style="#edf6f7", ratio=3)
+        plan_table.add_row("Project", self.state.project_name or "Pending")
+        plan_table.add_row(
+            "Output",
+            str(self.state.output_path) if self.state.output_path else "Pending",
+        )
         plan_table.add_row("Targets", ", ".join(self.state.selected_targets))
         plan_table.add_row("Auth", self.state.resolved_auth or "Not required")
-        plan_table.add_row("Output", str(self.state.output_path))
 
         return Panel(
             Group(
                 Text(
-                    "Confirm exits the wizard, returns this typed plan to the CLI, then starts scaffold generation and lockfile work.",
+                    "Press Enter to confirm, return the typed plan to the CLI, and start deterministic scaffold generation.",
                     style="#edf6f7",
                 ),
                 Text(""),
                 plan_table,
             ),
             title="Resolved Plan",
-            border_style="#3f9cae",
-        )
-
-    def _render_welcome_panel(self) -> Panel:
-        return Panel(
-            Group(
-                Text(
-                    "Move through target selection, optional auth, and a final review before any scaffold work begins.",
-                    style="#edf6f7",
-                ),
-                Text(""),
-                Text(
-                    "- direct target multi-select with keyboard or mouse",
-                    style="#c5d8de",
-                ),
-                Text(
-                    "- responsive layout that stacks cleanly for 80x24 terminals",
-                    style="#c5d8de",
-                ),
-                Text(
-                    "- persistent summary so review never feels disconnected",
-                    style="#c5d8de",
-                ),
-            ),
-            title="What this wizard optimizes",
             border_style="#3f9cae",
         )
 
@@ -748,23 +807,24 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         )
 
     def _status_text(self) -> str:
-        if self.state.current_step == WIZARD_STEP_WELCOME:
-            return "Press Ctrl+N or use Next to begin the guided setup."
-        if (
-            self.state.current_step == WIZARD_STEP_TARGETS
-            and not self.state.selected_targets
-        ):
-            return "Choose at least one target to continue."
-        if (
-            self.state.current_step == WIZARD_STEP_AUTH
-            and self.state.selected_auth is None
-        ):
-            return "Select an auth provider to continue."
-        if self.state.current_step == WIZARD_STEP_REVIEW:
-            return "Confirm to hand the resolved selections back to the scaffold flow."
-        return (
-            "Use arrows and Space to choose targets, or mouse controls if you prefer."
-        )
+        if self.state.current_step == WIZARD_STEP_PROJECT:
+            if self.state.normalized_project_name is None:
+                return "Enter a project name, then press Enter to continue."
+            return (
+                "Press Enter to lock in the normalized project directory and continue."
+            )
+        if self.state.current_step == WIZARD_STEP_TARGETS:
+            return (
+                "Use arrows and Space to choose targets. Press Enter for the next step."
+            )
+        if self.state.current_step == WIZARD_STEP_AUTH:
+            return "Choose an auth strategy for backend, then press Enter to continue."
+        return "Press Enter to confirm, Escape to go back, or Ctrl+Q / Ctrl+C to quit."
+
+    def _sync_project_input(self) -> None:
+        project_input = self.query_one("#project_name_input", Input)
+        if project_input.value != self.state.project_name_input:
+            project_input.value = self.state.project_name_input
 
     def _sync_auth_controls(self) -> None:
         radio_set = self.query_one("#auth_options", RadioSet)
@@ -799,8 +859,12 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self.query_one("#target_details", Static).update(self._render_target_details())
         self.query_one("#auth_notes", Static).update(self._render_auth_notes())
         self.query_one("#review", Static).update(self._render_review_panel())
-        self.query_one("#welcome", Static).update(self._render_welcome_panel())
+        self.query_one("#project_name_note", Static).update(
+            self.state.project_name_note
+            or "The directory updates as soon as the name is valid."
+        )
         self.query_one("#status_message", Static).update(self._status_text())
+        self._sync_project_input()
         self._sync_auth_controls()
         self._refresh_actions()
         self.call_after_refresh(self._focus_current_step)
@@ -810,11 +874,13 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         next_button = self.query_one("#next_button", Button)
         confirm_button = self.query_one("#confirm_button", Button)
 
-        back_button.disabled = self.state.current_step == WIZARD_STEP_WELCOME
+        back_button.disabled = False
         next_button.display = self.state.current_step != WIZARD_STEP_REVIEW
         confirm_button.display = self.state.current_step == WIZARD_STEP_REVIEW
 
-        if self.state.current_step == WIZARD_STEP_AUTH:
+        if self.state.current_step == WIZARD_STEP_PROJECT:
+            next_button.disabled = self.state.normalized_project_name is None
+        elif self.state.current_step == WIZARD_STEP_AUTH:
             next_button.disabled = self.state.selected_auth is None
         elif self.state.current_step == WIZARD_STEP_TARGETS:
             next_button.disabled = not self.state.selected_targets
@@ -822,8 +888,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             next_button.disabled = False
 
     def _focus_current_step(self) -> None:
-        if self.state.current_step == WIZARD_STEP_WELCOME:
-            self.query_one("#next_button", Button).focus()
+        if self.state.current_step == WIZARD_STEP_PROJECT:
+            self.query_one("#project_name_input", Input).focus()
             return
         if self.state.current_step == WIZARD_STEP_TARGETS:
             self.query_one("#targets_list", SelectionList).focus()
@@ -836,13 +902,22 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     def _sync_targets_from_widget(self, selection_list: SelectionList[str]) -> None:
         self._set_state(self.state.with_targets(selection_list.selected))
 
+    def _advance_from_project_input(self) -> None:
+        self._set_state(self.state.next_step())
+
     def action_next_step(self) -> None:
         if self.state.current_step == WIZARD_STEP_REVIEW:
+            self.action_confirm_step()
+            return
+        if self.state.current_step == WIZARD_STEP_PROJECT and isinstance(
+            self.focused, Input
+        ):
             return
         self._set_state(self.state.next_step())
 
-    def action_prev_step(self) -> None:
-        if self.state.current_step == WIZARD_STEP_WELCOME:
+    def action_back_or_exit(self) -> None:
+        if self.state.current_step == WIZARD_STEP_PROJECT:
+            self.action_quit_app()
             return
         self._set_state(self.state.previous_step())
 
@@ -852,13 +927,24 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self.final_result = self.state.build_result()
         self.exit(self.final_result)
 
-    def action_cancel(self) -> None:
+    def action_quit_app(self) -> None:
         self.final_result = None
         self.exit(None)
 
+    @on(Input.Changed, "#project_name_input")
+    def _handle_project_name_changed(self, event: Input.Changed) -> None:
+        self._set_state(self.state.with_project_name_input(event.value))
+
+    @on(Input.Submitted, "#project_name_input")
+    def _handle_project_name_submitted(self, event: Input.Submitted) -> None:
+        self._set_state(self.state.with_project_name_input(event.value))
+        if self.state.normalized_project_name is None:
+            return
+        self._advance_from_project_input()
+
     @on(Button.Pressed, "#back_button")
     def _handle_back_button(self) -> None:
-        self.action_prev_step()
+        self.action_back_or_exit()
 
     @on(Button.Pressed, "#next_button")
     def _handle_next_button(self) -> None:
@@ -870,7 +956,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
 
     @on(Button.Pressed, "#cancel_button")
     def _handle_cancel_button(self) -> None:
-        self.action_cancel()
+        self.action_quit_app()
 
     @on(SelectionList.SelectionHighlighted, "#targets_list")
     def _handle_target_highlighted(
@@ -920,20 +1006,22 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             self._set_state(self.state.with_selected_auth("clerk"))
         elif pressed_id == "auth-better-auth":
             self._set_state(self.state.with_selected_auth("better-auth"))
+        elif pressed_id == "auth-none":
+            self._set_state(self.state.with_selected_auth("none"))
         else:
             self._set_state(self.state.with_selected_auth(None))
 
 
 def run_interactive_wizard(
     *,
-    project_name: str,
-    output_path: Path,
+    project_name: str | None,
+    output_root: Path,
     initial_targets: tuple[str, ...] | None = None,
     initial_auth: str | None = None,
 ) -> InteractiveWizardResult | None:
     return NewProjectWizardApp(
         project_name=project_name,
-        output_path=output_path,
+        output_root=output_root,
         initial_targets=initial_targets,
         initial_auth=initial_auth,
     ).run()

@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 03:15:28 PM
-**Current Phase:** Interactive TUI overhaul complete for `nurt new`
+**Last Updated:** 2026-03-12 04:14:59 PM
+**Current Phase:** Interactive TUI follow-up refinements complete for `nurt new`
 
 ## Previous Cycle Archives
 
@@ -36,6 +36,12 @@
 - [x] Expanded interactive coverage for stale-auth clearing, rich-mode no-TTY fallback, and wide-vs-compact layout invariants in `tests/contracts/test_interactive_tui_contract.py` and `tests/contracts/test_nurt_cli_contract.py`.
 - [x] Evaluated `pytest-textual-snapshot` adoption during closeout but intentionally did not add it because the latest available release (`1.1.0`) requires `pytest<9`, which conflicts with the repository baseline `pytest>=9.0.2`.
 - [x] Revalidated the repository after the interactive-TUI closeout with `uv run pytest` (137 passed).
+- [x] Added a follow-up wizard slice so `nurt new` can omit the positional project name, prompt for it interactively, and normalize it into the final kebab-case output directory before scaffold handoff.
+- [x] Removed the superfluous welcome step and replaced it with a project-name entry step in `src/new_repo_template/interactive_tui.py`, while keeping the wizard summary/output path visible as the name resolves.
+- [x] Changed auth gating from `web+backend` to `backend` across CLI and scaffold validation, and added an explicit `none` auth path for both interactive and non-interactive flows.
+- [x] Updated keyboard behavior so Enter advances/confirms, Escape goes back or exits from the first step, Ctrl+Q and Ctrl+C quit, and the friendly cancel copy now reads `Interactive wizzard cancelled. Maybe next time!`.
+- [x] Widened the scaffold summary pane slightly and expanded contract coverage for omitted project-name flow, backend-only auth, Enter/Escape/Ctrl+Q behavior, and the updated cancel message.
+- [x] Revalidated the repository after the follow-up slice with `uv run pytest` (143 passed).
 
 ## Next Up
 
