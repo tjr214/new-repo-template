@@ -49,6 +49,16 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "package.json" in combined_output
     assert "turbo.json" in combined_output
+    assert "btca.config.jsonc" in combined_output
+    assert "AGENTS.md" in combined_output
+    assert "PROGRESS.md" in combined_output
+    assert "scripts/RALPH.sh" in combined_output
+    assert "docs/archive/" in combined_output
+    assert "docs/session-summaries/" in combined_output
+    assert "docs/tasks/task-template.yaml" in combined_output
+    assert "docs/workflows/export-to-ralph/workflow.md" in combined_output
+    assert ".agent/rules/general-rules.md" in combined_output
+    assert ".opencode/command/project-export-bmad-to-ralph.md" in combined_output
 
 
 def test_foundation_scaffold_writes_workspace_config_and_cross_platform_scripts(
@@ -109,3 +119,98 @@ def test_foundation_scaffold_writes_workspace_config_and_cross_platform_scripts(
     dev_task = tasks["dev"]
     assert dev_task.get("cache") is False
     assert dev_task.get("persistent") is True
+
+
+def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) -> None:
+    """RED: foundation scaffold should include the governance asset baseline."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "foundation-governance-output"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected foundation scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    mirrored_files = (
+        (repo_root / "btca.config.jsonc", output_dir / "btca.config.jsonc"),
+        (repo_root / "AGENTS.md", output_dir / "AGENTS.md"),
+        (repo_root / "PROGRESS.template.md", output_dir / "PROGRESS.md"),
+        (repo_root / "scripts" / "RALPH.sh", output_dir / "scripts" / "RALPH.sh"),
+        (
+            repo_root / "docs" / "tasks" / "task-template.yaml",
+            output_dir / "docs" / "tasks" / "task-template.yaml",
+        ),
+        (
+            repo_root / "docs" / "tasks" / "task-template-example.yaml",
+            output_dir / "docs" / "tasks" / "task-template-example.yaml",
+        ),
+        (
+            repo_root / "docs" / "workflows" / "export-to-ralph" / "workflow.md",
+            output_dir / "docs" / "workflows" / "export-to-ralph" / "workflow.md",
+        ),
+        (
+            repo_root / ".agent" / "rules" / "general-rules.md",
+            output_dir / ".agent" / "rules" / "general-rules.md",
+        ),
+        (
+            repo_root
+            / ".agent"
+            / "workflows"
+            / "project"
+            / "project-export-bmad-to-ralph.md",
+            output_dir
+            / ".agent"
+            / "workflows"
+            / "project"
+            / "project-export-bmad-to-ralph.md",
+        ),
+        (
+            repo_root
+            / ".opencode"
+            / "command"
+            / "project-save-progress-to-checkpoint.md",
+            output_dir
+            / ".opencode"
+            / "command"
+            / "project-save-progress-to-checkpoint.md",
+        ),
+    )
+
+    for source_path, destination_path in mirrored_files:
+        assert destination_path.exists(), (
+            f"Expected mirrored file at {destination_path}"
+        )
+        assert destination_path.read_text(encoding="utf-8") == source_path.read_text(
+            encoding="utf-8"
+        )
+
+    workflow_files = sorted((repo_root / "docs" / "workflows").rglob("*.md"))
+    for source_path in workflow_files:
+        relative = source_path.relative_to(repo_root)
+        assert (output_dir / relative).exists(), f"Expected workflow file at {relative}"
+
+    opencode_command_files = sorted((repo_root / ".opencode" / "command").glob("*.md"))
+    for source_path in opencode_command_files:
+        relative = source_path.relative_to(repo_root)
+        assert (output_dir / relative).exists(), (
+            f"Expected opencode command file at {relative}"
+        )
+
+    assert (output_dir / "docs" / "archive").is_dir()
+    assert (output_dir / "docs" / "session-summaries").is_dir()
+    assert not (output_dir / ".opencode" / "package.json").exists()
+    assert not (output_dir / ".opencode" / "bun.lock").exists()
+    assert not (output_dir / ".opencode" / "node_modules").exists()

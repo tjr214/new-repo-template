@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from new_repo_template.snapshot_assets_loader import (
+    load_source_manifest,
     load_snapshot_manifest,
     load_template_text,
 )
@@ -29,8 +30,20 @@ def test_snapshot_builder_writes_deterministic_metadata(tmp_path: Path) -> None:
 
     source_root = tmp_path / "source"
     source_root.mkdir(parents=True)
-    (source_root / ".gitignore").write_text(".env\n.env.*\n", encoding="utf-8")
-    (source_root / ".python-version").write_text("3.14.2\n", encoding="utf-8")
+    source_manifest = load_source_manifest()
+    entries = source_manifest.get("entries")
+    assert isinstance(entries, list)
+
+    for index, entry in enumerate(entries, start=1):
+        assert isinstance(entry, dict)
+        source_relative = entry.get("source")
+        assert isinstance(source_relative, str)
+        source_path = source_root / source_relative
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        source_path.write_text(
+            f"snapshot fixture {index}: {source_relative}\n",
+            encoding="utf-8",
+        )
 
     output_a = tmp_path / "snapshot-a"
     output_b = tmp_path / "snapshot-b"

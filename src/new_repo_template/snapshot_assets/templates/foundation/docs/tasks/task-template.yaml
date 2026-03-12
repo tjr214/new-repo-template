@@ -1,0 +1,221 @@
+# Task Implementation Plan - Skeleton Template
+# Copy this file and fill in your implementation details.
+# Uses YELLOW-RED-GREEN-BLUE TDD methodology:
+#   YELLOW: Search codebase and gather context
+#   RED: Write failing tests first
+#   GREEN: Implement code to pass tests
+#   BLUE: Refactor and clean up
+
+metadata:
+  version: "1.0.0"
+  created_date: "YYYY-MM-DD"  # Use ISO 8601 format
+  last_updated: "YYYY-MM-DD"
+  author: "Your Name or System"
+  license: null  # Set to SPDX identifier if LICENSE.md exists (e.g., "MIT", "Apache-2.0")
+
+task:
+  name: "Your Task Name Here"
+  description: |
+    Complete, comprehensive description of the task.
+    
+    Include:
+    - What is being built and why
+    - Architecture decisions and rationale
+    - References to PRD sections (e.g., "Per PRD section 3.2")
+    - Constraints and requirements
+    - Success criteria
+    - Performance targets
+    - Integration points
+    
+    This description provides the agent with full context to understand
+    the scope and make informed decisions during implementation.
+  status: "pending"  # Options: pending, active, blocked, done
+  # blocked_reason: "Required if status is 'blocked'. Explain why."
+  
+  phases:
+    - id: "phase-1"
+      name: "Phase Name (e.g., 'Design & Setup Phase')"
+      description: |
+        Complete description of what this phase accomplishes.
+        
+        Explain:
+        - The goal of this phase
+        - What components/artifacts will be created
+        - How this phase relates to overall architecture
+        - Any dependencies or prerequisites
+      status: "pending"
+      # blocked_reason: "Required if status is 'blocked'"
+      
+      steps:
+        - id: "step-1.1"
+          name: "Step Name (e.g., 'Create Data Models')"
+          description: "Brief description of what this step accomplishes"
+          status: "pending"
+          # blocked_reason: "Required if status is 'blocked'"
+          
+          instructions:
+            - id: "instr-1.1.1"
+              content: |
+                **Dense, detailed instruction content**
+                
+                **File:** `path/to/file.py`
+                
+                **YELLOW Phase (Gather Context):**
+                - Search codebase for relevant patterns
+                - Read related files to understand context
+                - Review PRD sections and existing implementations
+                
+                **RED Phase (Write Tests First):**
+                Create `tests/path/to/test_file.py`:
+                
+                ```python
+                import pytest
+                
+                def test_feature_works():
+                    # Test code here
+                    assert True
+                
+                def test_edge_case():
+                    # Test edge cases
+                    pass
+                ```
+                
+                Run: `pytest tests/path/to/test_file.py -v`
+                Expected: FAIL (code doesn't exist yet)
+                
+                **GREEN Phase (Implement to Pass Tests):**
+                Create `path/to/file.py`:
+                
+                ```python
+                def feature():
+                    """Implementation here."""
+                    pass
+                ```
+                
+                Install dependencies if needed:
+                `uv add library>=1.0.0`
+                
+                Run: `pytest tests/path/to/test_file.py -v`
+                Expected: PASS
+                
+                **BLUE Phase (Refactor and Clean Up):**
+                - Verify LSP shows no type errors
+                - Run linter: `ruff check path/to/file.py`
+                - Check test coverage: `pytest --cov=path.to.file tests/path/to/test_file.py`
+                - Ensure docstrings follow project style
+                
+                **Context References:**
+                - Follow pattern used in `existing/module.py`
+                - Align with PRD section X.Y requirements
+                - Use same error handling as `common/errors.py`
+                
+                **Completion Criteria:**
+                - All tests pass
+                - Code coverage >90% for this module
+                - No LSP/linting errors
+                - Meets performance target: <Xms latency
+              status: "pending"
+              # blocked_reason: "Required if status is 'blocked'"
+            
+            - id: "instr-1.1.2"
+              content: |
+                **Next instruction...**
+                
+                Follow same structure:
+                - YELLOW phase: Gather context
+                - RED phase: Write tests
+                - GREEN phase: Implement
+                - BLUE phase: Refactor
+                - Clear file paths
+                - Code snippets
+                - Context references
+                - Completion criteria
+              status: "pending"
+        
+        - id: "step-1.2"
+          name: "Another Step"
+          description: "What this step accomplishes"
+          status: "pending"
+          
+          instructions:
+            - id: "instr-1.2.1"
+              content: |
+                **Instruction content...**
+              status: "pending"
+    
+    - id: "phase-2"
+      name: "Second Phase"
+      description: |
+        Description of second phase...
+      status: "pending"
+      
+      # Example: Phase with sub-phases for complex work
+      sub_phases:
+        - id: "phase-2-sub-1"
+          name: "Sub-Phase Name"
+          description: |
+            Description of this sub-phase...
+          status: "pending"
+          
+          steps:
+            - id: "step-2-sub-1.1"
+              name: "Step in Sub-Phase"
+              description: "Step description"
+              status: "pending"
+              
+              instructions:
+                - id: "instr-2-sub-1.1.1"
+                  content: |
+                    **Instruction for sub-phase step...**
+                  status: "pending"
+    
+    - id: "phase-3"
+      name: "Testing & Validation Phase"
+      description: |
+        Comprehensive testing phase description...
+      status: "pending"
+      
+      steps:
+        - id: "step-3.1"
+          name: "Integration Tests"
+          description: "End-to-end testing"
+          status: "pending"
+          
+          instructions:
+            - id: "instr-3.1.1"
+              content: |
+                **Create integration test suite...**
+              status: "pending"
+    
+    - id: "phase-4"
+      name: "Documentation Phase"
+      description: |
+        Update living documentation and README...
+      status: "pending"
+      
+      steps:
+        - id: "step-4.1"
+          name: "Update Living Docs"
+          description: "Update docs/LIVING_DOCS.md"
+          status: "pending"
+          
+          instructions:
+            - id: "instr-4.1.1"
+              content: |
+                **Update `docs/LIVING_DOCS.md`**
+                
+                Add section documenting:
+                - What was built
+                - How to use it
+                - Architecture decisions
+                - Configuration options
+                
+                Also update:
+                - `docs/ARCHITECTURE.md` with diagrams
+                - `PROGRESS.md` tracker
+                
+                **Completion Criteria:**
+                - All docs updated and in sync
+                - No broken links
+                - Code examples tested
+              status: "pending"
