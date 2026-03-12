@@ -238,6 +238,17 @@ def _resolve_lockfile_targets(*, project_root: Path) -> list[LockfileTarget]:
             )
         )
 
+    python_lane_root = project_root / "apps" / "python"
+    if (python_lane_root / "pyproject.toml").exists():
+        targets.append(
+            LockfileTarget(
+                lockfile_path=python_lane_root / "uv.lock",
+                command=("uv", "lock"),
+                working_directory=python_lane_root,
+                display_path="apps/python/uv.lock",
+            )
+        )
+
     if (project_root / "package.json").exists():
         targets.append(
             LockfileTarget(

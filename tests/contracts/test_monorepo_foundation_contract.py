@@ -42,5 +42,5 @@ def test_foundation_scaffold_non_interactive_dry_run_contract(tmp_path: Path) ->
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "apps" in combined_output
     assert "packages" in combined_output
-    assert "pyproject.toml" in combined_output
+    assert ".gitignore" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"

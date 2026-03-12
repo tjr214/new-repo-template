@@ -114,7 +114,7 @@ def test_scaffolded_js_manifests_use_caret_ranges_and_workspace_protocol(
 def test_nurt_new_generates_root_lockfiles_for_foundation_output(
     tmp_path: Path,
 ) -> None:
-    """User-facing project generation should emit deterministic root lockfiles."""
+    """Foundation generation should emit only the root Bun lockfile."""
 
     if shutil.which("uv") is None or shutil.which("bun") is None:
         pytest.skip("uv and bun are required for lockfile generation contract")
@@ -131,12 +131,14 @@ def test_nurt_new_generates_root_lockfiles_for_foundation_output(
         f"stderr:\n{result.stderr}"
     )
 
-    assert (output_dir / "uv.lock").exists(), "nurt new should create a root uv.lock"
     assert (output_dir / "bun.lock").exists(), "nurt new should create a root bun.lock"
+    assert not (output_dir / "uv.lock").exists(), (
+        "foundation output must not create root uv.lock"
+    )
 
 
 def test_nurt_new_python_target_generates_workspace_uv_lockfile(tmp_path: Path) -> None:
-    """Python target generation should keep >= minimums and produce workspace uv.lock state."""
+    """Python target generation should keep Python metadata and uv.lock inside the lane."""
 
     if shutil.which("uv") is None or shutil.which("bun") is None:
         pytest.skip("uv and bun are required for lockfile generation contract")
@@ -155,11 +157,19 @@ def test_nurt_new_python_target_generates_workspace_uv_lockfile(tmp_path: Path) 
 
     lane_root = output_dir / "apps" / "python"
     lane_pyproject = lane_root / "pyproject.toml"
+    lane_python_version = lane_root / ".python-version"
     lane_content = lane_pyproject.read_text(encoding="utf-8")
 
-    assert (output_dir / "uv.lock").exists(), "root uv.lock should exist"
     assert (output_dir / "bun.lock").exists(), "root bun.lock should exist"
-    assert (output_dir / "uv.lock").exists(), "workspace uv.lock should exist"
+    assert not (output_dir / "pyproject.toml").exists(), (
+        "root pyproject.toml should not exist"
+    )
+    assert not (output_dir / ".python-version").exists(), (
+        "root .python-version should not exist"
+    )
+    assert not (output_dir / "uv.lock").exists(), "root uv.lock should not exist"
+    assert (lane_root / "uv.lock").exists(), "python lane uv.lock should exist"
+    assert lane_python_version.exists(), "python lane .python-version should exist"
     assert 'requires-python = ">=3.14"' in lane_content
     assert '"pytest>=' in lane_content
     assert '"ruff>=' in lane_content

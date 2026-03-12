@@ -7,7 +7,7 @@
     },
     {
       "source": ".python-version",
-      "destination": "templates/root_python_version.txt"
+      "destination": "templates/python_lane_python_version.txt"
     }
   ]
 }

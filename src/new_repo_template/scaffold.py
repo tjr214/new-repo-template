@@ -15,7 +15,6 @@ class ScaffoldPlan:
     targets: tuple[str, ...]
     output: Path
     paths: tuple[str, ...]
-    include_python_workspace: bool
     auth: str | None
 
 
@@ -32,9 +31,7 @@ TARGET_CHOICES: tuple[str, ...] = (
 FOUNDATION_PATHS: tuple[str, ...] = (
     "apps/",
     "packages/",
-    "pyproject.toml",
     ".gitignore",
-    ".python-version",
     "eslint.config.mjs",
     "package.json",
     "turbo.json",
@@ -171,10 +168,6 @@ BETTER_AUTH_WIRING_PATHS: tuple[str, ...] = (
     "apps/web/src/auth-client.ts",
 )
 
-ROOT_PYPROJECT_BASE = load_template_text("root_pyproject_base.toml")
-
-PYTHON_WORKSPACE_SECTION = load_template_text("python_workspace_section.toml")
-
 PYTHON_LANE_PYPROJECT = load_template_text("python_lane_pyproject.toml")
 
 PYTHON_LANE_README = load_template_text("python_lane_readme.md")
@@ -258,7 +251,9 @@ DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
 )
 SHARED_INDEX_TEMPLATE = load_template_text("shared/shared_index.ts")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
-ROOT_PYTHON_VERSION = load_template_text("root_python_version.txt").rstrip("\n")
+PYTHON_LANE_PYTHON_VERSION = load_template_text(
+    "python_lane_python_version.txt"
+).rstrip("\n")
 ROOT_ESLINT_CONFIG = load_template_text("root_eslint.config.mjs")
 ROOT_PACKAGE_JSON = load_template_text("root_package.json")
 ROOT_TURBO_JSON = load_template_text("root_turbo.json")
@@ -385,7 +380,6 @@ def resolve_plan(
         targets=targets,
         output=output,
         paths=resolve_paths(targets=targets, auth=auth),
-        include_python_workspace="python" in targets,
         auth=auth,
     )
 
@@ -402,20 +396,13 @@ def render_plan(plan: ScaffoldPlan) -> str:
     return "\n".join(lines)
 
 
-def write_root_pyproject(*, output_root: Path, include_python_workspace: bool) -> None:
-    root_content = ROOT_PYPROJECT_BASE
-    if include_python_workspace:
-        root_content += PYTHON_WORKSPACE_SECTION
-    (output_root / "pyproject.toml").write_text(root_content, encoding="utf-8")
-
-
 def write_root_gitignore(*, output_root: Path) -> None:
     (output_root / ".gitignore").write_text(ROOT_GITIGNORE, encoding="utf-8")
 
 
-def write_root_python_version(*, output_root: Path) -> None:
-    (output_root / ".python-version").write_text(
-        ROOT_PYTHON_VERSION,
+def write_python_lane_python_version(*, lane_root: Path) -> None:
+    (lane_root / ".python-version").write_text(
+        PYTHON_LANE_PYTHON_VERSION,
         encoding="utf-8",
     )
 
@@ -435,18 +422,11 @@ def write_root_turbo_json(*, output_root: Path) -> None:
     (output_root / "turbo.json").write_text(ROOT_TURBO_JSON, encoding="utf-8")
 
 
-def scaffold_foundation_core(
-    *, output_root: Path, include_python_workspace: bool
-) -> None:
+def scaffold_foundation_core(*, output_root: Path) -> None:
     output_root.mkdir(parents=True, exist_ok=False)
     (output_root / "apps").mkdir()
     (output_root / "packages").mkdir()
-    write_root_pyproject(
-        output_root=output_root,
-        include_python_workspace=include_python_workspace,
-    )
     write_root_gitignore(output_root=output_root)
-    write_root_python_version(output_root=output_root)
     write_root_eslint_config(output_root=output_root)
     write_root_package_json(output_root=output_root)
     write_root_turbo_json(output_root=output_root)
@@ -495,7 +475,7 @@ def scaffold_python_lane(*, output_root: Path) -> None:
     lane_root = output_root / "apps" / "python"
     (lane_root / "src" / "python_app").mkdir(parents=True)
     (lane_root / "tests").mkdir()
-    (lane_root / ".python-version").symlink_to(Path("../../.python-version"))
+    write_python_lane_python_version(lane_root=lane_root)
     (lane_root / "pyproject.toml").write_text(PYTHON_LANE_PYPROJECT, encoding="utf-8")
     (lane_root / "README.md").write_text(PYTHON_LANE_README, encoding="utf-8")
     (lane_root / "src" / "python_app" / "__init__.py").write_text(
@@ -749,10 +729,7 @@ def scaffold_web_backend_auth_wiring(
 
 
 def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
-    scaffold_foundation_core(
-        output_root=plan.output,
-        include_python_workspace=plan.include_python_workspace,
-    )
+    scaffold_foundation_core(output_root=plan.output)
     scaffold_shared_infra_packages(output_root=plan.output)
     scaffold_app_targets(output_root=plan.output, targets=plan.targets)
     scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
@@ -792,7 +769,6 @@ def execute_scaffold(plan: ScaffoldPlan) -> None:
         targets=plan.targets,
         output=stage_output,
         paths=plan.paths,
-        include_python_workspace=plan.include_python_workspace,
         auth=plan.auth,
     )
 
