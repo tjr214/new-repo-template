@@ -108,6 +108,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Interactive TUI architecture now splits cleanly between UI-mode resolution/plain prompt fallback in `src/new_repo_template/interactive_ui.py` and the real Textual wizard implementation in `src/new_repo_template/interactive_tui.py`.
 - Interactive wizard flow now begins with project-name entry instead of a welcome screen, uses Enter as the forward/confirm key, keeps `SelectionList` selection on Space, uses Escape for back-or-exit semantics, and exposes Ctrl+Q / Ctrl+C as explicit quit bindings.
 - Summary-pane rendering now treats the resolved output path as wrapped text instead of a single compressed line, preserving full destination visibility in the right-hand scaffold summary and review surfaces.
+- Project-name typing is now handled with targeted derived-widget refreshes instead of whole-wizard refresh/refocus cycles, preserving stable `Input` behavior during fast typing and noisy character sequences.
+- If `nurt new` is invoked with a project name already supplied, the Textual wizard skips the project-name step entirely and begins on target selection; back/escape behavior is based on the first real step in the active flow.
 - Visual snapshot adoption for the wizard was evaluated during closeout but deferred: the latest available `pytest-textual-snapshot` release (`1.1.0`) depends on `pytest<9`, which conflicts with the repository baseline `pytest>=9.0.2`, so layout confidence currently stays in semantic contract tests.
 - Project BTCA resources now also include `textual`, `rich-docs`, and `pytest-textual-snapshot` so YELLOW research for the interactive wizard can stay grounded in official framework/testing sources.
 - Desktop scaffold baseline is now concrete for `desktop` target: generated outputs include Electron entry files (`src/main.ts`, `src/preload.ts`, `src/renderer.ts`), `forge.config.ts`, `tsconfig.json`, `index.html`, and desktop README distribution notes.
@@ -192,7 +194,7 @@ Current contract coverage:
 - `tests/contracts/test_nurt_cli_contract.py`
   - Contract intent: `nurt` command routing, new-project dry-run parity, project-name prompting/normalization when omitted, startup update notice behavior, dry-run safety for `update`/`tools sync`/`template-assets sync`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
 - `tests/contracts/test_interactive_tui_contract.py`
-  - Contract intent: the real Textual wizard supports project-name entry/normalization, keyboard-driven target multi-select, `foundation` exclusivity, backend-driven explicit auth (including `none`), Escape/Ctrl+Q navigation semantics, wide-vs-compact layout invariants, and resolved-plan handoff on review confirmation.
+  - Contract intent: the real Textual wizard supports stable project-name entry/normalization, conditional skipping of the project-name step when pre-seeded by the CLI, keyboard-driven target multi-select, `foundation` exclusivity, backend-driven explicit auth (including `none`), Escape/Ctrl+Q navigation semantics, wide-vs-compact layout invariants, and resolved-plan handoff on review confirmation.
 - `tests/contracts/test_snapshot_assets_contract.py`
   - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation for the shared root `.gitignore` baseline and the Python-lane `.python-version` baseline.
 - `tests/contracts/test_version_baseline_contract.py`

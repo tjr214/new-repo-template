@@ -37,6 +37,67 @@ def test_textual_wizard_project_name_normalizes_and_advances_on_enter(
     asyncio.run(scenario())
 
 
+def test_textual_wizard_project_name_input_stays_focused_during_fast_typing(
+    tmp_path: Path,
+) -> None:
+    async def scenario() -> None:
+        app = NewProjectWizardApp(project_name=None, output_root=tmp_path)
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            project_input = app.query_one("#project_name_input", Input)
+
+            await pilot.press(
+                "M",
+                "y",
+                "space",
+                "space",
+                "C",
+                "o",
+                "o",
+                "l",
+                "underscore",
+                "underscore",
+                "A",
+                "p",
+                "p",
+                "minus",
+                "minus",
+                "2",
+                "0",
+                "2",
+                "6",
+            )
+            await pilot.pause()
+
+            assert app.current_step == "project"
+            assert app.focused is project_input
+            assert project_input.value == "My  Cool__App--2026"
+            assert app.project_name == "my-cool-app-2026"
+            assert app.output_path == tmp_path / "my-cool-app-2026"
+
+    asyncio.run(scenario())
+
+
+def test_textual_wizard_skips_project_step_when_name_given(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        app = NewProjectWizardApp(
+            project_name="demo-preseeded",
+            output_root=tmp_path,
+        )
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.pause()
+            assert app.current_step == "targets"
+            assert app.project_name == "demo-preseeded"
+
+            await pilot.press("escape")
+            await pilot.pause()
+
+        assert app.final_result is None
+
+    asyncio.run(scenario())
+
+
 def test_textual_wizard_foundation_selection_is_exclusive(tmp_path: Path) -> None:
     async def scenario() -> None:
         app = NewProjectWizardApp(
@@ -45,7 +106,6 @@ def test_textual_wizard_foundation_selection_is_exclusive(tmp_path: Path) -> Non
         )
 
         async with app.run_test(size=(120, 36)) as pilot:
-            await pilot.press("enter")
             await pilot.pause()
 
             selection_list = app.query_one("#targets_list", SelectionList)
@@ -70,7 +130,6 @@ def test_textual_wizard_backend_requires_auth_and_none_is_valid(tmp_path: Path) 
         )
 
         async with app.run_test(size=(120, 36)) as pilot:
-            await pilot.press("enter")
             await pilot.pause()
 
             await pilot.press("down", "down", "down", "space")
@@ -112,7 +171,6 @@ def test_textual_wizard_skips_auth_when_backend_not_selected(tmp_path: Path) -> 
         )
 
         async with app.run_test(size=(120, 36)) as pilot:
-            await pilot.press("enter")
             await pilot.pause()
 
             await pilot.press("down", "space")
@@ -145,7 +203,6 @@ def test_textual_wizard_clears_stale_auth_when_targets_change(tmp_path: Path) ->
         )
 
         async with app.run_test(size=(120, 36)) as pilot:
-            await pilot.press("enter")
             await pilot.pause()
 
             await pilot.press("down", "down", "down", "space")
@@ -187,14 +244,6 @@ def test_textual_wizard_escape_goes_back_and_exits_from_first_step(
         )
 
         async with app.run_test(size=(120, 36)) as pilot:
-            await pilot.press("enter")
-            await pilot.pause()
-            assert app.current_step == "targets"
-
-            await pilot.press("escape")
-            await pilot.pause()
-            assert app.current_step == "project"
-
             await pilot.press("escape")
             await pilot.pause()
 
@@ -227,7 +276,6 @@ def test_textual_wizard_uses_wide_layout_at_standard_size(tmp_path: Path) -> Non
         )
 
         async with app.run_test(size=(120, 36)) as pilot:
-            await pilot.press("enter")
             await pilot.pause()
 
             progress = app.query_one("#progress_column", Vertical)
@@ -252,7 +300,6 @@ def test_textual_wizard_uses_compact_layout_for_80x24(tmp_path: Path) -> None:
         )
 
         async with app.run_test(size=(80, 24)) as pilot:
-            await pilot.press("enter")
             await pilot.pause()
 
             progress = app.query_one("#progress_column", Vertical)

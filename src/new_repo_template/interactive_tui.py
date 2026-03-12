@@ -146,6 +146,7 @@ class InteractiveWizardResult:
 @dataclass(frozen=True)
 class WizardState:
     output_root: Path
+    include_project_step: bool
     project_name_input: str
     current_step: str
     selected_targets: tuple[str, ...]
@@ -168,10 +169,15 @@ class WizardState:
             else None
         )
         initial_name = project_name or ""
+        include_project_step = project_name is None
+        initial_step = (
+            WIZARD_STEP_PROJECT if include_project_step else WIZARD_STEP_TARGETS
+        )
         return cls(
             output_root=output_root,
+            include_project_step=include_project_step,
             project_name_input=initial_name,
-            current_step=WIZARD_STEP_PROJECT,
+            current_step=initial_step,
             selected_targets=selected_targets,
             selected_auth=selected_auth,
             highlighted_target=selected_targets[0],
@@ -183,13 +189,14 @@ class WizardState:
 
     @property
     def step_order(self) -> tuple[str, ...]:
+        step_order: list[str] = []
+        if self.include_project_step:
+            step_order.append(WIZARD_STEP_PROJECT)
+        step_order.append(WIZARD_STEP_TARGETS)
         if self.auth_required:
-            return ALL_WIZARD_STEPS
-        return (
-            WIZARD_STEP_PROJECT,
-            WIZARD_STEP_TARGETS,
-            WIZARD_STEP_REVIEW,
-        )
+            step_order.append(WIZARD_STEP_AUTH)
+        step_order.append(WIZARD_STEP_REVIEW)
+        return tuple(step_order)
 
     @property
     def active_step(self) -> WizardStepDefinition:
@@ -543,7 +550,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             with Vertical(id="main_column"):
                 yield Static(id="hero_panel")
                 yield Static(id="step_copy")
-                with ContentSwitcher(initial=WIZARD_STEP_PROJECT, id="step_switcher"):
+                with ContentSwitcher(
+                    initial=self.state.current_step, id="step_switcher"
+                ):
                     with Vertical(id=WIZARD_STEP_PROJECT):
                         yield Static(
                             "Type a project name and press Enter. The wizard normalizes it into the directory name.",
@@ -662,18 +671,17 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         )
 
     def _render_progress_rail(self) -> Panel:
-        current_position = ALL_WIZARD_STEPS.index(self.state.current_step)
+        step_order = self.state.step_order
+        current_position = step_order.index(self.state.current_step)
         lines: list[Text] = []
 
         if self._is_compact_layout():
             compact_flow = Text()
-            for index, step in enumerate(ALL_WIZARD_STEPS):
+            for index, step in enumerate(step_order):
                 if index:
                     compact_flow.append("  /  ", style="#315c67")
                 label = STEP_DEFINITIONS[step].label
-                if step == WIZARD_STEP_AUTH and not self.state.auth_required:
-                    compact_flow.append(f"{index + 1}. {label} skip", style="dim")
-                elif index < current_position:
+                if index < current_position:
                     compact_flow.append(f"{index + 1}. {label}", style="bold #79e0d4")
                 elif index == current_position:
                     compact_flow.append(f"{index + 1}. {label}", style="bold #f5cf85")
@@ -681,13 +689,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
                     compact_flow.append(f"{index + 1}. {label}", style="#7c9aa7")
             return Panel(compact_flow, title="Flow", border_style="#2b6674")
 
-        for index, step in enumerate(ALL_WIZARD_STEPS):
+        for index, step in enumerate(step_order):
             label = STEP_DEFINITIONS[step].label
-            if step == WIZARD_STEP_AUTH and not self.state.auth_required:
-                marker = "·"
-                style = "dim"
-                label = f"{label} (skipped)"
-            elif index < current_position:
+            if index < current_position:
                 marker = "●"
                 style = "bold #79e0d4"
             elif index == current_position:
@@ -698,7 +702,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
                 style = "#7c9aa7"
 
             lines.append(Text.assemble((f"{marker} {label}", style)))
-            if index < len(ALL_WIZARD_STEPS) - 1:
+            if index < len(step_order) - 1:
                 lines.append(Text("│", style="#315c67"))
 
         return Panel(Group(*lines), title="Flow", border_style="#2b6674")
@@ -870,12 +874,23 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self._refresh_actions()
         self.call_after_refresh(self._focus_current_step)
 
+    def _refresh_project_name_state_ui(self) -> None:
+        self.query_one("#hero_panel", Static).update(self._render_hero_panel())
+        self.query_one("#summary_panel", Static).update(self._render_summary_panel())
+        self.query_one("#review", Static).update(self._render_review_panel())
+        self.query_one("#project_name_note", Static).update(
+            self.state.project_name_note
+            or "The directory updates as soon as the name is valid."
+        )
+        self.query_one("#status_message", Static).update(self._status_text())
+        self._refresh_actions()
+
     def _refresh_actions(self) -> None:
         back_button = self.query_one("#back_button", Button)
         next_button = self.query_one("#next_button", Button)
         confirm_button = self.query_one("#confirm_button", Button)
 
-        back_button.disabled = False
+        back_button.disabled = self.state.step_order.index(self.state.current_step) == 0
         next_button.display = self.state.current_step != WIZARD_STEP_REVIEW
         confirm_button.display = self.state.current_step == WIZARD_STEP_REVIEW
 
@@ -917,7 +932,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self._set_state(self.state.next_step())
 
     def action_back_or_exit(self) -> None:
-        if self.state.current_step == WIZARD_STEP_PROJECT:
+        if self.state.step_order.index(self.state.current_step) == 0:
             self.action_quit_app()
             return
         self._set_state(self.state.previous_step())
@@ -934,11 +949,18 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
 
     @on(Input.Changed, "#project_name_input")
     def _handle_project_name_changed(self, event: Input.Changed) -> None:
-        self._set_state(self.state.with_project_name_input(event.value))
+        new_state = self.state.with_project_name_input(event.value)
+        if new_state == self.state:
+            return
+        self.state = new_state
+        self._refresh_project_name_state_ui()
 
     @on(Input.Submitted, "#project_name_input")
     def _handle_project_name_submitted(self, event: Input.Submitted) -> None:
-        self._set_state(self.state.with_project_name_input(event.value))
+        new_state = self.state.with_project_name_input(event.value)
+        if new_state != self.state:
+            self.state = new_state
+            self._refresh_project_name_state_ui()
         if self.state.normalized_project_name is None:
             return
         self._advance_from_project_input()

@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 04:27:03 PM
-**Current Phase:** Interactive TUI follow-up refinements complete for `nurt new`
+**Last Updated:** 2026-03-12 04:45:09 PM
+**Current Phase:** Interactive TUI stability fixes complete for `nurt new`
 
 ## Previous Cycle Archives
 
@@ -43,6 +43,10 @@
 - [x] Widened the scaffold summary pane slightly and expanded contract coverage for omitted project-name flow, backend-only auth, Enter/Escape/Ctrl+Q behavior, and the updated cancel message.
 - [x] Revalidated the repository after the follow-up slice with `uv run pytest` (143 passed).
 - [x] Updated the scaffold summary output rendering so long output paths wrap across multiple lines instead of truncating in the right-hand summary pane, and revalidated the interactive contract coverage afterward.
+- [x] Fixed the project-name input stability issue in `src/new_repo_template/interactive_tui.py` by stopping full wizard refresh/refocus behavior on every `Input.Changed` event and replacing it with targeted live summary/output-path updates.
+- [x] Updated the Textual wizard flow so the project-name step exists only when the project name is missing; `nurt new <project-name>` now starts directly on target selection and Escape exits from that first real step.
+- [x] Expanded interactive contract coverage for rapid project-name typing stability and conditional skipping of the project-name step when the CLI already provided the name.
+- [x] Revalidated the repository after the stability fix with `uv run pytest` (146 passed).
 
 ## Next Up
 
