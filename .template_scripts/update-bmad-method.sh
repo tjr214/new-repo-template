@@ -30,11 +30,11 @@ NPM_VERSION=$(npm --version 2>/dev/null | tr -d '\n')
 printf "${BLUE}Using npm version: ${NC}${BOLD}%s${NC}\n" "$NPM_VERSION"
 printf "\n"
 
-printf "${YELLOW}Installing BMAD Method (alpha version)...${NC}\n"
+printf "${YELLOW}Installing BMAD Method...${NC}\n"
 printf "\n"
 
 # Install bmad-method
-npx bmad-method@alpha install
+npx bmad-method@latest install
 
 if [ $? -eq 0 ]; then
     printf "\n"
