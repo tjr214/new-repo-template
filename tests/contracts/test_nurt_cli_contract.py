@@ -135,6 +135,28 @@ def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
     assert "- auth: better-auth" in combined_output
 
 
+def test_nurt_new_interactive_rich_mode_falls_back_without_tty(tmp_path: Path) -> None:
+    """Explicit rich mode should fall back cleanly when no interactive TTY exists."""
+
+    output_dir = tmp_path / "demo-rich-no-tty"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="3,4\n1\n",
+        env={"NURT_UI_MODE": "rich"},
+    )
+
+    assert result.returncode == 0, (
+        "Expected explicit rich-mode fallback to succeed without a TTY.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "requires an interactive terminal" in combined_output
+    assert "nurt new interactive mode" in combined_output
+    assert "- auth: clerk" in combined_output
+
+
 def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) -> None:
     """Plain UI mode should avoid rich fallback warnings and still work."""
 

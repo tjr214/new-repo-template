@@ -54,7 +54,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Installer support remains available for legacy/maintainer operations, but user bootstrap is standardized on global `nurt` command flow.
 - Script-first UX has been superseded: primary execution is `uv tool install git+...` followed by `nurt new <project-name>` with bundled snapshot assets and explicit `nurt update` lifecycle.
 - `nurt` command bootstrap is implemented at `src/new_repo_template/nurt_cli.py` with command routing (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check hook.
-- `nurt new` now includes a real Textual wizard for interactive TTY target/auth resolution, with deterministic plain prompt fallback for non-interactive or enhanced-UI-unavailable sessions.
+- `nurt new` now includes a real Textual wizard for interactive TTY target/auth resolution, with deterministic plain prompt fallback for non-interactive or enhanced-UI-unavailable sessions, a typed `WizardState` coordinator for target/auth/step validation, and a compact responsive mode for narrow terminals and `80x24` layouts.
 - Snapshot assets are bundled under `src/new_repo_template/snapshot_assets/` and loaded at runtime via `importlib.resources`.
 - Fresh `nurt new` generation now performs deterministic post-scaffold lockfile creation according to ownership: root outputs include `bun.lock`, while Python-enabled outputs generate `apps/python/uv.lock` from the lane-local Python metadata.
 - The user-facing uv install workflow has been revalidated against current uv semantics via local git install smoke coverage: the correct command shape is `uv tool install git+...`, not the older `--from ... nurt` form.
@@ -106,6 +106,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - CI matrix execution model now uses non-Windows full-suite confidence lanes and a focused `windows-latest` critical-contract lane to keep native Windows validation intact while reducing runtime overhead.
 - Repository hardening automation now includes `.template_scripts/configure-repo-protections.sh`, which applies branch-protection baseline controls (PR + required checks + linear history + conversation resolution + no force-push/delete), auto-detects the repo when `--repo` is omitted, defaults the target branch to `main` when `--branch` is omitted, and enables repository-level Dependabot security updates.
 - Interactive TUI architecture now splits cleanly between UI-mode resolution/plain prompt fallback in `src/new_repo_template/interactive_ui.py` and the real Textual wizard implementation in `src/new_repo_template/interactive_tui.py`.
+- Visual snapshot adoption for the wizard was evaluated during closeout but deferred: the latest available `pytest-textual-snapshot` release (`1.1.0`) depends on `pytest<9`, which conflicts with the repository baseline `pytest>=9.0.2`, so layout confidence currently stays in semantic contract tests.
 - Project BTCA resources now also include `textual`, `rich-docs`, and `pytest-textual-snapshot` so YELLOW research for the interactive wizard can stay grounded in official framework/testing sources.
 - Desktop scaffold baseline is now concrete for `desktop` target: generated outputs include Electron entry files (`src/main.ts`, `src/preload.ts`, `src/renderer.ts`), `forge.config.ts`, `tsconfig.json`, `index.html`, and desktop README distribution notes.
 - Desktop workspace scripts now include local Forge commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:start:smoke`, `desktop:package:smoke`, `desktop:make:smoke`) wired through root task scripts for non-GUI determinism.
@@ -189,7 +190,7 @@ Current contract coverage:
 - `tests/contracts/test_nurt_cli_contract.py`
   - Contract intent: `nurt` command routing, new-project dry-run parity, startup update notice behavior, dry-run safety for `update`/`tools sync`/`template-assets sync`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
 - `tests/contracts/test_interactive_tui_contract.py`
-  - Contract intent: the real Textual wizard supports keyboard-driven target multi-select, enforces `foundation` exclusivity, conditionally requires auth for `web+backend`, and returns the resolved plan on review confirmation.
+  - Contract intent: the real Textual wizard supports keyboard-driven target multi-select, enforces `foundation` exclusivity, conditionally requires auth for `web+backend`, clears stale auth when target selections change, preserves wide-vs-compact layout invariants, and returns the resolved plan on review confirmation.
 - `tests/contracts/test_snapshot_assets_contract.py`
   - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation for the shared root `.gitignore` baseline and the Python-lane `.python-version` baseline.
 - `tests/contracts/test_version_baseline_contract.py`

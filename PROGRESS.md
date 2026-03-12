@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 02:54:57 PM
-**Current Phase:** In progress on the interactive TUI overhaul for `nurt new`
+**Last Updated:** 2026-03-12 03:15:28 PM
+**Current Phase:** Interactive TUI overhaul complete for `nurt new`
 
 ## Previous Cycle Archives
 
@@ -32,9 +32,11 @@
 - [x] Implemented the first Textual wizard slice in `src/new_repo_template/interactive_tui.py` with direct target multi-select, conditional auth, live summary, review/confirm, and CLI handoff wiring in `src/new_repo_template/nurt_cli.py`.
 - [x] Hardened UI-mode resolution so explicit rich mode falls back to plain prompts when the session is not running in an interactive terminal.
 - [x] Revalidated the repository after the interactive-TUI slice with `uv run pytest` (133 passed).
+- [x] Completed the BLUE hardening pass for `src/new_repo_template/interactive_tui.py` with a typed `WizardState`, centralized step transitions, refined review/context copy, and explicit responsive compact-mode layout behavior for narrow terminals and `80x24` sessions.
+- [x] Expanded interactive coverage for stale-auth clearing, rich-mode no-TTY fallback, and wide-vs-compact layout invariants in `tests/contracts/test_interactive_tui_contract.py` and `tests/contracts/test_nurt_cli_contract.py`.
+- [x] Evaluated `pytest-textual-snapshot` adoption during closeout but intentionally did not add it because the latest available release (`1.1.0`) requires `pytest<9`, which conflicts with the repository baseline `pytest>=9.0.2`.
+- [x] Revalidated the repository after the interactive-TUI closeout with `uv run pytest` (137 passed).
 
 ## Next Up
 
-- [ ] Finish the remaining BLUE slice for the interactive wizard, especially responsive polish and richer review/success ergonomics.
-- [ ] Decide whether to add `pytest-textual-snapshot` as a dev dependency and introduce a small snapshot suite after the layout stabilizes.
-- [ ] Extend the wizard coverage to richer layout regression checks and optional visual snapshots once the UI copy and spacing settle.
+- [ ] Optional follow-up: revisit `pytest-textual-snapshot` if an upstream release adds compatibility with the repository's `pytest>=9` baseline.

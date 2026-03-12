@@ -1,7 +1,7 @@
 # Interactive TUI Overhaul
 
-**Last Updated:** 2026-03-12 02:54:57 PM
-**Status:** In Progress
+**Last Updated:** 2026-03-12 03:15:28 PM
+**Status:** Complete
 **Previous Cycle Archive:** `docs/archive/plans/PLAN_2026-03-12_02-32-23_PM.md`
 
 ---
@@ -28,7 +28,7 @@ Replace the current prompt-style `nurt new` interaction with a real, professiona
 - [x] Add failing tests for keyboard-driven multi-select behavior and `foundation` exclusivity.
 - [x] Add failing tests for conditional auth-step visibility and stale-auth clearing when stepping backward.
 - [x] Add failing tests for review-step parity with the resolved scaffold plan.
-- [ ] Add failing tests for layout/fallback behaviors that must remain deterministic.
+- [x] Add failing tests for layout/fallback behaviors that must remain deterministic.
 
 ## GREEN
 
@@ -41,10 +41,10 @@ Replace the current prompt-style `nurt new` interaction with a real, professiona
 
 ## BLUE
 
-- [ ] Refine the visual system so the TUI feels deliberate and professional rather than decorative.
-- [ ] Harden responsive behavior for narrow terminals and 80x24 baseline layouts.
-- [ ] Consolidate validation and state transitions into a single typed wizard-state model.
-- [ ] Keep the handoff into scaffold generation minimal and deterministic.
+- [x] Refine the visual system so the TUI feels deliberate and professional rather than decorative.
+- [x] Harden responsive behavior for narrow terminals and 80x24 baseline layouts.
+- [x] Consolidate validation and state transitions into a single typed wizard-state model.
+- [x] Keep the handoff into scaffold generation minimal and deterministic.
 - [x] Re-run targeted tests, then the full suite once the slice is stable.
 
 ## Documentation Sync
@@ -75,13 +75,13 @@ Replace the current prompt-style `nurt new` interaction with a real, professiona
 - [x] Contract parity: interactive wizard resolves the same plan semantics as explicit CLI flags.
 - [x] Interaction: keyboard selection, step navigation, review, and confirmation.
 - [x] Validation: `foundation` exclusivity, conditional auth, and fallback behavior.
-- [ ] Layout: standard-width and constrained terminal sizes.
-- [ ] Optional visual regression coverage if `pytest-textual-snapshot` is adopted.
+- [x] Layout: standard-width and constrained terminal sizes.
+- [x] Optional visual regression decision recorded: do not adopt `pytest-textual-snapshot` yet because the latest available release requires `pytest<9`, which conflicts with the repo baseline `pytest>=9.0.2`.
 
 ## Delivery Slices
 
 - [x] Slice 0: BTCA/resource setup plus YELLOW research.
 - [x] Slice 1: Textual shell and target-selection flow.
 - [x] Slice 2: Conditional auth and review/confirm flow.
-- [ ] Slice 3: Responsive behavior, polish, and hardening.
-- [ ] Slice 4: Regression coverage, docs sync, and closeout.
+- [x] Slice 3: Responsive behavior, polish, and hardening.
+- [x] Slice 4: Regression coverage, docs sync, and closeout.
