@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-11 10:13:50 PM
-**Current Phase:** Completed foundation governance asset scaffold sync and Python lane uv compatibility follow-up
+**Last Updated:** 2026-03-11 10:37:16 PM
+**Current Phase:** Completed Turbo baseline refresh follow-up for PR guardrail recovery
 
 ## Previous Cycle Archives
 
@@ -21,7 +21,10 @@
 - [x] Added the foundation governance baseline to scaffold output: `btca.config.jsonc`, `AGENTS.md`, `PROGRESS.md`, `scripts/RALPH.sh`, `docs/{archive,session-summaries,tasks,workflows}`, `.agent`, and `.opencode/command`.
 - [x] Mirrored the new foundation governance assets into bundled snapshot templates and expanded scaffold/snapshot contracts to enforce their presence.
 - [x] Restored Python lane compatibility for legacy `uv sync --extra dev` flows while keeping the preferred `[dependency-groups].dev` baseline intact.
-- [x] Verified the full repository test suite with `uv run pytest`.
+- [x] Reproduced the PR-only `Version Baseline Guardrail` failure, ran the YELLOW phase with `btca ask -r bun -r turborepo`, and confirmed the expected fix path is a within-major Turbo refresh plus lockfile revalidation.
+- [x] Refreshed the managed Turbo baseline from `2.8.14` to `2.8.16` in the baseline metadata, generated root package template, and contract fixtures.
+- [x] Revalidated the version guardrail locally with `uv run nurt versions check --check-lockfiles --check-latest`.
+- [x] Verified the full repository test suite with `uv run pytest` (130 passed).
 
 ## Next Up
 
