@@ -32,8 +32,7 @@ The template implementation remains intact, and the previous execution cycle is 
 - Convex CI baseline: credentialless wiring checks only (no external secrets required)
 - Generator writes: failure-atomic (transactional write strategy or cleanup-on-failure)
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
-- Root `pyproject.toml` invariant: always present, even when Python target is not selected
-- Python lane metadata boundary: Python target scaffolds `apps/python/pyproject.toml`; root `pyproject.toml` remains monorepo/tooling-level
+- Python metadata isolation: generated `.python-version`, `pyproject.toml`, and `uv.lock` live only in `apps/python` when the Python target is selected
 - Global execution UX pivot: primary user flow is globally installed `nurt` (`uv tool install git+...` then `nurt new <project-name>`) with no `install.sh` fallback user path
 
 ## Known Constraints
@@ -45,7 +44,7 @@ The template implementation remains intact, and the previous execution cycle is 
 - Fullstack auth choice has no default and must be explicitly selected in non-interactive runs.
 - Mixed presets with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed variant).
 - Generator failures must not leave partially scaffolded repos behind.
-- Root `pyproject.toml` is required for template tooling flows (including RALPH loader compatibility).
+- Generated repo roots must stay free of Python-only metadata files; foundation and JS-only outputs do not scaffold `.python-version`, `pyproject.toml`, or `uv.lock`.
 
 ## Implementation Notes (M0-M1)
 
@@ -54,7 +53,7 @@ The template implementation remains intact, and the previous execution cycle is 
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.
 - Initial GREEN implementation added `src/new_repo_template/scaffold.py` and now satisfies the first dry-run foundation contract.
-- Python lane GREEN slice complete: `--target python` now scaffolds both root `pyproject.toml` and lane-local `apps/python/pyproject.toml`.
+- Python lane GREEN slice is now updated so Python metadata exists only inside `apps/python`, with lane-local `.python-version` and `pyproject.toml` output.
 - CLI validation + Python command contract slice complete: `--auth` now fails deterministically when invalid, non-interactive omission has explicit failure coverage, and Python lane scaffolds `apps/python/README.md` with baseline uv commands.
 - Failure-atomic scaffold slice complete: generator now stages output in a temp directory and atomically moves it into place; failure-path contract confirms no partial output remains.
 - Target matrix slice complete for current scaffold breadth: CLI now accepts `foundation/python/web/backend/desktop/mobile/tv`, enforces auth for `web+backend`, enforces foundation-standalone behavior, and verifies distinct `mobile` + `tv` app output contracts.
@@ -63,8 +62,7 @@ The template implementation remains intact, and the previous execution cycle is 
 - Security baseline slice complete: generated outputs now copy the root `.gitignore` baseline (with env/secret guards) and include target-local `.env.example` placeholders; baseline policy is documented in `docs/SECURITY_BASELINE.md`.
 - Installer/tooling script slice complete: `install.sh` and `.template_scripts/update-opencode.sh` support `--dry-run`, and updater flow includes turborepo (`turbo`) install/update handling for maintainer/legacy flows.
 - User-facing bootstrap path is now fully `nurt`-first (`uv tool install git+...` then `nurt new <project-name>`); script-first bootstrap is not the default user guidance.
-- `nurt new` now generates deterministic root lockfiles for fresh outputs (`uv.lock` + `bun.lock`), and Python-enabled outputs keep the Python lane on `>=3.14` minimums while relying on the workspace root `uv.lock` as the authoritative lock state.
-- The generated root `pyproject.toml` now includes minimal repo-level project metadata in addition to the build backend so `uv lock` succeeds while preserving the rule that app-local Python metadata stays in `apps/python/pyproject.toml`.
+- `nurt new` now generates deterministic lockfiles according to lane ownership: root outputs keep `bun.lock`, while Python-enabled outputs generate `apps/python/uv.lock` from the lane-local `apps/python/pyproject.toml`.
 - The documented git-install workflow has been validated against current uv behavior using `uv tool install git+...`; the older `--from ... nurt` syntax is no longer used in repository docs.
 - The local git-install smoke contract now pins a concrete repository revision (`git+file://...@<sha>`) instead of relying on git default-branch discovery, which keeps Linux/macOS CI compatible with Actions checkouts that do not expose `refs/remotes/origin/HEAD`.
 - Managed version-baseline policy is now current again for the tracked core toolchain: `turbo` was refreshed from `2.8.12` to `2.8.14`, and the latest-check guardrail confirmed the other managed tools (`bun`, `typescript`, `python`) were already current.
@@ -150,4 +148,4 @@ The template implementation remains intact, and the previous execution cycle is 
 - Generated TV starter UI now uses focus-first `Pressable` wiring (`hasTVPreferredFocus`, `onFocus`, `onPress`) instead of `useTVEventHandler`, which avoids the Expo Android TV runtime crash while still giving a manual remote-primary/fallback validation surface.
 - Generated root `.gitignore` baseline now explicitly ignores JS dependency directories (`node_modules/` and `**/node_modules/`) in addition to existing env/secret guards.
 - OpenCode updater behavior is now split correctly in `.template_scripts/update-opencode.sh`: existing installs use `opencode upgrade`, missing installs still bootstrap via the installer curl script, and contract coverage now asserts both the branch behavior and dry-run messaging in `tests/contracts/test_installer_scripts_dry_run_contract.py`.
-- Generated repos now inherit the exact template-root `.gitignore` baseline from bundled snapshot assets instead of a reduced foundation-only subset; all scaffold outputs also receive the root `.python-version`, and Python-target outputs now create `apps/python/.python-version` as a symlink to `../../.python-version`.
+- Generated repos now inherit the exact template-root `.gitignore` baseline from bundled snapshot assets instead of a reduced foundation-only subset, and Python-target outputs now keep `.python-version`, `pyproject.toml`, and `uv.lock` entirely inside `apps/python`.

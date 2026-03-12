@@ -164,13 +164,13 @@ def test_mobile_and_tv_targets_create_distinct_apps(tmp_path: Path) -> None:
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    assert (output_dir / "pyproject.toml").exists()
+    assert not (output_dir / "pyproject.toml").exists()
     assert (output_dir / "apps" / "mobile").exists()
     assert (output_dir / "apps" / "tv").exists()
 
 
-def test_tv_only_scaffold_keeps_root_pyproject_invariant(tmp_path: Path) -> None:
-    """TV-only scaffold still requires root pyproject.toml."""
+def test_tv_only_scaffold_omits_root_pyproject(tmp_path: Path) -> None:
+    """TV-only scaffold should not create root Python metadata files."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "tv-only-output"
@@ -191,12 +191,13 @@ def test_tv_only_scaffold_keeps_root_pyproject_invariant(tmp_path: Path) -> None
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    assert (output_dir / "pyproject.toml").exists()
+    assert not (output_dir / "pyproject.toml").exists()
+    assert not (output_dir / ".python-version").exists()
     assert (output_dir / "apps" / "tv").exists()
 
 
-def test_web_only_scaffold_keeps_root_pyproject_invariant(tmp_path: Path) -> None:
-    """JS-only web scaffold still requires root pyproject.toml."""
+def test_web_only_scaffold_omits_root_pyproject(tmp_path: Path) -> None:
+    """JS-only web scaffold should not create root Python metadata files."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "web-only-output"
@@ -217,7 +218,8 @@ def test_web_only_scaffold_keeps_root_pyproject_invariant(tmp_path: Path) -> Non
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    assert (output_dir / "pyproject.toml").exists()
+    assert not (output_dir / "pyproject.toml").exists()
+    assert not (output_dir / ".python-version").exists()
     assert (output_dir / "apps" / "web").exists()
 
 

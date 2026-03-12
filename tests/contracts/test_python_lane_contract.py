@@ -54,8 +54,8 @@ def run_lane_command(
     )
 
 
-def test_python_target_dry_run_reports_root_and_lane_pyproject(tmp_path: Path) -> None:
-    """RED: Python target dry-run should report root and lane-local pyproject files."""
+def test_python_target_dry_run_reports_lane_python_files_only(tmp_path: Path) -> None:
+    """RED: Python target dry-run should report Python metadata only inside the lane."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "python-output-dry-run"
@@ -71,13 +71,15 @@ def test_python_target_dry_run_reports_root_and_lane_pyproject(tmp_path: Path) -
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "pyproject.toml" in combined_output
     assert "apps/python/pyproject.toml" in combined_output
+    assert "apps/python/.python-version" in combined_output
+    assert "  - pyproject.toml" not in combined_output
+    assert "  - .python-version" not in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"
 
 
-def test_python_target_scaffold_creates_root_and_lane_pyproject(tmp_path: Path) -> None:
-    """RED: Python target scaffold should create root + lane pyproject separation."""
+def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -> None:
+    """RED: Python target scaffold should keep Python metadata only in the lane."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "python-output"
@@ -92,27 +94,25 @@ def test_python_target_scaffold_creates_root_and_lane_pyproject(tmp_path: Path) 
         f"stderr:\n{result.stderr}"
     )
 
-    root_pyproject = output_dir / "pyproject.toml"
-    root_python_version = output_dir / ".python-version"
     lane_pyproject = output_dir / "apps" / "python" / "pyproject.toml"
     lane_python_version = output_dir / "apps" / "python" / ".python-version"
 
-    assert root_pyproject.exists(), "root pyproject.toml must always exist"
-    assert root_python_version.exists(), "root .python-version must always exist"
-    assert lane_pyproject.exists(), "python lane requires an app-local pyproject.toml"
-    assert lane_python_version.is_symlink(), (
-        "python lane .python-version must be a symlink"
+    assert not (output_dir / "pyproject.toml").exists(), (
+        "root pyproject.toml must not exist when Python metadata lives in the lane"
     )
-    assert lane_python_version.readlink() == Path("../../.python-version")
+    assert not (output_dir / ".python-version").exists(), (
+        "root .python-version must not exist when Python metadata lives in the lane"
+    )
+    assert lane_pyproject.exists(), "python lane requires an app-local pyproject.toml"
+    assert lane_python_version.exists(), "python lane .python-version must exist"
+    assert not lane_python_version.is_symlink(), (
+        "python lane .python-version must be a real file, not a symlink"
+    )
 
-    root_content = root_pyproject.read_text(encoding="utf-8")
-    root_python_version_content = root_python_version.read_text(encoding="utf-8")
     lane_content = lane_pyproject.read_text(encoding="utf-8")
+    lane_python_version_content = lane_python_version.read_text(encoding="utf-8")
 
-    assert "[build-system]" in root_content
-    assert "[tool.uv.workspace]" in root_content
-    assert "apps/python" in root_content
-    assert root_python_version_content == (repo_root / ".python-version").read_text(
+    assert lane_python_version_content == (repo_root / ".python-version").read_text(
         encoding="utf-8"
     )
     assert "[project]" in lane_content

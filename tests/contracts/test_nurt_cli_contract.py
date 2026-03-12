@@ -366,4 +366,4 @@ def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) ->
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
     assert "would copy: templates/root_gitignore.txt" in combined_output
-    assert "would copy: templates/root_python_version.txt" in combined_output
+    assert "would copy: templates/python_lane_python_version.txt" in combined_output

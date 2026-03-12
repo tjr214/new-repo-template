@@ -25,9 +25,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Scaffold contract: explicit preset-combination matrix and deterministic non-interactive CLI behavior
 - Generator write model: failure-atomic scaffolding (transactional writes or cleanup-on-failure)
 - TV input contract: remote-primary navigation with keyboard/mouse/gamepad support as secondary inputs
-- Root metadata invariant: `pyproject.toml` exists at repository root for all generated repos regardless of selected targets
-- Python lane metadata boundary: Python app metadata/deps live in lane-local `apps/python/pyproject.toml`, while root `pyproject.toml` remains monorepo/tooling-level
-- Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards and JS dependency directory ignores (`node_modules/`, `**/node_modules/`); every generated repo root also gets `.python-version`, Python-target outputs symlink `apps/python/.python-version` back to the repo root, and selected targets scaffold placeholder-only `.env.example`
+- Root workspace invariant: generated repo roots scaffold shared monorepo files only (`.gitignore`, `package.json`, `turbo.json`, `eslint.config.mjs`, workspace directories), not Python-only metadata
+- Python lane metadata boundary: Python app metadata, interpreter pinning, and Python lock state live only under `apps/python/` (`pyproject.toml`, `.python-version`, `uv.lock`) when the Python target is selected
+- Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards and JS dependency directory ignores (`node_modules/`, `**/node_modules/`); Python-only metadata is isolated to `apps/python`, and selected targets scaffold placeholder-only `.env.example`
 - Global UX direction: distribute and run as `nurt` global CLI installed via `uv tool install git+...`; user entrypoint is `nurt new <project-name>`
 
 ## Planned Topology
@@ -56,8 +56,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - `nurt` command bootstrap is implemented at `src/new_repo_template/nurt_cli.py` with command routing (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check hook.
 - `nurt new` now includes interactive prompt-based target/auth resolution path.
 - Snapshot assets are bundled under `src/new_repo_template/snapshot_assets/` and loaded at runtime via `importlib.resources`.
-- Fresh `nurt new` generation now performs deterministic post-scaffold lockfile creation for generated repos: root outputs include `uv.lock` and `bun.lock`, while Python-enabled outputs keep Python dependency metadata lane-local and rely on the workspace root `uv.lock` as the canonical Python lock state.
-- Generated root `pyproject.toml` outputs now include minimal repo-level `[project]` metadata in addition to the build backend so uv can lock the workspace without collapsing the Python-lane metadata boundary.
+- Fresh `nurt new` generation now performs deterministic post-scaffold lockfile creation according to ownership: root outputs include `bun.lock`, while Python-enabled outputs generate `apps/python/uv.lock` from the lane-local Python metadata.
 - The user-facing uv install workflow has been revalidated against current uv semantics via local git install smoke coverage: the correct command shape is `uv tool install git+...`, not the older `--from ... nurt` form.
 - The local git-install contract implementation now pins the current commit SHA when exercising `git+file://...` installs in CI, avoiding fragile dependence on checkout-provided default-branch refs like `origin/HEAD` while preserving end-to-end validation of the git-based `nurt` install path.
 - Managed core-tool versions continue to follow the latest-known-good baseline model rather than exact manifest pinning: after the most recent guardrail refresh, `turbo` now tracks `2.8.14`, while manifest specs remain caret-based and determinism continues to come from committed lockfiles plus the `Version Baseline Guardrail`.
@@ -71,7 +70,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Mobile scaffold architecture now includes explicit EAS iOS packaging baseline support via `apps/mobile/eas.json` and non-interactive iOS build scripts, so generated mobile repos start with a documented Expo/EAS packaging contract instead of requiring ad hoc setup.
 - Release architecture now includes a secret-gated `iOS Packaging Preview` path that validates template-generated mobile packaging wiring on `macos-latest`, plus a `Publish Template Release` path that can create or update a draft GitHub release containing the template distribution bundle.
 - Snapshot generation command path is implemented at `nurt template-assets snapshot` using manifest-driven source entries and metadata hashing.
-- Scaffolded root baseline sync is now explicit for shared repo files: bundled snapshot assets include both `root_gitignore.txt` and `root_python_version.txt`, generated repos receive both files at root, and Python-lane outputs create a real `apps/python/.python-version -> ../../.python-version` symlink.
+- Scaffolded baseline sync is now explicit for shared repo files and Python lane files: bundled snapshot assets include `root_gitignore.txt` for repo root and `python_lane_python_version.txt` for Python-lane interpreter pinning, while Python-lane outputs keep `.python-version` as a lane-local file.
 - Script-wrapper migration slice is complete for sync commands: `nurt tools sync` and `nurt template-assets sync` now call native Python operations in `src/new_repo_template/sync_ops.py`.
 - Contract coverage now includes non-dry-run sync failure messaging for native `nurt` sync commands (tools sync simulated failure output and template-assets sync validation failures).
 - Assistant-specific maintainer assets are intentionally excluded from the repository and sync surface: native template sync no longer copies them, and the legacy shell sync script no longer references them.
@@ -147,9 +146,9 @@ Baseline CI is credentialless for cloud-first Convex wiring checks; credential-d
 Current contract coverage:
 
 - `tests/contracts/test_monorepo_foundation_contract.py`
-  - Contract intent: non-interactive `--dry-run` foundation scaffold path succeeds, reports monorepo shape (`apps`, `packages`, `pyproject.toml`), and writes no files.
+  - Contract intent: non-interactive `--dry-run` foundation scaffold path succeeds, reports monorepo shape (`apps`, `packages`, `.gitignore`), and writes no files.
 - `tests/contracts/test_python_lane_contract.py`
-  - Contract intent: Python target dry-run/write flows preserve root/lane pyproject separation (`pyproject.toml` and `apps/python/pyproject.toml`), enforce the lane `.python-version` symlink to the repo root, and baseline lane commands execute (`uv sync --group dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
+  - Contract intent: Python target dry-run/write flows keep Python metadata exclusively inside `apps/python` (`pyproject.toml` and `.python-version`), keep root Python metadata absent, and baseline lane commands execute (`uv sync --group dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
 - `tests/contracts/test_cli_validation_and_python_commands_contract.py`
   - Contract intent: deterministic CLI validation failures (including missing `--no-interactive` across foundation/python/web+backend/mobile+tv modes, missing required args, and invalid choice handling) and Python lane baseline command documentation generation.
 - `tests/contracts/test_failure_atomicity_contract.py`
@@ -157,7 +156,7 @@ Current contract coverage:
 - `tests/contracts/test_target_matrix_and_auth_contract.py`
   - Contract intent: multi-target validation/auth rules, duplicate target rejection, unsupported mixed-combo auth validation, auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
 - `tests/contracts/test_required_preset_matrix_contract.py`
-  - Contract intent: full required preset matrix from `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` Section 2.1 scaffolds successfully with root `pyproject.toml` and `.python-version` invariants, expected target directories, python-lane pyproject/symlink inclusion when selected, and auth-variant wiring assertions.
+  - Contract intent: full required preset matrix from `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` Section 2.1 scaffolds successfully with root Python metadata absent, expected target directories, python-lane metadata inclusion when selected, and auth-variant wiring assertions.
 - `tests/contracts/test_root_workspace_contract.py`
   - Contract intent: root workspace config files (`package.json`, `turbo.json`) are present in dry-run/scaffold output and include baseline cross-platform script/task wiring for `dev`, `build`, `test`, `lint`, and `typecheck`.
 - `tests/contracts/test_bun_workspace_install_contract.py`
@@ -189,7 +188,7 @@ Current contract coverage:
 - `tests/contracts/test_nurt_cli_contract.py`
   - Contract intent: `nurt` command routing, new-project dry-run parity, startup update notice behavior, dry-run safety for `update`/`tools sync`/`template-assets sync`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
 - `tests/contracts/test_snapshot_assets_contract.py`
-  - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation for the shared root baseline files (`.gitignore` and `.python-version`).
+  - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation for the shared root `.gitignore` baseline and the Python-lane `.python-version` baseline.
 - `tests/contracts/test_version_baseline_contract.py`
   - Contract intent: codified version baseline metadata validation and maintainer update/check workflow behavior (including stale detection, lockfile regeneration/check guardrails, and dry-run non-destructive updates).
 - `tests/contracts/test_ci_versions_guardrail_contract.py`

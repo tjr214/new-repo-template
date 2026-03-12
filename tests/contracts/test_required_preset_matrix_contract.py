@@ -140,7 +140,7 @@ def test_required_preset_matrix_scaffold_contract(
     tmp_path: Path,
     case: PresetMatrixCase,
 ) -> None:
-    """Required preset combinations should scaffold successfully with root invariants."""
+    """Required preset combinations should scaffold successfully with Python files isolated to the lane."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / case.name
@@ -162,9 +162,13 @@ def test_required_preset_matrix_scaffold_contract(
         f"stderr:\n{result.stderr}"
     )
 
-    assert (output_dir / "pyproject.toml").exists(), "root pyproject.toml must exist"
     assert (output_dir / ".gitignore").exists(), "root .gitignore must exist"
-    assert (output_dir / ".python-version").exists(), "root .python-version must exist"
+    assert not (output_dir / "pyproject.toml").exists(), (
+        "root pyproject.toml must not exist"
+    )
+    assert not (output_dir / ".python-version").exists(), (
+        "root .python-version must not exist"
+    )
 
     for target in case.targets:
         app_dir = APP_DIRS_BY_TARGET.get(target)
@@ -176,12 +180,12 @@ def test_required_preset_matrix_scaffold_contract(
     python_lane_pyproject = output_dir / "apps" / "python" / "pyproject.toml"
     if "python" in case.targets:
         assert python_lane_pyproject.exists(), "python target requires lane pyproject"
-        assert (output_dir / "apps" / "python" / ".python-version").is_symlink(), (
-            "python target requires lane .python-version symlink"
+        assert (output_dir / "apps" / "python" / ".python-version").exists(), (
+            "python target requires lane .python-version"
         )
-        root_pyproject = (output_dir / "pyproject.toml").read_text(encoding="utf-8")
-        assert "[tool.uv.workspace]" in root_pyproject
-        assert "apps/python" in root_pyproject
+        assert not (output_dir / "apps" / "python" / ".python-version").is_symlink(), (
+            "python target keeps .python-version as a lane-local file"
+        )
 
     if case.auth is not None:
         backend_auth_config = (
