@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 06:18:18 PM
-**Current Phase:** Post-create automation + updater TUI slice complete
+**Last Updated:** 2026-03-12 06:39:59 PM
+**Current Phase:** Tools-sync TUI polish follow-up complete
 
 ## Previous Cycle Archives
 
@@ -62,6 +62,9 @@
 - [x] Added a dedicated BMAD runner in `src/new_repo_template/bmad_runner.py` plus a direct `nurt bmad sync` command for standalone BMAD install/update flows.
 - [x] Refactored the native core-tools updater into `src/new_repo_template/tool_sync_runner.py` and `src/new_repo_template/tool_sync_tui.py`, bringing `nurt tools sync` to native parity for `uv`, `bun`, `turbo`, `opencode`, `btca`, `gh`, and `ripgrep` with a persistent Textual status table and live scrolling log output in rich TTY sessions.
 - [x] Revalidated the slice with targeted contract coverage and the full repository test suite via `uv run pytest` (158 passed).
+- [x] Polished the `nurt tools sync` TUI so the table uses slightly wider Tool/Status columns and the Details column stretches to absorb the remaining width responsively.
+- [x] Replaced the plain-text log pane with ANSI-aware Rich rendering so streamed updater output now preserves full color/styling, avoids raw-escape corruption in the scrollable transcript, and stays closer to the original `.template_scripts/update-opencode.sh` presentation.
+- [x] Added follow-up contracts for RichLog usage, ANSI rendering preservation, and responsive table-width behavior, then revalidated with `uv run pytest` (160 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
 
 ## Next Up
 

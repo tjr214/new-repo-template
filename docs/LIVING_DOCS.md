@@ -96,6 +96,8 @@ The template implementation remains intact, and the latest execution plan is now
 - `nurt` now exposes a standalone `bmad sync` command for BMAD installation/update, while `nurt tools sync` remains the direct entrypoint for the native core-tools updater.
 - The native core-tools updater now has a dedicated Textual UI path in `src/new_repo_template/tool_sync_tui.py`, keeping a persistent status table onscreen while a scrolling log pane streams installer output in real time.
 - Core-tools sync parity now covers `uv`, `bun`, `turbo`, `opencode`, `btca`, `gh`, and `ripgrep` through the shared runner implementation in `src/new_repo_template/tool_sync_runner.py`.
+- The `nurt tools sync` TUI log pane now renders ANSI-colored subprocess output through `RichLog` + Rich `Text.from_ansi(...)`, which preserves script-style color formatting and avoids the raw-escape corruption that appeared in the earlier plain-text log widget.
+- The `nurt tools sync` status table now uses explicit Tool/Status widths with a resize-driven Details column that expands to consume the remaining table width.
 - Explicit rich mode now degrades safely when the session is not attached to an interactive terminal, preventing Textual launch attempts in captured/non-TTY environments while preserving the warning/fallback contract.
 - Dedicated Textual wizard contract coverage is now active in `tests/contracts/test_interactive_tui_contract.py`, covering keyboard multi-select, `foundation` exclusivity, conditional auth flow, and review confirmation result handoff.
 - Interactive wizard state is now centralized in a typed `WizardState` model that owns target normalization, auth requirement detection, step transitions, highlighted-target tracking, and final typed CLI handoff.
