@@ -148,8 +148,16 @@ def test_textual_wizard_backend_requires_auth_and_none_is_valid(tmp_path: Path) 
 
             await pilot.press("enter")
             await pilot.pause()
-            assert app.current_step == "review"
+            assert app.current_step == "tools"
             assert app.selected_auth == "none"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "bmad"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "review"
 
             await pilot.press("enter")
             await pilot.pause()
@@ -158,6 +166,8 @@ def test_textual_wizard_backend_requires_auth_and_none_is_valid(tmp_path: Path) 
             project_name="demo-backend-only",
             targets=("backend",),
             auth="none",
+            install_core_tools=False,
+            install_bmad=False,
         )
 
     asyncio.run(scenario())
@@ -180,8 +190,16 @@ def test_textual_wizard_skips_auth_when_backend_not_selected(tmp_path: Path) -> 
 
             await pilot.press("enter")
             await pilot.pause()
-            assert app.current_step == "review"
+            assert app.current_step == "tools"
             assert app.selected_auth is None
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "bmad"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "review"
 
             await pilot.press("enter")
             await pilot.pause()
@@ -190,6 +208,8 @@ def test_textual_wizard_skips_auth_when_backend_not_selected(tmp_path: Path) -> 
             project_name="demo-python",
             targets=("python",),
             auth=None,
+            install_core_tools=False,
+            install_bmad=False,
         )
 
     asyncio.run(scenario())
@@ -229,7 +249,63 @@ def test_textual_wizard_clears_stale_auth_when_targets_change(tmp_path: Path) ->
 
             await pilot.press("enter")
             await pilot.pause()
+            assert app.current_step == "tools"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "bmad"
+
+            await pilot.press("enter")
+            await pilot.pause()
             assert app.current_step == "review"
+
+    asyncio.run(scenario())
+
+
+def test_textual_wizard_can_enable_tools_and_bmad_options(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        app = NewProjectWizardApp(
+            project_name="demo-optional-installs",
+            output_root=tmp_path,
+        )
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.pause()
+
+            await pilot.press("down", "space")
+            await pilot.pause()
+            assert app.selected_targets == ("python",)
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "tools"
+
+            await pilot.click("#tools-yes")
+            await pilot.pause()
+            assert app.install_core_tools is True
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "bmad"
+
+            await pilot.click("#bmad-yes")
+            await pilot.pause()
+            assert app.install_bmad is True
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "review"
+
+            await pilot.press("enter")
+            await pilot.pause()
+
+        assert app.final_result == InteractiveWizardResult(
+            project_name="demo-optional-installs",
+            targets=("python",),
+            auth=None,
+            install_core_tools=True,
+            install_bmad=True,
+        )
 
     asyncio.run(scenario())
 
