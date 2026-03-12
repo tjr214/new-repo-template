@@ -345,6 +345,7 @@ def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) ->
     """template-assets snapshot dry-run should report snapshot planning details."""
 
     (tmp_path / ".gitignore").write_text(".env\n", encoding="utf-8")
+    (tmp_path / ".python-version").write_text("3.14.2", encoding="utf-8")
 
     result = run_nurt_command(
         cwd=tmp_path,
@@ -365,3 +366,4 @@ def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) ->
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
     assert "would copy: templates/root_gitignore.txt" in combined_output
+    assert "would copy: templates/root_python_version.txt" in combined_output

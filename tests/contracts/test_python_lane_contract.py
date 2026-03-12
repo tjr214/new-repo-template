@@ -93,17 +93,28 @@ def test_python_target_scaffold_creates_root_and_lane_pyproject(tmp_path: Path) 
     )
 
     root_pyproject = output_dir / "pyproject.toml"
+    root_python_version = output_dir / ".python-version"
     lane_pyproject = output_dir / "apps" / "python" / "pyproject.toml"
+    lane_python_version = output_dir / "apps" / "python" / ".python-version"
 
     assert root_pyproject.exists(), "root pyproject.toml must always exist"
+    assert root_python_version.exists(), "root .python-version must always exist"
     assert lane_pyproject.exists(), "python lane requires an app-local pyproject.toml"
+    assert lane_python_version.is_symlink(), (
+        "python lane .python-version must be a symlink"
+    )
+    assert lane_python_version.readlink() == Path("../../.python-version")
 
     root_content = root_pyproject.read_text(encoding="utf-8")
+    root_python_version_content = root_python_version.read_text(encoding="utf-8")
     lane_content = lane_pyproject.read_text(encoding="utf-8")
 
     assert "[build-system]" in root_content
     assert "[tool.uv.workspace]" in root_content
     assert "apps/python" in root_content
+    assert root_python_version_content == (repo_root / ".python-version").read_text(
+        encoding="utf-8"
+    )
     assert "[project]" in lane_content
     assert 'requires-python = ">=3.14"' in lane_content
 
