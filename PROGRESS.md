@@ -1,10 +1,12 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 05:08:14 PM
-**Current Phase:** README workflow split complete for `nurt`, BMAD, and RALPH guidance
+**Last Updated:** 2026-03-12 05:15:50 PM
+**Current Phase:** PLAN archive complete and next-cycle stub reset
 
 ## Previous Cycle Archives
 
+- `docs/archive/plans/PLAN_2026-03-12_05-15-50_PM.md`
+- `docs/archive/plans/PLAN_2026-03-12_02-32-23_PM.md`
 - `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`
 - `docs/archive/plans/PROGRESS_2026-03-08_07-49-04_PM.md`
 
@@ -50,6 +52,9 @@
 - [x] Added `.gitleaksignore` coverage for the branch-specific documentation false positive (`PROGRESS.md` fingerprint `1987fd9e30da377670eae257b23b5f1f778d85e2:PROGRESS.md:generic-api-key:43`) so the advisory secret-scan PR check reports cleanly without masking real findings.
 - [x] Split the mixed workflow guidance in `README.md` so `nurt` usage stays in the root README while BMAD and RALPH now have dedicated guides at `README.BMAD-GUIDE.md` and `README.RALPH.md`.
 - [x] Synced the documentation split across `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
+- [x] Archived the completed root `PLAN.md` to `docs/archive/plans/PLAN_2026-03-12_05-15-50_PM.md`.
+- [x] Reset root `PLAN.md` as a fresh next-cycle stub with YELLOW/RED/GREEN/BLUE and documentation-sync sections.
+- [x] Synced the plan reset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `docs/session-summaries/SESSION_84_SUMMARY.md`.
 
 ## Next Up
 
