@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
+from rich.console import Console
 from textual.containers import Vertical
 from textual.widgets import Input, RadioSet, SelectionList, Static
 
@@ -266,3 +267,21 @@ def test_textual_wizard_uses_compact_layout_for_80x24(tmp_path: Path) -> None:
             assert selection_list.region.x == target_details.region.x
 
     asyncio.run(scenario())
+
+
+def test_textual_wizard_summary_wraps_output_path_across_lines() -> None:
+    app = NewProjectWizardApp(
+        project_name="demo-summary-wrap",
+        output_root=Path(
+            "/Users/example/projects/very/long/path/for/testing/summary/output"
+        ),
+    )
+
+    console = Console(record=True, width=38)
+    console.print(app._render_summary_panel())
+    rendered = console.export_text()
+
+    assert "Output" in rendered
+    assert "Users/example/projects" in rendered
+    assert "ery/long/path/for/testing" in rendered
+    assert "summary/output/demo-summ" in rendered

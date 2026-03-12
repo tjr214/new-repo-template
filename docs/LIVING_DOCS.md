@@ -101,6 +101,7 @@ The template implementation remains intact, and the previous execution cycle is 
 - Backend now drives auth requirements across the interactive CLI and scaffold validation model; users must make an explicit backend auth choice (`clerk`, `better-auth`, or `none`), and `none` is now a supported first-class path.
 - Textual keyboard behavior now aligns with the revised UX contract: Enter advances or confirms, Space remains the `SelectionList` toggle key, Escape navigates back or exits from the first step, and Ctrl+Q / Ctrl+C quit the wizard.
 - The interactive cancel message is now intentionally friendly and non-error-prefixed: `Interactive wizzard cancelled. Maybe next time!`.
+- The right-hand scaffold summary now wraps long output paths across multiple lines so the full resolved destination remains visible even in narrower summary widths.
 - Mixed preset validation contracts now include additional unsupported auth/target mixed-combo checks.
 - Non-interactive scaffold validation coverage has been expanded across target modes: omitted `--no-interactive` is now contract-tested for foundation/python/web+backend/mobile+tv, and parser-level missing/invalid argument failures (`--target`, `--output`, invalid `--target`/`--auth`) are now explicitly covered.
 - Required preset matrix coverage from the archived implementation plan (`docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`, Section 2.1) is now implemented in `tests/contracts/test_required_preset_matrix_contract.py`, including all-target (python-inclusive) sanity passes for both auth variants.

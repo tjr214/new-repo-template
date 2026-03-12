@@ -73,6 +73,12 @@ AUTH_NOTES: dict[str, str] = {
 TARGET_CHOICES: tuple[str, ...] = tuple(TARGET_DESCRIPTIONS)
 
 
+def _format_output_path(output_path: Path | None) -> Text:
+    if output_path is None:
+        return Text("Pending", style="#edf6f7")
+    return Text(str(output_path), style="#edf6f7", no_wrap=False, overflow="fold")
+
+
 @dataclass(frozen=True)
 class WizardStepDefinition:
     key: str
@@ -729,9 +735,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
 
     def _render_summary_panel(self) -> Panel:
         project_name = self.state.project_name or "Pending"
-        output_path = (
-            str(self.state.output_path) if self.state.output_path else "Pending"
-        )
+        output_path = _format_output_path(self.state.output_path)
 
         grid = Table.grid(expand=True, padding=(0, 1))
         grid.add_column(style="bold #95dbe8", ratio=1)
@@ -779,10 +783,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         plan_table.add_column(style="bold #95dbe8", ratio=1)
         plan_table.add_column(style="#edf6f7", ratio=3)
         plan_table.add_row("Project", self.state.project_name or "Pending")
-        plan_table.add_row(
-            "Output",
-            str(self.state.output_path) if self.state.output_path else "Pending",
-        )
+        plan_table.add_row("Output", _format_output_path(self.state.output_path))
         plan_table.add_row("Targets", ", ".join(self.state.selected_targets))
         plan_table.add_row("Auth", self.state.resolved_auth or "Not required")
 

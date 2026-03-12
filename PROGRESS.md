@@ -1,6 +1,6 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 04:14:59 PM
+**Last Updated:** 2026-03-12 04:27:03 PM
 **Current Phase:** Interactive TUI follow-up refinements complete for `nurt new`
 
 ## Previous Cycle Archives
@@ -42,6 +42,7 @@
 - [x] Updated keyboard behavior so Enter advances/confirms, Escape goes back or exits from the first step, Ctrl+Q and Ctrl+C quit, and the friendly cancel copy now reads `Interactive wizzard cancelled. Maybe next time!`.
 - [x] Widened the scaffold summary pane slightly and expanded contract coverage for omitted project-name flow, backend-only auth, Enter/Escape/Ctrl+Q behavior, and the updated cancel message.
 - [x] Revalidated the repository after the follow-up slice with `uv run pytest` (143 passed).
+- [x] Updated the scaffold summary output rendering so long output paths wrap across multiple lines instead of truncating in the right-hand summary pane, and revalidated the interactive contract coverage afterward.
 
 ## Next Up
 
