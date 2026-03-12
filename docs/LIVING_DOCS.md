@@ -48,7 +48,7 @@ The template implementation remains intact, and the previous execution cycle is 
 
 ## Implementation Notes (M0-M1)
 
-- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`.
+- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`, `textual`, `rich-docs`, and `pytest-textual-snapshot`.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.
@@ -88,7 +88,10 @@ The template implementation remains intact, and the previous execution cycle is 
 - Version baseline workflow is now codified: `version-baseline.json` tracks managed toolchain versions and `nurt versions check/update` provides maintainer validation/update flows (including latest-version comparison and dry-run planning).
 - Version baseline workflow now includes lockfile governance: `nurt versions update` regenerates lockfiles by default and `nurt versions check --check-lockfiles` enforces required lockfile presence.
 - CI guardrail wiring is now active in `.github/workflows/ci.yml`, including required native OS test matrix and `nurt versions check --check-lockfiles --check-latest` enforcement.
-- Interactive UI layer is now Rich/Textual-aware: `nurt new` renders enhanced target/auth menus when Rich is available and falls back deterministically to plain prompts when unavailable.
+- Interactive UI layer now has a real Textual wizard path for interactive TTY sessions: `src/new_repo_template/interactive_tui.py` provides a multi-step shell with progress rail, direct target multi-select, conditional auth selection, live scaffold summary, and review/confirm handoff to `nurt` CLI execution.
+- `nurt new` now routes rich interactive target resolution through the Textual wizard in `src/new_repo_template/nurt_cli.py`, while plain prompt fallback remains deterministic for non-TTY sessions or when enhanced UI is unavailable.
+- Explicit rich mode now degrades safely when the session is not attached to an interactive terminal, preventing Textual launch attempts in captured/non-TTY environments while preserving the warning/fallback contract.
+- Dedicated Textual wizard contract coverage is now active in `tests/contracts/test_interactive_tui_contract.py`, covering keyboard multi-select, `foundation` exclusivity, conditional auth flow, and review confirmation result handoff.
 - Mixed preset validation contracts now include additional unsupported auth/target mixed-combo checks.
 - Non-interactive scaffold validation coverage has been expanded across target modes: omitted `--no-interactive` is now contract-tested for foundation/python/web+backend/mobile+tv, and parser-level missing/invalid argument failures (`--target`, `--output`, invalid `--target`/`--auth`) are now explicitly covered.
 - Required preset matrix coverage from the archived implementation plan (`docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`, Section 2.1) is now implemented in `tests/contracts/test_required_preset_matrix_contract.py`, including all-target (python-inclusive) sanity passes for both auth variants.

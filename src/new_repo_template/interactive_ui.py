@@ -53,14 +53,22 @@ def resolve_ui_config() -> InteractiveUIConfig:
         return InteractiveUIConfig(mode=mode, use_rich=False, warning=None)
 
     if mode == "rich":
-        if rich_available:
+        if not rich_available:
+            return InteractiveUIConfig(
+                mode=mode,
+                use_rich=False,
+                warning=(
+                    "Rich/Textual UI unavailable; falling back to plain prompts. "
+                    "Install `rich` and `textual` for enhanced interactive UI."
+                ),
+            )
+        if interactive_tty:
             return InteractiveUIConfig(mode=mode, use_rich=True, warning=None)
         return InteractiveUIConfig(
             mode=mode,
             use_rich=False,
             warning=(
-                "Rich/Textual UI unavailable; falling back to plain prompts. "
-                "Install `rich` and `textual` for enhanced interactive UI."
+                "Rich/Textual UI requires an interactive terminal; falling back to plain prompts."
             ),
         )
 

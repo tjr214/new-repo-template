@@ -71,4 +71,30 @@
 <branch>main</branch>
 </configured_resource>
 
+<configured_resource>
+<name>textual</name>
+<type>git</type>
+<url>https://github.com/Textualize/textual</url>
+<branch>main</branch>
+<search_path>docs</search_path>
+<special_notes>Official Textual framework docs and examples for widget, layout, and testing guidance.</special_notes>
+</configured_resource>
+
+<configured_resource>
+<name>rich-docs</name>
+<type>git</type>
+<url>https://github.com/Textualize/rich</url>
+<branch>master</branch>
+<search_path>docs</search_path>
+<special_notes>Official Rich docs for terminal rendering, console output, and fallback presentation patterns.</special_notes>
+</configured_resource>
+
+<configured_resource>
+<name>pytest-textual-snapshot</name>
+<type>git</type>
+<url>https://github.com/Textualize/pytest-textual-snapshot</url>
+<branch>main</branch>
+<special_notes>Snapshot-testing plugin for Textual visual regression coverage and review workflows.</special_notes>
+</configured_resource>
+
 </current_btca_resources>

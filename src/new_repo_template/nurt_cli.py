@@ -15,6 +15,7 @@ from new_repo_template.interactive_ui import (
     render_target_menu,
     resolve_ui_config,
 )
+from new_repo_template.interactive_tui import run_interactive_wizard
 from new_repo_template.snapshot_builder import build_snapshot_assets
 from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
 from new_repo_template.version_baseline import (
@@ -25,6 +26,8 @@ from new_repo_template.version_baseline import (
 
 
 AUTH_CHOICES: tuple[str, str] = ("clerk", "better-auth")
+
+INTERACTIVE_WIZARD_CANCELLED = "interactive wizard cancelled"
 
 INTERACTIVE_TARGETS_REMEDIATION = (
     "interactive input unavailable while selecting targets; rerun with "
@@ -229,6 +232,16 @@ def handle_new(args: argparse.Namespace) -> int:
             selected_targets = list(args.target)
         elif args.no_interactive:
             selected_targets = ["foundation"]
+        elif ui_config.use_rich:
+            wizard_result = run_interactive_wizard(
+                project_name=args.project_name,
+                output_path=output_path,
+            )
+            if wizard_result is None:
+                print(f"Error: {INTERACTIVE_WIZARD_CANCELLED}", file=sys.stderr)
+                return 1
+            selected_targets = list(wizard_result.targets)
+            selected_auth = wizard_result.auth
         else:
             selected_targets = prompt_targets(ui_config=ui_config)
 
