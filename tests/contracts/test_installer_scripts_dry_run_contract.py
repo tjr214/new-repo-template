@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -37,57 +36,6 @@ def _resolve_posix_shell() -> str:
     pytest.skip("POSIX shell executable not available for installer script contract")
 
 
-def test_update_opencode_script_supports_dry_run_and_lists_turbo_and_gh() -> None:
-    """RED: update-opencode dry-run should include turborepo and gh coverage."""
-
-    repo_root = Path(__file__).resolve().parents[2]
-    script_path = repo_root / ".template_scripts" / "update-opencode.sh"
-
-    shell = _resolve_posix_shell()
-    result = subprocess.run(
-        [shell, str(script_path), "--dry-run"],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-    assert result.returncode == 0, (
-        "Expected update-opencode dry-run to succeed.\n"
-        f"stdout:\n{result.stdout}\n"
-        f"stderr:\n{result.stderr}"
-    )
-    combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "DRY RUN" in combined_output
-    assert "DRY-RUN" in combined_output
-    assert "turbo" in combined_output
-    assert "gh" in combined_output
-    assert "opencode upgrade" in combined_output
-
-
-def test_update_opencode_script_uses_cli_upgrade_for_existing_installs() -> None:
-    """RED: installed OpenCode should upgrade in place; missing OpenCode should install."""
-
-    repo_root = Path(__file__).resolve().parents[2]
-    script_path = repo_root / ".template_scripts" / "update-opencode.sh"
-    script_text = script_path.read_text(encoding="utf-8")
-
-    opencode_block_match = re.search(
-        r"# Check if opencode is installed\nif command_exists opencode; then(?P<installed>.*?)^else(?P<missing>.*?)^fi",
-        script_text,
-        re.DOTALL | re.MULTILINE,
-    )
-
-    assert opencode_block_match is not None, (
-        "Expected an explicit opencode install/update branch."
-    )
-    assert "opencode upgrade" in opencode_block_match.group("installed")
-    assert (
-        "curl -fsSL https://opencode.ai/install | bash"
-        in opencode_block_match.group("missing")
-    )
-
-
 def test_legacy_template_update_script_excludes_removed_assistant_assets() -> None:
     """RED: legacy template sync script should not manage removed assistant assets."""
 
@@ -108,14 +56,6 @@ def test_install_script_dry_run_is_non_destructive(tmp_path: Path) -> None:
 
     (sandbox_root / ".template_scripts").mkdir()
     shutil.copy2(repo_root / "install.sh", sandbox_root / "install.sh")
-    shutil.copy2(
-        repo_root / ".template_scripts" / "update-opencode.sh",
-        sandbox_root / ".template_scripts" / "update-opencode.sh",
-    )
-    shutil.copy2(
-        repo_root / ".template_scripts" / "update-bmad-method.sh",
-        sandbox_root / ".template_scripts" / "update-bmad-method.sh",
-    )
     shutil.copytree(repo_root / "src", sandbox_root / "src")
 
     (sandbox_root / ".git").mkdir()
@@ -141,7 +81,8 @@ def test_install_script_dry_run_is_non_destructive(tmp_path: Path) -> None:
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
     assert "Scaffold dry-run succeeded" in combined_output
-    assert "sh .template_scripts/update-opencode.sh --dry-run" in combined_output
+    assert "nurt bmad sync --dry-run" in combined_output
+    assert "nurt tools sync --dry-run" in combined_output
     assert (sandbox_root / ".git").exists(), ".git should remain in dry-run mode"
     assert (sandbox_root / "install.sh").exists(), (
         "install.sh should not be deleted in dry-run"
@@ -157,14 +98,6 @@ def test_install_dry_run_accepts_target_and_auth_inputs(tmp_path: Path) -> None:
 
     (sandbox_root / ".template_scripts").mkdir()
     shutil.copy2(repo_root / "install.sh", sandbox_root / "install.sh")
-    shutil.copy2(
-        repo_root / ".template_scripts" / "update-opencode.sh",
-        sandbox_root / ".template_scripts" / "update-opencode.sh",
-    )
-    shutil.copy2(
-        repo_root / ".template_scripts" / "update-bmad-method.sh",
-        sandbox_root / ".template_scripts" / "update-bmad-method.sh",
-    )
     shutil.copytree(repo_root / "src", sandbox_root / "src")
     (sandbox_root / ".git").mkdir()
     (sandbox_root / ".git" / "HEAD").write_text(

@@ -18,6 +18,30 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+resolve_python_bin() {
+    if command_exists python3; then
+        printf "%s" "python3"
+        return 0
+    fi
+
+    if command_exists python; then
+        printf "%s" "python"
+        return 0
+    fi
+
+    return 1
+}
+
+run_nurt_command() {
+    PYTHON_BIN=$(resolve_python_bin)
+    if [ $? -ne 0 ] || [ -z "$PYTHON_BIN" ]; then
+        printf "${RED}${BOLD}Error: python is required for nurt command execution.${NC}\n"
+        return 1
+    fi
+
+    PYTHONPATH=src NURT_UI_MODE=plain "$PYTHON_BIN" -m new_repo_template.nurt_cli "$@"
+}
+
 is_valid_target() {
     case "$1" in
         foundation|python|web|backend|desktop|mobile|tv)
@@ -32,13 +56,8 @@ is_valid_target() {
 run_scaffold_command() {
     MODE="$1"
     OUTPUT_DIR="$2"
-    PYTHON_BIN=""
-
-    if command_exists python3; then
-        PYTHON_BIN="python3"
-    elif command_exists python; then
-        PYTHON_BIN="python"
-    else
+    PYTHON_BIN=$(resolve_python_bin)
+    if [ $? -ne 0 ] || [ -z "$PYTHON_BIN" ]; then
         printf "${RED}${BOLD}Error: python is required for scaffold generation.${NC}\n"
         return 1
     fi
@@ -163,23 +182,23 @@ if [ "$DRY_RUN" -eq 1 ]; then
     printf "\n${BLUE}Planned install actions:${NC}\n"
     printf "  - Backup install script to .template_scripts/install.sh\n"
     printf "  - Apply scaffold output in repository\n"
+    printf "  - Run native BMAD dry-run via nurt before git init\n"
     printf "  - Reinitialize git repository (.git removal + git init)\n"
     printf "  - Ensure docs/tasks/completed and tests directories exist\n"
-    printf "  - Run .template_scripts/update-opencode.sh --dry-run\n"
-    printf "  - (Skip update-bmad-method execution in dry-run)\n"
     printf "  - Create initial commit and remove install.sh\n\n"
 
-    if [ -f ".template_scripts/update-opencode.sh" ]; then
-        printf "${BLUE}Running updater dry-run:${NC} sh .template_scripts/update-opencode.sh --dry-run\n"
-        sh .template_scripts/update-opencode.sh --dry-run
+    if [ -d "src/new_repo_template" ]; then
+        printf "${BLUE}Running BMAD dry-run:${NC} nurt bmad sync --dry-run\n"
+        run_nurt_command bmad sync --dry-run
     else
-        printf "${YELLOW}Would skip:${NC} .template_scripts/update-opencode.sh not found\n"
+        printf "${YELLOW}Would skip:${NC} native nurt BMAD path unavailable\n"
     fi
 
-    if [ -f ".template_scripts/update-bmad-method.sh" ]; then
-        printf "${BLUE}Would run:${NC} sh .template_scripts/update-bmad-method.sh\n"
+    if [ -d "src/new_repo_template" ]; then
+        printf "${BLUE}Running tools dry-run:${NC} nurt tools sync --dry-run\n"
+        run_nurt_command tools sync --dry-run
     else
-        printf "${YELLOW}Would skip:${NC} .template_scripts/update-bmad-method.sh not found\n"
+        printf "${YELLOW}Would skip:${NC} native nurt tools path unavailable\n"
     fi
 
     printf "\n${GREEN}Dry run completed.${NC}\n"
@@ -215,32 +234,12 @@ printf "\n"
 printf "${GREEN}${BOLD}Directories created successfully!${NC}\n"
 printf "\n"
 
-# Update OpenCode and support tools
-printf "${CYAN}${BOLD}Step 1/2: Installing / Updating OpenCode and some support tools...${NC}\n"
-printf "${CYAN}------------------------------${NC}\n"
-if [ -f ".template_scripts/update-opencode.sh" ]; then
-    sh .template_scripts/update-opencode.sh
-    if [ $? -ne 0 ]; then
-        printf "${RED}${BOLD}Error: OpenCode update failed${NC}\n"
-        exit 1
-    fi
-else
-    printf "${YELLOW}Warning: update-opencode.sh not found, skipping...${NC}\n"
-fi
-
-printf "\n"
-
-# Update BMAD Method
-printf "${CYAN}${BOLD}Step 2/2: Installing BMAD Method...${NC}\n"
-printf "${CYAN}----------------------------------${NC}\n"
-if [ -f ".template_scripts/update-bmad-method.sh" ]; then
-    sh .template_scripts/update-bmad-method.sh
-    if [ $? -ne 0 ]; then
-        printf "${RED}${BOLD}Error: BMAD Method installation failed${NC}\n"
-        exit 1
-    fi
-else
-    printf "${YELLOW}Warning: update-bmad-method.sh not found, skipping...${NC}\n"
+# Install BMAD Method via native nurt command
+printf "${CYAN}${BOLD}Step 1/2: Installing BMAD Method via nurt...${NC}\n"
+printf "${CYAN}------------------------------------------${NC}\n"
+if ! run_nurt_command bmad sync; then
+    printf "${RED}${BOLD}Error: BMAD Method installation failed${NC}\n"
+    exit 1
 fi
 
 printf "\n"
@@ -254,6 +253,15 @@ printf "${BLUE}Creating initial commit...${NC}\n"
 git add .
 git commit -m "Initial Commit"
 printf "  ${GREEN}✓${NC} Initial commit created\n"
+printf "\n"
+
+# Install / update OpenCode and support tools via native nurt command
+printf "${CYAN}${BOLD}Step 2/2: Installing / Updating OpenCode and support tools via nurt...${NC}\n"
+printf "${CYAN}------------------------------------------------------------------${NC}\n"
+if ! run_nurt_command tools sync; then
+    printf "${RED}${BOLD}Error: OpenCode/tool update failed${NC}\n"
+    exit 1
+fi
 printf "\n"
 
 # Cleanup Install Script
