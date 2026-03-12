@@ -12,7 +12,7 @@ RALPH is the autonomous execution loop used after BMAD planning has been exporte
 
 If you have not exported a task yet, run:
 
-`@.opencode/command/project-export-bmad-to-ralph.md`
+`/project-export-bmad-to-ralph`
 
 Important: the export flow is epic/story-centered and uses those artifacts as the source of truth.
 

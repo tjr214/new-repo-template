@@ -29,7 +29,7 @@ Use this guide to choose the right BMAD lane and run the right planning commands
 
 Run:
 
-`@.opencode/command/bmad-bmm-quick-spec.md`
+`/bmad-bmm-quick-spec`
 
 Then describe the feature/change. The workflow will:
 
@@ -41,7 +41,7 @@ Then describe the feature/change. The workflow will:
 
 Run:
 
-`@.opencode/command/bmad-bmm-quick-dev.md`
+`/bmad-bmm-quick-dev`
 
 Then provide either:
 
@@ -60,49 +60,49 @@ Run these in order for comprehensive planning before export.
 
 ### 1) Brainstorm
 
-`@.opencode/command/bmad-core-brainstorming.md`
+`/bmad-core-brainstorming`
 
 ### 2) Create or update PRD
 
-`@.opencode/command/bmad-bmm-prd.md`
+`/bmad-bmm-prd`
 
 Tip: This PRD workflow supports create/validate/edit modes. Use it both for first drafts and updates.
 
 ### 3) Create or update architecture
 
-`@.opencode/command/bmad-bmm-create-architecture.md`
+`/bmad-bmm-create-architecture`
 
 Tip: Re-run this workflow to evolve architecture decisions as scope changes.
 
 ### 4) Generate epics and stories
 
-`@.opencode/command/bmad-bmm-create-epics-and-stories.md`
+`/bmad-bmm-create-epics-and-stories`
 
 ### 5) Generate sprint status tracking
 
-`@.opencode/command/bmad-bmm-sprint-planning.md`
+`/bmad-bmm-sprint-planning`
 
 Optional status check command:
 
-`@.opencode/command/bmad-bmm-sprint-status.md`
+`/bmad-bmm-sprint-status`
 
 ### 6) Export BMAD artifacts to RALPH task YAML
 
-`@.opencode/command/project-export-bmad-to-ralph.md`
+`/project-export-bmad-to-ralph`
 
 Important: the current export workflow is epic/story-centered and uses those artifacts as the source of truth.
 
 ## Command Cheat Sheet
 
-- Brainstorm: `@.opencode/command/bmad-core-brainstorming.md`
-- PRD (create/update): `@.opencode/command/bmad-bmm-prd.md`
-- Architecture (create/update): `@.opencode/command/bmad-bmm-create-architecture.md`
-- Epics + stories: `@.opencode/command/bmad-bmm-create-epics-and-stories.md`
-- Sprint generation: `@.opencode/command/bmad-bmm-sprint-planning.md`
-- Sprint status view: `@.opencode/command/bmad-bmm-sprint-status.md`
-- Export to RALPH: `@.opencode/command/project-export-bmad-to-ralph.md`
-- Quick spec: `@.opencode/command/bmad-bmm-quick-spec.md`
-- Quick dev: `@.opencode/command/bmad-bmm-quick-dev.md`
+- Brainstorm: `/bmad-core-brainstorming`
+- PRD (create/update): `/bmad-bmm-prd`
+- Architecture (create/update): `/bmad-bmm-create-architecture`
+- Epics + stories: `/bmad-bmm-create-epics-and-stories`
+- Sprint generation: `/bmad-bmm-sprint-planning`
+- Sprint status view: `/bmad-bmm-sprint-status`
+- Export to RALPH: `/project-export-bmad-to-ralph`
+- Quick spec: `/bmad-bmm-quick-spec`
+- Quick dev: `/bmad-bmm-quick-dev`
 
 ## Practical Rule of Thumb
 
