@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, and the previous execution cycle is now archived.
+The template implementation remains intact, and the latest execution plan is now archived.
 
-- Archived planning records live at `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` and `docs/archive/plans/PROGRESS_2026-03-08_07-49-04_PM.md`.
-- Root `PLAN.md` and `PROGRESS.md` are reset as next-cycle stubs for the upcoming endeavour.
+- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-12_05-15-50_PM.md`.
+- Root `PLAN.md` is reset as a fresh next-cycle stub, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.

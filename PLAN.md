@@ -1,43 +1,39 @@
-# Interactive TUI Stability Fixes + CI Follow-Up
+# Next Cycle Plan Stub
 
-**Last Updated:** 2026-03-12 04:45:09 PM
-**Status:** Complete
-**Previous Cycle Summary:** `docs/session-summaries/SESSION_80_SUMMARY.md`
+**Last Updated:** 2026-03-12 05:15:50 PM
+**Status:** Stub
+**Previous Cycle Archive:** `docs/archive/plans/PLAN_2026-03-12_05-15-50_PM.md`
+**Previous Cycle Summary:** `docs/session-summaries/SESSION_84_SUMMARY.md`
 
 ---
 
 ## Goal
 
-Fix the project-name input instability in the Textual wizard and ensure the project-name step appears only when the project name is not already provided on the command line.
+Capture and refine the next implementation slice before coding begins.
 
 ---
 
 ## YELLOW
 
-- [x] Reread `src/new_repo_template/interactive_tui.py`, `src/new_repo_template/nurt_cli.py`, and `tests/contracts/test_interactive_tui_contract.py` before editing.
-- [x] Reread `PROGRESS.md`, `docs/LIVING_DOCS.md`, and `docs/ARCHITECTURE.md` before editing.
-- [x] Run `btca status` and use `btca ask` for Textual guidance on stable `Input.Changed` handling and conditional first-step flow.
+- [ ] Read the repo files, tests, and documentation relevant to the next slice before editing.
+- [ ] Run `btca status` and use `btca ask` for any dependency or library guidance that affects the next slice.
+- [ ] Confirm scope, constraints, and validation targets for the next slice.
 
 ## RED
 
-- [x] Add failing tests for stable project-name typing under rapid spacing/special-character-like input.
-- [x] Add failing tests so the project-name step is skipped when a project name is already known.
+- [ ] Add or update failing tests/contracts for the next slice.
 
 ## GREEN
 
-- [x] Stop broad wizard refresh/refocus work on every project-name `Input.Changed` event.
-- [x] Keep derived summary/output-path updates live while leaving the active input widget stable.
-- [x] Skip the project-name step entirely when `nurt new <project-name>` already supplied a normalized project name.
+- [ ] Implement the smallest change set that satisfies the next slice.
 
 ## BLUE
 
-- [x] Tighten first-step/back-navigation semantics so Escape exits when the first real step is `targets`.
-- [x] Re-run targeted tests, then the full suite once the fix is stable.
-- [x] Fix the advisory Gitleaks PR false-positive by ignoring the specific documentation-only fingerprint reported in this branch range.
+- [ ] Refactor and harden the implementation, then rerun targeted and full validation as appropriate.
 
 ## Documentation Sync
 
-- [x] Update `PROGRESS.md`.
-- [x] Update `docs/LIVING_DOCS.md`.
-- [x] Update `docs/ARCHITECTURE.md`.
-- [x] Create a new session summary in `docs/session-summaries/` for this execution cycle.
+- [ ] Update `PROGRESS.md`.
+- [ ] Update `docs/LIVING_DOCS.md`.
+- [ ] Update `docs/ARCHITECTURE.md`.
+- [ ] Create a new session summary in `docs/session-summaries/`.
