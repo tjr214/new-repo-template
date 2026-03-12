@@ -1,4 +1,4 @@
-# Interactive TUI Stability Fixes
+# Interactive TUI Stability Fixes + CI Follow-Up
 
 **Last Updated:** 2026-03-12 04:45:09 PM
 **Status:** Complete
@@ -33,6 +33,7 @@ Fix the project-name input instability in the Textual wizard and ensure the proj
 
 - [x] Tighten first-step/back-navigation semantics so Escape exits when the first real step is `targets`.
 - [x] Re-run targeted tests, then the full suite once the fix is stable.
+- [x] Fix the advisory Gitleaks PR false-positive by ignoring the specific documentation-only fingerprint reported in this branch range.
 
 ## Documentation Sync
 

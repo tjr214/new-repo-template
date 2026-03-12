@@ -47,6 +47,7 @@
 - [x] Updated the Textual wizard flow so the project-name step exists only when the project name is missing; `nurt new <project-name>` now starts directly on target selection and Escape exits from that first real step.
 - [x] Expanded interactive contract coverage for rapid project-name typing stability and conditional skipping of the project-name step when the CLI already provided the name.
 - [x] Revalidated the repository after the stability fix with `uv run pytest` (146 passed).
+- [x] Added `.gitleaksignore` coverage for the branch-specific documentation false positive (`PROGRESS.md` fingerprint `1987fd9e30da377670eae257b23b5f1f778d85e2:PROGRESS.md:generic-api-key:43`) so the advisory secret-scan PR check reports cleanly without masking real findings.
 
 ## Next Up
 
