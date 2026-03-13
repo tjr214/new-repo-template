@@ -167,7 +167,7 @@ def test_textual_wizard_backend_requires_auth_and_none_is_valid(tmp_path: Path) 
             targets=("backend",),
             auth="none",
             install_core_tools=False,
-            install_bmad=False,
+            install_bmad=True,
         )
 
     asyncio.run(scenario())
@@ -209,8 +209,33 @@ def test_textual_wizard_skips_auth_when_backend_not_selected(tmp_path: Path) -> 
             targets=("python",),
             auth=None,
             install_core_tools=False,
-            install_bmad=False,
+            install_bmad=True,
         )
+
+
+def test_textual_wizard_defaults_bmad_step_to_yes(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        app = NewProjectWizardApp(
+            project_name="demo-bmad-default",
+            output_root=tmp_path,
+        )
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.pause()
+
+            await pilot.press("down", "space")
+            await pilot.pause()
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "tools"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "bmad"
+            assert app.install_bmad is True
+
+    asyncio.run(scenario())
 
     asyncio.run(scenario())
 

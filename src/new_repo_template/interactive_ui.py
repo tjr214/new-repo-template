@@ -149,11 +149,17 @@ def render_auth_menu(*, config: InteractiveUIConfig) -> None:
 
 
 def render_yes_no_menu(
-    *, config: InteractiveUIConfig, title: str, question: str
+    *,
+    config: InteractiveUIConfig,
+    title: str,
+    question: str,
+    default_yes: bool = False,
 ) -> None:
+    prompt_hint = "[Y/n]" if default_yes else "[y/N]"
+
     if not config.use_rich:
         print(title)
-        print(f"{question} [y/N]")
+        print(f"{question} {prompt_hint}")
         return
 
     from rich.console import Console
@@ -161,7 +167,7 @@ def render_yes_no_menu(
 
     console = Console()
     console.print(Panel(title, style="cyan"))
-    console.print(f"{question} [y/N]")
+    console.print(f"{question} {prompt_hint}")
 
 
 def ask_user_input(*, config: InteractiveUIConfig, prompt: str, default: str) -> str:

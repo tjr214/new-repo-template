@@ -113,7 +113,7 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     assert "- targets: web, backend" in combined_output
     assert "- auth: better-auth" in combined_output
     assert "Core tools updater: no" in combined_output
-    assert "BMAD Method: no" in combined_output
+    assert "BMAD Method: yes" in combined_output
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -140,7 +140,7 @@ def test_nurt_new_without_project_name_prompts_and_normalizes_directory(
     assert f"- output: {output_dir}" in combined_output
     assert "- auth: none" in combined_output
     assert "Core tools updater: no" in combined_output
-    assert "BMAD Method: no" in combined_output
+    assert "BMAD Method: yes" in combined_output
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -287,6 +287,57 @@ def test_handle_new_reports_friendly_cancel_message(
     assert exit_code == 1
     assert "Interactive wizzard cancelled. Maybe next time!" in captured.err
     assert "Error:" not in captured.err
+
+
+def test_handle_new_prints_completion_overview_and_changes_directory(
+    monkeypatch, capsys, tmp_path: Path
+) -> None:
+    """Successful nurt new runs should print the final overview and hand off to the project dir."""
+
+    project_root = tmp_path / "demo-ready"
+    project_root.mkdir()
+    changed_directories: list[str] = []
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        nurt_cli,
+        "resolve_ui_config",
+        lambda: nurt_cli.InteractiveUIConfig(
+            mode="plain", use_rich=False, warning=None
+        ),
+    )
+    monkeypatch.setattr(nurt_cli.scaffold, "main", lambda _args: 0)
+    monkeypatch.setattr(nurt_cli, "run_post_create_pipeline", lambda **_: 0)
+    monkeypatch.setattr(
+        nurt_cli,
+        "render_completion_overview",
+        lambda **_: (
+            "Setup Complete\nChanging into the project directory now\ncd demo-ready"
+        ),
+    )
+    monkeypatch.setattr(
+        nurt_cli.os,
+        "chdir",
+        lambda path: changed_directories.append(str(path)),
+    )
+
+    exit_code = nurt_cli.handle_new(
+        argparse.Namespace(
+            project_name="demo-ready",
+            target=None,
+            auth=None,
+            install_core_tools=None,
+            install_bmad=None,
+            no_interactive=True,
+            dry_run=False,
+        )
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Setup Complete" in captured.out
+    assert "Changing into the project directory now" in captured.out
+    assert changed_directories == [str(project_root)]
 
 
 def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:

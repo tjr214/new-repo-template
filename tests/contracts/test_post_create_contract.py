@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from rich.console import Console
+
 from new_repo_template import post_create
 
 
@@ -139,3 +141,23 @@ def test_render_post_create_plan_reflects_selected_options(tmp_path: Path) -> No
     assert "BMAD Method: yes" in rendered
     assert "Core tools updater: no" in rendered
     assert 'git init -> git add . -> git commit -m "Initial Commit"' in rendered
+
+
+def test_render_completion_overview_calls_out_cd_handoff(tmp_path: Path) -> None:
+    console = Console(record=True, width=100)
+    console.print(
+        post_create.render_completion_overview(
+            project_root=tmp_path / "demo-project",
+            targets=("web", "backend"),
+            auth="clerk",
+            install_bmad=True,
+            install_core_tools=False,
+        )
+    )
+
+    rendered = console.export_text()
+    assert "Setup Complete" in rendered
+    assert "web, backend" in rendered
+    assert "clerk" in rendered
+    assert "Changing into the project directory now" in rendered
+    assert "cd demo-project" in rendered

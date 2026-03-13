@@ -5,6 +5,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+from rich.console import Group, RenderableType
+from rich.padding import Padding
+from rich.panel import Panel
+from rich.rule import Rule
+from rich.table import Table
+from rich.text import Text
+
 from new_repo_template.bmad_runner import run_bmad_sync
 from new_repo_template.sync_ops import run_tools_sync
 from new_repo_template.version_baseline import generate_project_lockfiles
@@ -37,6 +44,78 @@ def render_post_create_plan(
         ),
     ]
     return "\n".join(lines)
+
+
+def render_completion_overview(
+    *,
+    project_root: Path,
+    targets: tuple[str, ...],
+    auth: str | None,
+    install_bmad: bool,
+    install_core_tools: bool,
+) -> RenderableType:
+    project_name = project_root.name
+    target_label = ", ".join(targets)
+
+    details_table = Table.grid(expand=True, padding=(0, 1))
+    details_table.add_column(style="bold #95dbe8", ratio=1)
+    details_table.add_column(style="#edf6f7", ratio=3)
+    details_table.add_row("Project", project_name)
+    details_table.add_row("Location", str(project_root))
+    details_table.add_row("Targets", target_label)
+    details_table.add_row("Auth", auth or "Not required")
+
+    accomplished_table = Table.grid(expand=True, padding=(0, 1))
+    accomplished_table.add_column(style="bold #79e0d4", ratio=1)
+    accomplished_table.add_column(style="#edf6f7", ratio=3)
+    accomplished_table.add_row(
+        "Scaffold", "Generated the project files and workspace baseline."
+    )
+    accomplished_table.add_row(
+        "Lockfiles", "Created or revalidated managed lockfiles for the new project."
+    )
+    accomplished_table.add_row(
+        "Git", "Initialized a repository and created `Initial Commit`."
+    )
+    accomplished_table.add_row(
+        "BMAD",
+        "Installed the BMAD Method during project bootstrap."
+        if install_bmad
+        else "Skipped BMAD Method installation for this run.",
+    )
+    accomplished_table.add_row(
+        "Core tools",
+        "Installed or updated the managed core toolchain."
+        if install_core_tools
+        else "Skipped the optional core-tools updater.",
+    )
+
+    handoff = Group(
+        Text("Changing into the project directory now.", style="bold #f5cf85"),
+        Padding(Text(f"cd {project_name}", style="bold #79e0d4"), (1, 0, 0, 2)),
+    )
+
+    content = Group(
+        Text("nurt new finished successfully", style="bold #79e0d4"),
+        Text(
+            "The project is scaffolded, initialized, and ready for the next command.",
+            style="#d7e7ec",
+        ),
+        Rule(style="#2b6674"),
+        details_table,
+        Rule(style="#2b6674"),
+        accomplished_table,
+        Rule(style="#2b6674"),
+        handoff,
+    )
+
+    return Panel(
+        Padding(content, (0, 1)),
+        title="Setup Complete",
+        subtitle=project_name,
+        border_style="#3f9cae",
+        expand=False,
+    )
 
 
 def _git_identity_env() -> dict[str, str]:
