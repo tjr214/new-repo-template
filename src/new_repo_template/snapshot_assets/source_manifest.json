@@ -2,11 +2,11 @@
 	"version": 1.01,
 	"entries": [
 		{
-			"source": "snapshot-gitignore.txt",
+			"source": "templates-snapshot-files/snapshot-gitignore.txt",
 			"destination": "templates/root_gitignore.txt"
 		},
 		{
-			"source": "snapshot-python-version.txt",
+			"source": "templates-snapshot-files/snapshot-python-version.txt",
 			"destination": "templates/python_lane_python_version.txt"
 		},
 		{
@@ -18,7 +18,7 @@
 			"destination": "templates/foundation/PLAN.md"
 		},
 		{
-			"source": "README.md",
+			"source": "templates-snapshot-files/snapshot-readme-md.txt",
 			"destination": "templates/foundation/README.md"
 		},
 		{
@@ -62,11 +62,11 @@
 			"destination": "templates/foundation/scripts/visualize_plan.py"
 		},
 		{
-			"source": "docs/ARCHITECTURE.md",
+			"source": "templates-snapshot-files/snapshot-architecture-md.txt",
 			"destination": "templates/foundation/docs/ARCHITECTURE.md"
 		},
 		{
-			"source": "docs/LIVING_DOCS.md",
+			"source": "templates-snapshot-files/snapshot-living-docs-md.txt",
 			"destination": "templates/foundation/docs/LIVING_DOCS.md"
 		},
 		{

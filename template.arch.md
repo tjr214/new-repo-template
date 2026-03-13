@@ -7,6 +7,7 @@ This repository is [describe the system, product, or template under design].
 The target architecture is [describe the intended operating model, deployment model, or repository shape].
 
 Key product or platform lanes:
+
 - [Lane or target 1]
 - [Lane or target 2]
 - [Lane or target 3]
@@ -50,6 +51,7 @@ Key product or platform lanes:
 ## Validation Model
 
 Implementation follows a strict YELLOW-RED-GREEN-BLUE loop:
+
 - YELLOW: read the relevant repo files, docs, and test surfaces first; use BTCA-backed asks when dependency or framework context matters
 - RED: add or update failing tests or contracts first
 - GREEN: implement the smallest change set that satisfies the slice
@@ -58,9 +60,11 @@ Implementation follows a strict YELLOW-RED-GREEN-BLUE loop:
 DoD is enforced by [tests, contracts, CI gates, review policy, or equivalent].
 
 Baseline CI model:
+
 - [credentialless checks, matrix coverage, protected-branch rules, release gates, etc.]
 
 Current contract or verification coverage:
+
 - `[path/to/test_or_check]`
   - Contract intent: [describe]
 - `[path/to/test_or_check]`
