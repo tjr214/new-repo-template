@@ -24,7 +24,7 @@ REQUIRED_CHECKS_RAW=""
 
 usage() {
     cat <<EOF
-Usage: sh .template_scripts/$SCRIPT_NAME [options]
+Usage: sh scripts/$SCRIPT_NAME [options]
 
 Options:
   --repo <owner/name>          Target repository (default: current gh repo)
@@ -37,8 +37,8 @@ Options:
   --help, -h                   Show this help text
 
 Examples:
-  sh .template_scripts/$SCRIPT_NAME --repo your-org/your-repo
-  sh .template_scripts/$SCRIPT_NAME --dry-run --repo your-org/your-repo \
+  sh scripts/$SCRIPT_NAME --repo your-org/your-repo
+  sh scripts/$SCRIPT_NAME --dry-run --repo your-org/your-repo \
     --required-check "Tests (ubuntu-latest)" --required-check "Version Baseline Guardrail"
 EOF
 }
