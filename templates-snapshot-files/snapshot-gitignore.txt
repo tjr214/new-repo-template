@@ -1,0 +1,1 @@
+../src/new_repo_template/snapshot_assets/templates/root_gitignore.txt
