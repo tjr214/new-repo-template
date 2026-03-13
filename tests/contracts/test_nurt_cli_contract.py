@@ -447,8 +447,8 @@ def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> 
     assert "repository has uncommitted changes" in combined_output
 
 
-def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) -> None:
-    """template-assets snapshot dry-run should report validation-focused planning details."""
+def test_nurt_template_assets_validate_dry_run_reports_action(tmp_path: Path) -> None:
+    """template-assets validate dry-run should report validation-focused planning details."""
 
     source_manifest = load_source_manifest()
     entries = source_manifest.get("entries")
@@ -469,7 +469,7 @@ def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) ->
         cwd=tmp_path,
         args=[
             "template-assets",
-            "snapshot",
+            "validate",
             "--dry-run",
             "--source-root",
             str(tmp_path),
@@ -477,13 +477,13 @@ def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) ->
     )
 
     assert result.returncode == 0, (
-        "Expected template-assets snapshot dry-run to succeed.\n"
+        "Expected template-assets validate dry-run to succeed.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
-    assert "snapshot validation" in combined_output
+    assert "template-assets validate" in combined_output
     assert (
         "would validate bundled template: templates/root_gitignore.txt"
         in combined_output

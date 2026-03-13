@@ -284,17 +284,17 @@ def build_parser() -> argparse.ArgumentParser:
         dest="template_assets_command", required=True
     )
 
-    template_assets_snapshot_parser = template_assets_subparsers.add_parser(
-        "snapshot",
-        help="Validate bundled snapshot entries and refresh metadata",
+    template_assets_validate_parser = template_assets_subparsers.add_parser(
+        "validate",
+        help="Validate bundled template entries and refresh metadata",
     )
-    template_assets_snapshot_parser.add_argument("--dry-run", action="store_true")
-    template_assets_snapshot_parser.add_argument(
+    template_assets_validate_parser.add_argument("--dry-run", action="store_true")
+    template_assets_validate_parser.add_argument(
         "--source-root", type=Path, default=Path.cwd()
     )
-    template_assets_snapshot_parser.add_argument("--output-root", type=Path)
-    template_assets_snapshot_parser.set_defaults(
-        handler=handle_template_assets_snapshot
+    template_assets_validate_parser.add_argument("--output-root", type=Path)
+    template_assets_validate_parser.set_defaults(
+        handler=handle_template_assets_validate
     )
 
     versions_parser = subparsers.add_parser(
@@ -493,7 +493,7 @@ def handle_template_assets_sync(args: argparse.Namespace) -> int:
     return run_template_assets_sync(dry_run=args.dry_run, project_root=Path.cwd())
 
 
-def handle_template_assets_snapshot(args: argparse.Namespace) -> int:
+def handle_template_assets_validate(args: argparse.Namespace) -> int:
     source_root = args.source_root.resolve()
     if args.output_root is None:
         output_root = source_root / "src" / "new_repo_template" / "snapshot_assets"
@@ -507,13 +507,13 @@ def handle_template_assets_snapshot(args: argparse.Namespace) -> int:
     )
 
     if args.dry_run:
-        print("DRY RUN: template-assets snapshot validation")
+        print("DRY RUN: template-assets validate")
         for relative_path in result.copied_files:
             print(f"  - would validate bundled template: {relative_path}")
         print("DRY RUN: metadata would be refreshed at metadata.json")
         return 0
 
-    print("Template-assets snapshot validation completed:")
+    print("Template-assets validate completed:")
     for relative_path in result.copied_files:
         print(f"  - validated bundled template: {relative_path}")
     if result.metadata_path is not None:
