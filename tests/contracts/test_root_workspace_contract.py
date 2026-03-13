@@ -73,6 +73,10 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
     assert "docs/session-summaries/" in combined_output
     assert "docs/tasks/task-template.yaml" in combined_output
     assert "docs/workflows/export-to-ralph/workflow.md" in combined_output
+    assert ".github/" in combined_output
+    assert ".github/workflows/" in combined_output
+    assert ".github/workflows/ci.yml" in combined_output
+    assert ".github/workflows/release.yml" in combined_output
     assert ".agent/rules/general-rules.md" in combined_output
     assert ".opencode/command/project-export-bmad-to-ralph.md" in combined_output
 
@@ -167,7 +171,10 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
             repo_root / "docs" / "markdown-templates" / "PLAN.template.md",
             output_dir / "PLAN.md",
         ),
-        (repo_root / "README.md", output_dir / "README.md"),
+        (
+            repo_root / "templates-snapshot-files" / "snapshot-readme-md.txt",
+            output_dir / "README.md",
+        ),
         (
             repo_root / "README.BMAD-GUIDE.md",
             output_dir / "README.BMAD-GUIDE.md",
@@ -199,11 +206,11 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
             output_dir / "scripts" / "visualize_plan.py",
         ),
         (
-            repo_root / "docs" / "ARCHITECTURE.md",
+            repo_root / "templates-snapshot-files" / "snapshot-architecture-md.txt",
             output_dir / "docs" / "ARCHITECTURE.md",
         ),
         (
-            repo_root / "docs" / "LIVING_DOCS.md",
+            repo_root / "templates-snapshot-files" / "snapshot-living-docs-md.txt",
             output_dir / "docs" / "LIVING_DOCS.md",
         ),
         (
@@ -225,6 +232,14 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         (
             repo_root / "docs" / "workflows" / "export-to-ralph" / "workflow.md",
             output_dir / "docs" / "workflows" / "export-to-ralph" / "workflow.md",
+        ),
+        (
+            repo_root / ".github" / "workflows" / "ci.yml",
+            output_dir / ".github" / "workflows" / "ci.yml",
+        ),
+        (
+            repo_root / ".github" / "workflows" / "release.yml",
+            output_dir / ".github" / "workflows" / "release.yml",
         ),
         (
             repo_root / ".agent" / "rules" / "general-rules.md",
@@ -267,6 +282,15 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         relative = source_path.relative_to(repo_root)
         assert (output_dir / relative).exists(), f"Expected workflow file at {relative}"
 
+    github_files = sorted((repo_root / ".github").rglob("*"))
+    for source_path in github_files:
+        relative = source_path.relative_to(repo_root)
+        destination_path = output_dir / relative
+        if source_path.is_dir():
+            assert destination_path.is_dir(), f"Expected github directory at {relative}"
+        else:
+            assert destination_path.exists(), f"Expected github file at {relative}"
+
     opencode_command_files = sorted((repo_root / ".opencode" / "command").glob("*.md"))
     for source_path in opencode_command_files:
         relative = source_path.relative_to(repo_root)
@@ -279,6 +303,8 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
     assert (output_dir / "docs" / "archive" / "progress").is_dir()
     assert (output_dir / "docs" / "markdown-templates").is_dir()
     assert (output_dir / "docs" / "session-summaries").is_dir()
+    assert (output_dir / ".github").is_dir()
+    assert (output_dir / ".github" / "workflows").is_dir()
     assert not (output_dir / ".opencode" / "package.json").exists()
     assert not (output_dir / ".opencode" / "bun.lock").exists()
     assert not (output_dir / ".opencode" / "node_modules").exists()

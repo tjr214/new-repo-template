@@ -73,6 +73,10 @@ FOUNDATION_GOVERNANCE_PATHS: tuple[str, ...] = (
     "docs/workflows/export-to-ralph/steps/step-02-extract.md",
     "docs/workflows/export-to-ralph/steps/step-03-transform.md",
     "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
+    ".github/",
+    ".github/workflows/",
+    ".github/workflows/ci.yml",
+    ".github/workflows/release.yml",
     ".agent/",
     ".agent/rules/",
     ".agent/rules/general-rules.md",
@@ -166,6 +170,11 @@ FOUNDATION_GOVERNANCE_TEMPLATE_FILES: tuple[tuple[str, str], ...] = (
     (
         "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
         "foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
+    ),
+    (".github/workflows/ci.yml", "foundation/.github/workflows/ci.yml"),
+    (
+        ".github/workflows/release.yml",
+        "foundation/.github/workflows/release.yml",
     ),
     (".agent/rules/general-rules.md", "foundation/.agent/rules/general-rules.md"),
     (

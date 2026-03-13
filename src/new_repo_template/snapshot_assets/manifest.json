@@ -27,6 +27,8 @@
     "foundation/docs/workflows/export-to-ralph/steps/step-02-extract.md",
     "foundation/docs/workflows/export-to-ralph/steps/step-03-transform.md",
     "foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
+    "foundation/.github/workflows/ci.yml",
+    "foundation/.github/workflows/release.yml",
     "foundation/.agent/rules/general-rules.md",
     "foundation/.agent/workflows/project/project-export-bmad-to-ralph.md",
     "foundation/.opencode/command/project-export-bmad-to-ralph.md",

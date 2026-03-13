@@ -1,5 +1,5 @@
 {
-  "file_count": 39,
+  "file_count": 41,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -8,6 +8,14 @@
     {
       "destination": "templates/foundation/.agent/workflows/project/project-export-bmad-to-ralph.md",
       "sha256": "e2a95303c1cfd527012c1025bb9a84e2df85b597d86514df4cf694e76d02fa29"
+    },
+    {
+      "destination": "templates/foundation/.github/workflows/ci.yml",
+      "sha256": "fcdaf268277cccc95e16023ef4b3beec736b07fd94d91db9f83d8e6cdb39ef02"
+    },
+    {
+      "destination": "templates/foundation/.github/workflows/release.yml",
+      "sha256": "f097802f37202062030af66c2378e13090884cac9ff5afb21c8720a1a903940a"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
@@ -75,7 +83,7 @@
     },
     {
       "destination": "templates/foundation/README.md",
-      "sha256": "5bf6475593b80988fbc08e8612a958e5ee50feb0c0351dbe1fb394fe76ababad"
+      "sha256": "97288e17beb6eb0ee12093dd9d1332b6c93239a93793518825ec049b75258dba"
     },
     {
       "destination": "templates/foundation/btca.config.jsonc",
@@ -158,7 +166,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-13T04:01:15.193945+00:00",
+  "generated_at": "2026-03-13T04:23:35.547300+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "75552a0367be276fc7b98eb88ba4952e883ccbec"
+  "source_commit": "901ce9811ca0c57a596f358f6b1606b57922c177"
 }
