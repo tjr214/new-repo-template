@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 06:50:03 PM
-**Current Phase:** Legacy updater cleanup complete and next-cycle stub reset
+**Last Updated:** 2026-03-12 09:16:05 PM
+**Current Phase:** Foundation governance baseline expansion complete
 
 ## Previous Cycle Archives
 
@@ -72,6 +72,10 @@
 - [x] Archived the completed root `PLAN.md` and reset `PLAN.md` to a fresh next-cycle stub, then synced the reset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
 - [x] Renamed the native sync CLI shape from `nurt <target> sync` to `nurt sync <target>` for `tools`, `bmad`, and `template-assets`, while preserving `nurt template-assets snapshot` as the standalone snapshot utility path.
 - [x] Updated installer wiring, TUI labeling, sync-facing output strings, current docs, and contract coverage to the new `nurt sync ...` command order, then revalidated with `pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py` (24 passed).
+- [x] Ran the YELLOW pass for the foundation-governance expansion slice by rereading scaffold/snapshot/contracts/live-doc files, checking `btca status`, and using `btca ask` to confirm that explicit manifest-driven scaffold allowlists remain the safer contract than directory auto-copying for deterministic package-resource output.
+- [x] Expanded the foundation lane governance baseline so generated repos now also include `PLAN.md`, `README.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`, `scripts/configure-repo-protections.sh`, `scripts/synthetic-quotas.sh`, `scripts/task-template-schema.json`, `scripts/validate_template.py`, `scripts/visualize_plan.py`, and empty `docs/archive/plans` plus `docs/archive/progress` directories.
+- [x] Updated the bundled snapshot manifests/assets to mirror the new root-backed foundation files and restored root `PROGRESS.template.md` as the snapshot source for scaffolded `PROGRESS.md`.
+- [x] Revalidated the slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_nurt_cli_contract.py` (24 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
 
 ## Next Up
 

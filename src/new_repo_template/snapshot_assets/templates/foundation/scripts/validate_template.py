@@ -44,7 +44,7 @@ def validate_template(template_path: str, schema_path: str) -> bool:
         validate(instance=template, schema=schema)
 
         print("✅ Template is VALID!")
-        print(f"\n📊 Template Summary:")
+        print("\n📊 Template Summary:")
         print(f"   Task: {template['task']['name']}")
         print(f"   Status: {template['task']['status']}")
         print(f"   Phases: {len(template['task']['phases'])}")
@@ -84,11 +84,11 @@ def validate_template(template_path: str, schema_path: str) -> bool:
         return False
 
     except ValidationError as e:
-        print(f"❌ Validation error:")
+        print("❌ Validation error:")
         print(f"   Path: {' -> '.join(str(p) for p in e.path)}")
         print(f"   Message: {e.message}")
         if e.context:
-            print(f"   Context:")
+            print("   Context:")
             for ctx in e.context:
                 print(f"     - {ctx.message}")
         return False
@@ -100,13 +100,15 @@ def validate_template(template_path: str, schema_path: str) -> bool:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(
-            "Usage: python validate_template.py <task-template.yaml> [schema.json]")
+        print("Usage: python validate_template.py <task-template.yaml> [schema.json]")
         sys.exit(1)
 
     template_path = sys.argv[1]
-    schema_path = sys.argv[2] if len(
-        sys.argv) > 2 else ".template_scripts/task-template-schema.json"
+    schema_path = (
+        sys.argv[2]
+        if len(sys.argv) > 2
+        else ".template_scripts/task-template-schema.json"
+    )
 
     if not Path(template_path).exists():
         print(f"❌ Template file not found: {template_path}")

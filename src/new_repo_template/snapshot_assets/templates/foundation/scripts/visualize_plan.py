@@ -10,7 +10,7 @@ Usage:
 import sys
 import yaml
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict
 
 
 # Status icons and colors
@@ -38,7 +38,7 @@ def print_status_summary(data: dict):
 
     # Metadata
     metadata = data.get("metadata", {})
-    print(f"\n📋 Metadata:")
+    print("\n📋 Metadata:")
     print(f"   Version: {metadata.get('version', 'N/A')}")
     print(f"   Created: {metadata.get('created_date', 'N/A')}")
     print(f"   Updated: {metadata.get('last_updated', 'N/A')}")
@@ -54,8 +54,7 @@ def print_status_summary(data: dict):
         f"   Status: {status_icon} {STATUS_NAMES.get(task.get('status', 'pending'), 'UNKNOWN')}"
     )
     if task.get("status") == "blocked":
-        print(
-            f"   ⚠️  Blocked: {task.get('blocked_reason', 'No reason provided')}")
+        print(f"   ⚠️  Blocked: {task.get('blocked_reason', 'No reason provided')}")
 
 
 def count_statuses_in_phase(phase: dict) -> Dict[str, int]:

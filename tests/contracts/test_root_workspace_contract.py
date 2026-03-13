@@ -51,9 +51,20 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
     assert "turbo.json" in combined_output
     assert "btca.config.jsonc" in combined_output
     assert "AGENTS.md" in combined_output
+    assert "PLAN.md" in combined_output
+    assert "README.md" in combined_output
+    assert "README.BMAD-GUIDE.md" in combined_output
+    assert "README.RALPH.md" in combined_output
     assert "PROGRESS.md" in combined_output
     assert "scripts/RALPH.sh" in combined_output
+    assert "scripts/configure-repo-protections.sh" in combined_output
+    assert "scripts/synthetic-quotas.sh" in combined_output
+    assert "scripts/task-template-schema.json" in combined_output
+    assert "scripts/validate_template.py" in combined_output
+    assert "scripts/visualize_plan.py" in combined_output
     assert "docs/archive/" in combined_output
+    assert "docs/archive/plans/" in combined_output
+    assert "docs/archive/progress/" in combined_output
     assert "docs/session-summaries/" in combined_output
     assert "docs/tasks/task-template.yaml" in combined_output
     assert "docs/workflows/export-to-ralph/workflow.md" in combined_output
@@ -147,8 +158,35 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
     mirrored_files = (
         (repo_root / "btca.config.jsonc", output_dir / "btca.config.jsonc"),
         (repo_root / "AGENTS.md", output_dir / "AGENTS.md"),
+        (repo_root / "PLAN.md", output_dir / "PLAN.md"),
+        (repo_root / "README.md", output_dir / "README.md"),
+        (
+            repo_root / "README.BMAD-GUIDE.md",
+            output_dir / "README.BMAD-GUIDE.md",
+        ),
+        (repo_root / "README.RALPH.md", output_dir / "README.RALPH.md"),
         (repo_root / "PROGRESS.template.md", output_dir / "PROGRESS.md"),
         (repo_root / "scripts" / "RALPH.sh", output_dir / "scripts" / "RALPH.sh"),
+        (
+            repo_root / "scripts" / "configure-repo-protections.sh",
+            output_dir / "scripts" / "configure-repo-protections.sh",
+        ),
+        (
+            repo_root / "scripts" / "synthetic-quotas.sh",
+            output_dir / "scripts" / "synthetic-quotas.sh",
+        ),
+        (
+            repo_root / "scripts" / "task-template-schema.json",
+            output_dir / "scripts" / "task-template-schema.json",
+        ),
+        (
+            repo_root / "scripts" / "validate_template.py",
+            output_dir / "scripts" / "validate_template.py",
+        ),
+        (
+            repo_root / "scripts" / "visualize_plan.py",
+            output_dir / "scripts" / "visualize_plan.py",
+        ),
         (
             repo_root / "docs" / "tasks" / "task-template.yaml",
             output_dir / "docs" / "tasks" / "task-template.yaml",
@@ -210,6 +248,8 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         )
 
     assert (output_dir / "docs" / "archive").is_dir()
+    assert (output_dir / "docs" / "archive" / "plans").is_dir()
+    assert (output_dir / "docs" / "archive" / "progress").is_dir()
     assert (output_dir / "docs" / "session-summaries").is_dir()
     assert not (output_dir / ".opencode" / "package.json").exists()
     assert not (output_dir / ".opencode" / "bun.lock").exists()
