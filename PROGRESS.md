@@ -77,6 +77,7 @@
 - [x] Updated the bundled snapshot manifests/assets to mirror the new root-backed foundation files and restored root `PROGRESS.template.md` as the snapshot source for scaffolded `PROGRESS.md`.
 - [x] Revalidated the slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_nurt_cli_contract.py` (24 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
 - [x] Renamed the maintainer validation/metadata-refresh command from `nurt template-assets snapshot` to `nurt template-assets validate`, updated the CLI/help/dry-run messaging to match, and documented `src/new_repo_template/snapshot_assets/templates/` as the canonical bundled-template source of truth behind the repo-root symlink aliases.
+- [x] Fixed the snapshot Python-version alias mismatch in `src/new_repo_template/snapshot_assets/source_manifest.json` and documented the canonical-store-plus-alias-entrypoints model, including `templates-content-store-symlink` plus the readable root alias files used by the maintainer manifest.
 
 ## Next Up
 

@@ -6,7 +6,7 @@
 			"destination": "templates/root_gitignore.txt"
 		},
 		{
-			"source": "snapshot-python-version",
+			"source": "snapshot-python-version.txt",
 			"destination": "templates/python_lane_python_version.txt"
 		},
 		{
