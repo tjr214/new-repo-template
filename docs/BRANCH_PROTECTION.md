@@ -4,7 +4,7 @@ This guide defines the baseline branch-protection policy for this template repos
 
 ## Automation Script
 
-Use the maintainer script at `.template_scripts/configure-repo-protections.sh` to apply baseline policy to this template repo or any repo generated from it.
+Use the maintainer script at `scripts/configure-repo-protections.sh` to apply baseline policy to this template repo or any repo generated from it.
 
 Defaults:
 
@@ -14,11 +14,11 @@ Defaults:
 Examples:
 
 - Auto-detect repo/checks and apply protections to `main`:
-  - `sh .template_scripts/configure-repo-protections.sh`
+  - `sh scripts/configure-repo-protections.sh`
 - Apply protections to an explicit repository (still defaults to `main`):
-  - `sh .template_scripts/configure-repo-protections.sh --repo <owner>/<repo>`
+  - `sh scripts/configure-repo-protections.sh --repo <owner>/<repo>`
 - Preview changes without applying:
-  - `sh .template_scripts/configure-repo-protections.sh --dry-run --repo <owner>/<repo> --required-check "Tests (ubuntu-latest)" --required-check "Preset Regression Suite" --required-check "Version Baseline Guardrail"`
+  - `sh scripts/configure-repo-protections.sh --dry-run --repo <owner>/<repo> --required-check "Tests (ubuntu-latest)" --required-check "Preset Regression Suite" --required-check "Version Baseline Guardrail"`
 
 Script baseline behavior:
 

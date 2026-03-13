@@ -22,6 +22,10 @@ def run_scaffold_command(
     )
 
 
+def _iter_relative_files(root: Path) -> list[Path]:
+    return sorted(path.relative_to(root) for path in root.rglob("*") if path.is_file())
+
+
 def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) -> None:
     """RED: foundation dry-run should include package.json and turbo.json."""
 
@@ -47,38 +51,25 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "package.json" in combined_output
-    assert "turbo.json" in combined_output
-    assert "btca.config.jsonc" in combined_output
-    assert "AGENTS.md" in combined_output
-    assert "PLAN.md" in combined_output
-    assert "README.md" in combined_output
-    assert "README.BMAD-GUIDE.md" in combined_output
-    assert "README.RALPH.md" in combined_output
-    assert "PROGRESS.md" in combined_output
-    assert "scripts/RALPH.sh" in combined_output
-    assert "scripts/configure-repo-protections.sh" in combined_output
-    assert "scripts/synthetic-quotas.sh" in combined_output
-    assert "scripts/task-template-schema.json" in combined_output
-    assert "scripts/validate_template.py" in combined_output
-    assert "scripts/visualize_plan.py" in combined_output
-    assert "docs/archive/" in combined_output
-    assert "docs/archive/plans/" in combined_output
-    assert "docs/archive/progress/" in combined_output
-    assert "docs/ARCHITECTURE.md" in combined_output
-    assert "docs/LIVING_DOCS.md" in combined_output
-    assert "docs/markdown-templates/" in combined_output
-    assert "docs/markdown-templates/PLAN.template.md" in combined_output
-    assert "docs/markdown-templates/PROGRESS.template.md" in combined_output
-    assert "docs/session-summaries/" in combined_output
-    assert "docs/tasks/task-template.yaml" in combined_output
-    assert "docs/workflows/export-to-ralph/workflow.md" in combined_output
-    assert ".github/" in combined_output
-    assert ".github/workflows/" in combined_output
-    assert ".github/workflows/ci.yml" in combined_output
-    assert ".github/workflows/release.yml" in combined_output
-    assert ".agent/rules/general-rules.md" in combined_output
-    assert ".opencode/command/project-export-bmad-to-ralph.md" in combined_output
+    expected_markers = [
+        "package.json",
+        "turbo.json",
+        "AGENTS.md",
+        "PLAN.md",
+        "README.md",
+        "PROGRESS.md",
+        "scripts/configure-repo-protections.sh",
+        "docs/ARCHITECTURE.md",
+        "docs/LIVING_DOCS.md",
+        "docs/markdown-templates/",
+        "docs/workflows/",
+        ".github/workflows/ci.yml",
+        ".agent/rules/",
+        ".opencode/command/",
+    ]
+
+    for marker in expected_markers:
+        assert marker in combined_output, f"Expected dry-run output to mention {marker}"
 
 
 def test_foundation_scaffold_writes_workspace_config_and_cross_platform_scripts(
@@ -164,7 +155,7 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         f"stderr:\n{result.stderr}"
     )
 
-    mirrored_files = (
+    root_mirrors = (
         (repo_root / "btca.config.jsonc", output_dir / "btca.config.jsonc"),
         (repo_root / "AGENTS.md", output_dir / "AGENTS.md"),
         (
@@ -175,35 +166,11 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
             repo_root / "templates-snapshot-files" / "snapshot-readme-md.txt",
             output_dir / "README.md",
         ),
-        (
-            repo_root / "README.BMAD-GUIDE.md",
-            output_dir / "README.BMAD-GUIDE.md",
-        ),
+        (repo_root / "README.BMAD-GUIDE.md", output_dir / "README.BMAD-GUIDE.md"),
         (repo_root / "README.RALPH.md", output_dir / "README.RALPH.md"),
         (
             repo_root / "docs" / "markdown-templates" / "PROGRESS.template.md",
             output_dir / "PROGRESS.md",
-        ),
-        (repo_root / "scripts" / "RALPH.sh", output_dir / "scripts" / "RALPH.sh"),
-        (
-            repo_root / "scripts" / "configure-repo-protections.sh",
-            output_dir / "scripts" / "configure-repo-protections.sh",
-        ),
-        (
-            repo_root / "scripts" / "synthetic-quotas.sh",
-            output_dir / "scripts" / "synthetic-quotas.sh",
-        ),
-        (
-            repo_root / "scripts" / "task-template-schema.json",
-            output_dir / "scripts" / "task-template-schema.json",
-        ),
-        (
-            repo_root / "scripts" / "validate_template.py",
-            output_dir / "scripts" / "validate_template.py",
-        ),
-        (
-            repo_root / "scripts" / "visualize_plan.py",
-            output_dir / "scripts" / "visualize_plan.py",
         ),
         (
             repo_root / "templates-snapshot-files" / "snapshot-architecture-md.txt",
@@ -213,63 +180,9 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
             repo_root / "templates-snapshot-files" / "snapshot-living-docs-md.txt",
             output_dir / "docs" / "LIVING_DOCS.md",
         ),
-        (
-            repo_root / "docs" / "markdown-templates" / "PLAN.template.md",
-            output_dir / "docs" / "markdown-templates" / "PLAN.template.md",
-        ),
-        (
-            repo_root / "docs" / "markdown-templates" / "PROGRESS.template.md",
-            output_dir / "docs" / "markdown-templates" / "PROGRESS.template.md",
-        ),
-        (
-            repo_root / "docs" / "tasks" / "task-template.yaml",
-            output_dir / "docs" / "tasks" / "task-template.yaml",
-        ),
-        (
-            repo_root / "docs" / "tasks" / "task-template-example.yaml",
-            output_dir / "docs" / "tasks" / "task-template-example.yaml",
-        ),
-        (
-            repo_root / "docs" / "workflows" / "export-to-ralph" / "workflow.md",
-            output_dir / "docs" / "workflows" / "export-to-ralph" / "workflow.md",
-        ),
-        (
-            repo_root / ".github" / "workflows" / "ci.yml",
-            output_dir / ".github" / "workflows" / "ci.yml",
-        ),
-        (
-            repo_root / ".github" / "workflows" / "release.yml",
-            output_dir / ".github" / "workflows" / "release.yml",
-        ),
-        (
-            repo_root / ".agent" / "rules" / "general-rules.md",
-            output_dir / ".agent" / "rules" / "general-rules.md",
-        ),
-        (
-            repo_root
-            / ".agent"
-            / "workflows"
-            / "project"
-            / "project-export-bmad-to-ralph.md",
-            output_dir
-            / ".agent"
-            / "workflows"
-            / "project"
-            / "project-export-bmad-to-ralph.md",
-        ),
-        (
-            repo_root
-            / ".opencode"
-            / "command"
-            / "project-save-progress-to-checkpoint.md",
-            output_dir
-            / ".opencode"
-            / "command"
-            / "project-save-progress-to-checkpoint.md",
-        ),
     )
 
-    for source_path, destination_path in mirrored_files:
+    for source_path, destination_path in root_mirrors:
         assert destination_path.exists(), (
             f"Expected mirrored file at {destination_path}"
         )
@@ -277,26 +190,27 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
             encoding="utf-8"
         )
 
-    workflow_files = sorted((repo_root / "docs" / "workflows").rglob("*.md"))
-    for source_path in workflow_files:
-        relative = source_path.relative_to(repo_root)
-        assert (output_dir / relative).exists(), f"Expected workflow file at {relative}"
+    mirrored_directories = (
+        repo_root / "scripts",
+        repo_root / "docs" / "markdown-templates",
+        repo_root / "docs" / "tasks",
+        repo_root / "docs" / "workflows",
+        repo_root / ".github" / "workflows",
+        repo_root / ".agent" / "rules",
+        repo_root / ".agent" / "workflows" / "project",
+        repo_root / ".opencode" / "command",
+    )
 
-    github_files = sorted((repo_root / ".github").rglob("*"))
-    for source_path in github_files:
-        relative = source_path.relative_to(repo_root)
-        destination_path = output_dir / relative
-        if source_path.is_dir():
-            assert destination_path.is_dir(), f"Expected github directory at {relative}"
-        else:
-            assert destination_path.exists(), f"Expected github file at {relative}"
-
-    opencode_command_files = sorted((repo_root / ".opencode" / "command").glob("*.md"))
-    for source_path in opencode_command_files:
-        relative = source_path.relative_to(repo_root)
-        assert (output_dir / relative).exists(), (
-            f"Expected opencode command file at {relative}"
-        )
+    for source_root in mirrored_directories:
+        for relative in _iter_relative_files(source_root):
+            source_path = source_root / relative
+            destination_path = output_dir / source_path.relative_to(repo_root)
+            assert destination_path.exists(), (
+                f"Expected mirrored file at {destination_path}"
+            )
+            assert destination_path.read_text(
+                encoding="utf-8"
+            ) == source_path.read_text(encoding="utf-8")
 
     assert (output_dir / "docs" / "archive").is_dir()
     assert (output_dir / "docs" / "archive" / "plans").is_dir()

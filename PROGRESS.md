@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 01:06:48 AM
-**Current Phase:** stale repository contract expectations refreshed
+**Last Updated:** 2026-03-13 01:21:56 AM
+**Current Phase:** brittleness review for repository contract suite
 
 ## Previous Cycle Archives
 
@@ -96,6 +96,10 @@
 - [x] Replaced stale repository-baseline expectations in `tests/contracts/test_installer_scripts_dry_run_contract.py`: the suite now asserts the removed root `install.sh` remains absent, treats `scripts/configure-repo-protections.sh` as the supported maintainer script path, and keeps the protections dry-run behavior under contract against that live script.
 - [x] Relaxed `tests/contracts/test_nurt_install_contract.py` so README coverage now expects a concrete GitHub `uv tool install git+https://github.com/...` command instead of the old `<org>/<repo>` placeholder, while still rejecting the obsolete `uv tool install --from` syntax.
 - [x] Revalidated the refreshed contract slice with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_nurt_install_contract.py` (7 passed) and `uv run pytest` (161 passed).
+- [x] Ran a repo-wide brittleness review of the remaining contract suite, including grep-based scans for exact wording/path assertions, an explore-agent pass ranking the most drift-prone tests, and a `btca ask -r textual` lookup confirming interaction/state assertions are generally more stable than layout/copy-coupled checks as terminal UI flows evolve.
+- [x] Reduced drift risk in `tests/contracts/test_root_workspace_contract.py` by replacing the large hardcoded dry-run file list with representative governance markers and by validating mirrored governance directories through dynamic source-directory parity instead of a fixed per-file enumeration.
+- [x] Reduced drift risk in `tests/contracts/test_branch_protection_guidance_contract.py` by deriving required status-check names from `.github/workflows/ci.yml` rather than pinning a duplicated static list in the test, and synced `docs/BRANCH_PROTECTION.md` plus live docs to the real `scripts/configure-repo-protections.sh` path.
+- [x] Revalidated the brittleness-hardening follow-up with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_branch_protection_guidance_contract.py` (5 passed) and `uv run pytest` (161 passed).
 
 ## Next Up
 
