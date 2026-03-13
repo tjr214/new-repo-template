@@ -81,8 +81,8 @@ def test_install_script_dry_run_is_non_destructive(tmp_path: Path) -> None:
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
     assert "Scaffold dry-run succeeded" in combined_output
-    assert "nurt bmad sync --dry-run" in combined_output
-    assert "nurt tools sync --dry-run" in combined_output
+    assert "nurt sync bmad --dry-run" in combined_output
+    assert "nurt sync tools --dry-run" in combined_output
     assert (sandbox_root / ".git").exists(), ".git should remain in dry-run mode"
     assert (sandbox_root / "install.sh").exists(), (
         "install.sh should not be deleted in dry-run"

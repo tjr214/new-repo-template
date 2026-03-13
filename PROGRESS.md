@@ -70,6 +70,8 @@
 - [x] Updated the legacy `install.sh` maintainer path to call native repo-local `nurt` commands instead of the deleted shell updaters, while preserving dry-run visibility and setup flow.
 - [x] Removed obsolete updater-script contract coverage, updated remaining installer dry-run contracts to assert native `nurt` command usage, and kept the protections/template-maintenance script coverage intact.
 - [x] Archived the completed root `PLAN.md` and reset `PLAN.md` to a fresh next-cycle stub, then synced the reset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
+- [x] Renamed the native sync CLI shape from `nurt <target> sync` to `nurt sync <target>` for `tools`, `bmad`, and `template-assets`, while preserving `nurt template-assets snapshot` as the standalone snapshot utility path.
+- [x] Updated installer wiring, TUI labeling, sync-facing output strings, current docs, and contract coverage to the new `nurt sync ...` command order, then revalidated with `pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py` (24 passed).
 
 ## Next Up
 
