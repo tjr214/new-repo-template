@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 11:38:36 PM
-**Current Phase:** Foundation docs snapshot wiring complete
+**Last Updated:** 2026-03-13 12:23:56 AM
+**Current Phase:** Foundation GitHub baseline wiring complete
 
 ## Previous Cycle Archives
 
@@ -82,6 +82,9 @@
 - [x] Added `docs/markdown-templates/LIVING_DOCS.template.md` as a reusable version of the live living-doc structure and synced that new documentation asset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `docs/session-summaries/SESSION_94_SUMMARY.md`.
 - [x] Expanded the foundation scaffold and bundled snapshot manifests to include `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, and the mirrored `docs/markdown-templates/` directory with both tracked template files (`PLAN.template.md`, `PROGRESS.template.md`).
 - [x] Revalidated the docs-baseline follow-up with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py` (5 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
+- [x] Expanded the foundation scaffold and bundled snapshot manifests to include `.github/`, `.github/workflows/`, `.github/workflows/ci.yml`, and `.github/workflows/release.yml` as part of the deterministic baseline.
+- [x] Added a guardrail note to `src/new_repo_template/snapshot_assets/source_manifest.json` that `templates-snapshot-files/...` alias sources must never be substituted with direct paths for snapshot-managed entries.
+- [x] Revalidated the `.github` baseline follow-up with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py` (5 passed), and `uv run ruff check src/new_repo_template tests/contracts`.
 
 ## Next Up
 

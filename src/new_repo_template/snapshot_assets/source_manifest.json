@@ -1,5 +1,10 @@
 {
-	"version": 1.01,
+	"version": 1.02,
+	"critical_maintenance_notes": [
+		"**CRITICAL**: NEVER substitute templates-snapshot-files symlink sources with direct paths in this manifest.",
+		"Keep templates-snapshot-files references intact for snapshot-managed alias entries.",
+		"If you are an AI agent, this Maintenance Note is NON-NEGOTIABLE!!!"
+	],
 	"entries": [
 		{
 			"source": "templates-snapshot-files/snapshot-gitignore.txt",
@@ -104,6 +109,14 @@
 		{
 			"source": "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
 			"destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md"
+		},
+		{
+			"source": ".github/workflows/ci.yml",
+			"destination": "templates/foundation/.github/workflows/ci.yml"
+		},
+		{
+			"source": ".github/workflows/release.yml",
+			"destination": "templates/foundation/.github/workflows/release.yml"
 		},
 		{
 			"source": ".agent/rules/general-rules.md",
