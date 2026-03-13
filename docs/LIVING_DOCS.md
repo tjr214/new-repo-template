@@ -12,6 +12,7 @@ The template implementation remains intact, and the latest execution plan is now
 - The foundation scaffold governance baseline now also carries the root planning/guide files (`PLAN.md`, `README.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`), helper scripts under `scripts/`, `.github/workflows/{ci.yml,release.yml}`, `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, and the mirrored `docs/markdown-templates/` directory in addition to explicit `docs/archive/plans/` plus `docs/archive/progress/` directories.
 - `docs/markdown-templates/ARCHITECTURE.template.md` now mirrors the live architecture document structure so future docs can start from the same scope, decisions, topology, status, and validation sections.
 - `docs/markdown-templates/LIVING_DOCS.template.md` now mirrors this live living-doc structure so future repositories or documentation refreshes can start from the same state, rules, decisions, constraints, and implementation-notes sections.
+- The stale repository-baseline contract drift has now been cleared: tests no longer expect a removed root `install.sh`, the maintainer branch-protection script is asserted at `scripts/configure-repo-protections.sh`, and README install guidance is validated against a concrete copyable GitHub `uv tool install git+https://github.com/...` command.
 
 ## Active Implementation Rules
 
@@ -187,3 +188,4 @@ The template implementation remains intact, and the latest execution plan is now
 - The interactive BMAD install decision in `nurt new` now defaults to `Yes` in both the plain prompt fallback and the Textual wizard, while preserving explicit `--no-install-bmad` behavior for non-interactive runs.
 - Successful non-dry-run `nurt new` runs now print a Rich `Setup Complete` handoff overview that summarizes the created project, post-create work, optional BMAD/core-tools choices, and closes by explicitly telling the user to run `cd <project-name>`.
 - `nurt new` no longer attempts a process-local directory switch at the end of the run, since that does not change the caller's shell directory; the final handoff is now instruction-only.
+- The repository-level contract suite is back in sync with the live repo layout: stale tests around the deleted root `install.sh`, the old `.template_scripts/configure-repo-protections.sh` location, and placeholder README git-install text were updated, and `uv run pytest` is green again at 161 passing tests.
