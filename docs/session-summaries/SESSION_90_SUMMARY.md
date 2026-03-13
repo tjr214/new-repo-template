@@ -2,30 +2,37 @@
 
 ## Date and Time
 
-2026-03-12 09:41:44 PM
+2026-03-12 11:38:36 PM
 
 ## Scope
 
-Repositioned `nurt template-assets snapshot` as a maintainer validation/metadata-refresh workflow and documented the bundled templates directory as the canonical source of truth behind the repo-root symlink aliases.
+Expanded the foundation scaffold baseline so bundled docs now include the live architecture/living-doc files and the full `docs/markdown-templates/` directory with both tracked template files.
 
 ## Inputs
 
-- `src/new_repo_template/nurt_cli.py`
-- `tests/contracts/test_nurt_cli_contract.py`
+- `src/new_repo_template/scaffold.py`
+- `src/new_repo_template/snapshot_assets/source_manifest.json`
+- `src/new_repo_template/snapshot_assets/manifest.json`
+- `tests/contracts/test_root_workspace_contract.py`
+- `docs/markdown-templates/PLAN.template.md`
+- `docs/markdown-templates/PROGRESS.template.md`
 - `PROGRESS.md`
 - `docs/LIVING_DOCS.md`
 - `docs/ARCHITECTURE.md`
 
 ## Implementation
 
-- Ran the YELLOW pass by rereading the snapshot CLI, contract, and live-doc files; checking `btca status`; and using `btca ask` to sanity-check clearer terminology for a command that validates manifest-backed entries and refreshes derived metadata without materially regenerating content.
-- Added RED coverage in `tests/contracts/test_nurt_cli_contract.py` so the snapshot dry-run contract now asserts validation-oriented messaging instead of copy-generation wording.
-- Updated `src/new_repo_template/nurt_cli.py` so `nurt template-assets snapshot` advertises itself as validation plus metadata refresh in parser help, dry-run output, and completion messaging.
-- Synced `PROGRESS.md`, `docs/LIVING_DOCS.md`, and `docs/ARCHITECTURE.md` so the current-state docs describe `src/new_repo_template/snapshot_assets/templates/` as the bundled template source of truth and treat repo-root files as compatibility symlink aliases for the existing maintainer workflow.
+- Ran the YELLOW pass by rereading the scaffold, snapshot-manifest, contract, and live-doc files; checking `btca status`; and reusing the same manifest-driven scaffold guidance established earlier in the thread after a fresh `btca ask` attempt stalled.
+- Added RED coverage in `tests/contracts/test_root_workspace_contract.py` for `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, the `docs/markdown-templates/` directory, and both mirrored template files.
+- Updated `src/new_repo_template/scaffold.py` so foundation dry-run/scaffold output now includes `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, `docs/markdown-templates/PLAN.template.md`, and `docs/markdown-templates/PROGRESS.template.md`, while root scaffolded `PLAN.md` and `PROGRESS.md` now read from the markdown-template sources.
+- Expanded `src/new_repo_template/snapshot_assets/source_manifest.json` and `src/new_repo_template/snapshot_assets/manifest.json` so the bundled package resources now track the two live docs plus both markdown-template files explicitly.
+- Refreshed the bundled template store with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, which updated the packaged foundation assets and refreshed `src/new_repo_template/snapshot_assets/metadata.json`.
+- Synced `PROGRESS.md`, `docs/LIVING_DOCS.md`, and `docs/ARCHITECTURE.md` so the live documentation now describes the docs-inclusive foundation baseline and the template-backed `PLAN.md` / `PROGRESS.md` scaffold model accurately.
 
 ## Verification
 
-- `uv run pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_snapshot_assets_contract.py`
+- `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py`
+- `uv run ruff check src/new_repo_template tests/contracts`
 
 ## Documentation Sync
 
@@ -35,4 +42,4 @@ Repositioned `nurt template-assets snapshot` as a maintainer validation/metadata
 
 ## Outcome
 
-- `nurt template-assets snapshot` now reads as a low-impact maintainer validation/metadata-refresh utility instead of a content-regeneration command, and the repo docs now align on the bundled templates directory as the canonical asset source.
+- Foundation scaffolds now carry `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, and the full tracked `docs/markdown-templates/` directory, and bundled snapshot metadata/contracts are aligned with that expanded documentation baseline.
