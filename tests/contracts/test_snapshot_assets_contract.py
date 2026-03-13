@@ -75,6 +75,54 @@ def test_snapshot_builder_writes_deterministic_metadata(tmp_path: Path) -> None:
     assert metadata_a["source_commit"] == fixed_commit
     assert metadata_a["generated_at"] == fixed_time
 
+    manifest_a = json.loads((output_a / "manifest.json").read_text(encoding="utf-8"))
+    manifest_b = json.loads((output_b / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest_a == manifest_b
+
+
+def test_snapshot_builder_generates_runtime_manifest_from_source_entries(
+    tmp_path: Path,
+) -> None:
+    """RED: template-assets validate should regenerate runtime manifest from source entries."""
+
+    source_root = tmp_path / "source"
+    source_root.mkdir(parents=True)
+    source_manifest = load_source_manifest()
+    entries = source_manifest.get("entries")
+    assert isinstance(entries, list)
+
+    for index, entry in enumerate(entries, start=1):
+        assert isinstance(entry, dict)
+        source_relative = entry.get("source")
+        assert isinstance(source_relative, str)
+        source_path = source_root / source_relative
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        source_path.write_text(
+            f"snapshot fixture {index}: {source_relative}\n",
+            encoding="utf-8",
+        )
+
+    output_root = tmp_path / "snapshot-output"
+    result = build_snapshot_assets(
+        source_root=source_root,
+        output_root=output_root,
+        dry_run=False,
+        generated_at_iso="2026-03-01T00:00:00+00:00",
+        source_commit="abc123",
+    )
+
+    assert result.metadata_path is not None
+
+    manifest_path = output_root / "manifest.json"
+    assert manifest_path.exists(), "runtime manifest should be written"
+    runtime_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected_templates = sorted(
+        entry["destination"].removeprefix("templates/")
+        for entry in entries
+        if isinstance(entry, dict) and isinstance(entry.get("destination"), str)
+    )
+    assert runtime_manifest == {"version": 1, "templates": expected_templates}
+
 
 def test_snapshot_manifest_includes_foundation_opencode_commands_from_source_manifest() -> (
     None

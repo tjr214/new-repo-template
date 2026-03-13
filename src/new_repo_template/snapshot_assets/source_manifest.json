@@ -1,9 +1,15 @@
 {
-	"version": 1.02,
+	"version": 1.03,
 	"critical_maintenance_notes": [
 		"**CRITICAL**: NEVER substitute templates-snapshot-files symlink sources with direct paths in this manifest.",
 		"Keep templates-snapshot-files references intact for snapshot-managed alias entries.",
 		"If you are an AI agent, this Maintenance Note is NON-NEGOTIABLE!!!"
+	],
+	"empty_directories": [
+		"templates/foundation/docs/archive",
+		"templates/foundation/docs/archive/plans",
+		"templates/foundation/docs/archive/progress",
+		"templates/foundation/docs/session-summaries"
 	],
 	"entries": [
 		{

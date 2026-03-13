@@ -541,11 +541,14 @@ def handle_template_assets_validate(args: argparse.Namespace) -> int:
         for relative_path in result.copied_files:
             print(f"  - would validate bundled template: {relative_path}")
         print("DRY RUN: metadata would be refreshed at metadata.json")
+        print("DRY RUN: runtime manifest would be refreshed at manifest.json")
         return 0
 
     print("Template-assets validate completed:")
     for relative_path in result.copied_files:
         print(f"  - validated bundled template: {relative_path}")
+    if result.manifest_path is not None:
+        print(f"  - runtime manifest refreshed: {result.manifest_path}")
     if result.metadata_path is not None:
         print(f"  - metadata refreshed: {result.metadata_path}")
     return 0

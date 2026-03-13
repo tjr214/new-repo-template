@@ -7,6 +7,11 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from new_repo_template.foundation_manifest import (
+    get_foundation_empty_directories,
+    get_foundation_scaffold_paths,
+    get_foundation_template_file_pairs,
+)
 from new_repo_template.snapshot_assets_loader import load_template_text
 
 
@@ -37,199 +42,14 @@ FOUNDATION_CORE_PATHS: tuple[str, ...] = (
     "turbo.json",
 )
 
-FOUNDATION_GOVERNANCE_PATHS: tuple[str, ...] = (
-    "btca.config.jsonc",
-    "AGENTS.md",
-    "PLAN.md",
-    "README.md",
-    "README.BMAD-GUIDE.md",
-    "README.RALPH.md",
-    "PROGRESS.md",
-    "scripts/",
-    "scripts/RALPH.sh",
-    "scripts/configure-repo-protections.sh",
-    "scripts/synthetic-quotas.sh",
-    "scripts/task-template-schema.json",
-    "scripts/validate_template.py",
-    "scripts/visualize_plan.py",
-    "docs/",
-    "docs/archive/",
-    "docs/archive/plans/",
-    "docs/archive/progress/",
-    "docs/ARCHITECTURE.md",
-    "docs/LIVING_DOCS.md",
-    "docs/markdown-templates/",
-    "docs/markdown-templates/PLAN.template.md",
-    "docs/markdown-templates/PROGRESS.template.md",
-    "docs/session-summaries/",
-    "docs/tasks/",
-    "docs/tasks/task-template.yaml",
-    "docs/tasks/task-template-example.yaml",
-    "docs/workflows/",
-    "docs/workflows/export-to-ralph/",
-    "docs/workflows/export-to-ralph/workflow.md",
-    "docs/workflows/export-to-ralph/steps/",
-    "docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
-    "docs/workflows/export-to-ralph/steps/step-02-extract.md",
-    "docs/workflows/export-to-ralph/steps/step-03-transform.md",
-    "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
-    ".github/",
-    ".github/workflows/",
-    ".github/workflows/ci.yml",
-    ".github/workflows/release.yml",
-    ".agent/",
-    ".agent/rules/",
-    ".agent/rules/general-rules.md",
-    ".agent/workflows/",
-    ".agent/workflows/project/",
-    ".agent/workflows/project/project-export-bmad-to-ralph.md",
-    ".opencode/",
-    ".opencode/command/",
-    ".opencode/command/project-export-bmad-to-ralph.md",
-    ".opencode/command/project-get-back-to-work.md",
-    ".opencode/command/project-resume-progress-from-last-checkpoint.md",
-    ".opencode/command/project-save-progress-to-checkpoint.md",
-    ".opencode/command/project-setup-or-update-btca.md",
-    ".opencode/command/project-where-did-we-leave-off.md",
-    ".opencode/command/repo-git-commit-and-push.md",
-    ".opencode/command/repo-git-difference-between-branch-and-main.md",
-    ".opencode/command/repo-git-merge.md",
-    ".opencode/command/repo-git-new-branch.md",
-    ".opencode/command/repo-git-what-has-changed.md",
-    ".opencode/command/repo-gh-make-n-merge-PR.md",
-)
+FOUNDATION_GOVERNANCE_PATHS: tuple[str, ...] = get_foundation_scaffold_paths()
 
 FOUNDATION_PATHS: tuple[str, ...] = FOUNDATION_CORE_PATHS + FOUNDATION_GOVERNANCE_PATHS
 
-FOUNDATION_GOVERNANCE_EMPTY_DIRS: tuple[str, ...] = (
-    "docs/archive",
-    "docs/archive/plans",
-    "docs/archive/progress",
-    "docs/session-summaries",
-)
+FOUNDATION_GOVERNANCE_EMPTY_DIRS: tuple[str, ...] = get_foundation_empty_directories()
 
 FOUNDATION_GOVERNANCE_TEMPLATE_FILES: tuple[tuple[str, str], ...] = (
-    ("btca.config.jsonc", "foundation/btca.config.jsonc"),
-    ("AGENTS.md", "foundation/AGENTS.md"),
-    ("PLAN.md", "foundation/PLAN.md"),
-    ("README.md", "foundation/README.md"),
-    ("README.BMAD-GUIDE.md", "foundation/README.BMAD-GUIDE.md"),
-    ("README.RALPH.md", "foundation/README.RALPH.md"),
-    ("PROGRESS.md", "foundation/PROGRESS.md"),
-    ("scripts/RALPH.sh", "foundation/scripts/RALPH.sh"),
-    (
-        "scripts/configure-repo-protections.sh",
-        "foundation/scripts/configure-repo-protections.sh",
-    ),
-    (
-        "scripts/synthetic-quotas.sh",
-        "foundation/scripts/synthetic-quotas.sh",
-    ),
-    (
-        "scripts/task-template-schema.json",
-        "foundation/scripts/task-template-schema.json",
-    ),
-    (
-        "scripts/validate_template.py",
-        "foundation/scripts/validate_template.py",
-    ),
-    (
-        "scripts/visualize_plan.py",
-        "foundation/scripts/visualize_plan.py",
-    ),
-    ("docs/ARCHITECTURE.md", "foundation/docs/ARCHITECTURE.md"),
-    ("docs/LIVING_DOCS.md", "foundation/docs/LIVING_DOCS.md"),
-    (
-        "docs/markdown-templates/PLAN.template.md",
-        "foundation/docs/markdown-templates/PLAN.template.md",
-    ),
-    (
-        "docs/markdown-templates/PROGRESS.template.md",
-        "foundation/docs/markdown-templates/PROGRESS.template.md",
-    ),
-    ("docs/tasks/task-template.yaml", "foundation/docs/tasks/task-template.yaml"),
-    (
-        "docs/tasks/task-template-example.yaml",
-        "foundation/docs/tasks/task-template-example.yaml",
-    ),
-    (
-        "docs/workflows/export-to-ralph/workflow.md",
-        "foundation/docs/workflows/export-to-ralph/workflow.md",
-    ),
-    (
-        "docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
-        "foundation/docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
-    ),
-    (
-        "docs/workflows/export-to-ralph/steps/step-02-extract.md",
-        "foundation/docs/workflows/export-to-ralph/steps/step-02-extract.md",
-    ),
-    (
-        "docs/workflows/export-to-ralph/steps/step-03-transform.md",
-        "foundation/docs/workflows/export-to-ralph/steps/step-03-transform.md",
-    ),
-    (
-        "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
-        "foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
-    ),
-    (".github/workflows/ci.yml", "foundation/.github/workflows/ci.yml"),
-    (
-        ".github/workflows/release.yml",
-        "foundation/.github/workflows/release.yml",
-    ),
-    (".agent/rules/general-rules.md", "foundation/.agent/rules/general-rules.md"),
-    (
-        ".agent/workflows/project/project-export-bmad-to-ralph.md",
-        "foundation/.agent/workflows/project/project-export-bmad-to-ralph.md",
-    ),
-    (
-        ".opencode/command/project-export-bmad-to-ralph.md",
-        "foundation/.opencode/command/project-export-bmad-to-ralph.md",
-    ),
-    (
-        ".opencode/command/project-get-back-to-work.md",
-        "foundation/.opencode/command/project-get-back-to-work.md",
-    ),
-    (
-        ".opencode/command/project-resume-progress-from-last-checkpoint.md",
-        "foundation/.opencode/command/project-resume-progress-from-last-checkpoint.md",
-    ),
-    (
-        ".opencode/command/project-save-progress-to-checkpoint.md",
-        "foundation/.opencode/command/project-save-progress-to-checkpoint.md",
-    ),
-    (
-        ".opencode/command/project-setup-or-update-btca.md",
-        "foundation/.opencode/command/project-setup-or-update-btca.md",
-    ),
-    (
-        ".opencode/command/project-where-did-we-leave-off.md",
-        "foundation/.opencode/command/project-where-did-we-leave-off.md",
-    ),
-    (
-        ".opencode/command/repo-git-commit-and-push.md",
-        "foundation/.opencode/command/repo-git-commit-and-push.md",
-    ),
-    (
-        ".opencode/command/repo-git-difference-between-branch-and-main.md",
-        "foundation/.opencode/command/repo-git-difference-between-branch-and-main.md",
-    ),
-    (
-        ".opencode/command/repo-git-merge.md",
-        "foundation/.opencode/command/repo-git-merge.md",
-    ),
-    (
-        ".opencode/command/repo-git-new-branch.md",
-        "foundation/.opencode/command/repo-git-new-branch.md",
-    ),
-    (
-        ".opencode/command/repo-git-what-has-changed.md",
-        "foundation/.opencode/command/repo-git-what-has-changed.md",
-    ),
-    (
-        ".opencode/command/repo-gh-make-n-merge-PR.md",
-        "foundation/.opencode/command/repo-gh-make-n-merge-PR.md",
-    ),
+    get_foundation_template_file_pairs()
 )
 
 SHARED_INFRA_PACKAGE_PATHS: tuple[str, ...] = (

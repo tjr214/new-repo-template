@@ -137,6 +137,15 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
     """RED: foundation scaffold should include the governance asset baseline."""
 
     repo_root = Path(__file__).resolve().parents[2]
+    source_manifest = json.loads(
+        (
+            repo_root
+            / "src"
+            / "new_repo_template"
+            / "snapshot_assets"
+            / "source_manifest.json"
+        ).read_text(encoding="utf-8")
+    )
     output_dir = tmp_path / "foundation-governance-output"
 
     result = run_scaffold_command(
@@ -213,11 +222,23 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
                 encoding="utf-8"
             ) == source_path.read_text(encoding="utf-8")
 
-    assert (output_dir / "docs" / "archive").is_dir()
-    assert (output_dir / "docs" / "archive" / "plans").is_dir()
-    assert (output_dir / "docs" / "archive" / "progress").is_dir()
+    empty_directories = source_manifest.get("empty_directories")
+    assert isinstance(empty_directories, list)
+    expected_empty_directories = sorted(
+        directory.removeprefix("templates/foundation/")
+        for directory in empty_directories
+        if isinstance(directory, str) and directory.startswith("templates/foundation/")
+    )
+    assert expected_empty_directories, (
+        "source manifest should declare foundation empty directories"
+    )
+
+    for relative_directory in expected_empty_directories:
+        assert (output_dir / relative_directory).is_dir(), (
+            f"Expected empty directory at {output_dir / relative_directory}"
+        )
+
     assert (output_dir / "docs" / "markdown-templates").is_dir()
-    assert (output_dir / "docs" / "session-summaries").is_dir()
     assert (output_dir / ".github").is_dir()
     assert (output_dir / ".github" / "workflows").is_dir()
     assert not (output_dir / ".opencode" / "package.json").exists()

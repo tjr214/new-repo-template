@@ -626,3 +626,4 @@ def test_nurt_template_assets_validate_dry_run_reports_action(tmp_path: Path) ->
         assert f"would validate bundled template: {destination}" in combined_output
 
     assert "metadata would be refreshed at metadata.json" in combined_output
+    assert "runtime manifest would be refreshed at manifest.json" in combined_output
