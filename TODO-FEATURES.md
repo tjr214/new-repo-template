@@ -8,4 +8,6 @@
 - [ ] Add `nurt add` so we can add any new project type to an existing monorepo
 - [ ] Correctly implement new `nurt sync template-assets` functionality
   - [ ] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
+- [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
+- [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
 - [ ] Thoroughly test all project types (manual step)

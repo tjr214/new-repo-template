@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 12:51:50 AM
-**Current Phase:** `nurt new` completion handoff copy corrected
+**Last Updated:** 2026-03-13 01:06:48 AM
+**Current Phase:** stale repository contract expectations refreshed
 
 ## Previous Cycle Archives
 
@@ -92,6 +92,10 @@
 - [x] Revalidated the slice with `uv run pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_interactive_tui_contract.py tests/contracts/test_post_create_contract.py` (39 passed) and `uv run ruff check src/new_repo_template tests/contracts`; a broader `uv run pytest` pass still reports 5 unrelated repository-baseline failures because `install.sh` and `.template_scripts/configure-repo-protections.sh` are absent and `README.md` no longer contains the placeholder git-install command expected by `tests/contracts/test_nurt_install_contract.py`.
 - [x] Corrected the new completion handoff copy so `nurt new` now explicitly instructs the user to run `cd <project-name>` instead of implying that the CLI can move the parent shell into the generated directory.
 - [x] Removed the ineffective process-local `os.chdir(...)` step from successful `nurt new` completion and revalidated the updated handoff behavior with `uv run pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_post_create_contract.py` (25 passed) plus `uv run ruff check src/new_repo_template tests/contracts`.
+- [x] Ran a YELLOW pass for stale contract cleanup by rereading the failing installer/install-doc contracts, current README and branch-protection guidance/script paths, checking `btca status` / `btca resources`, and using `btca ask -r rich-docs` to confirm the README should continue to show exact copyable shell commands.
+- [x] Replaced stale repository-baseline expectations in `tests/contracts/test_installer_scripts_dry_run_contract.py`: the suite now asserts the removed root `install.sh` remains absent, treats `scripts/configure-repo-protections.sh` as the supported maintainer script path, and keeps the protections dry-run behavior under contract against that live script.
+- [x] Relaxed `tests/contracts/test_nurt_install_contract.py` so README coverage now expects a concrete GitHub `uv tool install git+https://github.com/...` command instead of the old `<org>/<repo>` placeholder, while still rejecting the obsolete `uv tool install --from` syntax.
+- [x] Revalidated the refreshed contract slice with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_nurt_install_contract.py` (7 passed) and `uv run pytest` (161 passed).
 
 ## Next Up
 

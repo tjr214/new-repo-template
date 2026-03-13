@@ -47,101 +47,28 @@ def test_legacy_template_update_script_excludes_removed_assistant_assets() -> No
     assert _removed_config_dir_name() not in script_text
 
 
-def test_install_script_dry_run_is_non_destructive(tmp_path: Path) -> None:
-    """RED: install script dry-run should not mutate repo state."""
+def test_legacy_install_script_is_absent_from_repo_root() -> None:
+    """The root repo should no longer carry the removed legacy install script."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    sandbox_root = tmp_path / "installer-sandbox"
-    sandbox_root.mkdir(parents=True)
-
-    (sandbox_root / ".template_scripts").mkdir()
-    shutil.copy2(repo_root / "install.sh", sandbox_root / "install.sh")
-    shutil.copytree(repo_root / "src", sandbox_root / "src")
-
-    (sandbox_root / ".git").mkdir()
-    (sandbox_root / ".git" / "HEAD").write_text(
-        "ref: refs/heads/main\n", encoding="utf-8"
-    )
-
-    shell = _resolve_posix_shell()
-    result = subprocess.run(
-        [shell, "install.sh", "--dry-run"],
-        cwd=sandbox_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-    assert result.returncode == 0, (
-        "Expected install dry-run to succeed.\n"
-        f"stdout:\n{result.stdout}\n"
-        f"stderr:\n{result.stderr}"
-    )
-
-    combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "DRY RUN" in combined_output
-    assert "Scaffold dry-run succeeded" in combined_output
-    assert "nurt sync bmad --dry-run" in combined_output
-    assert "nurt sync tools --dry-run" in combined_output
-    assert (sandbox_root / ".git").exists(), ".git should remain in dry-run mode"
-    assert (sandbox_root / "install.sh").exists(), (
-        "install.sh should not be deleted in dry-run"
-    )
+    assert not (repo_root / "install.sh").exists()
 
 
-def test_install_dry_run_accepts_target_and_auth_inputs(tmp_path: Path) -> None:
-    """Installer dry-run should forward target/auth options to scaffold planning."""
+def test_branch_protection_script_lives_under_scripts_directory() -> None:
+    """Branch-protection automation should live in `scripts/`, not `.template_scripts/`."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    sandbox_root = tmp_path / "installer-sandbox-target-auth"
-    sandbox_root.mkdir(parents=True)
-
-    (sandbox_root / ".template_scripts").mkdir()
-    shutil.copy2(repo_root / "install.sh", sandbox_root / "install.sh")
-    shutil.copytree(repo_root / "src", sandbox_root / "src")
-    (sandbox_root / ".git").mkdir()
-    (sandbox_root / ".git" / "HEAD").write_text(
-        "ref: refs/heads/main\n", encoding="utf-8"
-    )
-
-    shell = _resolve_posix_shell()
-    result = subprocess.run(
-        [
-            shell,
-            "install.sh",
-            "--dry-run",
-            "--target",
-            "web",
-            "--target",
-            "backend",
-            "--auth",
-            "clerk",
-        ],
-        cwd=sandbox_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-    assert result.returncode == 0, (
-        "Expected install dry-run with target/auth inputs to succeed.\n"
-        f"stdout:\n{result.stdout}\n"
-        f"stderr:\n{result.stderr}"
-    )
-
-    combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "targets: web backend" in combined_output
-    assert "auth: clerk" in combined_output
-    assert "- targets: web, backend" in combined_output
-    assert "- auth: clerk" in combined_output
-    assert (sandbox_root / ".git").exists(), ".git should remain in dry-run mode"
+    assert (repo_root / "scripts" / "configure-repo-protections.sh").exists()
+    assert not (
+        repo_root / ".template_scripts" / "configure-repo-protections.sh"
+    ).exists()
 
 
 def test_configure_repo_protections_script_dry_run_reports_actions() -> None:
     """RED: protections script dry-run should show branch-protection + dependabot actions."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    script_path = repo_root / ".template_scripts" / "configure-repo-protections.sh"
+    script_path = repo_root / "scripts" / "configure-repo-protections.sh"
 
     shell = _resolve_posix_shell()
     result = subprocess.run(
@@ -183,7 +110,7 @@ def test_configure_repo_protections_defaults_branch_and_auto_detects_repo(
     """Protections script should auto-detect repo and default branch to main."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    script_path = repo_root / ".template_scripts" / "configure-repo-protections.sh"
+    script_path = repo_root / "scripts" / "configure-repo-protections.sh"
 
     fake_bin = tmp_path / "fake-bin"
     fake_bin.mkdir(parents=True)

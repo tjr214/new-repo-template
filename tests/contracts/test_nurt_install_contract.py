@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -15,7 +16,11 @@ def test_readme_documents_git_url_uv_tool_install_command() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     readme_text = (repo_root / "README.md").read_text(encoding="utf-8")
 
-    assert "uv tool install git+https://github.com/<org>/<repo>.git" in readme_text
+    assert re.search(
+        r"uv tool install git\+https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\.git",
+        readme_text,
+    )
+    assert "<org>/<repo>" not in readme_text
     assert "uv tool install --from" not in readme_text
 
 
