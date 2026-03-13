@@ -101,6 +101,7 @@ def test_configure_repo_protections_script_dry_run_reports_actions() -> None:
     assert "DRY RUN" in combined_output
     assert "dependabot_security_updates" in combined_output
     assert "Require a pull request before merging" in combined_output
+    assert "- required approvals: 0" in combined_output
     assert "Tests (ubuntu-latest)" in combined_output
 
 
@@ -157,3 +158,40 @@ exit 9
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "- repo: fake-owner/fake-repo" in combined_output
     assert "- branch: main" in combined_output
+    assert "- required approvals: 0" in combined_output
+
+
+def test_configure_repo_protections_allows_explicit_required_approvals() -> None:
+    """Dry-run output should reflect non-default approval requirements."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    script_path = repo_root / "scripts" / "configure-repo-protections.sh"
+
+    shell = _resolve_posix_shell()
+    result = subprocess.run(
+        [
+            shell,
+            str(script_path),
+            "--dry-run",
+            "--repo",
+            "example-org/example-repo",
+            "--required-approvals",
+            "2",
+            "--required-check",
+            "Tests (ubuntu-latest)",
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, (
+        "Expected protections script dry-run with explicit approvals to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "- required approvals: 2" in combined_output
+    assert '"required_approving_review_count": 2' in combined_output

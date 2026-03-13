@@ -20,6 +20,7 @@ BRANCH="main"
 DRY_RUN=0
 AUTO_DETECT_CHECKS=1
 INCLUDE_ADMINS=1
+REQUIRED_APPROVALS=0
 REQUIRED_CHECKS_RAW=""
 
 usage() {
@@ -31,6 +32,7 @@ Options:
   --branch <branch>            Target protected branch (default: main)
   --required-check <name>      Required status check name (repeatable)
   --workflow <name>            Workflow name used for check auto-discovery (default: CI)
+  --required-approvals <n>     Required approving reviews (default: 0)
   --no-auto-detect-checks      Disable check auto-discovery when none are supplied
   --exclude-admins             Do not enforce protections for admins
   --dry-run, -n                Print planned API operations without applying changes
@@ -88,6 +90,11 @@ while [ "$#" -gt 0 ]; do
             WORKFLOW_NAME="$2"
             shift 2
             ;;
+        --required-approvals)
+            [ "$#" -ge 2 ] || error "--required-approvals requires a value"
+            REQUIRED_APPROVALS="$2"
+            shift 2
+            ;;
         --no-auto-detect-checks)
             AUTO_DETECT_CHECKS=0
             shift 1
@@ -109,6 +116,12 @@ while [ "$#" -gt 0 ]; do
             ;;
     esac
 done
+
+case "$REQUIRED_APPROVALS" in
+    ''|*[!0-9]*)
+        error "--required-approvals must be a non-negative integer"
+        ;;
+esac
 
 if [ "$AUTO_DETECT_CHECKS" -eq 0 ] && [ -z "$REQUIRED_CHECKS_RAW" ]; then
     error "no required checks supplied. Add --required-check values or omit --no-auto-detect-checks"
@@ -197,12 +210,13 @@ if [ "$check_count" -eq 0 ]; then
     error "no required checks configured"
 fi
 
-branch_protection_payload=$(REQUIRED_CHECKS_RAW="$REQUIRED_CHECKS_RAW" INCLUDE_ADMINS="$INCLUDE_ADMINS" python3 -c '
+branch_protection_payload=$(REQUIRED_CHECKS_RAW="$REQUIRED_CHECKS_RAW" INCLUDE_ADMINS="$INCLUDE_ADMINS" REQUIRED_APPROVALS="$REQUIRED_APPROVALS" python3 -c '
 import json
 import os
 
 checks = [line.strip() for line in os.environ.get("REQUIRED_CHECKS_RAW", "").splitlines() if line.strip()]
 include_admins = os.environ.get("INCLUDE_ADMINS", "1") == "1"
+required_approvals = int(os.environ.get("REQUIRED_APPROVALS", "0"))
 
 payload = {
     "required_status_checks": {
@@ -213,7 +227,7 @@ payload = {
     "required_pull_request_reviews": {
         "dismiss_stale_reviews": True,
         "require_code_owner_reviews": False,
-        "required_approving_review_count": 1,
+        "required_approving_review_count": required_approvals,
     },
     "restrictions": None,
     "required_linear_history": True,
@@ -229,6 +243,7 @@ printf "Configuring repository protections\n"
 printf -- "- repo: %s\n" "$REPO"
 printf -- "- branch: %s\n" "$BRANCH"
 printf -- "- include admins: %s\n" "$INCLUDE_ADMINS"
+printf -- "- required approvals: %s\n" "$REQUIRED_APPROVALS"
 printf -- "- required checks (%s):\n" "$check_count"
 printf "%s\n" "$REQUIRED_CHECKS_RAW" | while IFS= read -r check_name; do
     if [ -n "$check_name" ]; then

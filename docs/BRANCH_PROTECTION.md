@@ -10,11 +10,14 @@ Defaults:
 
 - If `--repo` is omitted, the script auto-detects the current repository via `gh repo view`.
 - If `--branch` is omitted, the script defaults to `main`.
+- If `--required-approvals` is omitted, the script keeps PR-based merging but defaults approval count to `0` so solo-maintainer repos are not blocked waiting on a second reviewer.
 
 Examples:
 
 - Auto-detect repo/checks and apply protections to `main`:
   - `sh scripts/configure-repo-protections.sh`
+- Apply a team-oriented policy that requires one write-access approval:
+  - `sh scripts/configure-repo-protections.sh --repo <owner>/<repo> --required-approvals 1`
 - Apply protections to an explicit repository (still defaults to `main`):
   - `sh scripts/configure-repo-protections.sh --repo <owner>/<repo>`
 - Preview changes without applying:
@@ -34,6 +37,8 @@ Script baseline behavior:
 ## Required Settings
 
 - Enable **Require a pull request before merging**.
+- For solo-dev repositories, keep **Required approvals** at `0` so the author can merge once required checks pass.
+- For team repositories, set **Required approvals** to `1` or higher with `--required-approvals <n>`.
 - Enable **Require status checks to pass before merging**.
 - Enable **Require branches to be up to date before merging**.
 - Enable **Require conversation resolution before merging**.
