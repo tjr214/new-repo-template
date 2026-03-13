@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 02:58:07 PM
-**Current Phase:** foundation OpenCode PR-command scaffold parity
+**Last Updated:** 2026-03-13 03:50:26 PM
+**Current Phase:** manifest-driven foundation source-of-truth closeout
 
 ## Previous Cycle Archives
 
@@ -114,6 +114,14 @@
 - [x] Updated the foundation scaffold allowlist and template-file mapping in `src/new_repo_template/scaffold.py` so generated repos now include `.opencode/command/repo-gh-make-n-merge-PR.md`.
 - [x] Synced the packaged runtime manifest in `src/new_repo_template/snapshot_assets/manifest.json` so the new command is part of the loadable bundled-template set.
 - [x] Revalidated the slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py` (6 passed).
+- [x] Extended `src/new_repo_template/snapshot_assets/source_manifest.json` to keep the CRITICAL maintenance note intact while adding manifest-declared foundation `empty_directories` for scaffold-only directories.
+- [x] Added `src/new_repo_template/foundation_manifest.py` so foundation scaffold file mappings, dry-run path reporting, empty-directory creation, and runtime snapshot-manifest generation all derive from `src/new_repo_template/snapshot_assets/source_manifest.json`.
+- [x] Refactored `src/new_repo_template/scaffold.py` to replace hard-coded foundation governance file/path allowlists with manifest-derived foundation data.
+- [x] Refactored `src/new_repo_template/snapshot_builder.py` and `src/new_repo_template/nurt_cli.py` so `nurt template-assets validate` regenerates `src/new_repo_template/snapshot_assets/manifest.json`, refreshes metadata, and reports both outputs in dry-run and real execution flows.
+- [x] Expanded contract coverage in `tests/contracts/test_root_workspace_contract.py`, `tests/contracts/test_snapshot_assets_contract.py`, and `tests/contracts/test_nurt_cli_contract.py` to guard manifest-driven empty directories, runtime manifest regeneration, and validate-command reporting.
+- [x] Regenerated bundled snapshot artifacts with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`.
+- [x] Revalidated the targeted manifest slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_nurt_cli_contract.py` (27 passed).
+- [x] Revalidated the repository with `uv run pytest` (164 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
 
 ## Next Up
 
