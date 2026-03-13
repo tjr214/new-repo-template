@@ -27,7 +27,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Generator write model: failure-atomic scaffolding (transactional writes or cleanup-on-failure)
 - TV input contract: remote-primary navigation with keyboard/mouse/gamepad support as secondary inputs
 - Root workspace invariant: generated repo roots scaffold shared monorepo files only (`.gitignore`, `package.json`, `turbo.json`, `eslint.config.mjs`, workspace directories), not Python-only metadata
-- Python lane metadata boundary: Python app metadata, interpreter pinning, and Python lock state live only under `apps/python/` (`pyproject.toml`, `.python-version`, `uv.lock`) when the Python target is selected
+- Python workspace boundary: Python-enabled repos generate a root uv workspace (`pyproject.toml`, `uv.lock`), `apps/python/.python-version` remains app-local, and `packages/python` joins the same workspace when the Python library target is selected
 - Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards and JS dependency directory ignores (`node_modules/`, `**/node_modules/`); Python-only metadata is isolated to `apps/python`, and selected targets scaffold placeholder-only `.env.example`
 - Global UX direction: distribute and run as `nurt` global CLI installed via `uv tool install git+...`; user entrypoint is `nurt new <project-name>`
 
@@ -152,6 +152,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Generated Expo mobile/TV TypeScript manifests now explicitly carry template-required dev tooling (`babel-preset-expo`, `@types/react`), and generated TV manifests additionally pin `@react-native-community/cli` plus `@react-native-community/cli-platform-android` so local Android autolinking produces `project.android.packageName` correctly.
 - The Python lane has now been upgraded from a minimal package stub into a real terminal-app baseline: generated `apps/python` output includes `rich` + `textual`, packaged console scripts (`python-app`, `python-app-tui`), shared starter logic, a starter Textual app, starter CSS, and richer README/test guidance.
 - A dedicated Bun-native `typescript-cli` target is now part of the app matrix: generated `apps/typescript-cli` output includes a workspace-linked `bin`, Node-shared tsconfig inheritance, starter CLI/core source files, a Bun smoke test, target-local `.env.example`, and README guidance for local CLI development.
+- A dedicated `python-lib` target is now part of the package matrix: generated `packages/python` output includes a reusable Hatchling-based library package, starter source/test files, and root-workspace membership through the scaffolded uv workspace.
+- A dedicated `typescript-lib` target is now part of the package matrix: generated `packages/typescript` output includes a publishable TypeScript package manifest, Node-shared tsconfig inheritance, starter source/test files, and `dist` build output wiring.
 - Generated TV starter UI is now intentionally focus-first rather than low-level event-hook-driven: it uses `Pressable` items with `hasTVPreferredFocus`, `onFocus`, and `onPress` to provide a stable Android TV starter surface for manual remote-primary and fallback-input validation.
 - Local Android TV emulator evidence now confirms the generated TV baseline supports initial focus placement, deterministic D-pad progression across the starter rail, select stability, back-to-home behavior with relaunch focus recovery, and pointer/tap activation for the same controls.
 - Physical NVIDIA Shield validation now confirms the generated TV baseline launches successfully on-device, supports remote-primary control, exits cleanly via Back, relaunches correctly, and accepts mouse and gamepad fallback input on the same focus-first UI.
@@ -161,7 +163,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - The legacy updater shell scripts have been removed from `.template_scripts/`; install/update flows for the managed toolchain and BMAD Method now route only through native `nurt` commands.
 - The earlier legacy `install.sh` maintainer bootstrap path has now been removed from the root repository; maintainer update flows route through native `nurt` commands instead of shell wrappers.
 - Root repository guidance is now deliberately split by operating mode: `README.md` stays focused on end-user `nurt` bootstrap, `README.BMAD-GUIDE.md` covers BMAD planning workflows, and `README.RALPH.md` covers task-driven RALPH execution.
-- Repository-baseline contract coverage is now aligned with the live maintainer surface: root `install.sh` is intentionally absent, the branch-protection automation contract targets `scripts/configure-repo-protections.sh`, README install guidance expects a concrete copyable GitHub `uv tool install git+https://github.com/...` command, and the full suite currently revalidates green at `uv run pytest` (161 passed).
+- Repository-baseline contract coverage is now aligned with the live maintainer surface: root `install.sh` is intentionally absent, the branch-protection automation contract targets `scripts/configure-repo-protections.sh`, README install guidance expects a concrete copyable GitHub `uv tool install git+https://github.com/...` command, and the full suite currently revalidates green at `uv run pytest` (184 passed).
 - Branch-protection contract coverage now also guards the approval-policy default: dry runs must surface `required approvals: 0` by default, explicit override counts must flow through the payload, and maintainer guidance must document the solo-vs-team policy split.
 - CLI and scaffold-doc contract coverage is now less copy-coupled as well: `nurt` plan assertions are centralized around semantic markers (`targets`, `auth`, `output`, post-create decisions), `template-assets validate` dry-run coverage derives expectations from the live source manifest, and Python/mobile/TV setup-doc contracts focus on stable setup/validation concepts rather than exact wording.
 
@@ -182,15 +184,17 @@ Current contract coverage:
 - `tests/contracts/test_monorepo_foundation_contract.py`
   - Contract intent: non-interactive `--dry-run` foundation scaffold path succeeds, reports monorepo shape (`apps`, `packages`, `.gitignore`), and writes no files.
 - `tests/contracts/test_python_lane_contract.py`
-  - Contract intent: Python target dry-run/write flows keep Python metadata exclusively inside `apps/python` (`pyproject.toml` and `.python-version`), keep root Python metadata absent, and baseline lane commands execute for both preferred and compatibility sync flows (`uv sync --group dev`, `uv sync --extra dev`, `uv run pytest`, `uv run ruff check .`, `uv run mypy src`).
+  - Contract intent: Python target dry-run/write flows scaffold a root uv workspace for Python-enabled repos, keep `.python-version` app-local in `apps/python`, and execute baseline lane commands through workspace-targeted `uv sync/run --package python-app ...` flows.
+- `tests/contracts/test_python_lib_scaffold_contract.py`
+  - Contract intent: `python-lib` scaffold output includes a reusable package under `packages/python`, Python-enabled repos emit the correct uv workspace membership, and combined `python + python-lib` generation resolves the app-to-library dependency through `[tool.uv.sources]`.
 - `tests/contracts/test_cli_validation_and_python_commands_contract.py`
-  - Contract intent: deterministic CLI validation failures (including missing `--no-interactive` across foundation/python/web+backend/mobile+tv modes, missing required args, and invalid choice handling) and Python lane baseline command documentation generation.
+  - Contract intent: deterministic CLI validation failures (including missing `--no-interactive` across foundation/python/python-lib/typescript-lib/web+backend/mobile+tv modes, missing required args, and invalid choice handling) and Python lane baseline command documentation generation.
 - `tests/contracts/test_failure_atomicity_contract.py`
   - Contract intent: simulated mid-generation failure leaves no partial output at the final scaffold path.
 - `tests/contracts/test_target_matrix_and_auth_contract.py`
   - Contract intent: multi-target validation/auth rules, duplicate target rejection, unsupported mixed-combo auth validation, auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
 - `tests/contracts/test_required_preset_matrix_contract.py`
-  - Contract intent: full required preset matrix from `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` Section 2.1 scaffolds successfully with root Python metadata absent, expected target directories, python-lane metadata inclusion when selected, and auth-variant wiring assertions.
+  - Contract intent: full required preset matrix scaffolds successfully across app and library lanes, emits a root uv workspace for Python-enabled presets, creates the expected target directories, and preserves auth-variant wiring assertions.
 - `tests/contracts/test_root_workspace_contract.py`
   - Contract intent: root workspace config files (`package.json`, `turbo.json`) are present in dry-run/scaffold output, include baseline cross-platform script/task wiring for `dev`, `build`, `test`, `lint`, and `typecheck`, mirror the expanded foundation governance/agent asset baseline, and create manifest-declared scaffold-only foundation empty directories.
 - `tests/contracts/test_bun_workspace_install_contract.py`
@@ -239,3 +243,7 @@ Current contract coverage:
   - Contract intent: `typescript-cli` scaffold output includes Bun-native CLI manifest/bin wiring, starter source files, tsconfig inheritance, README guidance, and dry-run path visibility.
 - `tests/contracts/test_typescript_cli_runtime_smoke_contract.py`
   - Contract intent: generated `typescript-cli` output installs with Bun and executes its local `dev`, `build`, `test`, `lint`, and `typecheck` scripts successfully.
+- `tests/contracts/test_typescript_lib_scaffold_contract.py`
+  - Contract intent: `typescript-lib` scaffold output includes a reusable package under `packages/typescript`, a publishable package manifest shape, starter source/test files, tsconfig inheritance, and dry-run path visibility.
+- `tests/contracts/test_typescript_lib_runtime_smoke_contract.py`
+  - Contract intent: generated `typescript-lib` output installs with Bun and executes its local `build`, `test`, `lint`, and `typecheck` scripts successfully.

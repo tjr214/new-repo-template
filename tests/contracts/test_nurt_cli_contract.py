@@ -160,6 +160,39 @@ def test_nurt_new_dry_run_supports_typescript_cli_target(tmp_path: Path) -> None
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
+def test_nurt_new_dry_run_supports_library_targets(tmp_path: Path) -> None:
+    """nurt new should route the new library targets through scaffold dry-run."""
+
+    output_dir = tmp_path / "demo-libraries"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "new",
+            output_dir.name,
+            "--target",
+            "python-lib",
+            "--target",
+            "typescript-lib",
+            "--dry-run",
+            "--no-interactive",
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected library-target nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("python-lib", "typescript-lib"),
+        auth="none",
+        output_path=output_dir,
+    )
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
 def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     tmp_path: Path,
 ) -> None:

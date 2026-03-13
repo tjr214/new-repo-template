@@ -3,9 +3,9 @@
 - [x] 1.0 ADD PYTHON AND TYPESCRIPT CLI / TUI PROJECTS
   - [x] Update existing Python scaffolding with CLI support via Rich and Textual libraries
   - [x] Ane new specific Typescript scaffolding for CLIs
-- [ ] 2.0 ADD SUPPORT FOR PYTHON AND TYPESCRIPT LIBRARIES
-  - [ ] Add new Python Library scaffolding (python-lib)
-  - [ ] Same for Typescript library (typescript-lib)
+- [x] 2.0 ADD SUPPORT FOR PYTHON AND TYPESCRIPT LIBRARIES
+  - [x] Add new Python Library scaffolding (python-lib)
+  - [x] Same for Typescript library (typescript-lib)
 - [ ] 3.0 UPDATE THE `NURT NEW` FLOW TO SUPPORT MULTIPLE PROJECTS OF THE SAME TYPE (Blocked by 1.0 and 2.0)
   - [ ] Allow `nurt new` to specify how many projects get added to the monorepo (both in Wizard and underlying CLI)
     - Example: 2 python apps, 1 typescript library, 3 webapps, etc.

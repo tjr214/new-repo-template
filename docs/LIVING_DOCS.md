@@ -17,7 +17,7 @@ The template implementation remains intact, and the latest execution plan is now
 - The CLI/setup-doc brittleness pass is now complete too: `test_nurt_cli_contract.py` relies on shared semantic plan helpers and manifest-derived template-validation expectations, while the Python/mobile/TV documentation contracts now assert stable guidance markers instead of overfitting exact prose.
 - The branch-protection baseline is now tuned for the template's real operating mode: `scripts/configure-repo-protections.sh` still requires PR-based merging and required checks, but defaults required approvals to `0` so solo-maintainer repos are not blocked, while team repos can opt into `--required-approvals <n>`.
 - The foundation OpenCode command baseline remains in sync for the new PR automation command, and the larger drift fix is now complete: `src/new_repo_template/snapshot_assets/source_manifest.json` is the source of truth for foundation scaffold file assets plus scaffold-only empty directories, while the packaged runtime `manifest.json` is regenerated from the file entries during `nurt template-assets validate`.
-- The scaffold catalog now includes two stronger terminal-app lanes: `python` generates a Rich + Textual starter package under `apps/python`, and `typescript-cli` generates a Bun-native CLI package under `apps/typescript-cli` with a workspace-linked `bin` entry.
+- The scaffold catalog now includes four dedicated Python/TypeScript lanes: `python` generates a Rich + Textual starter app under `apps/python`, `typescript-cli` generates a Bun-native CLI app under `apps/typescript-cli`, `python-lib` generates a reusable Python package under `packages/python`, and `typescript-lib` generates a reusable TypeScript package under `packages/typescript`.
 
 ## Active Implementation Rules
 
@@ -42,8 +42,10 @@ The template implementation remains intact, and the latest execution plan is now
 - Convex CI baseline: credentialless wiring checks only (no external secrets required)
 - Generator writes: failure-atomic (transactional write strategy or cleanup-on-failure)
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
-- Python metadata isolation: generated `.python-version`, `pyproject.toml`, and `uv.lock` live only in `apps/python` when the Python target is selected
+- Python workspace model: Python-enabled repos generate a root `pyproject.toml` uv workspace and root `uv.lock`, while `apps/python/.python-version` remains app-local and `packages/python` joins the same workspace when `python-lib` is selected
 - TypeScript CLI lane: dedicated Bun-native app target at `apps/typescript-cli`
+- Python library lane: dedicated reusable package target at `packages/python`
+- TypeScript library lane: dedicated reusable package target at `packages/typescript`
 - Global execution UX pivot: primary user flow is globally installed `nurt` (`uv tool install git+...` then `nurt new <project-name>`) with no `install.sh` fallback user path
 
 ## Known Constraints
@@ -55,7 +57,7 @@ The template implementation remains intact, and the latest execution plan is now
 - Fullstack auth choice has no default and must be explicitly selected in non-interactive runs.
 - Mixed presets with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed variant).
 - Generator failures must not leave partially scaffolded repos behind.
-- Generated repo roots must stay free of Python-only metadata files; foundation and JS-only outputs do not scaffold `.python-version`, `pyproject.toml`, or `uv.lock`.
+- Foundation and JS-only outputs stay free of Python-only metadata files, while Python-enabled outputs scaffold a root uv workspace (`pyproject.toml`, `uv.lock`) plus app-local interpreter pinning at `apps/python/.python-version`.
 
 ## Implementation Notes (M0-M1)
 
@@ -64,7 +66,7 @@ The template implementation remains intact, and the latest execution plan is now
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.
 - Initial GREEN implementation added `src/new_repo_template/scaffold.py` and now satisfies the first dry-run foundation contract.
-- Python lane GREEN slice is now updated so Python metadata exists only inside `apps/python`, with lane-local `.python-version` and `pyproject.toml` output.
+- Python lane GREEN slice now uses a root uv workspace for Python-enabled repos while keeping `.python-version` lane-local in `apps/python`.
 - CLI validation + Python command contract slice complete: `--auth` now fails deterministically when invalid, non-interactive omission has explicit failure coverage, and Python lane scaffolds `apps/python/README.md` with baseline uv commands.
 - Failure-atomic scaffold slice complete: generator now stages output in a temp directory and atomically moves it into place; failure-path contract confirms no partial output remains.
 - Target matrix slice complete for current scaffold breadth: CLI now accepts `foundation/python/web/backend/desktop/mobile/tv`, enforces auth for `web+backend`, enforces foundation-standalone behavior, and verifies distinct `mobile` + `tv` app output contracts.
@@ -73,7 +75,7 @@ The template implementation remains intact, and the latest execution plan is now
 - Security baseline slice complete: generated outputs now copy the root `.gitignore` baseline (with env/secret guards) and include target-local `.env.example` placeholders; baseline policy is documented in `docs/SECURITY_BASELINE.md`.
 - Installer/tooling migration is now effectively complete: the root repo no longer carries the old `install.sh` maintainer entrypoint, and core tool plus BMAD updates are handled by native `nurt sync tools` and `nurt sync bmad` commands instead of shell updater scripts.
 - User-facing bootstrap path is now fully `nurt`-first (`uv tool install git+...` then `nurt new <project-name>`); script-first bootstrap is not the default user guidance.
-- `nurt new` now generates deterministic lockfiles according to lane ownership: root outputs keep `bun.lock`, while Python-enabled outputs generate `apps/python/uv.lock` from the lane-local `apps/python/pyproject.toml`.
+- `nurt new` now generates deterministic lockfiles according to workspace ownership: root outputs keep `bun.lock`, and Python-enabled outputs also generate root `uv.lock` from the scaffolded uv workspace.
 - The documented git-install workflow has been validated against current uv behavior using `uv tool install git+...`; the older `--from ... nurt` syntax is no longer used in repository docs.
 - The local git-install smoke contract now pins a concrete repository revision (`git+file://...@<sha>`) instead of relying on git default-branch discovery, which keeps Linux/macOS CI compatible with Actions checkouts that do not expose `refs/remotes/origin/HEAD`.
 - Managed version-baseline policy is now current again for the tracked core toolchain: `turbo` was refreshed from `2.8.14` to `2.8.16`, and the latest-check guardrail confirmed the other managed tools (`bun`, `typescript`, `python`) remained current.
@@ -190,7 +192,7 @@ The template implementation remains intact, and the latest execution plan is now
 - Native OpenCode updater behavior now lives in `src/new_repo_template/tool_sync_runner.py`: existing installs use `opencode upgrade`, missing installs still bootstrap via the installer curl flow, and contract coverage now validates the native `nurt sync tools` path instead of the removed shell script.
 - The legacy shell updater files `.template_scripts/update-opencode.sh` and `.template_scripts/update-bmad-method.sh` have been removed; `nurt sync tools` and `nurt sync bmad` are now the only supported update entrypoints for those flows.
 - The repo-level contract suite now derives more of its governance expectations from current source-of-truth assets instead of pinning large hardcoded file lists or stale script paths: foundation governance mirroring is checked through dynamic directory parity, and branch-protection guidance now stays aligned to `.github/workflows/ci.yml` job names.
-- Generated repos now inherit the exact template-root `.gitignore` baseline from bundled snapshot assets instead of a reduced foundation-only subset, and Python-target outputs now keep `.python-version`, `pyproject.toml`, and `uv.lock` entirely inside `apps/python`.
+- Generated repos now inherit the exact template-root `.gitignore` baseline from bundled snapshot assets, while Python-enabled outputs use a root uv workspace and keep `.python-version` entirely inside `apps/python`.
 - `docs/markdown-templates/PLAN.template.md` and `docs/markdown-templates/PROGRESS.template.md` are now the source-of-truth snapshot inputs for scaffolded root `PLAN.md` and `PROGRESS.md`, while those same template files are also mirrored into generated repos under `docs/markdown-templates/` for future plan/progress resets.
 - Snapshot alias entries that point through `templates-snapshot-files/...` are intentional and must remain alias-backed in `src/new_repo_template/snapshot_assets/source_manifest.json`; they are not to be replaced with direct source paths during maintenance edits.
 - `docs/markdown-templates/LIVING_DOCS.template.md` is now available as a reusable baseline for future living-doc authoring, matching this file's section layout and synchronization expectations.
@@ -200,4 +202,6 @@ The template implementation remains intact, and the latest execution plan is now
 - The repository-level contract suite is back in sync with the live repo layout: stale tests around the deleted root `install.sh`, the old `.template_scripts/configure-repo-protections.sh` location, and placeholder README git-install text were updated, and `uv run pytest` is green again at 161 passing tests.
 - The Python lane is now a real CLI/TUI starter rather than a minimal package stub: generated `apps/python` outputs include `rich` + `textual` dependencies, console scripts (`python-app`, `python-app-tui`), shared starter logic, a Textual app shell, starter tests, and expanded README guidance.
 - A dedicated `typescript-cli` target is now part of the scaffold matrix: generated `apps/typescript-cli` outputs include a Bun-native CLI package manifest with `bin` wiring, Node-shared tsconfig inheritance, starter source files, a Bun smoke test, and target-local `.env.example` generation.
-- Contract coverage now includes `tests/contracts/test_typescript_cli_scaffold_contract.py` and `tests/contracts/test_typescript_cli_runtime_smoke_contract.py`, and the existing Python, security, preset-matrix, `nurt`, and Textual-wizard contracts were expanded to cover the new lanes.
+- Feature `2.0` is now complete too: generated `packages/python` outputs include a reusable Hatchling-based Python library starter, generated `packages/typescript` outputs include a reusable Bun/TypeScript library starter, and the plain/Textual target pickers expose both new lanes.
+- Python-enabled repos now scaffold a root uv workspace (`pyproject.toml` + `uv.lock`), and the generated Python app declares `python-lib` as a workspace dependency via `[tool.uv.sources]` when both Python targets are selected.
+- Contract coverage now includes `tests/contracts/test_python_lib_scaffold_contract.py`, `tests/contracts/test_typescript_lib_scaffold_contract.py`, and `tests/contracts/test_typescript_lib_runtime_smoke_contract.py`, while the existing Python, preset-matrix, `nurt`, lockfile, CLI-validation, and Textual-wizard contracts were expanded to cover the new library lanes and workspace model.

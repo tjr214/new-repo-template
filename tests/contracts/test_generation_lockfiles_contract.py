@@ -137,8 +137,10 @@ def test_nurt_new_generates_root_lockfiles_for_foundation_output(
     )
 
 
-def test_nurt_new_python_target_generates_workspace_uv_lockfile(tmp_path: Path) -> None:
-    """Python target generation should keep Python metadata and uv.lock inside the lane."""
+def test_nurt_new_python_target_generates_root_workspace_uv_lockfile(
+    tmp_path: Path,
+) -> None:
+    """Python target generation should create a root uv workspace lockfile."""
 
     if shutil.which("uv") is None or shutil.which("bun") is None:
         pytest.skip("uv and bun are required for lockfile generation contract")
@@ -159,18 +161,18 @@ def test_nurt_new_python_target_generates_workspace_uv_lockfile(tmp_path: Path) 
     lane_pyproject = lane_root / "pyproject.toml"
     lane_python_version = lane_root / ".python-version"
     lane_content = lane_pyproject.read_text(encoding="utf-8")
+    root_pyproject = output_dir / "pyproject.toml"
 
     assert (output_dir / "bun.lock").exists(), "root bun.lock should exist"
-    assert not (output_dir / "pyproject.toml").exists(), (
-        "root pyproject.toml should not exist"
-    )
+    assert root_pyproject.exists(), "root pyproject.toml should exist for uv workspace"
     assert not (output_dir / ".python-version").exists(), (
         "root .python-version should not exist"
     )
-    assert not (output_dir / "uv.lock").exists(), "root uv.lock should not exist"
-    assert (lane_root / "uv.lock").exists(), "python lane uv.lock should exist"
+    assert (output_dir / "uv.lock").exists(), "root uv.lock should exist"
+    assert not (lane_root / "uv.lock").exists(), "python lane uv.lock should not exist"
     assert lane_python_version.exists(), "python lane .python-version should exist"
     assert 'requires-python = ">=3.14"' in lane_content
     assert '"pytest>=' in lane_content
     assert '"ruff>=' in lane_content
     assert '"mypy>=' in lane_content
+    assert "[tool.uv.workspace]" in root_pyproject.read_text(encoding="utf-8")

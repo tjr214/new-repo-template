@@ -38,15 +38,15 @@ def run_scaffold_command(
     )
 
 
-def run_lane_command(
-    *, lane_root: Path, args: list[str], uv_binary: str
+def run_workspace_command(
+    *, workspace_root: Path, args: list[str], uv_binary: str
 ) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env.pop("VIRTUAL_ENV", None)
 
     return subprocess.run(
         [uv_binary, *args],
-        cwd=lane_root,
+        cwd=workspace_root,
         capture_output=True,
         text=True,
         env=env,
@@ -71,13 +71,13 @@ def test_python_target_dry_run_reports_lane_python_files_only(tmp_path: Path) ->
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "pyproject.toml" in combined_output
     assert "apps/python/pyproject.toml" in combined_output
     assert "apps/python/.python-version" in combined_output
     assert "apps/python/src/python_app/cli.py" in combined_output
     assert "apps/python/src/python_app/tui.py" in combined_output
     assert "apps/python/src/python_app/entry_points.py" in combined_output
     assert "apps/python/src/python_app/app.tcss" in combined_output
-    assert "  - pyproject.toml" not in combined_output
     assert "  - .python-version" not in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"
 
@@ -110,8 +110,9 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
         output_dir / "apps" / "python" / "tests" / "test_core.py",
     )
 
-    assert not (output_dir / "pyproject.toml").exists(), (
-        "root pyproject.toml must not exist when Python metadata lives in the lane"
+    root_pyproject = output_dir / "pyproject.toml"
+    assert root_pyproject.exists(), (
+        "root pyproject.toml must exist for uv workspace wiring"
     )
     assert not (output_dir / ".python-version").exists(), (
         "root .python-version must not exist when Python metadata lives in the lane"
@@ -125,11 +126,15 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
         assert path.exists(), f"Expected scaffolded python lane file: {path}"
 
     lane_content = lane_pyproject.read_text(encoding="utf-8")
+    root_pyproject_content = root_pyproject.read_text(encoding="utf-8")
     lane_python_version_content = lane_python_version.read_text(encoding="utf-8")
 
     assert lane_python_version_content == (repo_root / ".python-version").read_text(
         encoding="utf-8"
     )
+    assert "[tool.uv.workspace]" in root_pyproject_content
+    assert "apps/python" in root_pyproject_content
+    assert "packages/python" not in root_pyproject_content
     assert "[project]" in lane_content
     assert 'requires-python = ">=3.14"' in lane_content
     assert "rich>=14.3.3" in lane_content
@@ -158,52 +163,50 @@ def test_python_target_scaffold_runs_baseline_commands(tmp_path: Path) -> None:
         f"stderr:\n{scaffold_result.stderr}"
     )
 
-    lane_root = output_dir / "apps" / "python"
-
-    sync_result = run_lane_command(
-        lane_root=lane_root,
+    sync_result = run_workspace_command(
+        workspace_root=output_dir,
         uv_binary=uv_binary,
-        args=["sync", "--group", "dev"],
+        args=["sync", "--package", "python-app", "--group", "dev"],
     )
     assert sync_result.returncode == 0, (
-        "Expected `uv sync --group dev` to succeed for generated python lane.\n"
+        "Expected `uv sync --package python-app --group dev` to succeed for generated python lane.\n"
         f"stdout:\n{sync_result.stdout}\n"
         f"stderr:\n{sync_result.stderr}"
     )
 
-    cli_result = run_lane_command(
-        lane_root=lane_root,
+    cli_result = run_workspace_command(
+        workspace_root=output_dir,
         uv_binary=uv_binary,
-        args=["run", "python-app", "demo-user"],
+        args=["run", "--package", "python-app", "python-app", "demo-user"],
     )
     assert cli_result.returncode == 0, (
-        "Expected `uv run python-app demo-user` to succeed for generated python lane.\n"
+        "Expected `uv run --package python-app python-app demo-user` to succeed for generated python lane.\n"
         f"stdout:\n{cli_result.stdout}\n"
         f"stderr:\n{cli_result.stderr}"
     )
     assert "demo-user" in f"{cli_result.stdout}\n{cli_result.stderr}"
 
-    tui_help_result = run_lane_command(
-        lane_root=lane_root,
+    tui_help_result = run_workspace_command(
+        workspace_root=output_dir,
         uv_binary=uv_binary,
-        args=["run", "python-app-tui", "--help"],
+        args=["run", "--package", "python-app", "python-app-tui", "--help"],
     )
     assert tui_help_result.returncode == 0, (
-        "Expected `uv run python-app-tui --help` to succeed for generated python lane.\n"
+        "Expected `uv run --package python-app python-app-tui --help` to succeed for generated python lane.\n"
         f"stdout:\n{tui_help_result.stdout}\n"
         f"stderr:\n{tui_help_result.stderr}"
     )
     assert "Launch the Textual starter app" in tui_help_result.stdout
 
     commands: tuple[list[str], ...] = (
-        ["run", "pytest"],
-        ["run", "ruff", "check", "."],
-        ["run", "mypy", "src"],
+        ["run", "--package", "python-app", "pytest", "apps/python/tests"],
+        ["run", "--package", "python-app", "ruff", "check", "apps/python"],
+        ["run", "--package", "python-app", "mypy", "apps/python/src"],
     )
 
     for command in commands:
-        command_result = run_lane_command(
-            lane_root=lane_root,
+        command_result = run_workspace_command(
+            workspace_root=output_dir,
             uv_binary=uv_binary,
             args=command,
         )
@@ -235,26 +238,24 @@ def test_python_target_scaffold_supports_legacy_extra_dev_sync_compatibility(
         f"stderr:\n{scaffold_result.stderr}"
     )
 
-    lane_root = output_dir / "apps" / "python"
-
-    sync_result = run_lane_command(
-        lane_root=lane_root,
+    sync_result = run_workspace_command(
+        workspace_root=output_dir,
         uv_binary=uv_binary,
-        args=["sync", "--extra", "dev"],
+        args=["sync", "--package", "python-app", "--extra", "dev"],
     )
     assert sync_result.returncode == 0, (
-        "Expected `uv sync --extra dev` to succeed for generated python lane.\n"
+        "Expected `uv sync --package python-app --extra dev` to succeed for generated python lane.\n"
         f"stdout:\n{sync_result.stdout}\n"
         f"stderr:\n{sync_result.stderr}"
     )
 
-    pytest_result = run_lane_command(
-        lane_root=lane_root,
+    pytest_result = run_workspace_command(
+        workspace_root=output_dir,
         uv_binary=uv_binary,
-        args=["run", "pytest"],
+        args=["run", "--package", "python-app", "pytest", "apps/python/tests"],
     )
     assert pytest_result.returncode == 0, (
-        "Expected `uv run pytest` to succeed after `uv sync --extra dev`.\n"
+        "Expected `uv run --package python-app pytest apps/python/tests` to succeed after `uv sync --package python-app --extra dev`.\n"
         f"stdout:\n{pytest_result.stdout}\n"
         f"stderr:\n{pytest_result.stderr}"
     )

@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 04:47:07 PM
-**Current Phase:** Python and TypeScript CLI/TUI scaffold completion
+**Last Updated:** 2026-03-13 05:37:33 PM
+**Current Phase:** Python and TypeScript library scaffold completion
 
 ## Previous Cycle Archives
 
@@ -127,7 +127,12 @@
 - [x] Added the new Bun-native `typescript-cli` scaffold target in `src/new_repo_template/scaffold.py`, `src/new_repo_template/{interactive_ui.py,interactive_tui.py}`, and new bundled templates under `src/new_repo_template/snapshot_assets/templates/typescript_cli/` plus `workspace_packages/typescript_cli_package.json`.
 - [x] Expanded contract coverage with `tests/contracts/test_typescript_cli_scaffold_contract.py` and `tests/contracts/test_typescript_cli_runtime_smoke_contract.py`, while also updating the Python lane, CLI validation, security baseline, preset matrix, `nurt` dry-run, and Textual wizard suites for the new behavior.
 - [x] Revalidated the implementation slice with `uv run pytest tests/contracts/test_python_lane_contract.py tests/contracts/test_typescript_cli_scaffold_contract.py tests/contracts/test_typescript_cli_runtime_smoke_contract.py tests/contracts/test_cli_validation_and_python_commands_contract.py tests/contracts/test_required_preset_matrix_contract.py tests/contracts/test_security_baseline_contract.py tests/contracts/test_nurt_cli_contract.py tests/contracts/test_interactive_tui_contract.py` (77 passed), `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (171 passed).
+- [x] Ran the YELLOW pass for feature `2.0` by rereading the scaffold, CLI, interactive UI/TUI, version-baseline, current docs, and contract suite, checking `btca status` / `btca resources`, and using `btca ask` for uv workspace behavior plus Bun/Turborepo mixed-package layout guidance.
+- [x] Added RED coverage for `python-lib` and `typescript-lib` targets, updated the Python workspace/lockfile expectations, and expanded the preset matrix, `nurt` dry-run, CLI validation, and Textual wizard suites to cover the new library lanes.
+- [x] Implemented `python-lib` and `typescript-lib` scaffold targets in `src/new_repo_template/scaffold.py`, `src/new_repo_template/{interactive_ui.py,interactive_tui.py}`, and new bundled templates under `src/new_repo_template/snapshot_assets/templates/{python_lib,typescript_lib}/` plus `workspace_packages/typescript_lib_package.json`.
+- [x] Upgraded Python-enabled generated repos to emit a root `pyproject.toml` uv workspace and root `uv.lock`, keep `.python-version` app-local in `apps/python`, and wire `apps/python` to `packages/python` with `tool.uv.sources` when both Python targets are selected.
+- [x] Revalidated feature `2.0` with `uv run pytest tests/contracts/test_python_lane_contract.py tests/contracts/test_python_lib_scaffold_contract.py tests/contracts/test_typescript_lib_scaffold_contract.py tests/contracts/test_typescript_lib_runtime_smoke_contract.py tests/contracts/test_required_preset_matrix_contract.py tests/contracts/test_nurt_cli_contract.py tests/contracts/test_interactive_tui_contract.py tests/contracts/test_generation_lockfiles_contract.py tests/contracts/test_cli_validation_and_python_commands_contract.py` (87 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (184 passed).
 
 ## Next Up
 
-- [ ] Start `2.0 ADD SUPPORT FOR PYTHON AND TYPESCRIPT LIBRARIES` with the same YELLOW-RED-GREEN-BLUE loop.
+- [ ] Start `3.0 UPDATE THE \`NURT NEW\` FLOW TO SUPPORT MULTIPLE PROJECTS OF THE SAME TYPE` with the same YELLOW-RED-GREEN-BLUE loop.

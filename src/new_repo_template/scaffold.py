@@ -32,6 +32,8 @@ TARGET_CHOICES: tuple[str, ...] = (
     "mobile",
     "tv",
     "typescript-cli",
+    "python-lib",
+    "typescript-lib",
 )
 
 FOUNDATION_CORE_PATHS: tuple[str, ...] = (
@@ -74,6 +76,11 @@ APP_TARGET_DIRS: dict[str, str] = {
     "typescript-cli": "apps/typescript-cli/",
 }
 
+LIBRARY_TARGET_DIRS: dict[str, str] = {
+    "python-lib": "packages/python/",
+    "typescript-lib": "packages/typescript/",
+}
+
 APP_TARGET_PACKAGE_PATHS: dict[str, str] = {
     "web": "apps/web/package.json",
     "backend": "apps/backend/package.json",
@@ -90,6 +97,14 @@ APP_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
     "mobile": "workspace_packages/mobile_package.json",
     "tv": "workspace_packages/tv_package.json",
     "typescript-cli": "workspace_packages/typescript_cli_package.json",
+}
+
+LIBRARY_TARGET_PACKAGE_PATHS: dict[str, str] = {
+    "typescript-lib": "packages/typescript/package.json",
+}
+
+LIBRARY_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
+    "typescript-lib": "workspace_packages/typescript_lib_package.json",
 }
 
 WEB_FRAMEWORK_PATHS: tuple[str, ...] = (
@@ -185,6 +200,29 @@ PYTHON_PATHS: tuple[str, ...] = (
     "apps/python/tests/test_core.py",
 )
 
+PYTHON_LIBRARY_PATHS: tuple[str, ...] = (
+    "packages/python/",
+    "packages/python/pyproject.toml",
+    "packages/python/README.md",
+    "packages/python/src/",
+    "packages/python/src/python_lib/",
+    "packages/python/src/python_lib/__init__.py",
+    "packages/python/src/python_lib/core.py",
+    "packages/python/tests/",
+    "packages/python/tests/test_core.py",
+)
+
+TYPESCRIPT_LIBRARY_PATHS: tuple[str, ...] = (
+    "packages/typescript/",
+    "packages/typescript/package.json",
+    "packages/typescript/README.md",
+    "packages/typescript/tsconfig.json",
+    "packages/typescript/src/",
+    "packages/typescript/src/index.ts",
+    "packages/typescript/tests/",
+    "packages/typescript/tests/typescript_lib.test.ts",
+)
+
 TARGET_ENV_EXAMPLE_PATHS: dict[str, str] = {
     "python": "apps/python/.env.example",
     "web": "apps/web/.env.example",
@@ -210,12 +248,21 @@ PYTHON_LANE_PYPROJECT = load_template_text("python_lane_pyproject.toml")
 PYTHON_LANE_README = load_template_text("python_lane_readme.md")
 PYTHON_LANE_INIT = load_template_text("python_lane_init.py")
 PYTHON_LANE_CORE = load_template_text("python_lane_core.txt")
+PYTHON_LANE_CORE_WITH_LIBRARY = load_template_text("python_lane_core_with_library.txt")
 PYTHON_LANE_CLI = load_template_text("python_lane_cli.txt")
 PYTHON_LANE_TUI = load_template_text("python_lane_tui.txt")
 PYTHON_LANE_ENTRY_POINTS = load_template_text("python_lane_entry_points.txt")
 PYTHON_LANE_APP_CSS = load_template_text("python_lane_app.tcss")
 PYTHON_LANE_TEST = load_template_text("python_lane_test.txt")
 PYTHON_LANE_TEST_CORE = load_template_text("python_lane_test_core.txt")
+ROOT_PYTHON_WORKSPACE_PYPROJECT = load_template_text(
+    "root_python_workspace_pyproject.toml"
+)
+PYTHON_LIBRARY_PYPROJECT = load_template_text("python_lib/python_lib_pyproject.toml")
+PYTHON_LIBRARY_README = load_template_text("python_lib/python_lib_readme.md")
+PYTHON_LIBRARY_INIT = load_template_text("python_lib/python_lib_init.py")
+PYTHON_LIBRARY_CORE = load_template_text("python_lib/python_lib_core.py")
+PYTHON_LIBRARY_TEST = load_template_text("python_lib/python_lib_test_core.py")
 
 TARGET_ENV_TEMPLATE_FILES: dict[str, str] = {
     "python": "env/python.env",
@@ -301,6 +348,18 @@ TYPESCRIPT_CLI_INDEX_TEMPLATE = load_template_text(
 )
 TYPESCRIPT_CLI_SMOKE_TEST_TEMPLATE = load_template_text(
     "typescript_cli/typescript_cli_smoke.test.ts"
+)
+TYPESCRIPT_LIBRARY_TSCONFIG_TEMPLATE = load_template_text(
+    "typescript_lib/typescript_lib_tsconfig.json"
+)
+TYPESCRIPT_LIBRARY_README_TEMPLATE = load_template_text(
+    "typescript_lib/typescript_lib_readme.md"
+)
+TYPESCRIPT_LIBRARY_INDEX_TEMPLATE = load_template_text(
+    "typescript_lib/typescript_lib_index.ts"
+)
+TYPESCRIPT_LIBRARY_TEST_TEMPLATE = load_template_text(
+    "typescript_lib/typescript_lib_test.ts"
 )
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
 DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
@@ -395,11 +454,19 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
     paths: list[str] = list(FOUNDATION_PATHS)
     paths.extend(SHARED_INFRA_PACKAGE_PATHS)
 
+    has_python_workspace = "python" in targets or "python-lib" in targets
+    if has_python_workspace:
+        paths.append("pyproject.toml")
+
     for target in targets:
         if target in APP_TARGET_DIRS:
             paths.append(APP_TARGET_DIRS[target])
+        if target in LIBRARY_TARGET_DIRS:
+            paths.append(LIBRARY_TARGET_DIRS[target])
         if target in APP_TARGET_PACKAGE_PATHS:
             paths.append(APP_TARGET_PACKAGE_PATHS[target])
+        if target in LIBRARY_TARGET_PACKAGE_PATHS:
+            paths.append(LIBRARY_TARGET_PACKAGE_PATHS[target])
         if target == "web":
             paths.extend(WEB_FRAMEWORK_PATHS)
         if target == "backend":
@@ -414,6 +481,10 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
             paths.extend(TYPESCRIPT_CLI_FRAMEWORK_PATHS)
         if target == "python":
             paths.extend(PYTHON_PATHS)
+        if target == "python-lib":
+            paths.extend(PYTHON_LIBRARY_PATHS)
+        if target == "typescript-lib":
+            paths.extend(TYPESCRIPT_LIBRARY_PATHS)
         if target in TARGET_ENV_EXAMPLE_PATHS:
             paths.append(TARGET_ENV_EXAMPLE_PATHS[target])
 
@@ -481,6 +552,34 @@ def write_root_turbo_json(*, output_root: Path) -> None:
     (output_root / "turbo.json").write_text(ROOT_TURBO_JSON, encoding="utf-8")
 
 
+def _python_workspace_members(*, targets: tuple[str, ...]) -> tuple[str, ...]:
+    members: list[str] = []
+    if "python" in targets:
+        members.append("apps/python")
+    if "python-lib" in targets:
+        members.append("packages/python")
+    return tuple(members)
+
+
+def render_root_python_workspace_pyproject(*, targets: tuple[str, ...]) -> str:
+    members = _python_workspace_members(targets=targets)
+    member_lines = "\n".join(f'  "{member}",' for member in members)
+    return ROOT_PYTHON_WORKSPACE_PYPROJECT.replace(
+        "{{WORKSPACE_MEMBERS}}", member_lines
+    )
+
+
+def render_python_lane_pyproject(*, include_library: bool) -> str:
+    rendered = PYTHON_LANE_PYPROJECT.replace(
+        "{{PYTHON_LIB_DEPENDENCY}}",
+        '  "python-lib>=0.1.0",' if include_library else "",
+    )
+    source_block = ""
+    if include_library:
+        source_block = "[tool.uv.sources]\npython-lib = { workspace = true }\n"
+    return rendered.replace("{{PYTHON_LIB_SOURCE_BLOCK}}", source_block)
+
+
 def write_foundation_governance_assets(*, output_root: Path) -> None:
     for relative_dir in FOUNDATION_GOVERNANCE_EMPTY_DIRS:
         (output_root / relative_dir).mkdir(parents=True, exist_ok=True)
@@ -512,6 +611,18 @@ def scaffold_foundation_core(*, output_root: Path) -> None:
     write_root_package_json(output_root=output_root)
     write_root_turbo_json(output_root=output_root)
     write_foundation_governance_assets(output_root=output_root)
+
+
+def scaffold_python_workspace_root(
+    *, output_root: Path, targets: tuple[str, ...]
+) -> None:
+    if "python" not in targets and "python-lib" not in targets:
+        return
+
+    (output_root / "pyproject.toml").write_text(
+        render_root_python_workspace_pyproject(targets=targets),
+        encoding="utf-8",
+    )
 
 
 def scaffold_shared_infra_packages(*, output_root: Path) -> None:
@@ -550,7 +661,7 @@ def scaffold_shared_infra_packages(*, output_root: Path) -> None:
     )
 
 
-def scaffold_python_lane(*, output_root: Path) -> None:
+def scaffold_python_lane(*, output_root: Path, targets: tuple[str, ...]) -> None:
     if os.environ.get(SIMULATE_FAILURE_ENV) == "python-after-root":
         raise RuntimeError("simulated scaffold failure after root generation")
 
@@ -560,10 +671,17 @@ def scaffold_python_lane(*, output_root: Path) -> None:
     package_root.mkdir(parents=True)
     tests_root.mkdir()
     write_python_lane_python_version(lane_root=lane_root)
-    (lane_root / "pyproject.toml").write_text(PYTHON_LANE_PYPROJECT, encoding="utf-8")
+    include_library = "python-lib" in targets
+    (lane_root / "pyproject.toml").write_text(
+        render_python_lane_pyproject(include_library=include_library),
+        encoding="utf-8",
+    )
     (lane_root / "README.md").write_text(PYTHON_LANE_README, encoding="utf-8")
     (package_root / "__init__.py").write_text(PYTHON_LANE_INIT, encoding="utf-8")
-    (package_root / "core.py").write_text(PYTHON_LANE_CORE, encoding="utf-8")
+    core_template = (
+        PYTHON_LANE_CORE_WITH_LIBRARY if include_library else PYTHON_LANE_CORE
+    )
+    (package_root / "core.py").write_text(core_template, encoding="utf-8")
     (package_root / "cli.py").write_text(PYTHON_LANE_CLI, encoding="utf-8")
     (package_root / "tui.py").write_text(PYTHON_LANE_TUI, encoding="utf-8")
     (package_root / "entry_points.py").write_text(
@@ -608,17 +726,82 @@ def scaffold_typescript_cli_framework_files(
     )
 
 
+def scaffold_python_library(*, output_root: Path, targets: tuple[str, ...]) -> None:
+    if "python-lib" not in targets:
+        return
+
+    library_root = output_root / "packages" / "python"
+    package_root = library_root / "src" / "python_lib"
+    tests_root = library_root / "tests"
+    package_root.mkdir(parents=True, exist_ok=True)
+    tests_root.mkdir(parents=True, exist_ok=True)
+
+    (library_root / "pyproject.toml").write_text(
+        PYTHON_LIBRARY_PYPROJECT, encoding="utf-8"
+    )
+    (library_root / "README.md").write_text(PYTHON_LIBRARY_README, encoding="utf-8")
+    (package_root / "__init__.py").write_text(PYTHON_LIBRARY_INIT, encoding="utf-8")
+    (package_root / "core.py").write_text(PYTHON_LIBRARY_CORE, encoding="utf-8")
+    (tests_root / "test_core.py").write_text(PYTHON_LIBRARY_TEST, encoding="utf-8")
+
+
+def scaffold_typescript_library(*, output_root: Path, targets: tuple[str, ...]) -> None:
+    if "typescript-lib" not in targets:
+        return
+
+    library_root = output_root / "packages" / "typescript"
+    src_root = library_root / "src"
+    tests_root = library_root / "tests"
+    library_root.mkdir(parents=True, exist_ok=True)
+    src_root.mkdir(parents=True, exist_ok=True)
+    tests_root.mkdir(parents=True, exist_ok=True)
+
+    (library_root / "tsconfig.json").write_text(
+        TYPESCRIPT_LIBRARY_TSCONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
+    (library_root / "README.md").write_text(
+        TYPESCRIPT_LIBRARY_README_TEMPLATE,
+        encoding="utf-8",
+    )
+    (src_root / "index.ts").write_text(
+        TYPESCRIPT_LIBRARY_INDEX_TEMPLATE,
+        encoding="utf-8",
+    )
+    (tests_root / "typescript_lib.test.ts").write_text(
+        TYPESCRIPT_LIBRARY_TEST_TEMPLATE,
+        encoding="utf-8",
+    )
+
+
 def scaffold_app_targets(*, output_root: Path, targets: tuple[str, ...]) -> None:
     for target in targets:
         if target in APP_TARGET_DIRS:
             (output_root / APP_TARGET_DIRS[target]).mkdir(parents=True, exist_ok=True)
+        if target in LIBRARY_TARGET_DIRS:
+            (output_root / LIBRARY_TARGET_DIRS[target]).mkdir(
+                parents=True, exist_ok=True
+            )
         package_path = APP_TARGET_PACKAGE_PATHS.get(target)
-        if package_path is None:
+        if package_path is not None:
+            package_template = load_template_text(
+                APP_TARGET_PACKAGE_TEMPLATE_FILES[target]
+            )
+            if target == "desktop" and "web" in targets:
+                package_template = DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE
+            (output_root / package_path).write_text(package_template, encoding="utf-8")
             continue
-        package_template = load_template_text(APP_TARGET_PACKAGE_TEMPLATE_FILES[target])
-        if target == "desktop" and "web" in targets:
-            package_template = DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE
-        (output_root / package_path).write_text(package_template, encoding="utf-8")
+
+        library_package_path = LIBRARY_TARGET_PACKAGE_PATHS.get(target)
+        if library_package_path is None:
+            continue
+        library_package_template = load_template_text(
+            LIBRARY_TARGET_PACKAGE_TEMPLATE_FILES[target]
+        )
+        (output_root / library_package_path).write_text(
+            library_package_template,
+            encoding="utf-8",
+        )
 
 
 def scaffold_web_framework_files(
@@ -855,6 +1038,7 @@ def scaffold_web_backend_auth_wiring(
 def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_foundation_core(output_root=plan.output)
     scaffold_shared_infra_packages(output_root=plan.output)
+    scaffold_python_workspace_root(output_root=plan.output, targets=plan.targets)
     scaffold_app_targets(output_root=plan.output, targets=plan.targets)
     scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_backend_framework_files(output_root=plan.output, targets=plan.targets)
@@ -865,10 +1049,12 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
         output_root=plan.output,
         targets=plan.targets,
     )
+    scaffold_python_library(output_root=plan.output, targets=plan.targets)
+    scaffold_typescript_library(output_root=plan.output, targets=plan.targets)
     scaffold_shared_workspace_package(output_root=plan.output, targets=plan.targets)
 
     if "python" in plan.targets:
-        scaffold_python_lane(output_root=plan.output)
+        scaffold_python_lane(output_root=plan.output, targets=plan.targets)
 
     scaffold_target_env_examples(output_root=plan.output, targets=plan.targets)
 

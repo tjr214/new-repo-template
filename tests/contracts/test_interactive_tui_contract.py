@@ -256,6 +256,59 @@ def test_textual_wizard_supports_typescript_cli_target(tmp_path: Path) -> None:
     asyncio.run(scenario())
 
 
+def test_textual_wizard_supports_library_targets(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        app = NewProjectWizardApp(
+            project_name="demo-library-targets",
+            output_root=tmp_path,
+        )
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.pause()
+
+            await pilot.press(
+                "down",
+                "down",
+                "down",
+                "down",
+                "down",
+                "down",
+                "down",
+                "down",
+                "space",
+                "down",
+                "space",
+            )
+            await pilot.pause()
+
+            assert app.selected_targets == ("python-lib", "typescript-lib")
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "tools"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "bmad"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "review"
+
+            await pilot.press("enter")
+            await pilot.pause()
+
+        assert app.final_result == InteractiveWizardResult(
+            project_name="demo-library-targets",
+            targets=("python-lib", "typescript-lib"),
+            auth=None,
+            install_core_tools=False,
+            install_bmad=True,
+        )
+
+    asyncio.run(scenario())
+
+
 def test_textual_wizard_defaults_bmad_step_to_yes(tmp_path: Path) -> None:
     async def scenario() -> None:
         app = NewProjectWizardApp(

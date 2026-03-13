@@ -5,4 +5,4 @@ def test_build_starter_summary_includes_requested_subject() -> None:
     summary = build_starter_summary("demo-user")
 
     assert "demo-user" in summary.greeting
-    assert summary.commands[0] == "uv run python-app --help"
+    assert summary.commands[0] == "uv run --package python-app python-app --help"

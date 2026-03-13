@@ -57,6 +57,8 @@ TARGET_DESCRIPTIONS: dict[str, str] = {
     "mobile": "Mobile app",
     "tv": "AndroidTV app",
     "typescript-cli": "TypeScript CLI app",
+    "python-lib": "Python library",
+    "typescript-lib": "TypeScript library",
 }
 
 TARGET_NOTES: dict[str, str] = {
@@ -68,6 +70,8 @@ TARGET_NOTES: dict[str, str] = {
     "mobile": "Adds the Expo mobile app lane.",
     "tv": "Adds the Expo Android TV lane with remote-first starter wiring.",
     "typescript-cli": "Adds a Bun-native TypeScript CLI lane with a workspace-linked bin entry.",
+    "python-lib": "Adds a reusable Python library package under packages/python and wires it into the uv workspace.",
+    "typescript-lib": "Adds a reusable TypeScript library package under packages/typescript.",
 }
 
 AUTH_NOTES: dict[str, str] = {

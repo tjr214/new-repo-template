@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from python_lib import build_greeting
+
 
 @dataclass(frozen=True)
 class StarterSummary:
@@ -14,10 +16,7 @@ def build_starter_summary(subject: str) -> StarterSummary:
     normalized_subject = subject.strip() or "terminal builder"
     return StarterSummary(
         title="Python CLI/TUI Starter",
-        greeting=(
-            f"Hello, {normalized_subject}! This Python lane is ready for Rich CLI "
-            "and Textual TUI experiments."
-        ),
+        greeting=build_greeting(normalized_subject),
         commands=(
             "uv run --package python-app python-app --help",
             "uv run --package python-app python-app-tui",

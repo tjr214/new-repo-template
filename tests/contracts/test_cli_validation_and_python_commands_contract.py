@@ -78,6 +78,8 @@ def test_missing_no_interactive_fails_with_clear_error(tmp_path: Path) -> None:
         (["--target", "foundation"], "foundation-no-interactive"),
         (["--target", "python"], "python-no-interactive"),
         (["--target", "typescript-cli"], "typescript-cli-no-interactive"),
+        (["--target", "python-lib"], "python-lib-no-interactive"),
+        (["--target", "typescript-lib"], "typescript-lib-no-interactive"),
         (
             [
                 "--target",
