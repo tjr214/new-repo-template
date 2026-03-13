@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 01:32:08 AM
-**Current Phase:** brittleness hardening for CLI and setup-doc contracts
+**Last Updated:** 2026-03-13 01:43:04 PM
+**Current Phase:** branch-protection approval-default hardening for solo-maintainer repos
 
 ## Previous Cycle Archives
 
@@ -105,6 +105,10 @@
 - [x] Hardened `tests/contracts/test_cli_validation_and_python_commands_contract.py` so the Python README contract asserts the presence of setup/test/lint/typecheck guidance semantically (`uv sync`, `pytest`, `ruff`, `mypy`) instead of pinning every exact command line.
 - [x] Hardened `tests/contracts/test_mobile_tv_setup_docs_contract.py` so mobile/TV setup coverage now checks semantic setup/validation markers and fallback-input coverage across README/checklist/log files instead of overfitting exact wording.
 - [x] Revalidated the three-file brittleness pass with `uv run pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_cli_validation_and_python_commands_contract.py tests/contracts/test_mobile_tv_setup_docs_contract.py` (34 passed) and `uv run pytest` (161 passed).
+- [x] Investigated the live merge blocker on PR #6 and confirmed the base branch currently enforces `required_approving_review_count=1` with `enforce_admins=true`, which blocks author-only repos from merging even after all required checks pass.
+- [x] Updated `scripts/configure-repo-protections.sh` so PR-based merging remains required but approval count now defaults to `0`, and team repos can opt into stricter review policy with `--required-approvals <n>`.
+- [x] Updated `docs/BRANCH_PROTECTION.md` and the branch-protection contract suite to document the solo-friendly default plus explicit team override.
+- [x] Revalidated the branch-protection slice with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_branch_protection_guidance_contract.py`.
 
 ## Next Up
 
