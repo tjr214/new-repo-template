@@ -75,7 +75,7 @@
     },
     {
       "destination": "templates/foundation/README.md",
-      "sha256": "97288e17beb6eb0ee12093dd9d1332b6c93239a93793518825ec049b75258dba"
+      "sha256": "5bf6475593b80988fbc08e8612a958e5ee50feb0c0351dbe1fb394fe76ababad"
     },
     {
       "destination": "templates/foundation/btca.config.jsonc",
@@ -83,11 +83,11 @@
     },
     {
       "destination": "templates/foundation/docs/ARCHITECTURE.md",
-      "sha256": "a38d93c64408baca13a9ab3fae4d9fc0200e9b3231c54f8f23a5f17ee997ec2f"
+      "sha256": "07d278fc57b8b54cc51bde063b75c801267c71fa58802e75b13c692f64edb65a"
     },
     {
       "destination": "templates/foundation/docs/LIVING_DOCS.md",
-      "sha256": "3ea4dc92d0325abfa982c3113ea34a5b8774078b51d2d7363b07559bce1a23e7"
+      "sha256": "1cce06c62b145a933933029c59907df42638e3f8e7ca8abbf1e79c16a1fdd608"
     },
     {
       "destination": "templates/foundation/docs/markdown-templates/PLAN.template.md",
@@ -158,7 +158,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-13T03:37:27.539857+00:00",
+  "generated_at": "2026-03-13T04:01:15.193945+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "40822477d53778c2de5d4303a570288b0076d416"
+  "source_commit": "75552a0367be276fc7b98eb88ba4952e883ccbec"
 }
