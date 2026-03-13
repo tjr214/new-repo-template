@@ -56,6 +56,11 @@ FOUNDATION_GOVERNANCE_PATHS: tuple[str, ...] = (
     "docs/archive/",
     "docs/archive/plans/",
     "docs/archive/progress/",
+    "docs/ARCHITECTURE.md",
+    "docs/LIVING_DOCS.md",
+    "docs/markdown-templates/",
+    "docs/markdown-templates/PLAN.template.md",
+    "docs/markdown-templates/PROGRESS.template.md",
     "docs/session-summaries/",
     "docs/tasks/",
     "docs/tasks/task-template.yaml",
@@ -126,6 +131,16 @@ FOUNDATION_GOVERNANCE_TEMPLATE_FILES: tuple[tuple[str, str], ...] = (
     (
         "scripts/visualize_plan.py",
         "foundation/scripts/visualize_plan.py",
+    ),
+    ("docs/ARCHITECTURE.md", "foundation/docs/ARCHITECTURE.md"),
+    ("docs/LIVING_DOCS.md", "foundation/docs/LIVING_DOCS.md"),
+    (
+        "docs/markdown-templates/PLAN.template.md",
+        "foundation/docs/markdown-templates/PLAN.template.md",
+    ),
+    (
+        "docs/markdown-templates/PROGRESS.template.md",
+        "foundation/docs/markdown-templates/PROGRESS.template.md",
     ),
     ("docs/tasks/task-template.yaml", "foundation/docs/tasks/task-template.yaml"),
     (

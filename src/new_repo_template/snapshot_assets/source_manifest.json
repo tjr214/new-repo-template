@@ -14,7 +14,11 @@
 			"destination": "templates/foundation/AGENTS.md"
 		},
 		{
-			"source": "snapshot-readme-md.txt",
+			"source": "docs/markdown-templates/PLAN.template.md",
+			"destination": "templates/foundation/PLAN.md"
+		},
+		{
+			"source": "README.md",
 			"destination": "templates/foundation/README.md"
 		},
 		{
@@ -24,6 +28,10 @@
 		{
 			"source": "README.RALPH.md",
 			"destination": "templates/foundation/README.RALPH.md"
+		},
+		{
+			"source": "docs/markdown-templates/PROGRESS.template.md",
+			"destination": "templates/foundation/PROGRESS.md"
 		},
 		{
 			"source": "btca.config.jsonc",
@@ -52,6 +60,22 @@
 		{
 			"source": "scripts/visualize_plan.py",
 			"destination": "templates/foundation/scripts/visualize_plan.py"
+		},
+		{
+			"source": "docs/ARCHITECTURE.md",
+			"destination": "templates/foundation/docs/ARCHITECTURE.md"
+		},
+		{
+			"source": "docs/LIVING_DOCS.md",
+			"destination": "templates/foundation/docs/LIVING_DOCS.md"
+		},
+		{
+			"source": "docs/markdown-templates/PLAN.template.md",
+			"destination": "templates/foundation/docs/markdown-templates/PLAN.template.md"
+		},
+		{
+			"source": "docs/markdown-templates/PROGRESS.template.md",
+			"destination": "templates/foundation/docs/markdown-templates/PROGRESS.template.md"
 		},
 		{
 			"source": "docs/tasks/task-template.yaml",

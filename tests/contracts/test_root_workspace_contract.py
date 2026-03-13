@@ -65,6 +65,11 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
     assert "docs/archive/" in combined_output
     assert "docs/archive/plans/" in combined_output
     assert "docs/archive/progress/" in combined_output
+    assert "docs/ARCHITECTURE.md" in combined_output
+    assert "docs/LIVING_DOCS.md" in combined_output
+    assert "docs/markdown-templates/" in combined_output
+    assert "docs/markdown-templates/PLAN.template.md" in combined_output
+    assert "docs/markdown-templates/PROGRESS.template.md" in combined_output
     assert "docs/session-summaries/" in combined_output
     assert "docs/tasks/task-template.yaml" in combined_output
     assert "docs/workflows/export-to-ralph/workflow.md" in combined_output
@@ -158,14 +163,20 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
     mirrored_files = (
         (repo_root / "btca.config.jsonc", output_dir / "btca.config.jsonc"),
         (repo_root / "AGENTS.md", output_dir / "AGENTS.md"),
-        (repo_root / "PLAN.md", output_dir / "PLAN.md"),
+        (
+            repo_root / "docs" / "markdown-templates" / "PLAN.template.md",
+            output_dir / "PLAN.md",
+        ),
         (repo_root / "README.md", output_dir / "README.md"),
         (
             repo_root / "README.BMAD-GUIDE.md",
             output_dir / "README.BMAD-GUIDE.md",
         ),
         (repo_root / "README.RALPH.md", output_dir / "README.RALPH.md"),
-        (repo_root / "PROGRESS.template.md", output_dir / "PROGRESS.md"),
+        (
+            repo_root / "docs" / "markdown-templates" / "PROGRESS.template.md",
+            output_dir / "PROGRESS.md",
+        ),
         (repo_root / "scripts" / "RALPH.sh", output_dir / "scripts" / "RALPH.sh"),
         (
             repo_root / "scripts" / "configure-repo-protections.sh",
@@ -186,6 +197,22 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         (
             repo_root / "scripts" / "visualize_plan.py",
             output_dir / "scripts" / "visualize_plan.py",
+        ),
+        (
+            repo_root / "docs" / "ARCHITECTURE.md",
+            output_dir / "docs" / "ARCHITECTURE.md",
+        ),
+        (
+            repo_root / "docs" / "LIVING_DOCS.md",
+            output_dir / "docs" / "LIVING_DOCS.md",
+        ),
+        (
+            repo_root / "docs" / "markdown-templates" / "PLAN.template.md",
+            output_dir / "docs" / "markdown-templates" / "PLAN.template.md",
+        ),
+        (
+            repo_root / "docs" / "markdown-templates" / "PROGRESS.template.md",
+            output_dir / "docs" / "markdown-templates" / "PROGRESS.template.md",
         ),
         (
             repo_root / "docs" / "tasks" / "task-template.yaml",
@@ -250,6 +277,7 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
     assert (output_dir / "docs" / "archive").is_dir()
     assert (output_dir / "docs" / "archive" / "plans").is_dir()
     assert (output_dir / "docs" / "archive" / "progress").is_dir()
+    assert (output_dir / "docs" / "markdown-templates").is_dir()
     assert (output_dir / "docs" / "session-summaries").is_dir()
     assert not (output_dir / ".opencode" / "package.json").exists()
     assert not (output_dir / ".opencode" / "bun.lock").exists()

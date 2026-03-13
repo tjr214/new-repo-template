@@ -1,5 +1,5 @@
 {
-  "file_count": 33,
+  "file_count": 39,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -58,6 +58,14 @@
       "sha256": "6c635c02a83cc518ff212c00c27da1aaf55301da42946f2980a6aa0efd1c5126"
     },
     {
+      "destination": "templates/foundation/PLAN.md",
+      "sha256": "976942fab6702392dcfc90c18f634c26e4cb849c03e85c856f2127a4bef7f389"
+    },
+    {
+      "destination": "templates/foundation/PROGRESS.md",
+      "sha256": "e4414e1ea7a2ce816395b1819be690527cb9a827637ab2cfabcd2d7a858c2ce0"
+    },
+    {
       "destination": "templates/foundation/README.BMAD-GUIDE.md",
       "sha256": "39d4cf46cd43e667d4e063bc2064ebf57c6a2f1eff5529bab5afd4d53678cb38"
     },
@@ -67,11 +75,27 @@
     },
     {
       "destination": "templates/foundation/README.md",
-      "sha256": "04540b3eb4f0362a4138bb5f5665259910c47748e26572cbf55053e7de6fbb52"
+      "sha256": "97288e17beb6eb0ee12093dd9d1332b6c93239a93793518825ec049b75258dba"
     },
     {
       "destination": "templates/foundation/btca.config.jsonc",
       "sha256": "2957f228dc0a4a266c92377a5de290dcf0b38476d79de3842506e45ff377aaf7"
+    },
+    {
+      "destination": "templates/foundation/docs/ARCHITECTURE.md",
+      "sha256": "a38d93c64408baca13a9ab3fae4d9fc0200e9b3231c54f8f23a5f17ee997ec2f"
+    },
+    {
+      "destination": "templates/foundation/docs/LIVING_DOCS.md",
+      "sha256": "3ea4dc92d0325abfa982c3113ea34a5b8774078b51d2d7363b07559bce1a23e7"
+    },
+    {
+      "destination": "templates/foundation/docs/markdown-templates/PLAN.template.md",
+      "sha256": "976942fab6702392dcfc90c18f634c26e4cb849c03e85c856f2127a4bef7f389"
+    },
+    {
+      "destination": "templates/foundation/docs/markdown-templates/PROGRESS.template.md",
+      "sha256": "e4414e1ea7a2ce816395b1819be690527cb9a827637ab2cfabcd2d7a858c2ce0"
     },
     {
       "destination": "templates/foundation/docs/tasks/task-template-example.yaml",
@@ -134,7 +158,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-13T03:13:30.433309+00:00",
+  "generated_at": "2026-03-13T03:37:27.539857+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "30f9aebf3197ea1c01080cabef092ff59c03ee55"
+  "source_commit": "40822477d53778c2de5d4303a570288b0076d416"
 }

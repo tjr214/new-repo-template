@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 11:21:41 PM
-**Current Phase:** Documentation template expansion complete
+**Last Updated:** 2026-03-12 11:38:36 PM
+**Current Phase:** Foundation docs snapshot wiring complete
 
 ## Previous Cycle Archives
 
@@ -74,12 +74,14 @@
 - [x] Updated installer wiring, TUI labeling, sync-facing output strings, current docs, and contract coverage to the new `nurt sync ...` command order, then revalidated with `pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py` (24 passed).
 - [x] Ran the YELLOW pass for the foundation-governance expansion slice by rereading scaffold/snapshot/contracts/live-doc files, checking `btca status`, and using `btca ask` to confirm that explicit manifest-driven scaffold allowlists remain the safer contract than directory auto-copying for deterministic package-resource output.
 - [x] Expanded the foundation lane governance baseline so generated repos now also include `PLAN.md`, `README.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`, `scripts/configure-repo-protections.sh`, `scripts/synthetic-quotas.sh`, `scripts/task-template-schema.json`, `scripts/validate_template.py`, `scripts/visualize_plan.py`, and empty `docs/archive/plans` plus `docs/archive/progress` directories.
-- [x] Updated the bundled snapshot manifests/assets to mirror the new root-backed foundation files and restored root `PROGRESS.template.md` as the snapshot source for scaffolded `PROGRESS.md`.
+- [x] Updated the bundled snapshot manifests/assets to mirror the expanded foundation file set, with scaffolded root `PLAN.md` and `PROGRESS.md` sourced from `docs/markdown-templates/{PLAN,PROGRESS}.template.md`.
 - [x] Revalidated the slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_nurt_cli_contract.py` (24 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
 - [x] Renamed the maintainer validation/metadata-refresh command from `nurt template-assets snapshot` to `nurt template-assets validate`, updated the CLI/help/dry-run messaging to match, and documented `src/new_repo_template/snapshot_assets/templates/` as the canonical bundled-template source of truth behind the repo-root symlink aliases.
 - [x] Fixed the snapshot Python-version alias mismatch in `src/new_repo_template/snapshot_assets/source_manifest.json` and documented the canonical-store-plus-alias-entrypoints model, including `templates-content-store-symlink` plus the readable root alias files used by the maintainer manifest.
 - [x] Added `docs/markdown-templates/ARCHITECTURE.template.md` as a reusable version of the live architecture document structure and synced that new documentation asset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `docs/session-summaries/SESSION_93_SUMMARY.md`.
 - [x] Added `docs/markdown-templates/LIVING_DOCS.template.md` as a reusable version of the live living-doc structure and synced that new documentation asset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `docs/session-summaries/SESSION_94_SUMMARY.md`.
+- [x] Expanded the foundation scaffold and bundled snapshot manifests to include `docs/ARCHITECTURE.md`, `docs/LIVING_DOCS.md`, and the mirrored `docs/markdown-templates/` directory with both tracked template files (`PLAN.template.md`, `PROGRESS.template.md`).
+- [x] Revalidated the docs-baseline follow-up with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py` (5 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
 
 ## Next Up
 
