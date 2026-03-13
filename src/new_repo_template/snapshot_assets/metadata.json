@@ -91,7 +91,7 @@
     },
     {
       "destination": "templates/foundation/btca.config.jsonc",
-      "sha256": "2957f228dc0a4a266c92377a5de290dcf0b38476d79de3842506e45ff377aaf7"
+      "sha256": "52c8ac11924105ce6e5b5b94cf2ab2546195fa8fff1d166e53886d0f82499a20"
     },
     {
       "destination": "templates/foundation/docs/ARCHITECTURE.md",
@@ -170,7 +170,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-13T19:50:26.529569+00:00",
+  "generated_at": "2026-03-13T20:44:46.957269+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "4bf46956f40534ad0d5d9ea52052cc8ff95e7677"
+  "source_commit": "3198402296e3382ca961ea5679ef63edeb3fce6e"
 }

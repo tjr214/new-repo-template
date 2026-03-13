@@ -17,6 +17,7 @@ The template implementation remains intact, and the latest execution plan is now
 - The CLI/setup-doc brittleness pass is now complete too: `test_nurt_cli_contract.py` relies on shared semantic plan helpers and manifest-derived template-validation expectations, while the Python/mobile/TV documentation contracts now assert stable guidance markers instead of overfitting exact prose.
 - The branch-protection baseline is now tuned for the template's real operating mode: `scripts/configure-repo-protections.sh` still requires PR-based merging and required checks, but defaults required approvals to `0` so solo-maintainer repos are not blocked, while team repos can opt into `--required-approvals <n>`.
 - The foundation OpenCode command baseline remains in sync for the new PR automation command, and the larger drift fix is now complete: `src/new_repo_template/snapshot_assets/source_manifest.json` is the source of truth for foundation scaffold file assets plus scaffold-only empty directories, while the packaged runtime `manifest.json` is regenerated from the file entries during `nurt template-assets validate`.
+- The scaffold catalog now includes two stronger terminal-app lanes: `python` generates a Rich + Textual starter package under `apps/python`, and `typescript-cli` generates a Bun-native CLI package under `apps/typescript-cli` with a workspace-linked `bin` entry.
 
 ## Active Implementation Rules
 
@@ -42,6 +43,7 @@ The template implementation remains intact, and the latest execution plan is now
 - Generator writes: failure-atomic (transactional write strategy or cleanup-on-failure)
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
 - Python metadata isolation: generated `.python-version`, `pyproject.toml`, and `uv.lock` live only in `apps/python` when the Python target is selected
+- TypeScript CLI lane: dedicated Bun-native app target at `apps/typescript-cli`
 - Global execution UX pivot: primary user flow is globally installed `nurt` (`uv tool install git+...` then `nurt new <project-name>`) with no `install.sh` fallback user path
 
 ## Known Constraints
@@ -57,7 +59,7 @@ The template implementation remains intact, and the latest execution plan is now
 
 ## Implementation Notes (M0-M1)
 
-- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`, `textual`, `rich-docs`, and `pytest-textual-snapshot`.
+- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`, `textual`, `rich-docs`, `pytest-textual-snapshot`, and `uv`.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.
@@ -196,3 +198,6 @@ The template implementation remains intact, and the latest execution plan is now
 - Successful non-dry-run `nurt new` runs now print a Rich `Setup Complete` handoff overview that summarizes the created project, post-create work, optional BMAD/core-tools choices, and closes by explicitly telling the user to run `cd <project-name>`.
 - `nurt new` no longer attempts a process-local directory switch at the end of the run, since that does not change the caller's shell directory; the final handoff is now instruction-only.
 - The repository-level contract suite is back in sync with the live repo layout: stale tests around the deleted root `install.sh`, the old `.template_scripts/configure-repo-protections.sh` location, and placeholder README git-install text were updated, and `uv run pytest` is green again at 161 passing tests.
+- The Python lane is now a real CLI/TUI starter rather than a minimal package stub: generated `apps/python` outputs include `rich` + `textual` dependencies, console scripts (`python-app`, `python-app-tui`), shared starter logic, a Textual app shell, starter tests, and expanded README guidance.
+- A dedicated `typescript-cli` target is now part of the scaffold matrix: generated `apps/typescript-cli` outputs include a Bun-native CLI package manifest with `bin` wiring, Node-shared tsconfig inheritance, starter source files, a Bun smoke test, and target-local `.env.example` generation.
+- Contract coverage now includes `tests/contracts/test_typescript_cli_scaffold_contract.py` and `tests/contracts/test_typescript_cli_runtime_smoke_contract.py`, and the existing Python, security, preset-matrix, `nurt`, and Textual-wizard contracts were expanded to cover the new lanes.

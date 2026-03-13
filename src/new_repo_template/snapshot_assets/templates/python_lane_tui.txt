@@ -1,0 +1,30 @@
+from __future__ import annotations
+
+from textual.app import App, ComposeResult
+from textual.widgets import Footer, Header, Input, Static
+
+from python_app.core import build_starter_summary, render_summary_text
+
+
+class PythonStarterApp(App[None]):
+    CSS_PATH = "app.tcss"
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Static(
+            render_summary_text(build_starter_summary("terminal builder")),
+            id="summary",
+        )
+        yield Input(
+            placeholder="Enter a name and press Enter",
+            id="subject_input",
+        )
+        yield Footer()
+
+    def on_mount(self) -> None:
+        self.title = "Python CLI/TUI Starter"
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        summary = build_starter_summary(event.value)
+        self.query_one("#summary", Static).update(render_summary_text(summary))
+        event.input.value = ""

@@ -10,6 +10,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Mobile apps (Expo, dedicated app)
 - TV apps (Expo AndroidTV, dedicated app separate from mobile)
 - Python-oriented projects (CLI/TUI-first)
+- TypeScript CLI projects (Bun-native)
 
 ## Core Decisions
 
@@ -149,6 +150,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - TV scaffold output now includes `apps/tv/TV_VALIDATION_LOG.md` to record emulator and Shield execution metadata/results alongside checklist completion.
 - Generated TV Android run flow now includes a compatibility patch step: `apps/tv/scripts/patch-android-wrapper.mjs` pins the generated Android wrapper to Gradle `8.14.3`, and `tv:android` executes with community autolinking enabled (`EXPO_USE_COMMUNITY_AUTOLINKING=1`) after deterministic prebuild.
 - Generated Expo mobile/TV TypeScript manifests now explicitly carry template-required dev tooling (`babel-preset-expo`, `@types/react`), and generated TV manifests additionally pin `@react-native-community/cli` plus `@react-native-community/cli-platform-android` so local Android autolinking produces `project.android.packageName` correctly.
+- The Python lane has now been upgraded from a minimal package stub into a real terminal-app baseline: generated `apps/python` output includes `rich` + `textual`, packaged console scripts (`python-app`, `python-app-tui`), shared starter logic, a starter Textual app, starter CSS, and richer README/test guidance.
+- A dedicated Bun-native `typescript-cli` target is now part of the app matrix: generated `apps/typescript-cli` output includes a workspace-linked `bin`, Node-shared tsconfig inheritance, starter CLI/core source files, a Bun smoke test, target-local `.env.example`, and README guidance for local CLI development.
 - Generated TV starter UI is now intentionally focus-first rather than low-level event-hook-driven: it uses `Pressable` items with `hasTVPreferredFocus`, `onFocus`, and `onPress` to provide a stable Android TV starter surface for manual remote-primary and fallback-input validation.
 - Local Android TV emulator evidence now confirms the generated TV baseline supports initial focus placement, deterministic D-pad progression across the starter rail, select stability, back-to-home behavior with relaunch focus recovery, and pointer/tap activation for the same controls.
 - Physical NVIDIA Shield validation now confirms the generated TV baseline launches successfully on-device, supports remote-primary control, exits cleanly via Back, relaunches correctly, and accepts mouse and gamepad fallback input on the same focus-first UI.
@@ -232,3 +235,7 @@ Current contract coverage:
   - Contract intent: branch-protection policy docs include required status checks aligned to CI job names, advisory secret-scan treatment, and README discoverability link.
 - `tests/contracts/test_preset_regression_suite_contract.py`
   - Contract intent: CI includes a dedicated preset-regression job with required matrix/auth/fullstack contract commands, and regression policy docs are present and linked from README.
+- `tests/contracts/test_typescript_cli_scaffold_contract.py`
+  - Contract intent: `typescript-cli` scaffold output includes Bun-native CLI manifest/bin wiring, starter source files, tsconfig inheritance, README guidance, and dry-run path visibility.
+- `tests/contracts/test_typescript_cli_runtime_smoke_contract.py`
+  - Contract intent: generated `typescript-cli` output installs with Bun and executes its local `dev`, `build`, `test`, `lint`, and `typecheck` scripts successfully.

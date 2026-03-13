@@ -28,6 +28,11 @@ MATRIX_CASES: tuple[PresetMatrixCase, ...] = (
         auth=None,
     ),
     PresetMatrixCase(
+        name="typescript-cli-only",
+        targets=("typescript-cli",),
+        auth=None,
+    ),
+    PresetMatrixCase(
         name="web-backend-clerk",
         targets=("web", "backend"),
         auth="clerk",
@@ -99,12 +104,28 @@ MATRIX_CASES: tuple[PresetMatrixCase, ...] = (
     ),
     PresetMatrixCase(
         name="all-targets-clerk",
-        targets=("python", "web", "backend", "mobile", "tv", "desktop"),
+        targets=(
+            "python",
+            "typescript-cli",
+            "web",
+            "backend",
+            "mobile",
+            "tv",
+            "desktop",
+        ),
         auth="clerk",
     ),
     PresetMatrixCase(
         name="all-targets-better-auth",
-        targets=("python", "web", "backend", "mobile", "tv", "desktop"),
+        targets=(
+            "python",
+            "typescript-cli",
+            "web",
+            "backend",
+            "mobile",
+            "tv",
+            "desktop",
+        ),
         auth="better-auth",
     ),
 )
@@ -112,6 +133,7 @@ MATRIX_CASES: tuple[PresetMatrixCase, ...] = (
 
 APP_DIRS_BY_TARGET: dict[str, Path] = {
     "python": Path("apps/python"),
+    "typescript-cli": Path("apps/typescript-cli"),
     "web": Path("apps/web"),
     "backend": Path("apps/backend"),
     "desktop": Path("apps/desktop"),

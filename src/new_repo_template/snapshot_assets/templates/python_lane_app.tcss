@@ -1,0 +1,9 @@
+#summary {
+    margin: 1 2;
+    padding: 1 2;
+    border: round $accent;
+}
+
+#subject_input {
+    margin: 0 2 1 2;
+}

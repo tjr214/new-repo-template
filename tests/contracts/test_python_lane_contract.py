@@ -73,6 +73,10 @@ def test_python_target_dry_run_reports_lane_python_files_only(tmp_path: Path) ->
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "apps/python/pyproject.toml" in combined_output
     assert "apps/python/.python-version" in combined_output
+    assert "apps/python/src/python_app/cli.py" in combined_output
+    assert "apps/python/src/python_app/tui.py" in combined_output
+    assert "apps/python/src/python_app/entry_points.py" in combined_output
+    assert "apps/python/src/python_app/app.tcss" in combined_output
     assert "  - pyproject.toml" not in combined_output
     assert "  - .python-version" not in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"
@@ -96,6 +100,15 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
 
     lane_pyproject = output_dir / "apps" / "python" / "pyproject.toml"
     lane_python_version = output_dir / "apps" / "python" / ".python-version"
+    expected_lane_files = (
+        output_dir / "apps" / "python" / "src" / "python_app" / "__init__.py",
+        output_dir / "apps" / "python" / "src" / "python_app" / "core.py",
+        output_dir / "apps" / "python" / "src" / "python_app" / "cli.py",
+        output_dir / "apps" / "python" / "src" / "python_app" / "tui.py",
+        output_dir / "apps" / "python" / "src" / "python_app" / "entry_points.py",
+        output_dir / "apps" / "python" / "src" / "python_app" / "app.tcss",
+        output_dir / "apps" / "python" / "tests" / "test_core.py",
+    )
 
     assert not (output_dir / "pyproject.toml").exists(), (
         "root pyproject.toml must not exist when Python metadata lives in the lane"
@@ -108,6 +121,8 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
     assert not lane_python_version.is_symlink(), (
         "python lane .python-version must be a real file, not a symlink"
     )
+    for path in expected_lane_files:
+        assert path.exists(), f"Expected scaffolded python lane file: {path}"
 
     lane_content = lane_pyproject.read_text(encoding="utf-8")
     lane_python_version_content = lane_python_version.read_text(encoding="utf-8")
@@ -117,6 +132,11 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
     )
     assert "[project]" in lane_content
     assert 'requires-python = ">=3.14"' in lane_content
+    assert "rich>=14.3.3" in lane_content
+    assert "textual>=8.0.1" in lane_content
+    assert "[project.scripts]" in lane_content
+    assert 'python-app = "python_app.entry_points:run_cli"' in lane_content
+    assert 'python-app-tui = "python_app.entry_points:run_tui"' in lane_content
 
 
 def test_python_target_scaffold_runs_baseline_commands(tmp_path: Path) -> None:
@@ -150,6 +170,30 @@ def test_python_target_scaffold_runs_baseline_commands(tmp_path: Path) -> None:
         f"stdout:\n{sync_result.stdout}\n"
         f"stderr:\n{sync_result.stderr}"
     )
+
+    cli_result = run_lane_command(
+        lane_root=lane_root,
+        uv_binary=uv_binary,
+        args=["run", "python-app", "demo-user"],
+    )
+    assert cli_result.returncode == 0, (
+        "Expected `uv run python-app demo-user` to succeed for generated python lane.\n"
+        f"stdout:\n{cli_result.stdout}\n"
+        f"stderr:\n{cli_result.stderr}"
+    )
+    assert "demo-user" in f"{cli_result.stdout}\n{cli_result.stderr}"
+
+    tui_help_result = run_lane_command(
+        lane_root=lane_root,
+        uv_binary=uv_binary,
+        args=["run", "python-app-tui", "--help"],
+    )
+    assert tui_help_result.returncode == 0, (
+        "Expected `uv run python-app-tui --help` to succeed for generated python lane.\n"
+        f"stdout:\n{tui_help_result.stdout}\n"
+        f"stderr:\n{tui_help_result.stderr}"
+    )
+    assert "Launch the Textual starter app" in tui_help_result.stdout
 
     commands: tuple[list[str], ...] = (
         ["run", "pytest"],

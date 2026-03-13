@@ -1,0 +1,31 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class StarterSummary:
+    title: str
+    greeting: str
+    commands: tuple[str, ...]
+
+
+def build_starter_summary(subject: str) -> StarterSummary:
+    normalized_subject = subject.strip() or "terminal builder"
+    return StarterSummary(
+        title="Python CLI/TUI Starter",
+        greeting=(
+            f"Hello, {normalized_subject}! This Python lane is ready for Rich CLI "
+            "and Textual TUI experiments."
+        ),
+        commands=(
+            "uv run python-app --help",
+            "uv run python-app-tui",
+            "uv run pytest",
+        ),
+    )
+
+
+def render_summary_text(summary: StarterSummary) -> str:
+    command_lines = "\n".join(f"- {command}" for command in summary.commands)
+    return f"{summary.greeting}\n\nStarter commands:\n{command_lines}"

@@ -1,8 +1,8 @@
 # FEATURES TODO
 
-- [ ] 1.0 ADD PYTHON AND TYPESCRIPT CLI / TUI PROJECTS
-  - [ ] Update existing Python scaffolding with CLI support via Rich and Textual libraries
-  - [ ] Ane new specific Typescript scaffolding for CLIs
+- [x] 1.0 ADD PYTHON AND TYPESCRIPT CLI / TUI PROJECTS
+  - [x] Update existing Python scaffolding with CLI support via Rich and Textual libraries
+  - [x] Ane new specific Typescript scaffolding for CLIs
 - [ ] 2.0 ADD SUPPORT FOR PYTHON AND TYPESCRIPT LIBRARIES
   - [ ] Add Python Library scaffolding
   - [ ] Same with Typescript library

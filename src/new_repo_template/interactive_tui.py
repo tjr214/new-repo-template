@@ -56,16 +56,18 @@ TARGET_DESCRIPTIONS: dict[str, str] = {
     "desktop": "Desktop app",
     "mobile": "Mobile app",
     "tv": "AndroidTV app",
+    "typescript-cli": "TypeScript CLI app",
 }
 
 TARGET_NOTES: dict[str, str] = {
     "foundation": "Baseline workspace only. This stays mutually exclusive with all app lanes.",
-    "python": "Scaffolds the Python lane under apps/python with uv-based tooling.",
+    "python": "Scaffolds the Python lane under apps/python with Rich and Textual starter entry points.",
     "web": "Adds the TanStack Start web frontend lane.",
     "backend": "Adds the Convex backend lane and requires an explicit auth choice, including no auth.",
     "desktop": "Adds the Electron desktop lane.",
     "mobile": "Adds the Expo mobile app lane.",
     "tv": "Adds the Expo Android TV lane with remote-first starter wiring.",
+    "typescript-cli": "Adds a Bun-native TypeScript CLI lane with a workspace-linked bin entry.",
 }
 
 AUTH_NOTES: dict[str, str] = {

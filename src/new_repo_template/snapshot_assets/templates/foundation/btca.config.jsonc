@@ -85,6 +85,14 @@
       "url": "https://github.com/Textualize/pytest-textual-snapshot",
       "branch": "main",
       "specialNotes": "Snapshot-testing plugin for Textual visual regression coverage and review workflows."
+    },
+    {
+      "type": "git",
+      "name": "uv",
+      "url": "https://github.com/astral-sh/uv",
+      "branch": "main",
+      "searchPath": "docs",
+      "specialNotes": "Official uv docs and repo for project management and command behavior guidance."
     }
   ],
   "model": "gpt-5.4",

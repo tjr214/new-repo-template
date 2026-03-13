@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 03:50:26 PM
-**Current Phase:** manifest-driven foundation source-of-truth closeout
+**Last Updated:** 2026-03-13 04:47:07 PM
+**Current Phase:** Python and TypeScript CLI/TUI scaffold completion
 
 ## Previous Cycle Archives
 
@@ -122,7 +122,12 @@
 - [x] Regenerated bundled snapshot artifacts with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`.
 - [x] Revalidated the targeted manifest slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_nurt_cli_contract.py` (27 passed).
 - [x] Revalidated the repository with `uv run pytest` (164 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
+- [x] Ran the YELLOW pass for the CLI/TUI expansion slice by rereading the scaffold, `nurt` CLI, interactive UI/TUI, current contracts, and template assets; running `btca status` / `btca resources`; adding the missing `uv` project resource; and using `btca ask` for uv CLI packaging, Textual/Rich starter-app structure, and Bun CLI package guidance.
+- [x] Upgraded the Python lane from a minimal stub into a real Rich + Textual starter app with packaged console scripts, shared core logic, starter tests, and expanded README guidance in `src/new_repo_template/snapshot_assets/templates/python_lane_*` plus `src/new_repo_template/scaffold.py`.
+- [x] Added the new Bun-native `typescript-cli` scaffold target in `src/new_repo_template/scaffold.py`, `src/new_repo_template/{interactive_ui.py,interactive_tui.py}`, and new bundled templates under `src/new_repo_template/snapshot_assets/templates/typescript_cli/` plus `workspace_packages/typescript_cli_package.json`.
+- [x] Expanded contract coverage with `tests/contracts/test_typescript_cli_scaffold_contract.py` and `tests/contracts/test_typescript_cli_runtime_smoke_contract.py`, while also updating the Python lane, CLI validation, security baseline, preset matrix, `nurt` dry-run, and Textual wizard suites for the new behavior.
+- [x] Revalidated the implementation slice with `uv run pytest tests/contracts/test_python_lane_contract.py tests/contracts/test_typescript_cli_scaffold_contract.py tests/contracts/test_typescript_cli_runtime_smoke_contract.py tests/contracts/test_cli_validation_and_python_commands_contract.py tests/contracts/test_required_preset_matrix_contract.py tests/contracts/test_security_baseline_contract.py tests/contracts/test_nurt_cli_contract.py tests/contracts/test_interactive_tui_contract.py` (77 passed), `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (171 passed).
 
 ## Next Up
 
-- [ ] Optional follow-up: revisit `pytest-textual-snapshot` if an upstream release adds compatibility with the repository's `pytest>=9` baseline.
+- [ ] Start `2.0 ADD SUPPORT FOR PYTHON AND TYPESCRIPT LIBRARIES` with the same YELLOW-RED-GREEN-BLUE loop.

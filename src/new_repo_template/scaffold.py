@@ -31,6 +31,7 @@ TARGET_CHOICES: tuple[str, ...] = (
     "desktop",
     "mobile",
     "tv",
+    "typescript-cli",
 )
 
 FOUNDATION_CORE_PATHS: tuple[str, ...] = (
@@ -70,6 +71,7 @@ APP_TARGET_DIRS: dict[str, str] = {
     "desktop": "apps/desktop/",
     "mobile": "apps/mobile/",
     "tv": "apps/tv/",
+    "typescript-cli": "apps/typescript-cli/",
 }
 
 APP_TARGET_PACKAGE_PATHS: dict[str, str] = {
@@ -78,6 +80,7 @@ APP_TARGET_PACKAGE_PATHS: dict[str, str] = {
     "desktop": "apps/desktop/package.json",
     "mobile": "apps/mobile/package.json",
     "tv": "apps/tv/package.json",
+    "typescript-cli": "apps/typescript-cli/package.json",
 }
 
 APP_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
@@ -86,6 +89,7 @@ APP_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
     "desktop": "workspace_packages/desktop_package.json",
     "mobile": "workspace_packages/mobile_package.json",
     "tv": "workspace_packages/tv_package.json",
+    "typescript-cli": "workspace_packages/typescript_cli_package.json",
 }
 
 WEB_FRAMEWORK_PATHS: tuple[str, ...] = (
@@ -148,6 +152,15 @@ TV_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/tv/TV_VALIDATION_LOG.md",
 )
 
+TYPESCRIPT_CLI_FRAMEWORK_PATHS: tuple[str, ...] = (
+    "apps/typescript-cli/README.md",
+    "apps/typescript-cli/tsconfig.json",
+    "apps/typescript-cli/src/",
+    "apps/typescript-cli/src/cli.ts",
+    "apps/typescript-cli/src/index.ts",
+    "apps/typescript-cli/smoke.test.ts",
+)
+
 SHARED_WORKSPACE_PATHS: tuple[str, ...] = (
     "packages/shared/",
     "packages/shared/package.json",
@@ -161,7 +174,15 @@ PYTHON_PATHS: tuple[str, ...] = (
     "apps/python/pyproject.toml",
     "apps/python/README.md",
     "apps/python/src/python_app/",
+    "apps/python/src/python_app/__init__.py",
+    "apps/python/src/python_app/core.py",
+    "apps/python/src/python_app/cli.py",
+    "apps/python/src/python_app/tui.py",
+    "apps/python/src/python_app/entry_points.py",
+    "apps/python/src/python_app/app.tcss",
     "apps/python/tests/",
+    "apps/python/tests/test_smoke.py",
+    "apps/python/tests/test_core.py",
 )
 
 TARGET_ENV_EXAMPLE_PATHS: dict[str, str] = {
@@ -171,6 +192,7 @@ TARGET_ENV_EXAMPLE_PATHS: dict[str, str] = {
     "desktop": "apps/desktop/.env.example",
     "mobile": "apps/mobile/.env.example",
     "tv": "apps/tv/.env.example",
+    "typescript-cli": "apps/typescript-cli/.env.example",
 }
 
 CLERK_WIRING_PATHS: tuple[str, ...] = (
@@ -187,7 +209,13 @@ PYTHON_LANE_PYPROJECT = load_template_text("python_lane_pyproject.toml")
 
 PYTHON_LANE_README = load_template_text("python_lane_readme.md")
 PYTHON_LANE_INIT = load_template_text("python_lane_init.py")
+PYTHON_LANE_CORE = load_template_text("python_lane_core.txt")
+PYTHON_LANE_CLI = load_template_text("python_lane_cli.txt")
+PYTHON_LANE_TUI = load_template_text("python_lane_tui.txt")
+PYTHON_LANE_ENTRY_POINTS = load_template_text("python_lane_entry_points.txt")
+PYTHON_LANE_APP_CSS = load_template_text("python_lane_app.tcss")
 PYTHON_LANE_TEST = load_template_text("python_lane_test.txt")
+PYTHON_LANE_TEST_CORE = load_template_text("python_lane_test_core.txt")
 
 TARGET_ENV_TEMPLATE_FILES: dict[str, str] = {
     "python": "env/python.env",
@@ -196,6 +224,7 @@ TARGET_ENV_TEMPLATE_FILES: dict[str, str] = {
     "desktop": "env/desktop.env",
     "mobile": "env/mobile.env",
     "tv": "env/tv.env",
+    "typescript-cli": "env/typescript-cli.env",
 }
 
 AUTH_ENV_TEMPLATE_FILES: dict[str, dict[str, str]] = {
@@ -260,6 +289,19 @@ TV_PATCH_ANDROID_WRAPPER_TEMPLATE = load_template_text(
 TV_INPUT_CHECKLIST_TEMPLATE = load_template_text("tv/tv_input_checklist.md")
 TV_VALIDATION_LOG_TEMPLATE = load_template_text("tv/tv_validation_log.md")
 TV_README_TEMPLATE = load_template_text("tv/tv_readme.md")
+TYPESCRIPT_CLI_TSCONFIG_TEMPLATE = load_template_text(
+    "typescript_cli/typescript_cli_tsconfig.json"
+)
+TYPESCRIPT_CLI_README_TEMPLATE = load_template_text(
+    "typescript_cli/typescript_cli_readme.md"
+)
+TYPESCRIPT_CLI_CLI_TEMPLATE = load_template_text("typescript_cli/typescript_cli_cli.ts")
+TYPESCRIPT_CLI_INDEX_TEMPLATE = load_template_text(
+    "typescript_cli/typescript_cli_index.ts"
+)
+TYPESCRIPT_CLI_SMOKE_TEST_TEMPLATE = load_template_text(
+    "typescript_cli/typescript_cli_smoke.test.ts"
+)
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
 DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
     "workspace_packages/desktop_package_with_shared.json"
@@ -368,6 +410,8 @@ def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, .
             paths.extend(MOBILE_FRAMEWORK_PATHS)
         if target == "tv":
             paths.extend(TV_FRAMEWORK_PATHS)
+        if target == "typescript-cli":
+            paths.extend(TYPESCRIPT_CLI_FRAMEWORK_PATHS)
         if target == "python":
             paths.extend(PYTHON_PATHS)
         if target in TARGET_ENV_EXAMPLE_PATHS:
@@ -511,17 +555,55 @@ def scaffold_python_lane(*, output_root: Path) -> None:
         raise RuntimeError("simulated scaffold failure after root generation")
 
     lane_root = output_root / "apps" / "python"
-    (lane_root / "src" / "python_app").mkdir(parents=True)
-    (lane_root / "tests").mkdir()
+    package_root = lane_root / "src" / "python_app"
+    tests_root = lane_root / "tests"
+    package_root.mkdir(parents=True)
+    tests_root.mkdir()
     write_python_lane_python_version(lane_root=lane_root)
     (lane_root / "pyproject.toml").write_text(PYTHON_LANE_PYPROJECT, encoding="utf-8")
     (lane_root / "README.md").write_text(PYTHON_LANE_README, encoding="utf-8")
-    (lane_root / "src" / "python_app" / "__init__.py").write_text(
-        PYTHON_LANE_INIT,
+    (package_root / "__init__.py").write_text(PYTHON_LANE_INIT, encoding="utf-8")
+    (package_root / "core.py").write_text(PYTHON_LANE_CORE, encoding="utf-8")
+    (package_root / "cli.py").write_text(PYTHON_LANE_CLI, encoding="utf-8")
+    (package_root / "tui.py").write_text(PYTHON_LANE_TUI, encoding="utf-8")
+    (package_root / "entry_points.py").write_text(
+        PYTHON_LANE_ENTRY_POINTS,
         encoding="utf-8",
     )
-    (lane_root / "tests" / "test_smoke.py").write_text(
-        PYTHON_LANE_TEST,
+    (package_root / "app.tcss").write_text(PYTHON_LANE_APP_CSS, encoding="utf-8")
+    (tests_root / "test_smoke.py").write_text(PYTHON_LANE_TEST, encoding="utf-8")
+    (tests_root / "test_core.py").write_text(
+        PYTHON_LANE_TEST_CORE,
+        encoding="utf-8",
+    )
+
+
+def scaffold_typescript_cli_framework_files(
+    *, output_root: Path, targets: tuple[str, ...]
+) -> None:
+    if "typescript-cli" not in targets:
+        return
+
+    cli_root = output_root / "apps" / "typescript-cli"
+    cli_src = cli_root / "src"
+    cli_root.mkdir(parents=True, exist_ok=True)
+    cli_src.mkdir(parents=True, exist_ok=True)
+
+    (cli_root / "README.md").write_text(
+        TYPESCRIPT_CLI_README_TEMPLATE,
+        encoding="utf-8",
+    )
+    (cli_root / "tsconfig.json").write_text(
+        TYPESCRIPT_CLI_TSCONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
+    (cli_src / "cli.ts").write_text(TYPESCRIPT_CLI_CLI_TEMPLATE, encoding="utf-8")
+    (cli_src / "index.ts").write_text(
+        TYPESCRIPT_CLI_INDEX_TEMPLATE,
+        encoding="utf-8",
+    )
+    (cli_root / "smoke.test.ts").write_text(
+        TYPESCRIPT_CLI_SMOKE_TEST_TEMPLATE,
         encoding="utf-8",
     )
 
@@ -779,6 +861,10 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_desktop_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_mobile_framework_files(output_root=plan.output, targets=plan.targets)
     scaffold_tv_framework_files(output_root=plan.output, targets=plan.targets)
+    scaffold_typescript_cli_framework_files(
+        output_root=plan.output,
+        targets=plan.targets,
+    )
     scaffold_shared_workspace_package(output_root=plan.output, targets=plan.targets)
 
     if "python" in plan.targets:

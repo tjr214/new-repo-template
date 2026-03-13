@@ -1,0 +1,20 @@
+from __future__ import annotations
+
+import argparse
+
+from python_app.cli import main as run_cli_main
+from python_app.tui import PythonStarterApp
+
+
+def run_cli() -> int:
+    return run_cli_main()
+
+
+def run_tui(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="python-app-tui",
+        description="Launch the Textual starter app.",
+    )
+    parser.parse_args(argv)
+    PythonStarterApp().run()
+    return 0

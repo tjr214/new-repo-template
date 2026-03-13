@@ -64,6 +64,8 @@ def test_selected_targets_each_receive_env_example_placeholders(tmp_path: Path) 
             "--target",
             "python",
             "--target",
+            "typescript-cli",
+            "--target",
             "desktop",
             "--target",
             "mobile",
@@ -89,6 +91,7 @@ def test_selected_targets_each_receive_env_example_placeholders(tmp_path: Path) 
 
     expected_env_examples = [
         output_dir / "apps" / "python" / ".env.example",
+        output_dir / "apps" / "typescript-cli" / ".env.example",
         output_dir / "apps" / "desktop" / ".env.example",
         output_dir / "apps" / "mobile" / ".env.example",
         output_dir / "apps" / "tv" / ".env.example",
@@ -109,6 +112,7 @@ def test_template_env_seed_files_exist_and_are_not_gitignored() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     required_template_env_files = [
         "src/new_repo_template/snapshot_assets/templates/env/python.env",
+        "src/new_repo_template/snapshot_assets/templates/env/typescript-cli.env",
         "src/new_repo_template/snapshot_assets/templates/env/web.env",
         "src/new_repo_template/snapshot_assets/templates/env/backend.env",
         "src/new_repo_template/snapshot_assets/templates/env/desktop.env",

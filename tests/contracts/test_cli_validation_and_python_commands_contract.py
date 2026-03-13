@@ -77,6 +77,7 @@ def test_missing_no_interactive_fails_with_clear_error(tmp_path: Path) -> None:
     [
         (["--target", "foundation"], "foundation-no-interactive"),
         (["--target", "python"], "python-no-interactive"),
+        (["--target", "typescript-cli"], "typescript-cli-no-interactive"),
         (
             [
                 "--target",
@@ -234,6 +235,8 @@ def test_python_scaffold_includes_baseline_uv_commands(tmp_path: Path) -> None:
     assert "Python Lane" in command_doc_text
     assert "Baseline developer commands" in command_doc_text
     assert "uv sync" in command_doc_text
+    assert "python-app" in command_doc_text
+    assert "python-app-tui" in command_doc_text
     assert "pytest" in command_doc_text
     assert "ruff" in command_doc_text
     assert "mypy" in command_doc_text

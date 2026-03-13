@@ -1,0 +1,33 @@
+from __future__ import annotations
+
+import argparse
+
+from rich.console import Console
+from rich.panel import Panel
+
+from python_app.core import build_starter_summary, render_summary_text
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="python-app",
+        description="Render a Rich starter summary for the Python CLI/TUI lane.",
+    )
+    parser.add_argument(
+        "subject",
+        nargs="?",
+        default="terminal builder",
+        help="Name or subject to highlight in the starter summary.",
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    summary = build_starter_summary(args.subject)
+    Console().print(Panel(render_summary_text(summary), title=summary.title))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,7 +1,7 @@
-# Next Cycle Plan Stub
+# Python and TypeScript CLI/TUI Plan
 
-**Last Updated:** 2026-03-12 06:50:03 PM
-**Status:** Stub
+**Last Updated:** 2026-03-13 04:47:07 PM
+**Status:** Complete
 **Previous Cycle Archive:** `docs/archive/plans/PLAN_2026-03-12_06-50-03_PM.md`
 **Previous Cycle Summary:** `docs/session-summaries/SESSION_87_SUMMARY.md`
 
@@ -9,31 +9,33 @@
 
 ## Goal
 
-Capture and refine the next implementation slice before coding begins.
+Complete the Python CLI/TUI scaffold upgrade and add the new Bun-native TypeScript CLI scaffold.
 
 ---
 
 ## YELLOW
 
-- [ ] Read the repo files, tests, and documentation relevant to the next slice before editing.
-- [ ] Run `btca status` and use `btca ask` for any dependency or library guidance that affects the next slice.
-- [ ] Confirm scope, constraints, and validation targets for the next slice.
+- [x] Read the repo files, tests, and documentation relevant to the next slice before editing.
+- [x] Run `btca status`, `btca resources`, and `btca ask` for dependency guidance affecting the next slice.
+- [x] Add the missing project BTCA resource for `uv` and sync `docs/BTCA_RESOURCES.md`.
+- [x] Confirm scope, constraints, and validation targets for the Python lane upgrade plus the new `typescript-cli` target.
 
 ## RED
 
-- [ ] Add or update failing tests/contracts for the next slice.
+- [x] Add or update failing tests/contracts for the Python CLI/TUI lane, the new `typescript-cli` target, CLI validation, security/env coverage, preset-matrix coverage, and interactive `nurt` flows.
 
 ## GREEN
 
-- [ ] Implement the smallest change set that satisfies the next slice.
+- [x] Upgrade the `python` scaffold into a real Rich + Textual lane with packaged entry points, starter modules, and stronger docs/tests.
+- [x] Add the Bun-native `typescript-cli` scaffold target with workspace-linked `bin`, starter source files, README guidance, and runtime smoke coverage.
 
 ## BLUE
 
-- [ ] Refactor and harden the implementation, then rerun targeted and full validation as appropriate.
+- [x] Refactor and harden the implementation, rerun targeted contracts, refresh bundled snapshot metadata with `nurt template-assets validate`, and rerun repo-wide validation.
 
 ## Documentation Sync
 
-- [ ] Update `PROGRESS.md`.
-- [ ] Update `docs/LIVING_DOCS.md`.
-- [ ] Update `docs/ARCHITECTURE.md`.
-- [ ] Create a new session summary in `docs/session-summaries/`.
+- [x] Update `PROGRESS.md`.
+- [x] Update `docs/LIVING_DOCS.md`.
+- [x] Update `docs/ARCHITECTURE.md`.
+- [x] Create a new session summary in `docs/session-summaries/`.

@@ -129,6 +129,37 @@ def test_nurt_new_defaults_to_foundation_when_targets_omitted(tmp_path: Path) ->
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
+def test_nurt_new_dry_run_supports_typescript_cli_target(tmp_path: Path) -> None:
+    """nurt new should route the new typescript-cli target through scaffold dry-run."""
+
+    output_dir = tmp_path / "demo-typescript-cli"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "new",
+            output_dir.name,
+            "--target",
+            "typescript-cli",
+            "--dry-run",
+            "--no-interactive",
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected typescript-cli nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("typescript-cli",),
+        auth="none",
+        output_path=output_dir,
+    )
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
 def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     tmp_path: Path,
 ) -> None:
