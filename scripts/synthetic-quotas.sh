@@ -5,7 +5,7 @@ API_URL="https://api.synthetic.new/v2/quotas"
 
 usage() {
   cat <<'EOF'
-Usage: .template_scripts/synthetic-quotas.sh [--watch [SECONDS]] [--no-clear]
+Usage: .scripts/synthetic-quotas.sh [--watch [SECONDS]] [--no-clear]
 
 Requires:
   - SYNTHETIC_PLAN_API_KEY environment variable
