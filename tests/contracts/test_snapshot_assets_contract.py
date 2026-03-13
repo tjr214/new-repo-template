@@ -74,3 +74,34 @@ def test_snapshot_builder_writes_deterministic_metadata(tmp_path: Path) -> None:
     assert metadata_a == metadata_b
     assert metadata_a["source_commit"] == fixed_commit
     assert metadata_a["generated_at"] == fixed_time
+
+
+def test_snapshot_manifest_includes_foundation_opencode_commands_from_source_manifest() -> (
+    None
+):
+    """RED: packaged snapshot manifest should include all foundation OpenCode command assets."""
+
+    source_manifest = load_source_manifest()
+    entries = source_manifest.get("entries")
+    assert isinstance(entries, list)
+
+    expected_templates = sorted(
+        entry["destination"].removeprefix("templates/")
+        for entry in entries
+        if isinstance(entry, dict)
+        and isinstance(entry.get("destination"), str)
+        and entry["destination"].startswith("templates/foundation/.opencode/command/")
+    )
+
+    snapshot_manifest = load_snapshot_manifest()
+    templates = snapshot_manifest.get("templates")
+    assert isinstance(templates, list)
+
+    actual_templates = sorted(
+        template
+        for template in templates
+        if isinstance(template, str)
+        and template.startswith("foundation/.opencode/command/")
+    )
+
+    assert actual_templates == expected_templates

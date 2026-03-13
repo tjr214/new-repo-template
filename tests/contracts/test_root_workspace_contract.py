@@ -66,6 +66,7 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
         ".github/workflows/ci.yml",
         ".agent/rules/",
         ".opencode/command/",
+        ".opencode/command/repo-gh-make-n-merge-PR.md",
     ]
 
     for marker in expected_markers:

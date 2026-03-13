@@ -96,6 +96,7 @@ FOUNDATION_GOVERNANCE_PATHS: tuple[str, ...] = (
     ".opencode/command/repo-git-merge.md",
     ".opencode/command/repo-git-new-branch.md",
     ".opencode/command/repo-git-what-has-changed.md",
+    ".opencode/command/repo-gh-make-n-merge-PR.md",
 )
 
 FOUNDATION_PATHS: tuple[str, ...] = FOUNDATION_CORE_PATHS + FOUNDATION_GOVERNANCE_PATHS
@@ -224,6 +225,10 @@ FOUNDATION_GOVERNANCE_TEMPLATE_FILES: tuple[tuple[str, str], ...] = (
     (
         ".opencode/command/repo-git-what-has-changed.md",
         "foundation/.opencode/command/repo-git-what-has-changed.md",
+    ),
+    (
+        ".opencode/command/repo-gh-make-n-merge-PR.md",
+        "foundation/.opencode/command/repo-gh-make-n-merge-PR.md",
     ),
 )
 

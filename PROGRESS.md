@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 01:43:04 PM
-**Current Phase:** branch-protection approval-default hardening for solo-maintainer repos
+**Last Updated:** 2026-03-13 02:58:07 PM
+**Current Phase:** foundation OpenCode PR-command scaffold parity
 
 ## Previous Cycle Archives
 
@@ -109,6 +109,11 @@
 - [x] Updated `scripts/configure-repo-protections.sh` so PR-based merging remains required but approval count now defaults to `0`, and team repos can opt into stricter review policy with `--required-approvals <n>`.
 - [x] Updated `docs/BRANCH_PROTECTION.md` and the branch-protection contract suite to document the solo-friendly default plus explicit team override.
 - [x] Revalidated the branch-protection slice with `uv run pytest tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_branch_protection_guidance_contract.py`.
+- [x] Ran a YELLOW pass for the missing foundation OpenCode PR-command slice by rereading `src/new_repo_template/{scaffold.py,snapshot_assets_loader.py,snapshot_builder.py,nurt_cli.py}`, the source/runtime snapshot manifests, the foundation scaffold contracts, and using `btca ask -r bun` to confirm the repo should continue using an explicit manifest/allowlist model for deterministic packaged template assets.
+- [x] Expanded RED coverage so foundation dry-run output explicitly mentions `.opencode/command/repo-gh-make-n-merge-PR.md`, and snapshot contract coverage now asserts source-manifest foundation `.opencode/command` entries stay aligned with the packaged runtime manifest.
+- [x] Updated the foundation scaffold allowlist and template-file mapping in `src/new_repo_template/scaffold.py` so generated repos now include `.opencode/command/repo-gh-make-n-merge-PR.md`.
+- [x] Synced the packaged runtime manifest in `src/new_repo_template/snapshot_assets/manifest.json` so the new command is part of the loadable bundled-template set.
+- [x] Revalidated the slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py` (6 passed).
 
 ## Next Up
 
