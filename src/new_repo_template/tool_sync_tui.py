@@ -61,7 +61,7 @@ class ToolSyncTuiApp(App[None]):
     }
     """
 
-    TITLE = "nurt tools sync"
+    TITLE = "nurt sync tools"
     SUB_TITLE = "Core tools updater"
 
     TOOL_COLUMN_WIDTH = 11

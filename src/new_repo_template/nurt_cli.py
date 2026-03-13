@@ -258,33 +258,31 @@ def build_parser() -> argparse.ArgumentParser:
     update_parser.add_argument("--dry-run", action="store_true")
     update_parser.set_defaults(handler=handle_update)
 
-    tools_parser = subparsers.add_parser("tools", help="Sync developer tools")
-    tools_subparsers = tools_parser.add_subparsers(dest="tools_command", required=True)
-    tools_sync_parser = tools_subparsers.add_parser(
-        "sync", help="Sync toolchain dependencies"
-    )
-    tools_sync_parser.add_argument("--dry-run", action="store_true")
-    tools_sync_parser.set_defaults(handler=handle_tools_sync)
+    sync_parser = subparsers.add_parser("sync", help="Sync managed resources")
+    sync_subparsers = sync_parser.add_subparsers(dest="sync_command", required=True)
 
-    bmad_parser = subparsers.add_parser("bmad", help="BMAD Method operations")
-    bmad_subparsers = bmad_parser.add_subparsers(dest="bmad_command", required=True)
-    bmad_sync_parser = bmad_subparsers.add_parser(
-        "sync", help="Install or update the BMAD Method"
+    sync_tools_parser = sync_subparsers.add_parser("tools", help="Sync developer tools")
+    sync_tools_parser.add_argument("--dry-run", action="store_true")
+    sync_tools_parser.set_defaults(handler=handle_tools_sync)
+
+    sync_bmad_parser = sync_subparsers.add_parser(
+        "bmad", help="Install or update the BMAD Method"
     )
-    bmad_sync_parser.add_argument("--dry-run", action="store_true")
-    bmad_sync_parser.set_defaults(handler=handle_bmad_sync)
+    sync_bmad_parser.add_argument("--dry-run", action="store_true")
+    sync_bmad_parser.set_defaults(handler=handle_bmad_sync)
+
+    sync_template_assets_parser = sync_subparsers.add_parser(
+        "template-assets", help="Sync template assets from template repository"
+    )
+    sync_template_assets_parser.add_argument("--dry-run", action="store_true")
+    sync_template_assets_parser.set_defaults(handler=handle_template_assets_sync)
 
     template_assets_parser = subparsers.add_parser(
-        "template-assets", help="Template asset operations"
+        "template-assets", help="Template asset utilities"
     )
     template_assets_subparsers = template_assets_parser.add_subparsers(
         dest="template_assets_command", required=True
     )
-    template_assets_sync_parser = template_assets_subparsers.add_parser(
-        "sync", help="Sync template assets from template repository"
-    )
-    template_assets_sync_parser.add_argument("--dry-run", action="store_true")
-    template_assets_sync_parser.set_defaults(handler=handle_template_assets_sync)
 
     template_assets_snapshot_parser = template_assets_subparsers.add_parser(
         "snapshot", help="Generate bundled snapshot assets from source manifest"

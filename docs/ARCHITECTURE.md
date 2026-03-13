@@ -53,7 +53,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Installer tooling now supports non-destructive script-level dry-runs and includes turborepo (`turbo`) update/install in the updater workflow.
 - Installer support remains available for legacy/maintainer operations, but user bootstrap is standardized on global `nurt` command flow.
 - Script-first UX has been superseded: primary execution is `uv tool install git+...` followed by `nurt new <project-name>` with bundled snapshot assets and explicit `nurt update` lifecycle.
-- `nurt` command bootstrap is implemented at `src/new_repo_template/nurt_cli.py` with command routing (`new`, `update`, `tools sync`, `template-assets sync`) and startup update-check hook.
+- `nurt` command bootstrap is implemented at `src/new_repo_template/nurt_cli.py` with command routing (`new`, `update`, `sync <target>`, `template-assets snapshot`) and startup update-check hook.
 - `nurt new` now includes a real Textual wizard for interactive TTY project-name/target/auth/core-tools/BMAD resolution, with deterministic plain prompt fallback for non-interactive or enhanced-UI-unavailable sessions, a typed `WizardState` coordinator for project-name normalization plus target/auth/post-create-step validation, and a compact responsive mode for narrow terminals and `80x24` layouts.
 - Snapshot assets are bundled under `src/new_repo_template/snapshot_assets/` and loaded at runtime via `importlib.resources`.
 - Fresh `nurt new` generation now performs a native post-create lifecycle after scaffold success: optional BMAD install/update, deterministic lockfile generation/revalidation according to ownership, generated-project `git init`, generated-project `git add .`, generated-project `git commit -m "Initial Commit"`, and then the optional native core-tools updater.
@@ -71,8 +71,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Release architecture now includes a secret-gated `iOS Packaging Preview` path that validates template-generated mobile packaging wiring on `macos-latest`, plus a `Publish Template Release` path that can create or update a draft GitHub release containing the template distribution bundle.
 - Snapshot generation command path is implemented at `nurt template-assets snapshot` using manifest-driven source entries and metadata hashing.
 - Scaffolded baseline sync is now explicit for shared repo files and Python lane files: bundled snapshot assets include `root_gitignore.txt` for repo root and `python_lane_python_version.txt` for Python-lane interpreter pinning, while Python-lane outputs keep `.python-version` as a lane-local file.
-- Script-wrapper migration slice is complete for sync commands: `nurt tools sync`, `nurt bmad sync`, and `nurt template-assets sync` now route through native Python operations.
-- Contract coverage now includes non-dry-run sync failure messaging for native `nurt` sync commands (tools sync simulated failure output and template-assets sync validation failures).
+- Script-wrapper migration slice is complete for sync commands: `nurt sync tools`, `nurt sync bmad`, and `nurt sync template-assets` now route through native Python operations.
+- Contract coverage now includes non-dry-run sync failure messaging for native `nurt` sync commands (`nurt sync tools` simulated failure output and `nurt sync template-assets` validation failures).
 - Native tools sync now splits cleanly between a shared execution engine in `src/new_repo_template/tool_sync_runner.py`, a Textual status-table/log TUI in `src/new_repo_template/tool_sync_tui.py`, and CLI orchestration in `src/new_repo_template/sync_ops.py` / `src/new_repo_template/nurt_cli.py`.
 - The Textual tools-sync log surface now uses `RichLog` instead of the plain text log widget, decoding ANSI output into Rich renderables so the updater transcript preserves full color/styling and avoids raw control-sequence corruption.
 - The Textual tools-sync status table now applies fixed Tool/Status widths plus a resize-driven Details width, giving the long detail column the remaining space without truncating the narrower operational fields too aggressively.
@@ -144,7 +144,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - M5 milestone closeout state is now explicit in the archived planning record: required PR checks were confirmed green and the remaining M5 DoD gate in `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` is checked complete.
 - The native OpenCode updater path now distinguishes install vs upgrade semantics in `src/new_repo_template/tool_sync_runner.py`: existing installs use `opencode upgrade`, while missing installs retain the installer curl flow for first-time bootstrap.
 - The legacy updater shell scripts have been removed from `.template_scripts/`; install/update flows for the managed toolchain and BMAD Method now route only through native `nurt` commands.
-- The remaining legacy maintainer bootstrap path in `install.sh` now invokes repo-local `nurt bmad sync` and `nurt tools sync` commands through `python -m new_repo_template.nurt_cli`, rather than depending on deleted shell updater wrappers.
+- The remaining legacy maintainer bootstrap path in `install.sh` now invokes repo-local `nurt sync bmad` and `nurt sync tools` commands through `python -m new_repo_template.nurt_cli`, rather than depending on deleted shell updater wrappers.
 - Root repository guidance is now deliberately split by operating mode: `README.md` stays focused on end-user `nurt` bootstrap, `README.BMAD-GUIDE.md` covers BMAD planning workflows, and `README.RALPH.md` covers task-driven RALPH execution.
 
 ## Validation Model
@@ -202,7 +202,7 @@ Current contract coverage:
 - `tests/contracts/test_installer_scripts_dry_run_contract.py`
   - Contract intent: non-destructive `--dry-run` behavior for installer/updater scripts and turborepo updater visibility.
 - `tests/contracts/test_nurt_cli_contract.py`
-  - Contract intent: `nurt` command routing, new-project dry-run parity, project-name prompting/normalization when omitted, startup update notice behavior, dry-run safety for `update`/`tools sync`/`template-assets sync`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
+  - Contract intent: `nurt` command routing, new-project dry-run parity, project-name prompting/normalization when omitted, startup update notice behavior, dry-run safety for `update`/`sync tools`/`sync template-assets`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
 - `tests/contracts/test_interactive_tui_contract.py`
   - Contract intent: the real Textual wizard supports stable project-name entry/normalization, conditional skipping of the project-name step when pre-seeded by the CLI, keyboard-driven target multi-select, `foundation` exclusivity, backend-driven explicit auth (including `none`), Escape/Ctrl+Q navigation semantics, wide-vs-compact layout invariants, and resolved-plan handoff on review confirmation.
 - `tests/contracts/test_snapshot_assets_contract.py`

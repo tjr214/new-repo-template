@@ -188,15 +188,15 @@ if [ "$DRY_RUN" -eq 1 ]; then
     printf "  - Create initial commit and remove install.sh\n\n"
 
     if [ -d "src/new_repo_template" ]; then
-        printf "${BLUE}Running BMAD dry-run:${NC} nurt bmad sync --dry-run\n"
-        run_nurt_command bmad sync --dry-run
+        printf "${BLUE}Running BMAD dry-run:${NC} nurt sync bmad --dry-run\n"
+        run_nurt_command sync bmad --dry-run
     else
         printf "${YELLOW}Would skip:${NC} native nurt BMAD path unavailable\n"
     fi
 
     if [ -d "src/new_repo_template" ]; then
-        printf "${BLUE}Running tools dry-run:${NC} nurt tools sync --dry-run\n"
-        run_nurt_command tools sync --dry-run
+        printf "${BLUE}Running tools dry-run:${NC} nurt sync tools --dry-run\n"
+        run_nurt_command sync tools --dry-run
     else
         printf "${YELLOW}Would skip:${NC} native nurt tools path unavailable\n"
     fi
@@ -237,7 +237,7 @@ printf "\n"
 # Install BMAD Method via native nurt command
 printf "${CYAN}${BOLD}Step 1/2: Installing BMAD Method via nurt...${NC}\n"
 printf "${CYAN}------------------------------------------${NC}\n"
-if ! run_nurt_command bmad sync; then
+if ! run_nurt_command sync bmad; then
     printf "${RED}${BOLD}Error: BMAD Method installation failed${NC}\n"
     exit 1
 fi
@@ -258,7 +258,7 @@ printf "\n"
 # Install / update OpenCode and support tools via native nurt command
 printf "${CYAN}${BOLD}Step 2/2: Installing / Updating OpenCode and support tools via nurt...${NC}\n"
 printf "${CYAN}------------------------------------------------------------------${NC}\n"
-if ! run_nurt_command tools sync; then
+if ! run_nurt_command sync tools; then
     printf "${RED}${BOLD}Error: OpenCode/tool update failed${NC}\n"
     exit 1
 fi

@@ -324,37 +324,37 @@ def test_nurt_startup_update_check_notice_appears_when_update_available(
 
 
 def test_nurt_template_assets_sync_dry_run_reports_action(tmp_path: Path) -> None:
-    """RED: template-assets sync dry-run should report non-destructive action plan."""
+    """RED: sync template-assets dry-run should report non-destructive action plan."""
 
     result = run_nurt_command(
-        cwd=tmp_path, args=["template-assets", "sync", "--dry-run"]
+        cwd=tmp_path, args=["sync", "template-assets", "--dry-run"]
     )
 
     assert result.returncode == 0, (
-        "Expected nurt template-assets sync --dry-run to succeed.\n"
+        "Expected nurt sync template-assets --dry-run to succeed.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
-    assert "template-assets sync" in combined_output
+    assert "sync template-assets" in combined_output
     assert "update-template-from-git.sh" not in combined_output
     assert "template source repo" in combined_output
 
 
 def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
-    """RED: tools sync dry-run should report non-destructive action plan."""
+    """RED: sync tools dry-run should report non-destructive action plan."""
 
-    result = run_nurt_command(cwd=tmp_path, args=["tools", "sync", "--dry-run"])
+    result = run_nurt_command(cwd=tmp_path, args=["sync", "tools", "--dry-run"])
 
     assert result.returncode == 0, (
-        "Expected nurt tools sync --dry-run to succeed.\n"
+        "Expected nurt sync tools --dry-run to succeed.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
-    assert "tool sync plan" in combined_output
+    assert "sync tools plan" in combined_output
     assert "uv" in combined_output
     assert "bun" in combined_output
     assert "turbo" in combined_output
@@ -366,12 +366,12 @@ def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
 
 
 def test_nurt_bmad_sync_dry_run_reports_action(tmp_path: Path) -> None:
-    """RED: bmad sync dry-run should report non-destructive action plan."""
+    """RED: sync bmad dry-run should report non-destructive action plan."""
 
-    result = run_nurt_command(cwd=tmp_path, args=["bmad", "sync", "--dry-run"])
+    result = run_nurt_command(cwd=tmp_path, args=["sync", "bmad", "--dry-run"])
 
     assert result.returncode == 0, (
-        "Expected nurt bmad sync --dry-run to succeed.\n"
+        "Expected nurt sync bmad --dry-run to succeed.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
@@ -381,41 +381,41 @@ def test_nurt_bmad_sync_dry_run_reports_action(tmp_path: Path) -> None:
 
 
 def test_nurt_tools_sync_non_dry_run_reports_failures(tmp_path: Path) -> None:
-    """Non-dry tools sync should surface deterministic failure messaging."""
+    """Non-dry sync tools should surface deterministic failure messaging."""
 
     result = run_nurt_command(
         cwd=tmp_path,
-        args=["tools", "sync"],
+        args=["sync", "tools"],
         env={"NURT_TOOLS_SYNC_SIMULATE_FAILURE": "1"},
     )
 
     assert result.returncode == 1, (
-        "Expected simulated tools sync failure to return non-zero.\n"
+        "Expected simulated sync tools failure to return non-zero.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "Running tool sync" in combined_output
+    assert "Running nurt sync tools" in combined_output
     assert "uv: FAILED (simulated failure)" in combined_output
     assert "ripgrep: FAILED (simulated failure)" in combined_output
 
 
 def test_nurt_template_assets_sync_fails_outside_project_root(tmp_path: Path) -> None:
-    """Non-dry template-assets sync should fail with clear root-validation message."""
+    """Non-dry sync template-assets should fail with clear root-validation message."""
 
-    result = run_nurt_command(cwd=tmp_path, args=["template-assets", "sync"])
+    result = run_nurt_command(cwd=tmp_path, args=["sync", "template-assets"])
 
     assert result.returncode == 1, (
-        "Expected template-assets sync to fail outside project root.\n"
+        "Expected sync template-assets to fail outside project root.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "template-assets sync must run from project root" in combined_output
+    assert "sync template-assets must run from project root" in combined_output
 
 
 def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> None:
-    """Non-dry template-assets sync should fail when working tree is dirty."""
+    """Non-dry sync template-assets should fail when working tree is dirty."""
 
     (tmp_path / ".opencode").mkdir()
     (tmp_path / ".template_scripts").mkdir()
@@ -436,10 +436,10 @@ def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> 
         f"stderr:\n{init_result.stderr}"
     )
 
-    result = run_nurt_command(cwd=tmp_path, args=["template-assets", "sync"])
+    result = run_nurt_command(cwd=tmp_path, args=["sync", "template-assets"])
 
     assert result.returncode == 1, (
-        "Expected template-assets sync to fail on dirty git repo.\n"
+        "Expected sync template-assets to fail on dirty git repo.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )

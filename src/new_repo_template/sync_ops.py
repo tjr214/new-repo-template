@@ -315,7 +315,7 @@ def run_tools_sync(
     *, dry_run: bool, cwd: Path | None = None, use_tui: bool = False
 ) -> int:
     if dry_run:
-        print("DRY RUN: tool sync plan (native Python implementation)")
+        print("DRY RUN: sync tools plan (native Python implementation)")
         summary = run_tool_sync(dry_run=True, cwd=cwd)
         for result in summary.results:
             print(f"- {result.tool}: {result.status} ({result.detail})")
@@ -324,7 +324,7 @@ def run_tools_sync(
     if use_tui:
         return run_tool_sync_tui(cwd=cwd)
 
-    print("Running tool sync (native Python implementation)...")
+    print("Running nurt sync tools (native Python implementation)...")
     summary = run_tool_sync(dry_run=False, cwd=cwd)
     for result in summary.results:
         print(f"- {result.tool}: {result.status} ({result.detail})")
@@ -337,7 +337,7 @@ def _validate_template_sync_root(project_root: Path) -> None:
         or not (project_root / ".template_scripts").is_dir()
     ):
         raise RuntimeError(
-            "template-assets sync must run from project root containing .opencode/ and .template_scripts/"
+            "sync template-assets must run from project root containing .opencode/ and .template_scripts/"
         )
 
 
@@ -347,7 +347,7 @@ def _ensure_git_clean(project_root: Path) -> None:
         raise RuntimeError("git status failed while validating clean working tree")
     if result.stdout.strip() != "":
         raise RuntimeError(
-            "repository has uncommitted changes; commit or stash before template-assets sync"
+            "repository has uncommitted changes; commit or stash before sync template-assets"
         )
 
 
@@ -448,7 +448,7 @@ def _apply_template_sync(clone_root: Path, project_root: Path) -> None:
 
 def run_template_assets_sync(*, dry_run: bool, project_root: Path) -> int:
     if dry_run:
-        print("DRY RUN: template-assets sync (native Python implementation)")
+        print("DRY RUN: sync template-assets (native Python implementation)")
         print(f"DRY RUN: template source repo: {TEMPLATE_REPO_HTTPS}")
         print(f"DRY RUN: template source fallback: {TEMPLATE_REPO_SSH}")
         print("DRY RUN: would verify project root markers and clean git status")
@@ -468,8 +468,8 @@ def run_template_assets_sync(*, dry_run: bool, project_root: Path) -> int:
             _clone_template_repo(project_root, clone_dir)
             _apply_template_sync(clone_dir, project_root)
         except (RuntimeError, FileNotFoundError) as exc:
-            print(f"Error: template-assets sync failed: {exc}")
+            print(f"Error: sync template-assets failed: {exc}")
             return 1
 
-    print("Template assets sync completed.")
+    print("Sync template-assets completed.")
     return 0
