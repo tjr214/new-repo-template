@@ -83,7 +83,7 @@
     },
     {
       "destination": "templates/foundation/README.md",
-      "sha256": "97288e17beb6eb0ee12093dd9d1332b6c93239a93793518825ec049b75258dba"
+      "sha256": "5bf6475593b80988fbc08e8612a958e5ee50feb0c0351dbe1fb394fe76ababad"
     },
     {
       "destination": "templates/foundation/btca.config.jsonc",
@@ -166,7 +166,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-13T04:23:35.547300+00:00",
+  "generated_at": "2026-03-13T04:27:11.603264+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "901ce9811ca0c57a596f358f6b1606b57922c177"
+  "source_commit": "ddeb91a0c7d9d24429034b54fd3c879aa37c5110"
 }
