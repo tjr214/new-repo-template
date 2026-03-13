@@ -10,6 +10,8 @@ The template implementation remains intact, and the latest execution plan is now
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
 - The foundation scaffold governance baseline now also carries the root planning/guide files (`PLAN.md`, `README.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`), helper scripts under `scripts/`, and explicit `docs/archive/plans/` plus `docs/archive/progress/` directories.
+- `docs/markdown-templates/ARCHITECTURE.template.md` now mirrors the live architecture document structure so future docs can start from the same scope, decisions, topology, status, and validation sections.
+- `docs/markdown-templates/LIVING_DOCS.template.md` now mirrors this live living-doc structure so future repositories or documentation refreshes can start from the same state, rules, decisions, constraints, and implementation-notes sections.
 
 ## Active Implementation Rules
 
@@ -180,3 +182,4 @@ The template implementation remains intact, and the latest execution plan is now
 - The legacy maintainer `install.sh` path now delegates BMAD/tool updates to repo-local native `nurt` commands instead of shell updater wrappers, preserving dry-run visibility while removing the deleted-script dependency.
 - Generated repos now inherit the exact template-root `.gitignore` baseline from bundled snapshot assets instead of a reduced foundation-only subset, and Python-target outputs now keep `.python-version`, `pyproject.toml`, and `uv.lock` entirely inside `apps/python`.
 - Root `PROGRESS.template.md` is again the source-of-truth snapshot input for scaffolded `foundation/PROGRESS.md`, keeping the generated governance tracker as a clean stub while the template repo continues using live `PROGRESS.md` for cumulative implementation tracking.
+- `docs/markdown-templates/LIVING_DOCS.template.md` is now available as a reusable baseline for future living-doc authoring, matching this file's section layout and synchronization expectations.

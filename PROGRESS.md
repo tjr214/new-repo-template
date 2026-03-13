@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-12 09:16:05 PM
-**Current Phase:** Foundation governance baseline expansion complete
+**Last Updated:** 2026-03-12 11:21:41 PM
+**Current Phase:** Documentation template expansion complete
 
 ## Previous Cycle Archives
 
@@ -78,6 +78,8 @@
 - [x] Revalidated the slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_nurt_cli_contract.py` (24 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
 - [x] Renamed the maintainer validation/metadata-refresh command from `nurt template-assets snapshot` to `nurt template-assets validate`, updated the CLI/help/dry-run messaging to match, and documented `src/new_repo_template/snapshot_assets/templates/` as the canonical bundled-template source of truth behind the repo-root symlink aliases.
 - [x] Fixed the snapshot Python-version alias mismatch in `src/new_repo_template/snapshot_assets/source_manifest.json` and documented the canonical-store-plus-alias-entrypoints model, including `templates-content-store-symlink` plus the readable root alias files used by the maintainer manifest.
+- [x] Added `docs/markdown-templates/ARCHITECTURE.template.md` as a reusable version of the live architecture document structure and synced that new documentation asset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `docs/session-summaries/SESSION_93_SUMMARY.md`.
+- [x] Added `docs/markdown-templates/LIVING_DOCS.template.md` as a reusable version of the live living-doc structure and synced that new documentation asset across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `docs/session-summaries/SESSION_94_SUMMARY.md`.
 
 ## Next Up
 
