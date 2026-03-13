@@ -76,6 +76,7 @@
 - [x] Expanded the foundation lane governance baseline so generated repos now also include `PLAN.md`, `README.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`, `scripts/configure-repo-protections.sh`, `scripts/synthetic-quotas.sh`, `scripts/task-template-schema.json`, `scripts/validate_template.py`, `scripts/visualize_plan.py`, and empty `docs/archive/plans` plus `docs/archive/progress` directories.
 - [x] Updated the bundled snapshot manifests/assets to mirror the new root-backed foundation files and restored root `PROGRESS.template.md` as the snapshot source for scaffolded `PROGRESS.md`.
 - [x] Revalidated the slice with `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_nurt_cli_contract.py` (24 passed) and `uv run ruff check src/new_repo_template tests/contracts`.
+- [x] Reframed `nurt template-assets snapshot` as a maintainer validation/metadata-refresh command, updated the CLI dry-run messaging to match, and documented `src/new_repo_template/snapshot_assets/templates/` as the canonical bundled-template source of truth behind the repo-root symlink aliases.
 
 ## Next Up
 

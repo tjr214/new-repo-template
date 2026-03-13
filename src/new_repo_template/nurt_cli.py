@@ -285,7 +285,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     template_assets_snapshot_parser = template_assets_subparsers.add_parser(
-        "snapshot", help="Generate bundled snapshot assets from source manifest"
+        "snapshot",
+        help="Validate bundled snapshot entries and refresh metadata",
     )
     template_assets_snapshot_parser.add_argument("--dry-run", action="store_true")
     template_assets_snapshot_parser.add_argument(
@@ -506,17 +507,17 @@ def handle_template_assets_snapshot(args: argparse.Namespace) -> int:
     )
 
     if args.dry_run:
-        print("DRY RUN: template-assets snapshot")
+        print("DRY RUN: template-assets snapshot validation")
         for relative_path in result.copied_files:
-            print(f"  - would copy: {relative_path}")
-        print("DRY RUN: metadata would be written to metadata.json")
+            print(f"  - would validate bundled template: {relative_path}")
+        print("DRY RUN: metadata would be refreshed at metadata.json")
         return 0
 
-    print("Snapshot generation completed:")
+    print("Template-assets snapshot validation completed:")
     for relative_path in result.copied_files:
-        print(f"  - copied: {relative_path}")
+        print(f"  - validated bundled template: {relative_path}")
     if result.metadata_path is not None:
-        print(f"  - metadata: {result.metadata_path}")
+        print(f"  - metadata refreshed: {result.metadata_path}")
     return 0
 
 
