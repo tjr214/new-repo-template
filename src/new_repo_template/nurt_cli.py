@@ -486,15 +486,6 @@ def handle_new(args: argparse.Namespace) -> int:
         )
     )
 
-    try:
-        os.chdir(output_path)
-    except OSError as exc:
-        print(
-            f"Error: unable to change into project directory `{output_path}`: {exc}",
-            file=sys.stderr,
-        )
-        return 1
-
     return 0
 
 

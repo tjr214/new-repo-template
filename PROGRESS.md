@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 12:41:33 AM
-**Current Phase:** `nurt new` completion UX polish complete
+**Last Updated:** 2026-03-13 12:51:50 AM
+**Current Phase:** `nurt new` completion handoff copy corrected
 
 ## Previous Cycle Archives
 
@@ -90,6 +90,8 @@
 - [x] Added a Rich `Setup Complete` overview for successful non-dry-run `nurt new` runs, including project details, post-create accomplishments, and an explicit closing message that the flow is changing into the new project directory.
 - [x] Updated successful `nurt new` completion to change the CLI process working directory to the generated project path after printing the completion overview.
 - [x] Revalidated the slice with `uv run pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_interactive_tui_contract.py tests/contracts/test_post_create_contract.py` (39 passed) and `uv run ruff check src/new_repo_template tests/contracts`; a broader `uv run pytest` pass still reports 5 unrelated repository-baseline failures because `install.sh` and `.template_scripts/configure-repo-protections.sh` are absent and `README.md` no longer contains the placeholder git-install command expected by `tests/contracts/test_nurt_install_contract.py`.
+- [x] Corrected the new completion handoff copy so `nurt new` now explicitly instructs the user to run `cd <project-name>` instead of implying that the CLI can move the parent shell into the generated directory.
+- [x] Removed the ineffective process-local `os.chdir(...)` step from successful `nurt new` completion and revalidated the updated handoff behavior with `uv run pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_post_create_contract.py` (25 passed) plus `uv run ruff check src/new_repo_template tests/contracts`.
 
 ## Next Up
 

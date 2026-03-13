@@ -289,14 +289,13 @@ def test_handle_new_reports_friendly_cancel_message(
     assert "Error:" not in captured.err
 
 
-def test_handle_new_prints_completion_overview_and_changes_directory(
+def test_handle_new_prints_completion_overview_with_cd_instruction(
     monkeypatch, capsys, tmp_path: Path
 ) -> None:
-    """Successful nurt new runs should print the final overview and hand off to the project dir."""
+    """Successful nurt new runs should tell the user how to enter the new project."""
 
     project_root = tmp_path / "demo-ready"
     project_root.mkdir()
-    changed_directories: list[str] = []
 
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(
@@ -312,13 +311,8 @@ def test_handle_new_prints_completion_overview_and_changes_directory(
         nurt_cli,
         "render_completion_overview",
         lambda **_: (
-            "Setup Complete\nChanging into the project directory now\ncd demo-ready"
+            "Setup Complete\nNext step: change into the new project directory\ncd demo-ready"
         ),
-    )
-    monkeypatch.setattr(
-        nurt_cli.os,
-        "chdir",
-        lambda path: changed_directories.append(str(path)),
     )
 
     exit_code = nurt_cli.handle_new(
@@ -336,8 +330,8 @@ def test_handle_new_prints_completion_overview_and_changes_directory(
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "Setup Complete" in captured.out
-    assert "Changing into the project directory now" in captured.out
-    assert changed_directories == [str(project_root)]
+    assert "Next step: change into the new project directory" in captured.out
+    assert "cd demo-ready" in captured.out
 
 
 def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:
