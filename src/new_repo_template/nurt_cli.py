@@ -6,8 +6,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+from rich.console import Console
+
 from new_repo_template.bmad_runner import run_bmad_sync
 from new_repo_template.post_create import (
+    render_completion_overview,
     render_post_create_plan,
     run_post_create_pipeline,
 )
@@ -192,20 +195,31 @@ def prompt_yes_no_choice(
     title: str,
     question: str,
     remediation: str,
+    default_yes: bool = False,
 ) -> bool:
-    render_yes_no_menu(config=ui_config, title=title, question=question)
+    render_yes_no_menu(
+        config=ui_config,
+        title=title,
+        question=question,
+        default_yes=default_yes,
+    )
+
+    default_value = "y" if default_yes else "n"
+    prompt_hint = "[Y/n]" if default_yes else "[y/N]"
 
     while True:
         try:
             user_input = ask_user_input(
                 config=ui_config,
-                prompt=f"{question} [y/N]: ",
-                default="n",
+                prompt=f"{question} {prompt_hint}: ",
+                default=default_value,
             ).lower()
         except EOFError as exc:
             raise RuntimeError(remediation) from exc
 
-        if user_input in {"", "n", "no"}:
+        if user_input == "":
+            return default_yes
+        if user_input in {"n", "no"}:
             return False
         if user_input in {"y", "yes"}:
             return True
@@ -218,6 +232,7 @@ def prompt_install_core_tools(*, ui_config: InteractiveUIConfig) -> bool:
         title="Core tools updater",
         question="Do you want to install/update the core set of tools?",
         remediation=INTERACTIVE_CORE_TOOLS_REMEDIATION,
+        default_yes=False,
     )
 
 
@@ -227,6 +242,7 @@ def prompt_install_bmad(*, ui_config: InteractiveUIConfig) -> bool:
         title="BMAD Method",
         question="Do you want to install the BMAD Method?",
         remediation=INTERACTIVE_BMAD_REMEDIATION,
+        default_yes=True,
     )
 
 
@@ -451,12 +467,35 @@ def handle_new(args: argparse.Namespace) -> int:
         )
         return 0
 
-    return run_post_create_pipeline(
+    pipeline_status = run_post_create_pipeline(
         project_root=output_path,
         install_bmad=bool(install_bmad),
         install_core_tools=bool(install_core_tools),
         use_tui=ui_config.use_rich,
     )
+    if pipeline_status != 0:
+        return pipeline_status
+
+    Console().print(
+        render_completion_overview(
+            project_root=output_path,
+            targets=tuple(selected_targets),
+            auth=selected_auth,
+            install_bmad=bool(install_bmad),
+            install_core_tools=bool(install_core_tools),
+        )
+    )
+
+    try:
+        os.chdir(output_path)
+    except OSError as exc:
+        print(
+            f"Error: unable to change into project directory `{output_path}`: {exc}",
+            file=sys.stderr,
+        )
+        return 1
+
+    return 0
 
 
 def handle_update(args: argparse.Namespace) -> int:

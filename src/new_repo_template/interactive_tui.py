@@ -203,7 +203,7 @@ class WizardState:
             selected_targets=selected_targets,
             selected_auth=selected_auth,
             install_core_tools=bool(initial_install_core_tools),
-            install_bmad=bool(initial_install_bmad),
+            install_bmad=True if initial_install_bmad is None else initial_install_bmad,
             highlighted_target=selected_targets[0],
         )._clamp_step()
 
