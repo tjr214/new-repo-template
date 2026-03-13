@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 12:23:56 AM
-**Current Phase:** Foundation GitHub baseline wiring complete
+**Last Updated:** 2026-03-13 12:41:33 AM
+**Current Phase:** `nurt new` completion UX polish complete
 
 ## Previous Cycle Archives
 
@@ -85,6 +85,11 @@
 - [x] Expanded the foundation scaffold and bundled snapshot manifests to include `.github/`, `.github/workflows/`, `.github/workflows/ci.yml`, and `.github/workflows/release.yml` as part of the deterministic baseline.
 - [x] Added a guardrail note to `src/new_repo_template/snapshot_assets/source_manifest.json` that `templates-snapshot-files/...` alias sources must never be substituted with direct paths for snapshot-managed entries.
 - [x] Revalidated the `.github` baseline follow-up with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, `uv run pytest tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py` (5 passed), and `uv run ruff check src/new_repo_template tests/contracts`.
+- [x] Ran the YELLOW pass for the `nurt new` completion-polish slice by rereading `src/new_repo_template/{nurt_cli.py,post_create.py,interactive_tui.py,interactive_ui.py}`, the current `nurt`/post-create/Textual contracts, `docs/{LIVING_DOCS.md,ARCHITECTURE.md}`, and using `btca ask -r rich-docs` to confirm the recommended Rich composition for a polished terminal completion summary.
+- [x] Updated the interactive BMAD decision so plain-prompt fallback and the Textual wizard both default to `Yes` when the user accepts the BMAD step without changing it.
+- [x] Added a Rich `Setup Complete` overview for successful non-dry-run `nurt new` runs, including project details, post-create accomplishments, and an explicit closing message that the flow is changing into the new project directory.
+- [x] Updated successful `nurt new` completion to change the CLI process working directory to the generated project path after printing the completion overview.
+- [x] Revalidated the slice with `uv run pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_interactive_tui_contract.py tests/contracts/test_post_create_contract.py` (39 passed) and `uv run ruff check src/new_repo_template tests/contracts`; a broader `uv run pytest` pass still reports 5 unrelated repository-baseline failures because `install.sh` and `.template_scripts/configure-repo-protections.sh` are absent and `README.md` no longer contains the placeholder git-install command expected by `tests/contracts/test_nurt_install_contract.py`.
 
 ## Next Up
 
