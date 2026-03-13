@@ -9,6 +9,7 @@ The template implementation remains intact, and the latest execution plan is now
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
+- The foundation scaffold governance baseline now also carries the root planning/guide files (`PLAN.md`, `README.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`), helper scripts under `scripts/`, and explicit `docs/archive/plans/` plus `docs/archive/progress/` directories.
 
 ## Active Implementation Rules
 
@@ -68,6 +69,7 @@ The template implementation remains intact, and the latest execution plan is now
 - The local git-install smoke contract now pins a concrete repository revision (`git+file://...@<sha>`) instead of relying on git default-branch discovery, which keeps Linux/macOS CI compatible with Actions checkouts that do not expose `refs/remotes/origin/HEAD`.
 - Managed version-baseline policy is now current again for the tracked core toolchain: `turbo` was refreshed from `2.8.14` to `2.8.16`, and the latest-check guardrail confirmed the other managed tools (`bun`, `typescript`, `python`) remained current.
 - Fresh repos created by `nurt new` now include the foundation governance baseline directly in scaffold output: `btca.config.jsonc`, `AGENTS.md`, `PROGRESS.md`, `scripts/RALPH.sh`, `docs/{archive,session-summaries,tasks,workflows}`, `.agent`, and `.opencode/command` are mirrored from bundled snapshot assets.
+- The foundation governance baseline now additionally mirrors `PLAN.md`, the split workflow guides (`README.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`), `scripts/{configure-repo-protections.sh,synthetic-quotas.sh,task-template-schema.json,validate_template.py,visualize_plan.py}`, and seeds `docs/archive/{plans,progress}` as empty directories in generated repos.
 - Shared infra workspace packages are now scaffolded into generated repos: `packages/typescript-config` centralizes TypeScript presets (`react-app`, `node`, `expo`), `packages/eslint-config` centralizes base lint ignores/policy, and the root workspace now includes `eslint.config.mjs` wired to the shared lint package.
 - Generated app configs now consume the shared TypeScript presets: web extends `@generated/typescript-config/react-app.json`, backend and desktop extend `@generated/typescript-config/node.json`, and mobile/TV extend `@generated/typescript-config/expo.json`.
 - Backend scaffold output now includes `apps/backend/tsconfig.json`, and backend workspace manifests now carry the shared TypeScript config dependency and a CI-safe `typecheck:smoke` path.
@@ -176,3 +178,4 @@ The template implementation remains intact, and the latest execution plan is now
 - The legacy shell updater files `.template_scripts/update-opencode.sh` and `.template_scripts/update-bmad-method.sh` have been removed; `nurt sync tools` and `nurt sync bmad` are now the only supported update entrypoints for those flows.
 - The legacy maintainer `install.sh` path now delegates BMAD/tool updates to repo-local native `nurt` commands instead of shell updater wrappers, preserving dry-run visibility while removing the deleted-script dependency.
 - Generated repos now inherit the exact template-root `.gitignore` baseline from bundled snapshot assets instead of a reduced foundation-only subset, and Python-target outputs now keep `.python-version`, `pyproject.toml`, and `uv.lock` entirely inside `apps/python`.
+- Root `PROGRESS.template.md` is again the source-of-truth snapshot input for scaffolded `foundation/PROGRESS.md`, keeping the generated governance tracker as a clean stub while the template repo continues using live `PROGRESS.md` for cumulative implementation tracking.

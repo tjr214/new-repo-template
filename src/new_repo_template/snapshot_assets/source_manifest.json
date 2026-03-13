@@ -14,6 +14,22 @@
       "destination": "templates/foundation/AGENTS.md"
     },
     {
+      "source": "PLAN.md",
+      "destination": "templates/foundation/PLAN.md"
+    },
+    {
+      "source": "README.md",
+      "destination": "templates/foundation/README.md"
+    },
+    {
+      "source": "README.BMAD-GUIDE.md",
+      "destination": "templates/foundation/README.BMAD-GUIDE.md"
+    },
+    {
+      "source": "README.RALPH.md",
+      "destination": "templates/foundation/README.RALPH.md"
+    },
+    {
       "source": "btca.config.jsonc",
       "destination": "templates/foundation/btca.config.jsonc"
     },
@@ -24,6 +40,26 @@
     {
       "source": "scripts/RALPH.sh",
       "destination": "templates/foundation/scripts/RALPH.sh"
+    },
+    {
+      "source": "scripts/configure-repo-protections.sh",
+      "destination": "templates/foundation/scripts/configure-repo-protections.sh"
+    },
+    {
+      "source": "scripts/synthetic-quotas.sh",
+      "destination": "templates/foundation/scripts/synthetic-quotas.sh"
+    },
+    {
+      "source": "scripts/task-template-schema.json",
+      "destination": "templates/foundation/scripts/task-template-schema.json"
+    },
+    {
+      "source": "scripts/validate_template.py",
+      "destination": "templates/foundation/scripts/validate_template.py"
+    },
+    {
+      "source": "scripts/visualize_plan.py",
+      "destination": "templates/foundation/scripts/visualize_plan.py"
     },
     {
       "source": "docs/tasks/task-template.yaml",

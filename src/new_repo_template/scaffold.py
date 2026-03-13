@@ -40,11 +40,22 @@ FOUNDATION_CORE_PATHS: tuple[str, ...] = (
 FOUNDATION_GOVERNANCE_PATHS: tuple[str, ...] = (
     "btca.config.jsonc",
     "AGENTS.md",
+    "PLAN.md",
+    "README.md",
+    "README.BMAD-GUIDE.md",
+    "README.RALPH.md",
     "PROGRESS.md",
     "scripts/",
     "scripts/RALPH.sh",
+    "scripts/configure-repo-protections.sh",
+    "scripts/synthetic-quotas.sh",
+    "scripts/task-template-schema.json",
+    "scripts/validate_template.py",
+    "scripts/visualize_plan.py",
     "docs/",
     "docs/archive/",
+    "docs/archive/plans/",
+    "docs/archive/progress/",
     "docs/session-summaries/",
     "docs/tasks/",
     "docs/tasks/task-template.yaml",
@@ -82,14 +93,40 @@ FOUNDATION_PATHS: tuple[str, ...] = FOUNDATION_CORE_PATHS + FOUNDATION_GOVERNANC
 
 FOUNDATION_GOVERNANCE_EMPTY_DIRS: tuple[str, ...] = (
     "docs/archive",
+    "docs/archive/plans",
+    "docs/archive/progress",
     "docs/session-summaries",
 )
 
 FOUNDATION_GOVERNANCE_TEMPLATE_FILES: tuple[tuple[str, str], ...] = (
     ("btca.config.jsonc", "foundation/btca.config.jsonc"),
     ("AGENTS.md", "foundation/AGENTS.md"),
+    ("PLAN.md", "foundation/PLAN.md"),
+    ("README.md", "foundation/README.md"),
+    ("README.BMAD-GUIDE.md", "foundation/README.BMAD-GUIDE.md"),
+    ("README.RALPH.md", "foundation/README.RALPH.md"),
     ("PROGRESS.md", "foundation/PROGRESS.md"),
     ("scripts/RALPH.sh", "foundation/scripts/RALPH.sh"),
+    (
+        "scripts/configure-repo-protections.sh",
+        "foundation/scripts/configure-repo-protections.sh",
+    ),
+    (
+        "scripts/synthetic-quotas.sh",
+        "foundation/scripts/synthetic-quotas.sh",
+    ),
+    (
+        "scripts/task-template-schema.json",
+        "foundation/scripts/task-template-schema.json",
+    ),
+    (
+        "scripts/validate_template.py",
+        "foundation/scripts/validate_template.py",
+    ),
+    (
+        "scripts/visualize_plan.py",
+        "foundation/scripts/visualize_plan.py",
+    ),
     ("docs/tasks/task-template.yaml", "foundation/docs/tasks/task-template.yaml"),
     (
         "docs/tasks/task-template-example.yaml",
@@ -563,7 +600,14 @@ def write_foundation_governance_assets(*, output_root: Path) -> None:
             encoding="utf-8",
         )
 
-    (output_root / "scripts" / "RALPH.sh").chmod(0o755)
+    for executable_relative in (
+        "scripts/RALPH.sh",
+        "scripts/configure-repo-protections.sh",
+        "scripts/synthetic-quotas.sh",
+        "scripts/validate_template.py",
+        "scripts/visualize_plan.py",
+    ):
+        (output_root / executable_relative).chmod(0o755)
 
 
 def scaffold_foundation_core(*, output_root: Path) -> None:
