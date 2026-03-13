@@ -1,1 +1,0 @@
-src/new_repo_template/snapshot_assets/templates/foundation/docs/ARCHITECTURE.md
