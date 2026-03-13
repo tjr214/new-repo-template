@@ -14,7 +14,7 @@
 			"destination": "templates/foundation/AGENTS.md"
 		},
 		{
-			"source": "README.md",
+			"source": "snapshot-readme-md.txt",
 			"destination": "templates/foundation/README.md"
 		},
 		{
