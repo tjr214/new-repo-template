@@ -169,6 +169,10 @@
 		{
 			"source": ".opencode/command/repo-git-what-has-changed.md",
 			"destination": "templates/foundation/.opencode/command/repo-git-what-has-changed.md"
+		},
+		{
+			"source": ".opencode/command/repo-gh-make-n-merge-PR.md",
+			"destination": "templates/foundation/.opencode/command/repo-gh-make-n-merge-PR.md"
 		}
 	]
 }

@@ -1,5 +1,5 @@
 {
-  "file_count": 41,
+  "file_count": 42,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -40,6 +40,10 @@
     {
       "destination": "templates/foundation/.opencode/command/project-where-did-we-leave-off.md",
       "sha256": "4e04a82b8e78614f8491ec8433be2b859ed0bbff7b44fc69b7ae221e13ae210b"
+    },
+    {
+      "destination": "templates/foundation/.opencode/command/repo-gh-make-n-merge-PR.md",
+      "sha256": "31023c6f4c343308ae70b378521444b7b49b1c89836724baf6a2421e3df4f8ef"
     },
     {
       "destination": "templates/foundation/.opencode/command/repo-git-commit-and-push.md",
@@ -139,7 +143,7 @@
     },
     {
       "destination": "templates/foundation/scripts/configure-repo-protections.sh",
-      "sha256": "56a8f4d3fa5ca829c45430d0554d4e130aecf5cbff38c87c5c025a72740f9e49"
+      "sha256": "bc8274599cf1686d16487439675554a8aa307e83e49309e3c9bd2feb155803e2"
     },
     {
       "destination": "templates/foundation/scripts/synthetic-quotas.sh",
@@ -166,7 +170,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-13T04:27:11.603264+00:00",
+  "generated_at": "2026-03-13T18:45:55.903850+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "ddeb91a0c7d9d24429034b54fd3c879aa37c5110"
+  "source_commit": "a93650134d0b9c916aa9d4301b841d477b9b6209"
 }
