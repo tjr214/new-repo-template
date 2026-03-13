@@ -1,5 +1,5 @@
 {
-  "file_count": 35,
+  "file_count": 33,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -58,14 +58,6 @@
       "sha256": "6c635c02a83cc518ff212c00c27da1aaf55301da42946f2980a6aa0efd1c5126"
     },
     {
-      "destination": "templates/foundation/PLAN.md",
-      "sha256": "5e61e23f91333077fb2f9be3ac7a1164ffd5ef839fcf6a0542c48d8c13a4dbeb"
-    },
-    {
-      "destination": "templates/foundation/PROGRESS.md",
-      "sha256": "7aedc560a55098cea481fb967bb9b2213c31f4d34c84e62baf711ae3de3097e9"
-    },
-    {
       "destination": "templates/foundation/README.BMAD-GUIDE.md",
       "sha256": "39d4cf46cd43e667d4e063bc2064ebf57c6a2f1eff5529bab5afd4d53678cb38"
     },
@@ -75,7 +67,7 @@
     },
     {
       "destination": "templates/foundation/README.md",
-      "sha256": "c6a3cc2324e4a0da17e5ebb368e7999aa748286e72ba76d0c36c33fd725041c4"
+      "sha256": "04540b3eb4f0362a4138bb5f5665259910c47748e26572cbf55053e7de6fbb52"
     },
     {
       "destination": "templates/foundation/btca.config.jsonc",
@@ -142,7 +134,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-13T01:15:36.755785+00:00",
+  "generated_at": "2026-03-13T03:04:30.194755+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "017df0b1f6fafdea29cd0dbc216d13d66eaeeba5"
+  "source_commit": "f5b9e238b05ec1cb5eae7150230d774ff3044a1c"
 }

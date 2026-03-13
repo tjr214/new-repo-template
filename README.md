@@ -11,6 +11,10 @@ For end users generating a new project from this template, the canonical flow is
 2. Generate a project:
    - `nurt new <project-name>`
 
+## Adding OpenCode commands and agents
+
+Add new commands and agents directly to the appropriate place in `templates-content-store-symlink/foundation/.opencode/`.
+
 ## Additional Docs
 
 - For fullstack template setup/auth flow details, see `docs/FULLSTACK_SETUP.md`.
