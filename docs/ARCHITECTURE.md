@@ -156,6 +156,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - The earlier legacy `install.sh` maintainer bootstrap path has now been removed from the root repository; maintainer update flows route through native `nurt` commands instead of shell wrappers.
 - Root repository guidance is now deliberately split by operating mode: `README.md` stays focused on end-user `nurt` bootstrap, `README.BMAD-GUIDE.md` covers BMAD planning workflows, and `README.RALPH.md` covers task-driven RALPH execution.
 - Repository-baseline contract coverage is now aligned with the live maintainer surface: root `install.sh` is intentionally absent, the branch-protection automation contract targets `scripts/configure-repo-protections.sh`, README install guidance expects a concrete copyable GitHub `uv tool install git+https://github.com/...` command, and the full suite currently revalidates green at `uv run pytest` (161 passed).
+- CLI and scaffold-doc contract coverage is now less copy-coupled as well: `nurt` plan assertions are centralized around semantic markers (`targets`, `auth`, `output`, post-create decisions), `template-assets validate` dry-run coverage derives expectations from the live source manifest, and Python/mobile/TV setup-doc contracts focus on stable setup/validation concepts rather than exact wording.
 
 ## Validation Model
 

@@ -231,7 +231,9 @@ def test_python_scaffold_includes_baseline_uv_commands(tmp_path: Path) -> None:
     assert command_doc.exists(), "Python lane should include command documentation"
 
     command_doc_text = command_doc.read_text(encoding="utf-8")
-    assert "uv sync --group dev" in command_doc_text
-    assert "uv run pytest" in command_doc_text
-    assert "uv run ruff check ." in command_doc_text
-    assert "uv run mypy src" in command_doc_text
+    assert "Python Lane" in command_doc_text
+    assert "Baseline developer commands" in command_doc_text
+    assert "uv sync" in command_doc_text
+    assert "pytest" in command_doc_text
+    assert "ruff" in command_doc_text
+    assert "mypy" in command_doc_text
