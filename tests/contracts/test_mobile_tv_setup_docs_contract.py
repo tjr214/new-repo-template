@@ -6,6 +6,12 @@ import sys
 from pathlib import Path
 
 
+def _assert_text_has_terms(text: str, *terms: str) -> None:
+    normalized = text.lower()
+    for term in terms:
+        assert term.lower() in normalized
+
+
 def run_scaffold_command(
     *, repo_root: Path, args: list[str]
 ) -> subprocess.CompletedProcess[str]:
@@ -48,11 +54,15 @@ def test_mobile_scaffold_includes_setup_and_validation_readme(tmp_path: Path) ->
     assert readme_path.exists(), f"Expected mobile setup README at {readme_path}"
 
     readme_text = readme_path.read_text(encoding="utf-8")
-    assert "Mobile Setup" in readme_text
-    assert "bun run lint" in readme_text
-    assert "bun run typecheck" in readme_text
-    assert "bun run test" in readme_text
-    assert "device-free" in readme_text
+    _assert_text_has_terms(
+        readme_text,
+        "Mobile Setup",
+        "CI-Safe Validation Commands",
+        "lint",
+        "typecheck",
+        "test",
+        "device-free",
+    )
 
 
 def test_tv_scaffold_includes_emulator_and_shield_validation_docs(
@@ -85,27 +95,39 @@ def test_tv_scaffold_includes_emulator_and_shield_validation_docs(
     assert readme_path.exists(), f"Expected TV setup README at {readme_path}"
 
     readme_text = readme_path.read_text(encoding="utf-8")
-    assert "TV Setup" in readme_text
-    assert "Android TV Emulator" in readme_text
-    assert "NVIDIA Shield" in readme_text
-    assert "remote-primary" in readme_text
-    assert "TV_VALIDATION_LOG.md" in readme_text
+    _assert_text_has_terms(
+        readme_text,
+        "TV Setup",
+        "Validation Flow",
+        "Android TV Emulator",
+        "NVIDIA Shield",
+        "remote-primary",
+        "TV_INPUT_CHECKLIST.md",
+        "TV_VALIDATION_LOG.md",
+    )
 
     checklist_text = (tv_root / "TV_INPUT_CHECKLIST.md").read_text(encoding="utf-8")
-    assert "Android TV Emulator" in checklist_text
-    assert "Shield" in checklist_text
-    assert "keyboard" in checklist_text
-    assert "mouse" in checklist_text
-    assert "gamepad" in checklist_text
+    _assert_text_has_terms(
+        checklist_text,
+        "Android TV Emulator",
+        "NVIDIA Shield",
+        "remote-primary",
+        "keyboard",
+        "mouse",
+        "gamepad",
+    )
 
     validation_log_text = (tv_root / "TV_VALIDATION_LOG.md").read_text(encoding="utf-8")
-    assert "Run Metadata" in validation_log_text
-    assert "Android TV Emulator Pass" in validation_log_text
-    assert "NVIDIA Shield Pass" in validation_log_text
-    assert "remote-primary" in validation_log_text
-    assert "keyboard" in validation_log_text
-    assert "mouse" in validation_log_text
-    assert "gamepad" in validation_log_text
+    _assert_text_has_terms(
+        validation_log_text,
+        "Run Metadata",
+        "Android TV Emulator Pass",
+        "NVIDIA Shield Pass",
+        "remote-primary",
+        "keyboard",
+        "mouse",
+        "gamepad",
+    )
 
 
 def test_mobile_tv_dry_run_reports_setup_docs_paths(tmp_path: Path) -> None:

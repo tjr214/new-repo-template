@@ -14,6 +14,7 @@ The template implementation remains intact, and the latest execution plan is now
 - `docs/markdown-templates/LIVING_DOCS.template.md` now mirrors this live living-doc structure so future repositories or documentation refreshes can start from the same state, rules, decisions, constraints, and implementation-notes sections.
 - The stale repository-baseline contract drift has now been cleared: tests no longer expect a removed root `install.sh`, the maintainer branch-protection script is asserted at `scripts/configure-repo-protections.sh`, and README install guidance is validated against a concrete copyable GitHub `uv tool install git+https://github.com/...` command.
 - The next brittleness-hardening pass is also complete: the root-workspace governance contract now derives mirrored asset coverage from live source directories instead of a giant fixed file list, and branch-protection guidance checks now derive required status names from `.github/workflows/ci.yml`.
+- The CLI/setup-doc brittleness pass is now complete too: `test_nurt_cli_contract.py` relies on shared semantic plan helpers and manifest-derived template-validation expectations, while the Python/mobile/TV documentation contracts now assert stable guidance markers instead of overfitting exact prose.
 
 ## Active Implementation Rules
 

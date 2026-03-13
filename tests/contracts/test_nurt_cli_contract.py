@@ -10,6 +10,33 @@ from new_repo_template import nurt_cli
 from new_repo_template.snapshot_assets_loader import load_source_manifest
 
 
+def _combined_output(result: subprocess.CompletedProcess[str]) -> str:
+    return f"{result.stdout}\n{result.stderr}"
+
+
+def _assert_scaffold_plan(
+    output: str,
+    *,
+    targets: tuple[str, ...],
+    auth: str | None = None,
+    output_path: Path | None = None,
+) -> None:
+    assert "Resolved scaffold plan:" in output
+    assert f"- targets: {', '.join(targets)}" in output
+    assert f"- auth: {auth if auth is not None else 'none'}" in output
+    if output_path is not None:
+        assert f"- output: {output_path}" in output
+
+
+def _assert_post_create_plan(
+    output: str, *, install_bmad: bool, install_core_tools: bool
+) -> None:
+    assert "Post-create automation plan:" in output
+    assert f"- BMAD Method: {'yes' if install_bmad else 'no'}" in output
+    assert f"- Core tools updater: {'yes' if install_core_tools else 'no'}" in output
+    assert "- lifecycle:" in output
+
+
 def run_nurt_command(
     *,
     cwd: Path,
@@ -63,12 +90,18 @@ def test_nurt_new_dry_run_generates_scaffold_plan_without_writing(
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "Resolved scaffold plan:" in combined_output
-    assert "- targets: web, backend" in combined_output
-    assert "Post-create automation plan:" in combined_output
-    assert "BMAD Method: yes" in combined_output
-    assert "Core tools updater: yes" in combined_output
+    combined_output = _combined_output(result)
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("web", "backend"),
+        auth="clerk",
+        output_path=output_dir,
+    )
+    _assert_post_create_plan(
+        combined_output,
+        install_bmad=True,
+        install_core_tools=True,
+    )
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -86,8 +119,13 @@ def test_nurt_new_defaults_to_foundation_when_targets_omitted(tmp_path: Path) ->
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "- targets: foundation" in combined_output
+    combined_output = _combined_output(result)
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("foundation",),
+        auth="none",
+        output_path=output_dir,
+    )
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -108,12 +146,19 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "nurt new interactive mode" in combined_output
-    assert "- targets: web, backend" in combined_output
-    assert "- auth: better-auth" in combined_output
-    assert "Core tools updater: no" in combined_output
-    assert "BMAD Method: yes" in combined_output
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("web", "backend"),
+        auth="better-auth",
+        output_path=output_dir,
+    )
+    _assert_post_create_plan(
+        combined_output,
+        install_bmad=True,
+        install_core_tools=False,
+    )
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -134,13 +179,18 @@ def test_nurt_new_without_project_name_prompts_and_normalizes_directory(
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "Project name" in combined_output
-    assert "- targets: backend" in combined_output
-    assert f"- output: {output_dir}" in combined_output
-    assert "- auth: none" in combined_output
-    assert "Core tools updater: no" in combined_output
-    assert "BMAD Method: yes" in combined_output
+    combined_output = _combined_output(result)
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("backend",),
+        auth="none",
+        output_path=output_dir,
+    )
+    _assert_post_create_plan(
+        combined_output,
+        install_bmad=True,
+        install_core_tools=False,
+    )
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
@@ -165,10 +215,15 @@ def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "Rich/Textual UI unavailable" in combined_output
     assert "nurt new interactive mode" in combined_output
-    assert "- auth: better-auth" in combined_output
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("web", "backend"),
+        auth="better-auth",
+        output_path=output_dir,
+    )
 
 
 def test_nurt_new_interactive_rich_mode_falls_back_without_tty(tmp_path: Path) -> None:
@@ -187,10 +242,15 @@ def test_nurt_new_interactive_rich_mode_falls_back_without_tty(tmp_path: Path) -
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "requires an interactive terminal" in combined_output
     assert "nurt new interactive mode" in combined_output
-    assert "- auth: clerk" in combined_output
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("web", "backend"),
+        auth="clerk",
+        output_path=output_dir,
+    )
 
 
 def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) -> None:
@@ -209,10 +269,15 @@ def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) 
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "nurt new interactive mode" in combined_output
     assert "Rich/Textual UI unavailable" not in combined_output
-    assert "- auth: clerk" in combined_output
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("web", "backend"),
+        auth="clerk",
+        output_path=output_dir,
+    )
 
 
 def test_nurt_new_interactive_without_stdin_fails_with_clear_remediation(
@@ -231,7 +296,7 @@ def test_nurt_new_interactive_without_stdin_fails_with_clear_remediation(
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "interactive input unavailable" in combined_output
     assert "--no-interactive" in combined_output
     assert "--target" in combined_output
@@ -253,7 +318,7 @@ def test_nurt_new_interactive_auth_prompt_without_stdin_fails_with_remediation(
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "interactive input unavailable" in combined_output
     assert "--no-interactive" in combined_output
     assert "--auth" in combined_output
@@ -344,9 +409,10 @@ def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "DRY RUN" in combined_output
-    assert "uv tool upgrade nurt" in combined_output
+    assert "uv tool upgrade" in combined_output
+    assert "nurt" in combined_output
 
 
 def test_nurt_startup_update_check_notice_appears_when_update_available(
@@ -380,7 +446,7 @@ def test_nurt_template_assets_sync_dry_run_reports_action(tmp_path: Path) -> Non
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "DRY RUN" in combined_output
     assert "sync template-assets" in combined_output
     assert "update-template-from-git.sh" not in combined_output
@@ -397,7 +463,7 @@ def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "DRY RUN" in combined_output
     assert "sync tools plan" in combined_output
     assert "uv" in combined_output
@@ -420,9 +486,10 @@ def test_nurt_bmad_sync_dry_run_reports_action(tmp_path: Path) -> None:
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "DRY RUN" in combined_output
-    assert "bmad-method@latest install" in combined_output
+    assert "bmad-method" in combined_output
+    assert "install" in combined_output
 
 
 def test_nurt_tools_sync_non_dry_run_reports_failures(tmp_path: Path) -> None:
@@ -439,7 +506,7 @@ def test_nurt_tools_sync_non_dry_run_reports_failures(tmp_path: Path) -> None:
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "Running nurt sync tools" in combined_output
     assert "uv: FAILED (simulated failure)" in combined_output
     assert "ripgrep: FAILED (simulated failure)" in combined_output
@@ -455,7 +522,7 @@ def test_nurt_template_assets_sync_fails_outside_project_root(tmp_path: Path) ->
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "sync template-assets must run from project root" in combined_output
 
 
@@ -488,7 +555,7 @@ def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> 
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "repository has uncommitted changes" in combined_output
 
 
@@ -526,19 +593,36 @@ def test_nurt_template_assets_validate_dry_run_reports_action(tmp_path: Path) ->
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
-    combined_output = f"{result.stdout}\n{result.stderr}"
+    combined_output = _combined_output(result)
     assert "DRY RUN" in combined_output
     assert "template-assets validate" in combined_output
-    assert (
-        "would validate bundled template: templates/root_gitignore.txt"
-        in combined_output
+    expected_destinations = {
+        entry["destination"]
+        for entry in entries
+        if isinstance(entry, dict) and isinstance(entry.get("destination"), str)
+    }
+    assert combined_output.count("would validate bundled template:") == len(
+        expected_destinations
     )
-    assert (
-        "would validate bundled template: templates/python_lane_python_version.txt"
-        in combined_output
+
+    representative_destinations = (
+        next(
+            path
+            for path in sorted(expected_destinations)
+            if path.startswith("templates/root_")
+        ),
+        next(
+            path
+            for path in sorted(expected_destinations)
+            if path.startswith("templates/python_lane_")
+        ),
+        next(
+            path
+            for path in sorted(expected_destinations)
+            if path.startswith("templates/foundation/")
+        ),
     )
-    assert (
-        "would validate bundled template: templates/foundation/btca.config.jsonc"
-        in combined_output
-    )
+    for destination in representative_destinations:
+        assert f"would validate bundled template: {destination}" in combined_output
+
     assert "metadata would be refreshed at metadata.json" in combined_output
