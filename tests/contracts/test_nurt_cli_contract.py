@@ -448,7 +448,7 @@ def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> 
 
 
 def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) -> None:
-    """template-assets snapshot dry-run should report snapshot planning details."""
+    """template-assets snapshot dry-run should report validation-focused planning details."""
 
     source_manifest = load_source_manifest()
     entries = source_manifest.get("entries")
@@ -483,6 +483,17 @@ def test_nurt_template_assets_snapshot_dry_run_reports_action(tmp_path: Path) ->
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "DRY RUN" in combined_output
-    assert "would copy: templates/root_gitignore.txt" in combined_output
-    assert "would copy: templates/python_lane_python_version.txt" in combined_output
-    assert "would copy: templates/foundation/btca.config.jsonc" in combined_output
+    assert "snapshot validation" in combined_output
+    assert (
+        "would validate bundled template: templates/root_gitignore.txt"
+        in combined_output
+    )
+    assert (
+        "would validate bundled template: templates/python_lane_python_version.txt"
+        in combined_output
+    )
+    assert (
+        "would validate bundled template: templates/foundation/btca.config.jsonc"
+        in combined_output
+    )
+    assert "metadata would be refreshed at metadata.json" in combined_output

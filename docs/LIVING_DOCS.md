@@ -83,7 +83,7 @@ The template implementation remains intact, and the latest execution plan is now
 - New strategic direction: migrate fully to global `nurt` command model (`new`, `update`, `sync tools`, `sync bmad`, `sync template-assets`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
 - `nurt` bootstrap implementation is now in place with command routing and startup update-check hook.
 - `nurt new` now supports interactive target/auth prompt flow when flags are omitted.
-- Snapshot asset pipeline is now active: scaffold content is loaded from bundled package templates, and `nurt template-assets snapshot` can regenerate packaged assets + metadata.
+- Snapshot asset pipeline is now active: scaffold content is loaded from bundled package templates, `src/new_repo_template/snapshot_assets/templates/` is the canonical template source, and `nurt template-assets snapshot` is the maintainer validation/metadata-refresh path for the manifest-backed bundle.
 - `nurt sync tools` and `nurt sync template-assets` now execute native Python operations (no script wrapper dependency in CLI command handlers).
 - `nurt` sync contracts now include non-dry-run failure-path assertions for clear operator feedback (project-root/dirty-git validation for `nurt sync template-assets` and deterministic failure reporting for `nurt sync tools`).
 - Assistant-specific maintainer assets have been fully removed from the repository, and neither native nor legacy template-sync flows copy them into managed projects.
