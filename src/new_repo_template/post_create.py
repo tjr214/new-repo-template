@@ -91,7 +91,10 @@ def render_completion_overview(
     )
 
     handoff = Group(
-        Text("Changing into the project directory now.", style="bold #f5cf85"),
+        Text(
+            "Next step: change into the new project directory.",
+            style="bold #f5cf85",
+        ),
         Padding(Text(f"cd {project_name}", style="bold #79e0d4"), (1, 0, 0, 2)),
     )
 

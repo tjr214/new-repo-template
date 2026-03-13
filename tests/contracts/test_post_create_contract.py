@@ -159,5 +159,5 @@ def test_render_completion_overview_calls_out_cd_handoff(tmp_path: Path) -> None
     assert "Setup Complete" in rendered
     assert "web, backend" in rendered
     assert "clerk" in rendered
-    assert "Changing into the project directory now" in rendered
+    assert "Next step: change into the new project directory." in rendered
     assert "cd demo-project" in rendered
