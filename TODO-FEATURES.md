@@ -6,3 +6,4 @@
   - Example: 2 python apps, 1 typescript library, 3 webapps, etc.
   - In these cases, `nurt new` should also ask for names for these sub-projects (so the directory names aren't "python1", "python2", etc.)
 - [ ] Add `nurt add` so we can add any new project type to an existing monorepo
+- [ ] Implement `nurt sync template-assets` functionality
