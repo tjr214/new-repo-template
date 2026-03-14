@@ -10,7 +10,7 @@
   - [x] Allow `nurt new` to specify how many projects get added to the monorepo (both in Wizard and underlying CLI)
     - Example: 2 python apps, 1 typescript library, 3 webapps, etc.
     - [x] In these cases, `nurt new` should also ask for names for these sub-projects (so the directory names aren't "python1", "python2", etc.)
-- [ ] 4.0 CREATE `NURT ADD` TO ADD PROJECT TYPES TO EXISTING MONOREPOS
+- [ ] 4.0 CREATE `NURT ADD` TO ADD PROJECT TYPES TO EXISTING MONOREPOS (Blocked by 1.0, 2.0, 3.0)
   - [ ] Add `nurt add` so we can add any new project type to an existing nurt-monorepo project
 - [ ] 5.0 PROPERLY IMPLEMENT THE TEMPLATE-ASSETS SYNC FEATURE (Blocked by: 1.0, 2.0, 3.0, 4.0)
   - [ ] Correctly implement new `nurt sync template-assets` functionality
