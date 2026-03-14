@@ -18,5 +18,9 @@
 - [ ] 6.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
   - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
   - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
-- [ ] 7.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+- [ ] 7.0 INVESTIGATE AND UPDATE PYTHON BUILD SYSTEM FROM `HATCHLING` to `UV BUILD`
+  - [ ] Figure out if we NEED to migrate from `hatchling` to `uv build`
+  - [ ] If we DO, then plan the migration, fully and thoroughly
+  - [ ] And, then, do the migration from `hatchling` to `uv build`
+- [ ] 8.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)
   - [ ] Thoroughly test all project types (manual step)
