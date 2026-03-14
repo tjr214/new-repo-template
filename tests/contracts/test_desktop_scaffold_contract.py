@@ -45,7 +45,7 @@ def test_desktop_only_scaffolds_electron_forge_baseline(tmp_path: Path) -> None:
         f"stderr:\n{result.stderr}"
     )
 
-    desktop_root = output_dir / "apps" / "desktop"
+    desktop_root = output_dir / "apps" / "desktop" / "desktop"
     expected_paths = (
         desktop_root / "package.json",
         desktop_root / "README.md",
@@ -119,14 +119,14 @@ def test_desktop_only_dry_run_lists_electron_forge_paths(tmp_path: Path) -> None
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/desktop/package.json" in combined_output
-    assert "apps/desktop/README.md" in combined_output
-    assert "apps/desktop/forge.config.ts" in combined_output
-    assert "apps/desktop/tsconfig.json" in combined_output
-    assert "apps/desktop/index.html" in combined_output
-    assert "apps/desktop/src/main.ts" in combined_output
-    assert "apps/desktop/src/preload.ts" in combined_output
-    assert "apps/desktop/src/renderer.ts" in combined_output
+    assert "apps/desktop/desktop/package.json" in combined_output
+    assert "apps/desktop/desktop/README.md" in combined_output
+    assert "apps/desktop/desktop/forge.config.ts" in combined_output
+    assert "apps/desktop/desktop/tsconfig.json" in combined_output
+    assert "apps/desktop/desktop/index.html" in combined_output
+    assert "apps/desktop/desktop/src/main.ts" in combined_output
+    assert "apps/desktop/desktop/src/preload.ts" in combined_output
+    assert "apps/desktop/desktop/src/renderer.ts" in combined_output
 
 
 def test_web_desktop_scaffold_reuses_shared_workspace_package(tmp_path: Path) -> None:
@@ -158,10 +158,14 @@ def test_web_desktop_scaffold_reuses_shared_workspace_package(tmp_path: Path) ->
     assert shared_manifest.exists(), "Expected shared workspace package for web+desktop"
 
     web_manifest = json.loads(
-        (output_dir / "apps" / "web" / "package.json").read_text(encoding="utf-8")
+        (output_dir / "apps" / "web" / "web" / "package.json").read_text(
+            encoding="utf-8"
+        )
     )
     desktop_manifest = json.loads(
-        (output_dir / "apps" / "desktop" / "package.json").read_text(encoding="utf-8")
+        (output_dir / "apps" / "desktop" / "desktop" / "package.json").read_text(
+            encoding="utf-8"
+        )
     )
 
     web_dependencies = web_manifest.get("dependencies")
@@ -173,7 +177,7 @@ def test_web_desktop_scaffold_reuses_shared_workspace_package(tmp_path: Path) ->
     assert desktop_dependencies.get("@generated/shared") == "workspace:*"
 
     desktop_renderer_text = (
-        output_dir / "apps" / "desktop" / "src" / "renderer.ts"
+        output_dir / "apps" / "desktop" / "desktop" / "src" / "renderer.ts"
     ).read_text(encoding="utf-8")
     assert 'from "@generated/shared"' in desktop_renderer_text
     assert "NURT_WELCOME_MESSAGE" in desktop_renderer_text

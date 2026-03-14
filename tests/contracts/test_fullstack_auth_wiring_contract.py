@@ -51,18 +51,20 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
         f"stderr:\n{result.stderr}"
     )
 
-    web_main = output_dir / "apps" / "web" / "src" / "main.tsx"
-    web_router = output_dir / "apps" / "web" / "src" / "router.tsx"
-    web_root_route = output_dir / "apps" / "web" / "src" / "routes" / "__root.tsx"
-    web_route_tree = output_dir / "apps" / "web" / "src" / "routeTree.gen.ts"
-    web_app_config = output_dir / "apps" / "web" / "app.config.ts"
-    web_vite_config = output_dir / "apps" / "web" / "vite.config.ts"
-    web_tsconfig = output_dir / "apps" / "web" / "tsconfig.json"
-    web_index_html = output_dir / "apps" / "web" / "index.html"
-    backend_http = output_dir / "apps" / "backend" / "convex" / "http.ts"
-    backend_schema = output_dir / "apps" / "backend" / "convex" / "schema.ts"
-    backend_auth = output_dir / "apps" / "backend" / "convex" / "auth.config.ts"
-    web_auth = output_dir / "apps" / "web" / "src" / "auth-provider.ts"
+    web_root = output_dir / "apps" / "web" / "web"
+    backend_root = output_dir / "apps" / "backend" / "backend"
+    web_main = web_root / "src" / "main.tsx"
+    web_router = web_root / "src" / "router.tsx"
+    web_root_route = web_root / "src" / "routes" / "__root.tsx"
+    web_route_tree = web_root / "src" / "routeTree.gen.ts"
+    web_app_config = web_root / "app.config.ts"
+    web_vite_config = web_root / "vite.config.ts"
+    web_tsconfig = web_root / "tsconfig.json"
+    web_index_html = web_root / "index.html"
+    backend_http = backend_root / "convex" / "http.ts"
+    backend_schema = backend_root / "convex" / "schema.ts"
+    backend_auth = backend_root / "convex" / "auth.config.ts"
+    web_auth = web_root / "src" / "auth-provider.ts"
     shared_package = output_dir / "packages" / "shared" / "package.json"
     shared_index = output_dir / "packages" / "shared" / "src" / "index.ts"
 
@@ -95,10 +97,10 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
     assert "VITE_CLERK_PUBLISHABLE_KEY" in web_auth.read_text(encoding="utf-8")
 
     web_package_data = json.loads(
-        (output_dir / "apps" / "web" / "package.json").read_text(encoding="utf-8")
+        (web_root / "package.json").read_text(encoding="utf-8")
     )
     backend_package_data = json.loads(
-        (output_dir / "apps" / "backend" / "package.json").read_text(encoding="utf-8")
+        (backend_root / "package.json").read_text(encoding="utf-8")
     )
     assert web_package_data["dependencies"]["@generated/shared"] == "workspace:*"
     assert backend_package_data["dependencies"]["@generated/shared"] == "workspace:*"
@@ -133,10 +135,14 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
         f"stderr:\n{result.stderr}"
     )
 
-    web_index_route = output_dir / "apps" / "web" / "src" / "routes" / "index.tsx"
-    backend_http = output_dir / "apps" / "backend" / "convex" / "http.ts"
-    backend_auth = output_dir / "apps" / "backend" / "convex" / "auth.config.ts"
-    web_auth = output_dir / "apps" / "web" / "src" / "auth-client.ts"
+    web_index_route = (
+        output_dir / "apps" / "web" / "web" / "src" / "routes" / "index.tsx"
+    )
+    backend_http = output_dir / "apps" / "backend" / "backend" / "convex" / "http.ts"
+    backend_auth = (
+        output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
+    )
+    web_auth = output_dir / "apps" / "web" / "web" / "src" / "auth-client.ts"
     shared_package = output_dir / "packages" / "shared" / "package.json"
 
     for path in (web_index_route, backend_http, backend_auth, web_auth, shared_package):
@@ -180,14 +186,14 @@ def test_web_backend_dry_run_lists_concrete_framework_wiring_paths(
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/web/src/main.tsx" in combined_output
-    assert "apps/web/src/router.tsx" in combined_output
-    assert "apps/web/src/routes/__root.tsx" in combined_output
-    assert "apps/web/src/routeTree.gen.ts" in combined_output
-    assert "apps/web/app.config.ts" in combined_output
-    assert "apps/web/vite.config.ts" in combined_output
-    assert "apps/web/tsconfig.json" in combined_output
-    assert "apps/web/index.html" in combined_output
-    assert "apps/backend/convex/http.ts" in combined_output
-    assert "apps/backend/convex/schema.ts" in combined_output
+    assert "apps/web/web/src/main.tsx" in combined_output
+    assert "apps/web/web/src/router.tsx" in combined_output
+    assert "apps/web/web/src/routes/__root.tsx" in combined_output
+    assert "apps/web/web/src/routeTree.gen.ts" in combined_output
+    assert "apps/web/web/app.config.ts" in combined_output
+    assert "apps/web/web/vite.config.ts" in combined_output
+    assert "apps/web/web/tsconfig.json" in combined_output
+    assert "apps/web/web/index.html" in combined_output
+    assert "apps/backend/backend/convex/http.ts" in combined_output
+    assert "apps/backend/backend/convex/schema.ts" in combined_output
     assert "packages/shared/package.json" in combined_output

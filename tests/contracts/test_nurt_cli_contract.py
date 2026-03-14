@@ -22,10 +22,15 @@ def _assert_scaffold_plan(
     output_path: Path | None = None,
 ) -> None:
     assert "Resolved scaffold plan:" in output
-    assert f"- targets: {', '.join(targets)}" in output
+    assert f"- project types: {', '.join(targets)}" in output
     assert f"- auth: {auth if auth is not None else 'none'}" in output
     if output_path is not None:
         assert f"- output: {output_path}" in output
+
+
+def _assert_project_entries(output: str, *, projects: tuple[str, ...]) -> None:
+    for project in projects:
+        assert f"  - {project}" in output
 
 
 def _assert_post_create_plan(
@@ -193,6 +198,66 @@ def test_nurt_new_dry_run_supports_library_targets(tmp_path: Path) -> None:
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
+def test_nurt_new_dry_run_supports_named_project_specs(tmp_path: Path) -> None:
+    """nurt new should route repeatable --project specs through scaffold dry-run."""
+
+    output_dir = tmp_path / "demo-named-projects"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "new",
+            output_dir.name,
+            "--project",
+            "python:api",
+            "--project",
+            "python:worker",
+            "--project",
+            "typescript-lib:sdk",
+            "--dry-run",
+            "--no-interactive",
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected named-project nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    assert "- project types: python, python, typescript-lib" in combined_output
+    _assert_project_entries(
+        combined_output,
+        projects=("python:api", "python:worker", "typescript-lib:sdk"),
+    )
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
+def test_nurt_new_plain_interactive_collects_multiple_names_per_type(
+    tmp_path: Path,
+) -> None:
+    """Plain interactive mode should collect multiple named projects for a selected type."""
+
+    output_dir = tmp_path / "demo-multi-name-input"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="2,9\napi,worker\nsdk\n\n\n",
+        env={"NURT_UI_MODE": "plain"},
+    )
+
+    assert result.returncode == 0, (
+        "Expected plain interactive multi-name flow to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    _assert_project_entries(
+        combined_output,
+        projects=("python:api", "python:worker", "python-lib:sdk"),
+    )
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
 def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     tmp_path: Path,
 ) -> None:
@@ -202,7 +267,7 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n2\n\n\n",
+        input_text="3,4\n\n\n2\n\n\n",
     )
 
     assert result.returncode == 0, (
@@ -235,7 +300,7 @@ def test_nurt_new_without_project_name_prompts_and_normalizes_directory(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", "--dry-run"],
-        input_text="My Cool App\n4\n3\n\n\n",
+        input_text="My Cool App\n4\n\n3\n\n\n",
     )
 
     assert result.returncode == 0, (
@@ -267,7 +332,7 @@ def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n2\n\n\n",
+        input_text="3,4\n\n\n2\n\n\n",
         env={
             "NURT_UI_MODE": "rich",
             "NURT_SIMULATE_RICH_UNAVAILABLE": "1",
@@ -297,7 +362,7 @@ def test_nurt_new_interactive_rich_mode_falls_back_without_tty(tmp_path: Path) -
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n1\n\n\n",
+        input_text="3,4\n\n\n1\n\n\n",
         env={"NURT_UI_MODE": "rich"},
     )
 
@@ -324,7 +389,7 @@ def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) 
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n1\n\n\n",
+        input_text="3,4\n\n\n1\n\n\n",
         env={"NURT_UI_MODE": "plain", "NURT_SIMULATE_RICH_UNAVAILABLE": "1"},
     )
 
@@ -374,7 +439,7 @@ def test_nurt_new_interactive_auth_prompt_without_stdin_fails_with_remediation(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", "demo-auth-no-stdin", "--dry-run"],
-        input_text="4\n",
+        input_text="4\n\n",
     )
 
     assert result.returncode == 1, (

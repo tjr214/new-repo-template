@@ -62,7 +62,7 @@ def test_python_lib_target_scaffolds_workspace_library(tmp_path: Path) -> None:
         f"stderr:\n{result.stderr}"
     )
 
-    library_root = output_dir / "packages" / "python"
+    library_root = output_dir / "packages" / "python" / "python-lib"
     expected_paths = (
         output_dir / "pyproject.toml",
         library_root / "pyproject.toml",
@@ -76,7 +76,7 @@ def test_python_lib_target_scaffolds_workspace_library(tmp_path: Path) -> None:
 
     root_pyproject = (output_dir / "pyproject.toml").read_text(encoding="utf-8")
     assert "[tool.uv.workspace]" in root_pyproject
-    assert "packages/python" in root_pyproject
+    assert "packages/python/*" in root_pyproject
     assert "apps/python" not in root_pyproject
 
     library_pyproject = (library_root / "pyproject.toml").read_text(encoding="utf-8")
@@ -113,18 +113,18 @@ def test_python_app_and_library_scaffold_wire_uv_workspace_dependency(
     )
 
     root_pyproject = (output_dir / "pyproject.toml").read_text(encoding="utf-8")
-    assert "apps/python" in root_pyproject
-    assert "packages/python" in root_pyproject
+    assert "apps/python/*" in root_pyproject
+    assert "packages/python/*" in root_pyproject
 
-    app_pyproject = (output_dir / "apps" / "python" / "pyproject.toml").read_text(
-        encoding="utf-8"
-    )
+    app_pyproject = (
+        output_dir / "apps" / "python" / "python-app" / "pyproject.toml"
+    ).read_text(encoding="utf-8")
     assert '"python-lib>=0.1.0"' in app_pyproject
     assert "[tool.uv.sources]" in app_pyproject
     assert "python-lib = { workspace = true }" in app_pyproject
 
     core_text = (
-        output_dir / "apps" / "python" / "src" / "python_app" / "core.py"
+        output_dir / "apps" / "python" / "python-app" / "src" / "python_app" / "core.py"
     ).read_text(encoding="utf-8")
     assert "from python_lib import build_greeting" in core_text
 
@@ -182,23 +182,29 @@ def test_python_app_and_library_workspace_run_together(tmp_path: Path) -> None:
     assert "python-lib" in f"{cli_result.stdout}\n{cli_result.stderr}"
 
     for command in (
-        ["run", "--package", "python-app", "pytest", "apps/python/tests"],
+        [
+            "run",
+            "--package",
+            "python-app",
+            "pytest",
+            "apps/python/python-app/tests",
+        ],
         [
             "run",
             "--package",
             "python-app",
             "ruff",
             "check",
-            "apps/python",
-            "packages/python",
+            "apps/python/python-app",
+            "packages/python/python-lib",
         ],
         [
             "run",
             "--package",
             "python-app",
             "mypy",
-            "apps/python/src",
-            "packages/python/src",
+            "apps/python/python-app/src",
+            "packages/python/python-lib/src",
         ],
     ):
         command_result = run_uv_command(

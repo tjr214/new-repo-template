@@ -44,7 +44,7 @@ def test_tv_scaffold_includes_input_hid_checklist(tmp_path: Path) -> None:
         f"stderr:\n{result.stderr}"
     )
 
-    checklist_path = output_dir / "apps" / "tv" / "TV_INPUT_CHECKLIST.md"
+    checklist_path = output_dir / "apps" / "tv" / "tv" / "TV_INPUT_CHECKLIST.md"
     assert checklist_path.exists(), f"Expected TV input checklist at {checklist_path}"
 
     checklist_text = checklist_path.read_text(encoding="utf-8")
@@ -79,7 +79,9 @@ def test_tv_app_baseline_includes_remote_primary_focus_wiring(tmp_path: Path) ->
         f"stderr:\n{result.stderr}"
     )
 
-    app_tsx = (output_dir / "apps" / "tv" / "App.tsx").read_text(encoding="utf-8")
+    app_tsx = (output_dir / "apps" / "tv" / "tv" / "App.tsx").read_text(
+        encoding="utf-8"
+    )
     assert "Pressable" in app_tsx
     assert "hasTVPreferredFocus" in app_tsx
     assert "onFocus" in app_tsx
@@ -113,5 +115,5 @@ def test_tv_dry_run_reports_input_hid_checklist_path(tmp_path: Path) -> None:
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/tv/TV_INPUT_CHECKLIST.md" in combined_output
+    assert "apps/tv/tv/TV_INPUT_CHECKLIST.md" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"

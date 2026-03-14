@@ -30,6 +30,7 @@ from new_repo_template.project_naming import normalize_project_name
 
 WIZARD_STEP_PROJECT = "project"
 WIZARD_STEP_TARGETS = "targets"
+WIZARD_STEP_PROJECTS = "projects"
 WIZARD_STEP_AUTH = "auth"
 WIZARD_STEP_TOOLS = "tools"
 WIZARD_STEP_BMAD = "bmad"
@@ -81,6 +82,44 @@ AUTH_NOTES: dict[str, str] = {
 }
 
 TARGET_CHOICES: tuple[str, ...] = tuple(TARGET_DESCRIPTIONS)
+DEFAULT_PROJECT_NAMES: dict[str, str] = {
+    "python": "python-app",
+    "web": "web",
+    "backend": "backend",
+    "desktop": "desktop",
+    "mobile": "mobile",
+    "tv": "tv",
+    "typescript-cli": "typescript-cli",
+    "python-lib": "python-lib",
+    "typescript-lib": "typescript-lib",
+}
+
+
+def _normalize_project_entries_by_target(
+    selected_targets: Iterable[str],
+    project_entries: tuple[tuple[str, str], ...] | None = None,
+) -> tuple[tuple[str, str], ...]:
+    existing = dict(project_entries or ())
+    normalized: list[tuple[str, str]] = []
+    for target in _normalize_targets(selected_targets):
+        if target == "foundation":
+            continue
+        normalized.append((target, existing.get(target, DEFAULT_PROJECT_NAMES[target])))
+    return tuple(normalized)
+
+
+def _parse_project_names(raw_value: str) -> tuple[str, ...] | None:
+    names: list[str] = []
+    for token in [piece.strip() for piece in raw_value.split(",")]:
+        if token == "":
+            continue
+        try:
+            normalized = normalize_project_name(token)
+        except ValueError:
+            return None
+        if normalized not in names:
+            names.append(normalized)
+    return tuple(names) if names else None
 
 
 def _format_output_path(output_path: Path | None) -> Text:
@@ -109,6 +148,12 @@ STEP_DEFINITIONS: dict[str, WizardStepDefinition] = {
         label="Targets",
         title="Select scaffold targets",
         description="Use direct keyboard or mouse selection and keep foundation exclusive from app lanes.",
+    ),
+    WIZARD_STEP_PROJECTS: WizardStepDefinition(
+        key=WIZARD_STEP_PROJECTS,
+        label="Names",
+        title="Name project instances",
+        description="For each selected type, enter one or more comma-separated project names.",
     ),
     WIZARD_STEP_AUTH: WizardStepDefinition(
         key=WIZARD_STEP_AUTH,
@@ -165,6 +210,7 @@ class InteractiveWizardResult:
     auth: str | None
     install_core_tools: bool
     install_bmad: bool
+    projects: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -174,6 +220,8 @@ class WizardState:
     project_name_input: str
     current_step: str
     selected_targets: tuple[str, ...]
+    project_entries: tuple[tuple[str, str], ...]
+    project_target_index: int
     selected_auth: str | None
     install_core_tools: bool
     install_bmad: bool
@@ -207,6 +255,8 @@ class WizardState:
             project_name_input=initial_name,
             current_step=initial_step,
             selected_targets=selected_targets,
+            project_entries=_normalize_project_entries_by_target(selected_targets),
+            project_target_index=0,
             selected_auth=selected_auth,
             install_core_tools=bool(initial_install_core_tools),
             install_bmad=True if initial_install_bmad is None else initial_install_bmad,
@@ -223,6 +273,8 @@ class WizardState:
         if self.include_project_step:
             step_order.append(WIZARD_STEP_PROJECT)
         step_order.append(WIZARD_STEP_TARGETS)
+        if self.selected_targets != ("foundation",):
+            step_order.append(WIZARD_STEP_PROJECTS)
         if self.auth_required:
             step_order.append(WIZARD_STEP_AUTH)
         step_order.append(WIZARD_STEP_TOOLS)
@@ -253,6 +305,44 @@ class WizardState:
     @property
     def project_name(self) -> str:
         return self.normalized_project_name or ""
+
+    @property
+    def named_targets(self) -> tuple[str, ...]:
+        return tuple(
+            target for target in self.selected_targets if target != "foundation"
+        )
+
+    @property
+    def current_project_target(self) -> str | None:
+        if not self.named_targets:
+            return None
+        return self.named_targets[
+            min(self.project_target_index, len(self.named_targets) - 1)
+        ]
+
+    @property
+    def current_project_input(self) -> str:
+        target = self.current_project_target
+        if target is None:
+            return ""
+        for entry_target, raw_value in self.project_entries:
+            if entry_target == target:
+                return raw_value
+        return DEFAULT_PROJECT_NAMES[target]
+
+    @property
+    def current_project_names(self) -> tuple[str, ...] | None:
+        return _parse_project_names(self.current_project_input)
+
+    @property
+    def resolved_projects(self) -> tuple[str, ...]:
+        projects: list[str] = []
+        for target, raw_value in self.project_entries:
+            names = _parse_project_names(raw_value)
+            if names is None:
+                continue
+            projects.extend(f"{target}:{name}" for name in names)
+        return tuple(projects)
 
     @property
     def output_path(self) -> Path | None:
@@ -287,9 +377,24 @@ class WizardState:
         return replace(
             self,
             selected_targets=normalized_targets,
+            project_entries=_normalize_project_entries_by_target(
+                normalized_targets,
+                self.project_entries,
+            ),
+            project_target_index=0,
             selected_auth=selected_auth,
             highlighted_target=highlighted_target,
         )._clamp_step()
+
+    def with_project_names_input(self, project_names_input: str) -> WizardState:
+        target = self.current_project_target
+        if target is None:
+            return self
+        updated_entries = [
+            (entry_target, project_names_input if entry_target == target else raw_value)
+            for entry_target, raw_value in self.project_entries
+        ]
+        return replace(self, project_entries=tuple(updated_entries))
 
     def with_highlighted_target(self, highlighted_target: str) -> WizardState:
         if highlighted_target not in TARGET_CHOICES:
@@ -318,6 +423,11 @@ class WizardState:
             return self
         if self.current_step == WIZARD_STEP_TARGETS and not self.selected_targets:
             return self
+        if self.current_step == WIZARD_STEP_PROJECTS:
+            if self.current_project_names is None:
+                return self
+            if self.project_target_index < len(self.named_targets) - 1:
+                return replace(self, project_target_index=self.project_target_index + 1)
         if self.current_step == WIZARD_STEP_AUTH and self.selected_auth is None:
             return self
 
@@ -328,6 +438,8 @@ class WizardState:
         return replace(self, current_step=step_order[current_index + 1])._clamp_step()
 
     def previous_step(self) -> WizardState:
+        if self.current_step == WIZARD_STEP_PROJECTS and self.project_target_index > 0:
+            return replace(self, project_target_index=self.project_target_index - 1)
         step_order = self.step_order
         current_index = step_order.index(self.current_step)
         if current_index == 0:
@@ -341,6 +453,7 @@ class WizardState:
         return InteractiveWizardResult(
             project_name=project_name,
             targets=self.selected_targets,
+            projects=self.resolved_projects,
             auth=self.resolved_auth,
             install_core_tools=self.install_core_tools,
             install_bmad=self.install_bmad,
@@ -406,6 +519,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
 
     #project,
     #targets,
+    #projects,
     #auth,
     #tools,
     #bmad,
@@ -418,7 +532,17 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         margin-bottom: 1;
     }
 
+    #project_names_input {
+        margin-top: 1;
+        margin-bottom: 1;
+    }
+
     #project_name_note {
+        color: #c5d8de;
+        min-height: 2;
+    }
+
+    #project_names_note {
         color: #c5d8de;
         min-height: 2;
     }
@@ -637,6 +761,14 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
                                 id="targets_list",
                             )
                             yield Static(id="target_details")
+                    with Vertical(id=WIZARD_STEP_PROJECTS):
+                        yield Static(id="project_names_intro")
+                        yield Input(
+                            value=self.state.current_project_input,
+                            placeholder="api, worker",
+                            id="project_names_input",
+                        )
+                        yield Static(id="project_names_note")
                     with Vertical(id=WIZARD_STEP_AUTH):
                         with RadioSet(id="auth_options"):
                             yield RadioButton("Clerk", id="auth-clerk")
@@ -854,6 +986,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         grid.add_row("Project", project_name)
         grid.add_row("Output", output_path)
         grid.add_row("Targets", ", ".join(self.state.selected_targets))
+        grid.add_row("Projects", ", ".join(self.state.resolved_projects) or "Pending")
         grid.add_row(
             "Auth",
             self.state.resolved_auth
@@ -897,6 +1030,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         plan_table.add_row("Project", self.state.project_name or "Pending")
         plan_table.add_row("Output", _format_output_path(self.state.output_path))
         plan_table.add_row("Targets", ", ".join(self.state.selected_targets))
+        plan_table.add_row(
+            "Projects", ", ".join(self.state.resolved_projects) or "Pending"
+        )
         plan_table.add_row("Auth", self.state.resolved_auth or "Not required")
         plan_table.add_row(
             "Core tools",
@@ -935,6 +1071,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             return (
                 "Use arrows and Space to choose targets. Press Enter for the next step."
             )
+        if self.state.current_step == WIZARD_STEP_PROJECTS:
+            target = self.state.current_project_target or "project"
+            return f"Enter one or more comma-separated names for {target}, then press Enter to continue."
         if self.state.current_step == WIZARD_STEP_AUTH:
             return "Choose an auth strategy for backend, then press Enter to continue."
         if self.state.current_step == WIZARD_STEP_TOOLS:
@@ -949,6 +1088,12 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         project_input = self.query_one("#project_name_input", Input)
         if project_input.value != self.state.project_name_input:
             project_input.value = self.state.project_name_input
+
+    def _sync_project_names_input(self) -> None:
+        names_input = self.query_one("#project_names_input", Input)
+        desired_value = self.state.current_project_input
+        if names_input.value != desired_value:
+            names_input.value = desired_value
 
     def _sync_auth_controls(self) -> None:
         radio_set = self.query_one("#auth_options", RadioSet)
@@ -1005,8 +1150,19 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             self.state.project_name_note
             or "The directory updates as soon as the name is valid."
         )
+        target = self.state.current_project_target or "project"
+        self.query_one("#project_names_intro", Static).update(
+            f"Enter one or more comma-separated names for {target}."
+        )
+        names_note = (
+            f"Current projects: {', '.join(self.state.current_project_names)}"
+            if self.state.current_project_names is not None
+            else "Enter valid kebab-case names separated by commas."
+        )
+        self.query_one("#project_names_note", Static).update(names_note)
         self.query_one("#status_message", Static).update(self._status_text())
         self._sync_project_input()
+        self._sync_project_names_input()
         self._sync_auth_controls()
         self._sync_boolean_controls(
             radio_set_id="#tools_options",
@@ -1045,6 +1201,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
 
         if self.state.current_step == WIZARD_STEP_PROJECT:
             next_button.disabled = self.state.normalized_project_name is None
+        elif self.state.current_step == WIZARD_STEP_PROJECTS:
+            next_button.disabled = self.state.current_project_names is None
         elif self.state.current_step == WIZARD_STEP_AUTH:
             next_button.disabled = self.state.selected_auth is None
         elif self.state.current_step == WIZARD_STEP_TARGETS:
@@ -1058,6 +1216,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             return
         if self.state.current_step == WIZARD_STEP_TARGETS:
             self.query_one("#targets_list", SelectionList).focus()
+            return
+        if self.state.current_step == WIZARD_STEP_PROJECTS:
+            self.query_one("#project_names_input", Input).focus()
             return
         if self.state.current_step == WIZARD_STEP_AUTH:
             self.query_one("#auth_options", RadioSet).focus()
@@ -1074,6 +1235,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self._set_state(self.state.with_targets(selection_list.selected))
 
     def _advance_from_project_input(self) -> None:
+        self._set_state(self.state.next_step())
+
+    def _advance_from_project_names_input(self) -> None:
         self._set_state(self.state.next_step())
 
     def action_next_step(self) -> None:
@@ -1119,6 +1283,17 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         if self.state.normalized_project_name is None:
             return
         self._advance_from_project_input()
+
+    @on(Input.Changed, "#project_names_input")
+    def _handle_project_names_changed(self, event: Input.Changed) -> None:
+        self._set_state(self.state.with_project_names_input(event.value))
+
+    @on(Input.Submitted, "#project_names_input")
+    def _handle_project_names_submitted(self, event: Input.Submitted) -> None:
+        self._set_state(self.state.with_project_names_input(event.value))
+        if self.state.current_project_names is None:
+            return
+        self._advance_from_project_names_input()
 
     @on(Button.Pressed, "#back_button")
     def _handle_back_button(self) -> None:

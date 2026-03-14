@@ -137,7 +137,7 @@ def test_missing_required_target_fails_with_deterministic_error(tmp_path: Path) 
     )
 
     assert result.returncode == 2
-    assert "the following arguments are required: --target" in result.stderr
+    assert "at least one --target or --project selection is required" in result.stderr
 
 
 def test_missing_required_output_fails_with_deterministic_error() -> None:
@@ -230,7 +230,7 @@ def test_python_scaffold_includes_baseline_uv_commands(tmp_path: Path) -> None:
         f"stderr:\n{result.stderr}"
     )
 
-    command_doc = output_dir / "apps" / "python" / "README.md"
+    command_doc = output_dir / "apps" / "python" / "python-app" / "README.md"
     assert command_doc.exists(), "Python lane should include command documentation"
 
     command_doc_text = command_doc.read_text(encoding="utf-8")

@@ -83,7 +83,9 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
         f"stderr:\n{install_result.stderr}"
     )
 
-    backend_package_json_path = output_dir / "apps" / "backend" / "package.json"
+    backend_package_json_path = (
+        output_dir / "apps" / "backend" / "backend" / "package.json"
+    )
     backend_package_json = json.loads(
         backend_package_json_path.read_text(encoding="utf-8")
     )
@@ -94,7 +96,7 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
     assert backend_scripts.get("convex:dev:smoke") == "convex dev --help"
     assert backend_scripts.get("convex:codegen:smoke") == "convex codegen --help"
 
-    backend_readme_path = output_dir / "apps" / "backend" / "README.md"
+    backend_readme_path = output_dir / "apps" / "backend" / "backend" / "README.md"
     assert backend_readme_path.exists(), (
         "Backend README should define local cloud-dev flow"
     )
@@ -106,7 +108,7 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
 
     codegen_help_result = run_bun_command(
         bun_binary=bun_binary,
-        cwd=output_dir / "apps" / "backend",
+        cwd=output_dir / "apps" / "backend" / "backend",
         args=["run", "convex:codegen:smoke"],
     )
     assert codegen_help_result.returncode == 0, (
@@ -117,7 +119,7 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
 
     dev_help_result = run_bun_command(
         bun_binary=bun_binary,
-        cwd=output_dir / "apps" / "backend",
+        cwd=output_dir / "apps" / "backend" / "backend",
         args=["run", "convex:dev:smoke"],
     )
     assert dev_help_result.returncode == 0, (
@@ -133,7 +135,7 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
 
     backend_dev_result = run_bun_command(
         bun_binary=bun_binary,
-        cwd=output_dir / "apps" / "backend",
+        cwd=output_dir / "apps" / "backend" / "backend",
         args=["run", "dev"],
     )
     assert backend_dev_result.returncode == 0, (
@@ -144,7 +146,7 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
 
     backend_test_result = run_bun_command(
         bun_binary=bun_binary,
-        cwd=output_dir / "apps" / "backend",
+        cwd=output_dir / "apps" / "backend" / "backend",
         args=["run", "test"],
     )
     assert backend_test_result.returncode == 0, (

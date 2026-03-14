@@ -72,12 +72,12 @@ def test_python_target_dry_run_reports_lane_python_files_only(tmp_path: Path) ->
 
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "pyproject.toml" in combined_output
-    assert "apps/python/pyproject.toml" in combined_output
-    assert "apps/python/.python-version" in combined_output
-    assert "apps/python/src/python_app/cli.py" in combined_output
-    assert "apps/python/src/python_app/tui.py" in combined_output
-    assert "apps/python/src/python_app/entry_points.py" in combined_output
-    assert "apps/python/src/python_app/app.tcss" in combined_output
+    assert "apps/python/python-app/pyproject.toml" in combined_output
+    assert "apps/python/python-app/.python-version" in combined_output
+    assert "apps/python/python-app/src/python_app/cli.py" in combined_output
+    assert "apps/python/python-app/src/python_app/tui.py" in combined_output
+    assert "apps/python/python-app/src/python_app/entry_points.py" in combined_output
+    assert "apps/python/python-app/src/python_app/app.tcss" in combined_output
     assert "  - .python-version" not in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"
 
@@ -98,16 +98,17 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
         f"stderr:\n{result.stderr}"
     )
 
-    lane_pyproject = output_dir / "apps" / "python" / "pyproject.toml"
-    lane_python_version = output_dir / "apps" / "python" / ".python-version"
+    lane_root = output_dir / "apps" / "python" / "python-app"
+    lane_pyproject = lane_root / "pyproject.toml"
+    lane_python_version = lane_root / ".python-version"
     expected_lane_files = (
-        output_dir / "apps" / "python" / "src" / "python_app" / "__init__.py",
-        output_dir / "apps" / "python" / "src" / "python_app" / "core.py",
-        output_dir / "apps" / "python" / "src" / "python_app" / "cli.py",
-        output_dir / "apps" / "python" / "src" / "python_app" / "tui.py",
-        output_dir / "apps" / "python" / "src" / "python_app" / "entry_points.py",
-        output_dir / "apps" / "python" / "src" / "python_app" / "app.tcss",
-        output_dir / "apps" / "python" / "tests" / "test_core.py",
+        lane_root / "src" / "python_app" / "__init__.py",
+        lane_root / "src" / "python_app" / "core.py",
+        lane_root / "src" / "python_app" / "cli.py",
+        lane_root / "src" / "python_app" / "tui.py",
+        lane_root / "src" / "python_app" / "entry_points.py",
+        lane_root / "src" / "python_app" / "app.tcss",
+        lane_root / "tests" / "test_core.py",
     )
 
     root_pyproject = output_dir / "pyproject.toml"
@@ -133,7 +134,7 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
         encoding="utf-8"
     )
     assert "[tool.uv.workspace]" in root_pyproject_content
-    assert "apps/python" in root_pyproject_content
+    assert "apps/python/*" in root_pyproject_content
     assert "packages/python" not in root_pyproject_content
     assert "[project]" in lane_content
     assert 'requires-python = ">=3.14"' in lane_content
@@ -199,9 +200,9 @@ def test_python_target_scaffold_runs_baseline_commands(tmp_path: Path) -> None:
     assert "Launch the Textual starter app" in tui_help_result.stdout
 
     commands: tuple[list[str], ...] = (
-        ["run", "--package", "python-app", "pytest", "apps/python/tests"],
-        ["run", "--package", "python-app", "ruff", "check", "apps/python"],
-        ["run", "--package", "python-app", "mypy", "apps/python/src"],
+        ["run", "--package", "python-app", "pytest", "apps/python/python-app/tests"],
+        ["run", "--package", "python-app", "ruff", "check", "apps/python/python-app"],
+        ["run", "--package", "python-app", "mypy", "apps/python/python-app/src"],
     )
 
     for command in commands:
@@ -252,10 +253,16 @@ def test_python_target_scaffold_supports_legacy_extra_dev_sync_compatibility(
     pytest_result = run_workspace_command(
         workspace_root=output_dir,
         uv_binary=uv_binary,
-        args=["run", "--package", "python-app", "pytest", "apps/python/tests"],
+        args=[
+            "run",
+            "--package",
+            "python-app",
+            "pytest",
+            "apps/python/python-app/tests",
+        ],
     )
     assert pytest_result.returncode == 0, (
-        "Expected `uv run --package python-app pytest apps/python/tests` to succeed after `uv sync --package python-app --extra dev`.\n"
+        "Expected `uv run --package python-app pytest apps/python/python-app/tests` to succeed after `uv sync --package python-app --extra dev`.\n"
         f"stdout:\n{pytest_result.stdout}\n"
         f"stderr:\n{pytest_result.stderr}"
     )

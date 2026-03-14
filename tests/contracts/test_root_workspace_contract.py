@@ -106,7 +106,12 @@ def test_foundation_scaffold_writes_workspace_config_and_cross_platform_scripts(
 
     package_data = json.loads(root_package_json.read_text(encoding="utf-8"))
     assert package_data.get("private") is True
-    assert package_data.get("workspaces") == ["apps/*", "packages/*"]
+    assert package_data.get("workspaces") == [
+        "apps/*",
+        "packages/*",
+        "apps/*/*",
+        "packages/*/*",
+    ]
 
     scripts = package_data.get("scripts")
     assert isinstance(scripts, dict), "root scripts must be defined"

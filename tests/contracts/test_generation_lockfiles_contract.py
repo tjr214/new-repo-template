@@ -98,11 +98,11 @@ def test_scaffolded_js_manifests_use_caret_ranges_and_workspace_protocol(
 
     manifest_paths = (
         output_dir / "package.json",
-        output_dir / "apps" / "web" / "package.json",
-        output_dir / "apps" / "backend" / "package.json",
-        output_dir / "apps" / "desktop" / "package.json",
-        output_dir / "apps" / "mobile" / "package.json",
-        output_dir / "apps" / "tv" / "package.json",
+        output_dir / "apps" / "web" / "web" / "package.json",
+        output_dir / "apps" / "backend" / "backend" / "package.json",
+        output_dir / "apps" / "desktop" / "desktop" / "package.json",
+        output_dir / "apps" / "mobile" / "mobile" / "package.json",
+        output_dir / "apps" / "tv" / "tv" / "package.json",
         output_dir / "packages" / "shared" / "package.json",
     )
 
@@ -157,7 +157,7 @@ def test_nurt_new_python_target_generates_root_workspace_uv_lockfile(
         f"stderr:\n{result.stderr}"
     )
 
-    lane_root = output_dir / "apps" / "python"
+    lane_root = output_dir / "apps" / "python" / "python-app"
     lane_pyproject = lane_root / "pyproject.toml"
     lane_python_version = lane_root / ".python-version"
     lane_content = lane_pyproject.read_text(encoding="utf-8")

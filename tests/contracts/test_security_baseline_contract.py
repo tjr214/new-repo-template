@@ -90,13 +90,13 @@ def test_selected_targets_each_receive_env_example_placeholders(tmp_path: Path) 
     )
 
     expected_env_examples = [
-        output_dir / "apps" / "python" / ".env.example",
-        output_dir / "apps" / "typescript-cli" / ".env.example",
-        output_dir / "apps" / "desktop" / ".env.example",
-        output_dir / "apps" / "mobile" / ".env.example",
-        output_dir / "apps" / "tv" / ".env.example",
-        output_dir / "apps" / "web" / ".env.example",
-        output_dir / "apps" / "backend" / ".env.example",
+        output_dir / "apps" / "python" / "python-app" / ".env.example",
+        output_dir / "apps" / "typescript-cli" / "typescript-cli" / ".env.example",
+        output_dir / "apps" / "desktop" / "desktop" / ".env.example",
+        output_dir / "apps" / "mobile" / "mobile" / ".env.example",
+        output_dir / "apps" / "tv" / "tv" / ".env.example",
+        output_dir / "apps" / "web" / "web" / ".env.example",
+        output_dir / "apps" / "backend" / "backend" / ".env.example",
     ]
     for env_example in expected_env_examples:
         assert env_example.exists(), f"Expected env placeholder file: {env_example}"

@@ -111,21 +111,26 @@ def test_shared_infra_packages_are_wired_into_generated_app_configs(
         output_dir
         / "apps"
         / "web"
+        / "web"
         / "tsconfig.json": "@generated/typescript-config/react-app.json",
         output_dir
         / "apps"
+        / "backend"
         / "backend"
         / "tsconfig.json": "@generated/typescript-config/node.json",
         output_dir
         / "apps"
         / "desktop"
+        / "desktop"
         / "tsconfig.json": "@generated/typescript-config/node.json",
         output_dir
         / "apps"
         / "mobile"
+        / "mobile"
         / "tsconfig.json": "@generated/typescript-config/expo.json",
         output_dir
         / "apps"
+        / "tv"
         / "tv"
         / "tsconfig.json": "@generated/typescript-config/expo.json",
     }
@@ -137,11 +142,11 @@ def test_shared_infra_packages_are_wired_into_generated_app_configs(
         )
 
     manifest_paths = (
-        output_dir / "apps" / "web" / "package.json",
-        output_dir / "apps" / "backend" / "package.json",
-        output_dir / "apps" / "desktop" / "package.json",
-        output_dir / "apps" / "mobile" / "package.json",
-        output_dir / "apps" / "tv" / "package.json",
+        output_dir / "apps" / "web" / "web" / "package.json",
+        output_dir / "apps" / "backend" / "backend" / "package.json",
+        output_dir / "apps" / "desktop" / "desktop" / "package.json",
+        output_dir / "apps" / "mobile" / "mobile" / "package.json",
+        output_dir / "apps" / "tv" / "tv" / "package.json",
     )
     for manifest_path in manifest_paths:
         package_data = json.loads(manifest_path.read_text(encoding="utf-8"))

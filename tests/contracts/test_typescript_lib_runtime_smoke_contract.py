@@ -79,7 +79,7 @@ def test_typescript_lib_runtime_scripts_install_and_run(tmp_path: Path) -> None:
         f"stderr:\n{install_result.stderr}"
     )
 
-    library_root = output_dir / "packages" / "typescript"
+    library_root = output_dir / "packages" / "typescript" / "typescript-lib"
     manifest = json.loads((library_root / "package.json").read_text(encoding="utf-8"))
     scripts = manifest.get("scripts", {})
     assert scripts.get("build") == "tsc -p tsconfig.json"

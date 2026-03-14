@@ -151,15 +151,15 @@ MATRIX_CASES: tuple[PresetMatrixCase, ...] = (
 
 
 APP_DIRS_BY_TARGET: dict[str, Path] = {
-    "python": Path("apps/python"),
-    "python-lib": Path("packages/python"),
-    "typescript-cli": Path("apps/typescript-cli"),
-    "typescript-lib": Path("packages/typescript"),
-    "web": Path("apps/web"),
-    "backend": Path("apps/backend"),
-    "desktop": Path("apps/desktop"),
-    "mobile": Path("apps/mobile"),
-    "tv": Path("apps/tv"),
+    "python": Path("apps/python/python-app"),
+    "python-lib": Path("packages/python/python-lib"),
+    "typescript-cli": Path("apps/typescript-cli/typescript-cli"),
+    "typescript-lib": Path("packages/typescript/typescript-lib"),
+    "web": Path("apps/web/web"),
+    "backend": Path("apps/backend/backend"),
+    "desktop": Path("apps/desktop/desktop"),
+    "mobile": Path("apps/mobile/mobile"),
+    "tv": Path("apps/tv/tv"),
 }
 
 
@@ -227,26 +227,30 @@ def test_required_preset_matrix_scaffold_contract(
                 f"Expected app directory for target '{target}' in case '{case.name}'"
             )
 
-    python_lane_pyproject = output_dir / "apps" / "python" / "pyproject.toml"
+    python_lane_pyproject = (
+        output_dir / "apps" / "python" / "python-app" / "pyproject.toml"
+    )
     if "python" in case.targets:
         assert python_lane_pyproject.exists(), "python target requires lane pyproject"
-        assert (output_dir / "apps" / "python" / ".python-version").exists(), (
-            "python target requires lane .python-version"
-        )
-        assert not (output_dir / "apps" / "python" / ".python-version").is_symlink(), (
-            "python target keeps .python-version as a lane-local file"
-        )
+        assert (
+            output_dir / "apps" / "python" / "python-app" / ".python-version"
+        ).exists(), "python target requires lane .python-version"
+        assert not (
+            output_dir / "apps" / "python" / "python-app" / ".python-version"
+        ).is_symlink(), "python target keeps .python-version as a lane-local file"
 
     if case.auth is not None:
         backend_auth_config = (
-            output_dir / "apps" / "backend" / "convex" / "auth.config.ts"
+            output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
         )
         assert backend_auth_config.exists(), (
             "auth matrix cases require backend auth config"
         )
 
-        web_auth_provider = output_dir / "apps" / "web" / "src" / "auth-provider.ts"
-        web_auth_client = output_dir / "apps" / "web" / "src" / "auth-client.ts"
+        web_auth_provider = (
+            output_dir / "apps" / "web" / "web" / "src" / "auth-provider.ts"
+        )
+        web_auth_client = output_dir / "apps" / "web" / "web" / "src" / "auth-client.ts"
         if case.auth == "clerk":
             assert web_auth_provider.exists(), (
                 "clerk variants require auth-provider scaffold"

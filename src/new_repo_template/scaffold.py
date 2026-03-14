@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import tempfile
@@ -12,15 +13,48 @@ from new_repo_template.foundation_manifest import (
     get_foundation_scaffold_paths,
     get_foundation_template_file_pairs,
 )
+from new_repo_template.project_naming import normalize_project_name
 from new_repo_template.snapshot_assets_loader import load_template_text
 
 
 @dataclass(frozen=True)
+class ProjectSpec:
+    kind: str
+    name: str
+    auth: str | None = None
+    backend_binding: str | None = None
+
+
+@dataclass(frozen=True)
 class ScaffoldPlan:
-    targets: tuple[str, ...]
+    projects: tuple[ProjectSpec, ...]
     output: Path
     paths: tuple[str, ...]
-    auth: str | None
+
+
+DEFAULT_PROJECT_NAMES: dict[str, str] = {
+    "python": "python-app",
+    "web": "web",
+    "backend": "backend",
+    "desktop": "desktop",
+    "mobile": "mobile",
+    "tv": "tv",
+    "typescript-cli": "typescript-cli",
+    "python-lib": "python-lib",
+    "typescript-lib": "typescript-lib",
+}
+
+APP_PROJECT_KINDS: tuple[str, ...] = (
+    "python",
+    "web",
+    "backend",
+    "desktop",
+    "mobile",
+    "tv",
+    "typescript-cli",
+)
+
+LIBRARY_PROJECT_KINDS: tuple[str, ...] = ("python-lib", "typescript-lib")
 
 
 TARGET_CHOICES: tuple[str, ...] = (
@@ -395,10 +429,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="new-repo-template")
     parser.add_argument(
         "--target",
-        required=True,
         action="append",
         choices=TARGET_CHOICES,
     )
+    parser.add_argument("--project", action="append")
+    parser.add_argument("--backend-auth", action="append")
+    parser.add_argument("--web-backend", action="append")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--auth", choices=("clerk", "better-auth", "none"))
     parser.add_argument("--no-interactive", action="store_true")
@@ -417,12 +453,219 @@ def normalize_targets(raw_targets: list[str]) -> tuple[str, ...]:
     return tuple(ordered_unique)
 
 
+def default_project_name(kind: str) -> str:
+    return DEFAULT_PROJECT_NAMES[kind]
+
+
+def project_relative_root(project: ProjectSpec) -> str:
+    if project.kind == "python":
+        return f"apps/python/{project.name}"
+    if project.kind == "web":
+        return f"apps/web/{project.name}"
+    if project.kind == "backend":
+        return f"apps/backend/{project.name}"
+    if project.kind == "desktop":
+        return f"apps/desktop/{project.name}"
+    if project.kind == "mobile":
+        return f"apps/mobile/{project.name}"
+    if project.kind == "tv":
+        return f"apps/tv/{project.name}"
+    if project.kind == "typescript-cli":
+        return f"apps/typescript-cli/{project.name}"
+    if project.kind == "python-lib":
+        return f"packages/python/{project.name}"
+    if project.kind == "typescript-lib":
+        return f"packages/typescript/{project.name}"
+    raise ValueError(f"Unsupported project kind: {project.kind}")
+
+
+def python_distribution_name(project: ProjectSpec) -> str:
+    prefix = "python-app" if project.kind == "python" else "python-lib"
+    default_name = default_project_name(project.kind)
+    if project.name == default_name:
+        return prefix
+    return f"{prefix}-{project.name}"
+
+
+def python_module_name(project: ProjectSpec) -> str:
+    default_name = default_project_name(project.kind)
+    if project.kind == "python":
+        base = "python_app"
+    else:
+        base = "python_lib"
+    if project.name == default_name:
+        return base
+    return f"{base}_{project.name.replace('-', '_')}"
+
+
+def python_cli_script_name(project: ProjectSpec) -> str:
+    default_name = default_project_name(project.kind)
+    if project.name == default_name:
+        return "python-app"
+    return f"python-app-{project.name}"
+
+
+def python_tui_script_name(project: ProjectSpec) -> str:
+    base = python_cli_script_name(project)
+    return f"{base}-tui"
+
+
+def npm_package_name(project: ProjectSpec) -> str:
+    default_name = default_project_name(project.kind)
+    if project.name == default_name:
+        return f"@generated/{project.kind}"
+    return f"@generated/{project.kind}-{project.name}"
+
+
+def typescript_cli_bin_name(project: ProjectSpec) -> str:
+    default_name = default_project_name(project.kind)
+    if project.name == default_name:
+        return "typescript-cli"
+    return f"typescript-cli-{project.name}"
+
+
+def _parse_project_token(token: str) -> ProjectSpec:
+    if ":" not in token:
+        raise ValueError(
+            "project must use the form <type>:<name>, for example web:dashboard"
+        )
+    raw_kind, raw_name = token.split(":", 1)
+    kind = raw_kind.strip().lower()
+    if kind not in TARGET_CHOICES or kind == "foundation":
+        raise ValueError(f"unsupported project type: {raw_kind}")
+    name = normalize_project_name(raw_name)
+    return ProjectSpec(kind=kind, name=name)
+
+
+def _parse_mapping_option(
+    *, token: str, option_name: str, allowed_values: tuple[str, ...] | None = None
+) -> tuple[str, str]:
+    if ":" not in token:
+        raise ValueError(
+            f"{option_name} must use the form <name>:<value>, got {token!r}"
+        )
+    raw_name, raw_value = token.split(":", 1)
+    name = normalize_project_name(raw_name)
+    value = raw_value.strip().lower()
+    if value == "":
+        raise ValueError(f"{option_name} value cannot be empty")
+    if allowed_values is not None and value not in allowed_values:
+        raise ValueError(
+            f"{option_name} value must be one of {', '.join(allowed_values)}"
+        )
+    return name, value
+
+
+def _rebase_paths(
+    paths: tuple[str, ...], *, old_prefix: str, new_prefix: str
+) -> tuple[str, ...]:
+    rebased: list[str] = []
+    for path in paths:
+        if path == f"{old_prefix}/":
+            rebased.append(f"{new_prefix}/")
+            continue
+        if path.startswith(f"{old_prefix}/"):
+            suffix = path[len(old_prefix) + 1 :]
+            rebased.append(f"{new_prefix}/{suffix}")
+            continue
+        rebased.append(path)
+    return tuple(rebased)
+
+
+def _project_paths(project: ProjectSpec) -> tuple[str, ...]:
+    relative_root = project_relative_root(project)
+    if project.kind == "python":
+        return _rebase_paths(
+            PYTHON_PATHS, old_prefix="apps/python", new_prefix=relative_root
+        )
+    if project.kind == "web":
+        return (
+            f"{relative_root}/package.json",
+            *_rebase_paths(
+                WEB_FRAMEWORK_PATHS, old_prefix="apps/web", new_prefix=relative_root
+            ),
+        )
+    if project.kind == "backend":
+        return (
+            f"{relative_root}/package.json",
+            *_rebase_paths(
+                BACKEND_FRAMEWORK_PATHS,
+                old_prefix="apps/backend",
+                new_prefix=relative_root,
+            ),
+        )
+    if project.kind == "desktop":
+        return (
+            f"{relative_root}/package.json",
+            *_rebase_paths(
+                DESKTOP_FRAMEWORK_PATHS,
+                old_prefix="apps/desktop",
+                new_prefix=relative_root,
+            ),
+        )
+    if project.kind == "mobile":
+        return (
+            f"{relative_root}/package.json",
+            *_rebase_paths(
+                MOBILE_FRAMEWORK_PATHS,
+                old_prefix="apps/mobile",
+                new_prefix=relative_root,
+            ),
+        )
+    if project.kind == "tv":
+        return (
+            f"{relative_root}/package.json",
+            *_rebase_paths(
+                TV_FRAMEWORK_PATHS, old_prefix="apps/tv", new_prefix=relative_root
+            ),
+        )
+    if project.kind == "typescript-cli":
+        return (
+            f"{relative_root}/package.json",
+            *_rebase_paths(
+                TYPESCRIPT_CLI_FRAMEWORK_PATHS,
+                old_prefix="apps/typescript-cli",
+                new_prefix=relative_root,
+            ),
+        )
+    if project.kind == "python-lib":
+        return _rebase_paths(
+            PYTHON_LIBRARY_PATHS,
+            old_prefix="packages/python",
+            new_prefix=relative_root,
+        )
+    if project.kind == "typescript-lib":
+        return _rebase_paths(
+            TYPESCRIPT_LIBRARY_PATHS,
+            old_prefix="packages/typescript",
+            new_prefix=relative_root,
+        )
+    raise ValueError(f"Unsupported project kind: {project.kind}")
+
+
+def _dedupe_preserve_order(paths: list[str]) -> tuple[str, ...]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for path in paths:
+        if path in seen:
+            continue
+        seen.add(path)
+        ordered.append(path)
+    return tuple(ordered)
+
+
 def validate_args(
     parser: argparse.ArgumentParser, args: argparse.Namespace
-) -> tuple[tuple[str, ...], str | None]:
+) -> tuple[tuple[ProjectSpec, ...], str | None]:
+    raw_targets = list(args.target or [])
+    raw_projects = list(args.project or [])
+
+    if not raw_targets and not raw_projects:
+        parser.error("at least one --target or --project selection is required")
+
     duplicate_targets: list[str] = []
     seen: set[str] = set()
-    for target in args.target:
+    for target in raw_targets:
         if target in seen and target not in duplicate_targets:
             duplicate_targets.append(target)
         seen.add(target)
@@ -432,96 +675,215 @@ def validate_args(
             + ", ".join(duplicate_targets)
         )
 
-    selected_targets = normalize_targets(args.target)
+    selected_targets = normalize_targets(raw_targets)
 
-    if "foundation" in selected_targets and len(selected_targets) > 1:
+    if "foundation" in selected_targets and (len(selected_targets) > 1 or raw_projects):
         parser.error("foundation target cannot be combined with other targets")
 
-    has_backend = "backend" in selected_targets
-    if has_backend and args.auth is None:
+    projects: list[ProjectSpec] = []
+    for target in selected_targets:
+        if target == "foundation":
+            continue
+        projects.append(ProjectSpec(kind=target, name=default_project_name(target)))
+
+    for token in raw_projects:
+        try:
+            projects.append(_parse_project_token(token))
+        except ValueError as exc:
+            parser.error(str(exc))
+
+    duplicate_projects: list[str] = []
+    project_keys: set[tuple[str, str]] = set()
+    for project in projects:
+        key = (project.kind, project.name)
+        if key in project_keys:
+            duplicate_projects.append(f"{project.kind}:{project.name}")
+            continue
+        project_keys.add(key)
+    if duplicate_projects:
         parser.error(
-            "auth option is required when backend target is selected; use clerk, better-auth, or none"
+            "duplicate project selections are not allowed: "
+            + ", ".join(duplicate_projects)
         )
 
+    backend_names = {project.name for project in projects if project.kind == "backend"}
+    has_backend = bool(backend_names)
     if args.auth is not None and not has_backend:
         parser.error("auth option is only valid when backend target is selected")
 
-    resolved_auth = None if args.auth in {None, "none"} else str(args.auth)
-    return selected_targets, resolved_auth
+    backend_auth_map: dict[str, str | None] = {}
+    for token in list(args.backend_auth or []):
+        try:
+            backend_name, backend_auth = _parse_mapping_option(
+                token=token,
+                option_name="--backend-auth",
+                allowed_values=("clerk", "better-auth", "none"),
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
+        if backend_name not in backend_names:
+            parser.error(
+                f"--backend-auth references unknown backend project: {backend_name}"
+            )
+        backend_auth_map[backend_name] = (
+            None if backend_auth == "none" else backend_auth
+        )
+
+    default_backend_auth = None if args.auth in {None, "none"} else str(args.auth)
+    resolved_projects: list[ProjectSpec] = []
+    for project in projects:
+        if project.kind != "backend":
+            resolved_projects.append(project)
+            continue
+        auth = backend_auth_map.get(project.name, default_backend_auth)
+        if auth is None and args.auth is None and project.name not in backend_auth_map:
+            parser.error(
+                "auth option is required when backend target is selected; use clerk, better-auth, or none"
+            )
+        resolved_projects.append(
+            ProjectSpec(kind=project.kind, name=project.name, auth=auth)
+        )
+
+    backend_projects = tuple(
+        project for project in resolved_projects if project.kind == "backend"
+    )
+    web_projects = tuple(
+        project for project in resolved_projects if project.kind == "web"
+    )
+
+    web_backend_map: dict[str, str] = {}
+    for token in list(args.web_backend or []):
+        try:
+            web_name, backend_name = _parse_mapping_option(
+                token=token,
+                option_name="--web-backend",
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
+        if web_name not in {project.name for project in web_projects}:
+            parser.error(f"--web-backend references unknown web project: {web_name}")
+        if backend_name not in {project.name for project in backend_projects}:
+            parser.error(
+                f"--web-backend references unknown backend project: {backend_name}"
+            )
+        web_backend_map[web_name] = backend_name
+
+    if web_projects and len(backend_projects) > 1:
+        missing_bindings = [
+            project.name
+            for project in web_projects
+            if project.name not in web_backend_map
+        ]
+        if missing_bindings:
+            parser.error(
+                "web-backend binding is required when multiple backend projects exist: "
+                + ", ".join(missing_bindings)
+            )
+
+    if web_projects and len(backend_projects) == 1:
+        backend_name = backend_projects[0].name
+        for project in web_projects:
+            web_backend_map.setdefault(project.name, backend_name)
+
+    final_projects: list[ProjectSpec] = []
+    for project in resolved_projects:
+        if project.kind == "web":
+            final_projects.append(
+                ProjectSpec(
+                    kind=project.kind,
+                    name=project.name,
+                    backend_binding=web_backend_map.get(project.name),
+                )
+            )
+            continue
+        final_projects.append(project)
+
+    return tuple(final_projects), default_backend_auth
 
 
-def resolve_paths(*, targets: tuple[str, ...], auth: str | None) -> tuple[str, ...]:
+def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
     paths: list[str] = list(FOUNDATION_PATHS)
     paths.extend(SHARED_INFRA_PACKAGE_PATHS)
 
-    has_python_workspace = "python" in targets or "python-lib" in targets
+    has_python_workspace = any(
+        project.kind in {"python", "python-lib"} for project in projects
+    )
     if has_python_workspace:
         paths.append("pyproject.toml")
 
-    for target in targets:
-        if target in APP_TARGET_DIRS:
-            paths.append(APP_TARGET_DIRS[target])
-        if target in LIBRARY_TARGET_DIRS:
-            paths.append(LIBRARY_TARGET_DIRS[target])
-        if target in APP_TARGET_PACKAGE_PATHS:
-            paths.append(APP_TARGET_PACKAGE_PATHS[target])
-        if target in LIBRARY_TARGET_PACKAGE_PATHS:
-            paths.append(LIBRARY_TARGET_PACKAGE_PATHS[target])
-        if target == "web":
-            paths.extend(WEB_FRAMEWORK_PATHS)
-        if target == "backend":
-            paths.extend(BACKEND_FRAMEWORK_PATHS)
-        if target == "desktop":
-            paths.extend(DESKTOP_FRAMEWORK_PATHS)
-        if target == "mobile":
-            paths.extend(MOBILE_FRAMEWORK_PATHS)
-        if target == "tv":
-            paths.extend(TV_FRAMEWORK_PATHS)
-        if target == "typescript-cli":
-            paths.extend(TYPESCRIPT_CLI_FRAMEWORK_PATHS)
-        if target == "python":
-            paths.extend(PYTHON_PATHS)
-        if target == "python-lib":
-            paths.extend(PYTHON_LIBRARY_PATHS)
-        if target == "typescript-lib":
-            paths.extend(TYPESCRIPT_LIBRARY_PATHS)
-        if target in TARGET_ENV_EXAMPLE_PATHS:
-            paths.append(TARGET_ENV_EXAMPLE_PATHS[target])
+    for project in projects:
+        paths.extend(_project_paths(project))
+        if project.kind in TARGET_ENV_EXAMPLE_PATHS:
+            paths.append(f"{project_relative_root(project)}/.env.example")
 
-    has_shared_workspace = "web" in targets or "backend" in targets
+    has_shared_workspace = any(
+        project.kind in {"web", "backend"} for project in projects
+    )
     if has_shared_workspace:
         paths.extend(SHARED_WORKSPACE_PATHS)
 
-    has_backend = "backend" in targets
-    if has_backend and auth is not None:
-        paths.append("apps/backend/convex/auth.config.ts")
-        if "web" in targets and auth == "clerk":
-            paths.append("apps/web/src/auth-provider.ts")
-        if "web" in targets and auth == "better-auth":
-            paths.append("apps/web/src/auth-client.ts")
+    backend_by_name = {
+        project.name: project for project in projects if project.kind == "backend"
+    }
+    for backend in backend_by_name.values():
+        if backend.auth is not None:
+            paths.append(f"{project_relative_root(backend)}/convex/auth.config.ts")
 
-    return tuple(paths)
+    for web_project in (project for project in projects if project.kind == "web"):
+        backend = backend_by_name.get(web_project.backend_binding or "")
+        if backend is None or backend.auth is None:
+            continue
+        wiring_name = (
+            "auth-provider.ts" if backend.auth == "clerk" else "auth-client.ts"
+        )
+        paths.append(f"{project_relative_root(web_project)}/src/{wiring_name}")
+
+    return _dedupe_preserve_order(paths)
 
 
-def resolve_plan(
-    *, targets: tuple[str, ...], output: Path, auth: str | None
-) -> ScaffoldPlan:
+def resolve_plan(*, projects: tuple[ProjectSpec, ...], output: Path) -> ScaffoldPlan:
     return ScaffoldPlan(
-        targets=targets,
-        output=output,
-        paths=resolve_paths(targets=targets, auth=auth),
-        auth=auth,
+        projects=projects, output=output, paths=resolve_paths(projects=projects)
     )
 
 
 def render_plan(plan: ScaffoldPlan) -> str:
+    project_types = ", ".join(project.kind for project in plan.projects)
+    backend_auth_values = {
+        project.auth if project.auth is not None else "none"
+        for project in plan.projects
+        if project.kind == "backend"
+    }
+    auth_summary = (
+        "none"
+        if not backend_auth_values
+        else next(iter(backend_auth_values))
+        if len(backend_auth_values) == 1
+        else "mixed"
+    )
     lines = [
         "Resolved scaffold plan:",
-        f"- targets: {', '.join(plan.targets)}",
+        f"- project types: {project_types if project_types != '' else 'foundation'}",
         f"- output: {plan.output}",
-        f"- auth: {plan.auth if plan.auth is not None else 'none'}",
-        "- root layout:",
+        f"- auth: {auth_summary}",
+        "- projects:",
     ]
+    if not plan.projects:
+        lines.append("  - foundation")
+    for project in plan.projects:
+        details = [f"{project.kind}:{project.name}"]
+        if project.kind == "backend":
+            details.append(
+                f"auth={project.auth if project.auth is not None else 'none'}"
+            )
+        if project.kind == "web" and project.backend_binding is not None:
+            details.append(f"backend={project.backend_binding}")
+        lines.append(f"  - {'; '.join(details)}")
+    lines.extend(
+        [
+            "- root layout:",
+        ]
+    )
     lines.extend(f"  - {path}" for path in plan.paths)
     return "\n".join(lines)
 
@@ -552,32 +914,55 @@ def write_root_turbo_json(*, output_root: Path) -> None:
     (output_root / "turbo.json").write_text(ROOT_TURBO_JSON, encoding="utf-8")
 
 
-def _python_workspace_members(*, targets: tuple[str, ...]) -> tuple[str, ...]:
+def _python_workspace_members(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
     members: list[str] = []
-    if "python" in targets:
-        members.append("apps/python")
-    if "python-lib" in targets:
-        members.append("packages/python")
+    if any(project.kind == "python" for project in projects):
+        members.append("apps/python/*")
+    if any(project.kind == "python-lib" for project in projects):
+        members.append("packages/python/*")
     return tuple(members)
 
 
-def render_root_python_workspace_pyproject(*, targets: tuple[str, ...]) -> str:
-    members = _python_workspace_members(targets=targets)
+def render_root_python_workspace_pyproject(*, projects: tuple[ProjectSpec, ...]) -> str:
+    members = _python_workspace_members(projects=projects)
     member_lines = "\n".join(f'  "{member}",' for member in members)
     return ROOT_PYTHON_WORKSPACE_PYPROJECT.replace(
         "{{WORKSPACE_MEMBERS}}", member_lines
     )
 
 
-def render_python_lane_pyproject(*, include_library: bool) -> str:
+def render_python_lane_pyproject(
+    *, project: ProjectSpec, library_project: ProjectSpec | None
+) -> str:
+    project_name = python_distribution_name(project)
+    module_name = python_module_name(project)
+    cli_name = python_cli_script_name(project)
+    tui_name = python_tui_script_name(project)
     rendered = PYTHON_LANE_PYPROJECT.replace(
         "{{PYTHON_LIB_DEPENDENCY}}",
-        '  "python-lib>=0.1.0",' if include_library else "",
+        (
+            f'  "{python_distribution_name(library_project)}>=0.1.0",'
+            if library_project is not None
+            else ""
+        ),
     )
     source_block = ""
-    if include_library:
-        source_block = "[tool.uv.sources]\npython-lib = { workspace = true }\n"
-    return rendered.replace("{{PYTHON_LIB_SOURCE_BLOCK}}", source_block)
+    if library_project is not None:
+        source_block = (
+            "[tool.uv.sources]\n"
+            f"{python_distribution_name(library_project)} = {{ workspace = true }}\n"
+        )
+    rendered = rendered.replace("{{PYTHON_LIB_SOURCE_BLOCK}}", source_block)
+    rendered = rendered.replace('name = "python-app"', f'name = "{project_name}"')
+    rendered = rendered.replace(
+        'python-app = "python_app.entry_points:run_cli"',
+        f'{cli_name} = "{module_name}.entry_points:run_cli"',
+    )
+    rendered = rendered.replace(
+        'python-app-tui = "python_app.entry_points:run_tui"',
+        f'{tui_name} = "{module_name}.entry_points:run_tui"',
+    )
+    return rendered
 
 
 def write_foundation_governance_assets(*, output_root: Path) -> None:
@@ -614,13 +999,13 @@ def scaffold_foundation_core(*, output_root: Path) -> None:
 
 
 def scaffold_python_workspace_root(
-    *, output_root: Path, targets: tuple[str, ...]
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
 ) -> None:
-    if "python" not in targets and "python-lib" not in targets:
+    if not any(project.kind in {"python", "python-lib"} for project in projects):
         return
 
     (output_root / "pyproject.toml").write_text(
-        render_root_python_workspace_pyproject(targets=targets),
+        render_root_python_workspace_pyproject(projects=projects),
         encoding="utf-8",
     )
 
@@ -661,112 +1046,253 @@ def scaffold_shared_infra_packages(*, output_root: Path) -> None:
     )
 
 
-def scaffold_python_lane(*, output_root: Path, targets: tuple[str, ...]) -> None:
+def _dump_json(data: dict[str, object]) -> str:
+    return json.dumps(data, indent=2) + "\n"
+
+
+def _render_package_manifest(template_text: str, *, package_name: str) -> str:
+    data = json.loads(template_text)
+    assert isinstance(data, dict)
+    data["name"] = package_name
+    return _dump_json(data)
+
+
+def render_typescript_cli_package_manifest(project: ProjectSpec) -> str:
+    data = json.loads(
+        load_template_text("workspace_packages/typescript_cli_package.json")
+    )
+    assert isinstance(data, dict)
+    data["name"] = npm_package_name(project)
+    data["bin"] = {typescript_cli_bin_name(project): "./src/cli.ts"}
+    return _dump_json(data)
+
+
+def render_typescript_lib_package_manifest(project: ProjectSpec) -> str:
+    data = json.loads(
+        load_template_text("workspace_packages/typescript_lib_package.json")
+    )
+    assert isinstance(data, dict)
+    data["name"] = npm_package_name(project)
+    return _dump_json(data)
+
+
+def render_workspace_package_manifest(
+    project: ProjectSpec, *, template_text: str
+) -> str:
+    return _render_package_manifest(
+        template_text, package_name=npm_package_name(project)
+    )
+
+
+def render_python_lane_readme(project: ProjectSpec) -> str:
+    readme = PYTHON_LANE_README
+    readme = readme.replace("python-app-tui", python_tui_script_name(project))
+    readme = readme.replace("python-app", python_cli_script_name(project))
+    readme = readme.replace(
+        "apps/python/tests", f"{project_relative_root(project)}/tests"
+    )
+    readme = readme.replace("apps/python/src", f"{project_relative_root(project)}/src")
+    readme = readme.replace("apps/python", project_relative_root(project))
+    return readme
+
+
+def render_python_lane_module_text(text: str, *, project: ProjectSpec) -> str:
+    rendered = text.replace("python_app", python_module_name(project))
+    rendered = rendered.replace("python-app-tui", python_tui_script_name(project))
+    rendered = rendered.replace("python-app", python_cli_script_name(project))
+    return rendered
+
+
+def render_python_lane_core(
+    *, project: ProjectSpec, library_project: ProjectSpec | None
+) -> str:
+    template = (
+        PYTHON_LANE_CORE_WITH_LIBRARY
+        if library_project is not None
+        else PYTHON_LANE_CORE
+    )
+    rendered = render_python_lane_module_text(template, project=project)
+    rendered = rendered.replace(
+        "apps/python/tests", f"{project_relative_root(project)}/tests"
+    )
+    if library_project is not None:
+        rendered = rendered.replace("python_lib", python_module_name(library_project))
+        rendered = rendered.replace(
+            "python-lib", python_distribution_name(library_project)
+        )
+    return rendered
+
+
+def render_python_library_pyproject(project: ProjectSpec) -> str:
+    rendered = PYTHON_LIBRARY_PYPROJECT.replace(
+        'name = "python-lib"', f'name = "{python_distribution_name(project)}"'
+    )
+    return rendered.replace(
+        'packages = ["src/python_lib"]',
+        f'packages = ["src/{python_module_name(project)}"]',
+    )
+
+
+def render_python_library_readme(project: ProjectSpec) -> str:
+    readme = PYTHON_LIBRARY_README.replace(
+        "python-lib", python_distribution_name(project)
+    )
+    readme = readme.replace(
+        "packages/python/tests", f"{project_relative_root(project)}/tests"
+    )
+    readme = readme.replace(
+        "packages/python/src", f"{project_relative_root(project)}/src"
+    )
+    readme = readme.replace("packages/python", project_relative_root(project))
+    return readme
+
+
+def render_python_library_module_text(text: str, *, project: ProjectSpec) -> str:
+    rendered = text.replace("python_lib", python_module_name(project))
+    return rendered.replace("python-lib", python_distribution_name(project))
+
+
+def render_typescript_cli_readme(project: ProjectSpec) -> str:
+    return TYPESCRIPT_CLI_README_TEMPLATE.replace(
+        "apps/typescript-cli", project_relative_root(project)
+    )
+
+
+def render_typescript_lib_readme(project: ProjectSpec) -> str:
+    return TYPESCRIPT_LIBRARY_README_TEMPLATE.replace(
+        "packages/typescript", project_relative_root(project)
+    )
+
+
+def render_target_env_example(project: ProjectSpec) -> str:
+    return load_template_text(TARGET_ENV_TEMPLATE_FILES[project.kind])
+
+
+def scaffold_python_lane(
+    *, output_root: Path, project: ProjectSpec, library_project: ProjectSpec | None
+) -> None:
     if os.environ.get(SIMULATE_FAILURE_ENV) == "python-after-root":
         raise RuntimeError("simulated scaffold failure after root generation")
 
-    lane_root = output_root / "apps" / "python"
-    package_root = lane_root / "src" / "python_app"
+    lane_root = output_root / Path(project_relative_root(project))
+    package_root = lane_root / "src" / python_module_name(project)
     tests_root = lane_root / "tests"
     package_root.mkdir(parents=True)
     tests_root.mkdir()
     write_python_lane_python_version(lane_root=lane_root)
-    include_library = "python-lib" in targets
     (lane_root / "pyproject.toml").write_text(
-        render_python_lane_pyproject(include_library=include_library),
+        render_python_lane_pyproject(project=project, library_project=library_project),
         encoding="utf-8",
     )
-    (lane_root / "README.md").write_text(PYTHON_LANE_README, encoding="utf-8")
-    (package_root / "__init__.py").write_text(PYTHON_LANE_INIT, encoding="utf-8")
-    core_template = (
-        PYTHON_LANE_CORE_WITH_LIBRARY if include_library else PYTHON_LANE_CORE
+    (lane_root / "README.md").write_text(
+        render_python_lane_readme(project), encoding="utf-8"
     )
-    (package_root / "core.py").write_text(core_template, encoding="utf-8")
-    (package_root / "cli.py").write_text(PYTHON_LANE_CLI, encoding="utf-8")
-    (package_root / "tui.py").write_text(PYTHON_LANE_TUI, encoding="utf-8")
+    (package_root / "__init__.py").write_text(PYTHON_LANE_INIT, encoding="utf-8")
+    (package_root / "core.py").write_text(
+        render_python_lane_core(project=project, library_project=library_project),
+        encoding="utf-8",
+    )
+    (package_root / "cli.py").write_text(
+        render_python_lane_module_text(PYTHON_LANE_CLI, project=project),
+        encoding="utf-8",
+    )
+    (package_root / "tui.py").write_text(
+        render_python_lane_module_text(PYTHON_LANE_TUI, project=project),
+        encoding="utf-8",
+    )
     (package_root / "entry_points.py").write_text(
-        PYTHON_LANE_ENTRY_POINTS,
+        render_python_lane_module_text(PYTHON_LANE_ENTRY_POINTS, project=project),
         encoding="utf-8",
     )
     (package_root / "app.tcss").write_text(PYTHON_LANE_APP_CSS, encoding="utf-8")
-    (tests_root / "test_smoke.py").write_text(PYTHON_LANE_TEST, encoding="utf-8")
-    (tests_root / "test_core.py").write_text(
-        PYTHON_LANE_TEST_CORE,
+    (tests_root / "test_smoke.py").write_text(
+        render_python_lane_module_text(PYTHON_LANE_TEST, project=project),
         encoding="utf-8",
+    )
+    (tests_root / "test_core.py").write_text(
+        render_python_lane_module_text(PYTHON_LANE_TEST_CORE, project=project),
+        encoding="utf-8",
+    )
+    (lane_root / ".env.example").write_text(
+        render_target_env_example(project), encoding="utf-8"
     )
 
 
-def scaffold_typescript_cli_framework_files(
-    *, output_root: Path, targets: tuple[str, ...]
-) -> None:
-    if "typescript-cli" not in targets:
-        return
-
-    cli_root = output_root / "apps" / "typescript-cli"
+def scaffold_typescript_cli_project(*, output_root: Path, project: ProjectSpec) -> None:
+    cli_root = output_root / Path(project_relative_root(project))
     cli_src = cli_root / "src"
     cli_root.mkdir(parents=True, exist_ok=True)
     cli_src.mkdir(parents=True, exist_ok=True)
 
-    (cli_root / "README.md").write_text(
-        TYPESCRIPT_CLI_README_TEMPLATE,
+    (cli_root / "package.json").write_text(
+        render_typescript_cli_package_manifest(project),
         encoding="utf-8",
+    )
+    (cli_root / "README.md").write_text(
+        render_typescript_cli_readme(project), encoding="utf-8"
     )
     (cli_root / "tsconfig.json").write_text(
-        TYPESCRIPT_CLI_TSCONFIG_TEMPLATE,
-        encoding="utf-8",
+        TYPESCRIPT_CLI_TSCONFIG_TEMPLATE, encoding="utf-8"
     )
     (cli_src / "cli.ts").write_text(TYPESCRIPT_CLI_CLI_TEMPLATE, encoding="utf-8")
-    (cli_src / "index.ts").write_text(
-        TYPESCRIPT_CLI_INDEX_TEMPLATE,
-        encoding="utf-8",
-    )
+    (cli_src / "index.ts").write_text(TYPESCRIPT_CLI_INDEX_TEMPLATE, encoding="utf-8")
     (cli_root / "smoke.test.ts").write_text(
         TYPESCRIPT_CLI_SMOKE_TEST_TEMPLATE,
         encoding="utf-8",
     )
+    (cli_root / ".env.example").write_text(
+        render_target_env_example(project), encoding="utf-8"
+    )
 
 
-def scaffold_python_library(*, output_root: Path, targets: tuple[str, ...]) -> None:
-    if "python-lib" not in targets:
-        return
-
-    library_root = output_root / "packages" / "python"
-    package_root = library_root / "src" / "python_lib"
+def scaffold_python_library(*, output_root: Path, project: ProjectSpec) -> None:
+    library_root = output_root / Path(project_relative_root(project))
+    package_root = library_root / "src" / python_module_name(project)
     tests_root = library_root / "tests"
     package_root.mkdir(parents=True, exist_ok=True)
     tests_root.mkdir(parents=True, exist_ok=True)
 
     (library_root / "pyproject.toml").write_text(
-        PYTHON_LIBRARY_PYPROJECT, encoding="utf-8"
+        render_python_library_pyproject(project),
+        encoding="utf-8",
     )
-    (library_root / "README.md").write_text(PYTHON_LIBRARY_README, encoding="utf-8")
-    (package_root / "__init__.py").write_text(PYTHON_LIBRARY_INIT, encoding="utf-8")
-    (package_root / "core.py").write_text(PYTHON_LIBRARY_CORE, encoding="utf-8")
-    (tests_root / "test_core.py").write_text(PYTHON_LIBRARY_TEST, encoding="utf-8")
+    (library_root / "README.md").write_text(
+        render_python_library_readme(project), encoding="utf-8"
+    )
+    (package_root / "__init__.py").write_text(
+        render_python_library_module_text(PYTHON_LIBRARY_INIT, project=project),
+        encoding="utf-8",
+    )
+    (package_root / "core.py").write_text(
+        render_python_library_module_text(PYTHON_LIBRARY_CORE, project=project),
+        encoding="utf-8",
+    )
+    (tests_root / "test_core.py").write_text(
+        render_python_library_module_text(PYTHON_LIBRARY_TEST, project=project),
+        encoding="utf-8",
+    )
 
 
-def scaffold_typescript_library(*, output_root: Path, targets: tuple[str, ...]) -> None:
-    if "typescript-lib" not in targets:
-        return
-
-    library_root = output_root / "packages" / "typescript"
+def scaffold_typescript_library(*, output_root: Path, project: ProjectSpec) -> None:
+    library_root = output_root / Path(project_relative_root(project))
     src_root = library_root / "src"
     tests_root = library_root / "tests"
     library_root.mkdir(parents=True, exist_ok=True)
     src_root.mkdir(parents=True, exist_ok=True)
     tests_root.mkdir(parents=True, exist_ok=True)
 
-    (library_root / "tsconfig.json").write_text(
-        TYPESCRIPT_LIBRARY_TSCONFIG_TEMPLATE,
+    (library_root / "package.json").write_text(
+        render_typescript_lib_package_manifest(project),
         encoding="utf-8",
+    )
+    (library_root / "tsconfig.json").write_text(
+        TYPESCRIPT_LIBRARY_TSCONFIG_TEMPLATE, encoding="utf-8"
     )
     (library_root / "README.md").write_text(
-        TYPESCRIPT_LIBRARY_README_TEMPLATE,
-        encoding="utf-8",
+        render_typescript_lib_readme(project), encoding="utf-8"
     )
     (src_root / "index.ts").write_text(
-        TYPESCRIPT_LIBRARY_INDEX_TEMPLATE,
-        encoding="utf-8",
+        TYPESCRIPT_LIBRARY_INDEX_TEMPLATE, encoding="utf-8"
     )
     (tests_root / "typescript_lib.test.ts").write_text(
         TYPESCRIPT_LIBRARY_TEST_TEMPLATE,
@@ -774,125 +1300,104 @@ def scaffold_typescript_library(*, output_root: Path, targets: tuple[str, ...]) 
     )
 
 
-def scaffold_app_targets(*, output_root: Path, targets: tuple[str, ...]) -> None:
-    for target in targets:
-        if target in APP_TARGET_DIRS:
-            (output_root / APP_TARGET_DIRS[target]).mkdir(parents=True, exist_ok=True)
-        if target in LIBRARY_TARGET_DIRS:
-            (output_root / LIBRARY_TARGET_DIRS[target]).mkdir(
-                parents=True, exist_ok=True
-            )
-        package_path = APP_TARGET_PACKAGE_PATHS.get(target)
-        if package_path is not None:
-            package_template = load_template_text(
-                APP_TARGET_PACKAGE_TEMPLATE_FILES[target]
-            )
-            if target == "desktop" and "web" in targets:
-                package_template = DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE
-            (output_root / package_path).write_text(package_template, encoding="utf-8")
-            continue
-
-        library_package_path = LIBRARY_TARGET_PACKAGE_PATHS.get(target)
-        if library_package_path is None:
-            continue
-        library_package_template = load_template_text(
-            LIBRARY_TARGET_PACKAGE_TEMPLATE_FILES[target]
-        )
-        (output_root / library_package_path).write_text(
-            library_package_template,
-            encoding="utf-8",
-        )
-
-
-def scaffold_web_framework_files(
-    *, output_root: Path, targets: tuple[str, ...]
-) -> None:
-    if "web" not in targets:
-        return
-
-    web_root = output_root / "apps" / "web"
-    web_src = output_root / "apps" / "web" / "src"
+def scaffold_web_project(*, output_root: Path, project: ProjectSpec) -> None:
+    web_root = output_root / Path(project_relative_root(project))
+    web_src = web_root / "src"
     routes_dir = web_src / "routes"
     routes_dir.mkdir(parents=True, exist_ok=True)
 
+    (web_root / "package.json").write_text(
+        render_workspace_package_manifest(
+            project,
+            template_text=load_template_text("workspace_packages/web_package.json"),
+        ),
+        encoding="utf-8",
+    )
     (web_root / "app.config.ts").write_text(WEB_APP_CONFIG_TEMPLATE, encoding="utf-8")
     (web_root / "vite.config.ts").write_text(WEB_VITE_CONFIG_TEMPLATE, encoding="utf-8")
     (web_root / "tsconfig.json").write_text(WEB_TSCONFIG_TEMPLATE, encoding="utf-8")
     (web_root / "index.html").write_text(WEB_INDEX_HTML_TEMPLATE, encoding="utf-8")
-
     (web_src / "main.tsx").write_text(WEB_MAIN_TEMPLATE, encoding="utf-8")
     (web_src / "router.tsx").write_text(WEB_ROUTER_TEMPLATE, encoding="utf-8")
     (web_src / "routeTree.gen.ts").write_text(WEB_ROUTE_TREE_TEMPLATE, encoding="utf-8")
     (web_src / "styles.css").write_text(WEB_STYLES_TEMPLATE, encoding="utf-8")
     (routes_dir / "__root.tsx").write_text(WEB_ROOT_ROUTE_TEMPLATE, encoding="utf-8")
     (routes_dir / "index.tsx").write_text(WEB_INDEX_ROUTE_TEMPLATE, encoding="utf-8")
+    (web_root / ".env.example").write_text(
+        render_target_env_example(project), encoding="utf-8"
+    )
 
 
-def scaffold_backend_framework_files(
-    *, output_root: Path, targets: tuple[str, ...]
-) -> None:
-    if "backend" not in targets:
-        return
-
-    convex_dir = output_root / "apps" / "backend" / "convex"
+def scaffold_backend_project(*, output_root: Path, project: ProjectSpec) -> None:
+    backend_root = output_root / Path(project_relative_root(project))
+    convex_dir = backend_root / "convex"
     convex_dir.mkdir(parents=True, exist_ok=True)
 
+    (backend_root / "package.json").write_text(
+        render_workspace_package_manifest(
+            project,
+            template_text=load_template_text("workspace_packages/backend_package.json"),
+        ),
+        encoding="utf-8",
+    )
     (convex_dir / "http.ts").write_text(BACKEND_HTTP_TEMPLATE, encoding="utf-8")
     (convex_dir / "schema.ts").write_text(BACKEND_SCHEMA_TEMPLATE, encoding="utf-8")
-    (output_root / "apps" / "backend" / "tsconfig.json").write_text(
-        BACKEND_TSCONFIG_TEMPLATE,
-        encoding="utf-8",
+    (backend_root / "tsconfig.json").write_text(
+        BACKEND_TSCONFIG_TEMPLATE, encoding="utf-8"
     )
-    (output_root / "apps" / "backend" / "README.md").write_text(
-        BACKEND_README_TEMPLATE,
-        encoding="utf-8",
+    (backend_root / "README.md").write_text(BACKEND_README_TEMPLATE, encoding="utf-8")
+    (backend_root / ".env.example").write_text(
+        render_target_env_example(project), encoding="utf-8"
     )
+    if project.auth is not None:
+        (convex_dir / "auth.config.ts").write_text(
+            BACKEND_AUTH_CONFIG_TEMPLATE.replace("{{AUTH_PROVIDER}}", project.auth),
+            encoding="utf-8",
+        )
 
 
-def scaffold_desktop_framework_files(
-    *, output_root: Path, targets: tuple[str, ...]
+def scaffold_desktop_project(
+    *, output_root: Path, project: ProjectSpec, has_web: bool
 ) -> None:
-    if "desktop" not in targets:
-        return
-
-    desktop_root = output_root / "apps" / "desktop"
+    desktop_root = output_root / Path(project_relative_root(project))
     desktop_src = desktop_root / "src"
     desktop_src.mkdir(parents=True, exist_ok=True)
 
+    template_text = (
+        DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE
+        if has_web
+        else load_template_text("workspace_packages/desktop_package.json")
+    )
+    (desktop_root / "package.json").write_text(
+        render_workspace_package_manifest(project, template_text=template_text),
+        encoding="utf-8",
+    )
     (desktop_root / "README.md").write_text(DESKTOP_README_TEMPLATE, encoding="utf-8")
     (desktop_root / "forge.config.ts").write_text(
-        DESKTOP_FORGE_CONFIG_TEMPLATE,
-        encoding="utf-8",
+        DESKTOP_FORGE_CONFIG_TEMPLATE, encoding="utf-8"
     )
     (desktop_root / "tsconfig.json").write_text(
-        DESKTOP_TSCONFIG_TEMPLATE,
-        encoding="utf-8",
+        DESKTOP_TSCONFIG_TEMPLATE, encoding="utf-8"
     )
     (desktop_root / "index.html").write_text(
-        DESKTOP_INDEX_HTML_TEMPLATE,
-        encoding="utf-8",
+        DESKTOP_INDEX_HTML_TEMPLATE, encoding="utf-8"
     )
     (desktop_src / "main.ts").write_text(DESKTOP_MAIN_TEMPLATE, encoding="utf-8")
-    (desktop_src / "preload.ts").write_text(
-        DESKTOP_PRELOAD_TEMPLATE,
+    (desktop_src / "preload.ts").write_text(DESKTOP_PRELOAD_TEMPLATE, encoding="utf-8")
+    (desktop_src / "renderer.ts").write_text(
+        DESKTOP_RENDERER_WITH_SHARED_TEMPLATE if has_web else DESKTOP_RENDERER_TEMPLATE,
         encoding="utf-8",
     )
-    renderer_template = DESKTOP_RENDERER_TEMPLATE
-    if "web" in targets:
-        renderer_template = DESKTOP_RENDERER_WITH_SHARED_TEMPLATE
-    (desktop_src / "renderer.ts").write_text(
-        renderer_template,
-        encoding="utf-8",
+    (desktop_root / ".env.example").write_text(
+        render_target_env_example(project), encoding="utf-8"
     )
 
 
 def scaffold_shared_workspace_package(
-    *, output_root: Path, targets: tuple[str, ...]
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
 ) -> None:
-    has_shared_workspace = "web" in targets or "backend" in targets
-    if not has_shared_workspace:
+    if not any(project.kind in {"web", "backend"} for project in projects):
         return
-
     shared_src_dir = output_root / "packages" / "shared" / "src"
     shared_src_dir.mkdir(parents=True, exist_ok=True)
     (output_root / "packages" / "shared" / "package.json").write_text(
@@ -902,43 +1407,47 @@ def scaffold_shared_workspace_package(
     (shared_src_dir / "index.ts").write_text(SHARED_INDEX_TEMPLATE, encoding="utf-8")
 
 
-def scaffold_mobile_framework_files(
-    *, output_root: Path, targets: tuple[str, ...]
-) -> None:
-    if "mobile" not in targets:
-        return
-
-    mobile_root = output_root / "apps" / "mobile"
+def scaffold_mobile_project(*, output_root: Path, project: ProjectSpec) -> None:
+    mobile_root = output_root / Path(project_relative_root(project))
     mobile_root.mkdir(parents=True, exist_ok=True)
-
+    (mobile_root / "package.json").write_text(
+        render_workspace_package_manifest(
+            project,
+            template_text=load_template_text("workspace_packages/mobile_package.json"),
+        ),
+        encoding="utf-8",
+    )
     (mobile_root / "README.md").write_text(MOBILE_README_TEMPLATE, encoding="utf-8")
     (mobile_root / "app.json").write_text(MOBILE_APP_JSON_TEMPLATE, encoding="utf-8")
     (mobile_root / "eas.json").write_text(MOBILE_EAS_JSON_TEMPLATE, encoding="utf-8")
     (mobile_root / "babel.config.js").write_text(
-        MOBILE_BABEL_CONFIG_TEMPLATE,
-        encoding="utf-8",
+        MOBILE_BABEL_CONFIG_TEMPLATE, encoding="utf-8"
     )
     (mobile_root / "index.js").write_text(MOBILE_INDEX_TEMPLATE, encoding="utf-8")
     (mobile_root / "App.tsx").write_text(MOBILE_APP_TEMPLATE, encoding="utf-8")
     (mobile_root / "smoke.test.js").write_text(
-        MOBILE_SMOKE_TEST_TEMPLATE,
-        encoding="utf-8",
+        MOBILE_SMOKE_TEST_TEMPLATE, encoding="utf-8"
     )
     (mobile_root / "tsconfig.json").write_text(
-        MOBILE_TSCONFIG_TEMPLATE,
-        encoding="utf-8",
+        MOBILE_TSCONFIG_TEMPLATE, encoding="utf-8"
+    )
+    (mobile_root / ".env.example").write_text(
+        render_target_env_example(project), encoding="utf-8"
     )
 
 
-def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) -> None:
-    if "tv" not in targets:
-        return
-
-    tv_root = output_root / "apps" / "tv"
+def scaffold_tv_project(*, output_root: Path, project: ProjectSpec) -> None:
+    tv_root = output_root / Path(project_relative_root(project))
     tv_scripts_dir = tv_root / "scripts"
     tv_root.mkdir(parents=True, exist_ok=True)
     tv_scripts_dir.mkdir(parents=True, exist_ok=True)
-
+    (tv_root / "package.json").write_text(
+        render_workspace_package_manifest(
+            project,
+            template_text=load_template_text("workspace_packages/tv_package.json"),
+        ),
+        encoding="utf-8",
+    )
     (tv_root / "README.md").write_text(TV_README_TEMPLATE, encoding="utf-8")
     (tv_root / "app.json").write_text(TV_APP_JSON_TEMPLATE, encoding="utf-8")
     (tv_root / "eas.json").write_text(TV_EAS_JSON_TEMPLATE, encoding="utf-8")
@@ -952,122 +1461,107 @@ def scaffold_tv_framework_files(*, output_root: Path, targets: tuple[str, ...]) 
         encoding="utf-8",
     )
     (tv_root / "TV_INPUT_CHECKLIST.md").write_text(
-        TV_INPUT_CHECKLIST_TEMPLATE,
-        encoding="utf-8",
+        TV_INPUT_CHECKLIST_TEMPLATE, encoding="utf-8"
     )
     (tv_root / "TV_VALIDATION_LOG.md").write_text(
-        TV_VALIDATION_LOG_TEMPLATE,
-        encoding="utf-8",
+        TV_VALIDATION_LOG_TEMPLATE, encoding="utf-8"
     )
-
-
-def scaffold_target_env_examples(
-    *, output_root: Path, targets: tuple[str, ...]
-) -> None:
-    for target in targets:
-        env_path = TARGET_ENV_EXAMPLE_PATHS.get(target)
-        if env_path is None:
-            continue
-        env_template_path = TARGET_ENV_TEMPLATE_FILES[target]
-        env_content = load_template_text(env_template_path)
-        target_env_file = output_root / env_path
-        target_env_file.parent.mkdir(parents=True, exist_ok=True)
-        target_env_file.write_text(env_content, encoding="utf-8")
+    (tv_root / ".env.example").write_text(
+        render_target_env_example(project), encoding="utf-8"
+    )
 
 
 def scaffold_web_backend_env_examples(
-    *, output_root: Path, auth: str | None, targets: tuple[str, ...]
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
 ) -> None:
-    has_web_backend = "web" in targets and "backend" in targets
-    if not has_web_backend or auth is None:
-        return
-
-    auth_templates = AUTH_ENV_TEMPLATE_FILES[auth]
-    web_env = load_template_text(auth_templates["web"])
-    backend_env = load_template_text(auth_templates["backend"])
-
-    (output_root / "apps" / "web" / ".env.example").write_text(
-        web_env,
-        encoding="utf-8",
-    )
-    (output_root / "apps" / "backend" / ".env.example").write_text(
-        backend_env,
-        encoding="utf-8",
-    )
+    backend_by_name = {
+        project.name: project for project in projects if project.kind == "backend"
+    }
+    for web_project in (project for project in projects if project.kind == "web"):
+        backend = backend_by_name.get(web_project.backend_binding or "")
+        if backend is None or backend.auth is None:
+            continue
+        auth_templates = AUTH_ENV_TEMPLATE_FILES[backend.auth]
+        (
+            output_root / Path(project_relative_root(web_project)) / ".env.example"
+        ).write_text(
+            load_template_text(auth_templates["web"]),
+            encoding="utf-8",
+        )
+        (
+            output_root / Path(project_relative_root(backend)) / ".env.example"
+        ).write_text(
+            load_template_text(auth_templates["backend"]),
+            encoding="utf-8",
+        )
 
 
 def scaffold_web_backend_auth_wiring(
-    *, output_root: Path, auth: str | None, targets: tuple[str, ...]
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
 ) -> None:
-    has_backend = "backend" in targets
-    if not has_backend or auth is None:
-        return
-
-    backend_convex_dir = output_root / "apps" / "backend" / "convex"
-    backend_convex_dir.mkdir(parents=True, exist_ok=True)
-
-    backend_auth_config = BACKEND_AUTH_CONFIG_TEMPLATE.replace(
-        "{{AUTH_PROVIDER}}", auth
-    )
-    (backend_convex_dir / "auth.config.ts").write_text(
-        backend_auth_config,
-        encoding="utf-8",
-    )
-
-    has_web = "web" in targets
-    if not has_web:
-        return
-
-    web_src_dir = output_root / "apps" / "web" / "src"
-    web_src_dir.mkdir(parents=True, exist_ok=True)
-
-    if auth == "clerk":
-        (web_src_dir / "auth-provider.ts").write_text(
-            WEB_AUTH_PROVIDER_CLERK_TEMPLATE,
-            encoding="utf-8",
-        )
-        return
-
-    if auth == "better-auth":
-        (web_src_dir / "auth-client.ts").write_text(
-            WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE,
-            encoding="utf-8",
-        )
+    backend_by_name = {
+        project.name: project for project in projects if project.kind == "backend"
+    }
+    for web_project in (project for project in projects if project.kind == "web"):
+        backend = backend_by_name.get(web_project.backend_binding or "")
+        if backend is None or backend.auth is None:
+            continue
+        web_src_dir = output_root / Path(project_relative_root(web_project)) / "src"
+        web_src_dir.mkdir(parents=True, exist_ok=True)
+        if backend.auth == "clerk":
+            (web_src_dir / "auth-provider.ts").write_text(
+                WEB_AUTH_PROVIDER_CLERK_TEMPLATE,
+                encoding="utf-8",
+            )
+        elif backend.auth == "better-auth":
+            (web_src_dir / "auth-client.ts").write_text(
+                WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE,
+                encoding="utf-8",
+            )
 
 
 def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_foundation_core(output_root=plan.output)
     scaffold_shared_infra_packages(output_root=plan.output)
-    scaffold_python_workspace_root(output_root=plan.output, targets=plan.targets)
-    scaffold_app_targets(output_root=plan.output, targets=plan.targets)
-    scaffold_web_framework_files(output_root=plan.output, targets=plan.targets)
-    scaffold_backend_framework_files(output_root=plan.output, targets=plan.targets)
-    scaffold_desktop_framework_files(output_root=plan.output, targets=plan.targets)
-    scaffold_mobile_framework_files(output_root=plan.output, targets=plan.targets)
-    scaffold_tv_framework_files(output_root=plan.output, targets=plan.targets)
-    scaffold_typescript_cli_framework_files(
-        output_root=plan.output,
-        targets=plan.targets,
-    )
-    scaffold_python_library(output_root=plan.output, targets=plan.targets)
-    scaffold_typescript_library(output_root=plan.output, targets=plan.targets)
-    scaffold_shared_workspace_package(output_root=plan.output, targets=plan.targets)
+    scaffold_python_workspace_root(output_root=plan.output, projects=plan.projects)
+    scaffold_shared_workspace_package(output_root=plan.output, projects=plan.projects)
 
-    if "python" in plan.targets:
-        scaffold_python_lane(output_root=plan.output, targets=plan.targets)
+    has_web = any(project.kind == "web" for project in plan.projects)
+    python_libraries = [
+        project for project in plan.projects if project.kind == "python-lib"
+    ]
+    shared_python_library = python_libraries[0] if len(python_libraries) == 1 else None
 
-    scaffold_target_env_examples(output_root=plan.output, targets=plan.targets)
+    for project in plan.projects:
+        if project.kind == "python":
+            scaffold_python_lane(
+                output_root=plan.output,
+                project=project,
+                library_project=shared_python_library,
+            )
+        elif project.kind == "python-lib":
+            scaffold_python_library(output_root=plan.output, project=project)
+        elif project.kind == "typescript-cli":
+            scaffold_typescript_cli_project(output_root=plan.output, project=project)
+        elif project.kind == "typescript-lib":
+            scaffold_typescript_library(output_root=plan.output, project=project)
+        elif project.kind == "web":
+            scaffold_web_project(output_root=plan.output, project=project)
+        elif project.kind == "backend":
+            scaffold_backend_project(output_root=plan.output, project=project)
+        elif project.kind == "desktop":
+            scaffold_desktop_project(
+                output_root=plan.output,
+                project=project,
+                has_web=has_web,
+            )
+        elif project.kind == "mobile":
+            scaffold_mobile_project(output_root=plan.output, project=project)
+        elif project.kind == "tv":
+            scaffold_tv_project(output_root=plan.output, project=project)
 
-    scaffold_web_backend_env_examples(
-        output_root=plan.output,
-        auth=plan.auth,
-        targets=plan.targets,
-    )
-    scaffold_web_backend_auth_wiring(
-        output_root=plan.output,
-        auth=plan.auth,
-        targets=plan.targets,
-    )
+    scaffold_web_backend_env_examples(output_root=plan.output, projects=plan.projects)
+    scaffold_web_backend_auth_wiring(output_root=plan.output, projects=plan.projects)
 
 
 def execute_scaffold(plan: ScaffoldPlan) -> None:
@@ -1080,10 +1574,9 @@ def execute_scaffold(plan: ScaffoldPlan) -> None:
     )
     stage_output = stage_container / plan.output.name
     staged_plan = ScaffoldPlan(
-        targets=plan.targets,
+        projects=plan.projects,
         output=stage_output,
         paths=plan.paths,
-        auth=plan.auth,
     )
 
     try:
@@ -1099,14 +1592,12 @@ def execute_scaffold(plan: ScaffoldPlan) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    selected_targets, resolved_auth = validate_args(parser, args)
+    selected_projects, _resolved_auth = validate_args(parser, args)
 
     if not args.no_interactive:
         parser.error("interactive mode is not implemented yet; use --no-interactive")
 
-    plan = resolve_plan(
-        targets=selected_targets, output=args.output, auth=resolved_auth
-    )
+    plan = resolve_plan(projects=selected_projects, output=args.output)
 
     if args.dry_run:
         print(render_plan(plan))

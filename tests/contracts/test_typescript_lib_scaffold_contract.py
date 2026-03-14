@@ -47,7 +47,7 @@ def test_typescript_lib_scaffold_writes_publishable_library_baseline(
         f"stderr:\n{result.stderr}"
     )
 
-    library_root = output_dir / "packages" / "typescript"
+    library_root = output_dir / "packages" / "typescript" / "typescript-lib"
     expected_paths = (
         library_root / "package.json",
         library_root / "README.md",
@@ -106,8 +106,11 @@ def test_typescript_lib_dry_run_lists_library_scaffold_paths(tmp_path: Path) -> 
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "packages/typescript/package.json" in combined_output
-    assert "packages/typescript/README.md" in combined_output
-    assert "packages/typescript/tsconfig.json" in combined_output
-    assert "packages/typescript/src/index.ts" in combined_output
-    assert "packages/typescript/tests/typescript_lib.test.ts" in combined_output
+    assert "packages/typescript/typescript-lib/package.json" in combined_output
+    assert "packages/typescript/typescript-lib/README.md" in combined_output
+    assert "packages/typescript/typescript-lib/tsconfig.json" in combined_output
+    assert "packages/typescript/typescript-lib/src/index.ts" in combined_output
+    assert (
+        "packages/typescript/typescript-lib/tests/typescript_lib.test.ts"
+        in combined_output
+    )

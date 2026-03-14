@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-13 05:37:33 PM
-**Current Phase:** Python and TypeScript library scaffold completion
+**Last Updated:** 2026-03-13 07:51:41 PM
+**Current Phase:** Multi-project `nurt new` completion
 
 ## Previous Cycle Archives
 
@@ -132,7 +132,12 @@
 - [x] Implemented `python-lib` and `typescript-lib` scaffold targets in `src/new_repo_template/scaffold.py`, `src/new_repo_template/{interactive_ui.py,interactive_tui.py}`, and new bundled templates under `src/new_repo_template/snapshot_assets/templates/{python_lib,typescript_lib}/` plus `workspace_packages/typescript_lib_package.json`.
 - [x] Upgraded Python-enabled generated repos to emit a root `pyproject.toml` uv workspace and root `uv.lock`, keep `.python-version` app-local in `apps/python`, and wire `apps/python` to `packages/python` with `tool.uv.sources` when both Python targets are selected.
 - [x] Revalidated feature `2.0` with `uv run pytest tests/contracts/test_python_lane_contract.py tests/contracts/test_python_lib_scaffold_contract.py tests/contracts/test_typescript_lib_scaffold_contract.py tests/contracts/test_typescript_lib_runtime_smoke_contract.py tests/contracts/test_required_preset_matrix_contract.py tests/contracts/test_nurt_cli_contract.py tests/contracts/test_interactive_tui_contract.py tests/contracts/test_generation_lockfiles_contract.py tests/contracts/test_cli_validation_and_python_commands_contract.py` (87 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (184 passed).
+- [x] Ran the full `3.0` YELLOW phase by rereading `src/new_repo_template/{scaffold.py,nurt_cli.py,interactive_ui.py,interactive_tui.py,version_baseline.py}`, the current contract suites, `TODO-FEATURES.md`, and current docs, then using `btca ask` for Bun/Turborepo nested workspaces and uv named-member workspace globs.
+- [x] Added RED coverage for named `--project` specs, repeated same-type projects, nested default compatibility paths, expanded `nurt new` dry-run coverage, and the Textual wizard's multi-name project step.
+- [x] Refactored the scaffold engine around named `ProjectSpec` instances in `src/new_repo_template/scaffold.py`, migrated generated app/library output to nested instance paths like `apps/<type>/<name>` and `packages/<language>/<name>`, and updated root workspaces to `apps/*`, `packages/*`, `apps/*/*`, `packages/*/*` plus uv members `apps/python/*` and `packages/python/*`.
+- [x] Extended `nurt new` in `src/new_repo_template/nurt_cli.py` with repeatable `--project <type>:<name>` support, compatibility shims for `--target`, plain interactive multi-name prompts, optional `--backend-auth` / `--web-backend` routing, and updated Textual wizard project-name collection in `src/new_repo_template/interactive_tui.py`.
+- [x] Revalidated feature `3.0` with `uv run pytest` (190 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`.
 
 ## Next Up
 
-- [ ] Start `3.0 UPDATE THE \`NURT NEW\` FLOW TO SUPPORT MULTIPLE PROJECTS OF THE SAME TYPE` with the same YELLOW-RED-GREEN-BLUE loop.
+- [ ] Start `4.0 CREATE \`NURT ADD\` TO ADD PROJECT TYPES TO EXISTING MONOREPOS` with the same YELLOW-RED-GREEN-BLUE loop.

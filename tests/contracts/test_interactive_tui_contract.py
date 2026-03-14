@@ -138,6 +138,10 @@ def test_textual_wizard_backend_requires_auth_and_none_is_valid(tmp_path: Path) 
 
             await pilot.press("enter")
             await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
             assert app.current_step == "auth"
 
             radio_set = app.query_one("#auth_options", RadioSet)
@@ -168,6 +172,7 @@ def test_textual_wizard_backend_requires_auth_and_none_is_valid(tmp_path: Path) 
             auth="none",
             install_core_tools=False,
             install_bmad=True,
+            projects=("backend:backend",),
         )
 
     asyncio.run(scenario())
@@ -187,6 +192,14 @@ def test_textual_wizard_skips_auth_when_backend_not_selected(tmp_path: Path) -> 
             await pilot.pause()
 
             assert app.selected_targets == ("python",)
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
 
             await pilot.press("enter")
             await pilot.pause()
@@ -210,6 +223,7 @@ def test_textual_wizard_skips_auth_when_backend_not_selected(tmp_path: Path) -> 
             auth=None,
             install_core_tools=False,
             install_bmad=True,
+            projects=("python:python-app",),
         )
 
 
@@ -232,6 +246,10 @@ def test_textual_wizard_supports_typescript_cli_target(tmp_path: Path) -> None:
 
             await pilot.press("enter")
             await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
             assert app.current_step == "tools"
 
             await pilot.press("enter")
@@ -251,6 +269,7 @@ def test_textual_wizard_supports_typescript_cli_target(tmp_path: Path) -> None:
             auth=None,
             install_core_tools=False,
             install_bmad=True,
+            projects=("typescript-cli:typescript-cli",),
         )
 
     asyncio.run(scenario())
@@ -285,6 +304,14 @@ def test_textual_wizard_supports_library_targets(tmp_path: Path) -> None:
 
             await pilot.press("enter")
             await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
             assert app.current_step == "tools"
 
             await pilot.press("enter")
@@ -304,6 +331,7 @@ def test_textual_wizard_supports_library_targets(tmp_path: Path) -> None:
             auth=None,
             install_core_tools=False,
             install_bmad=True,
+            projects=("python-lib:python-lib", "typescript-lib:typescript-lib"),
         )
 
     asyncio.run(scenario())
@@ -321,6 +349,10 @@ def test_textual_wizard_defaults_bmad_step_to_yes(tmp_path: Path) -> None:
 
             await pilot.press("down", "space")
             await pilot.pause()
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
 
             await pilot.press("enter")
             await pilot.pause()
@@ -352,11 +384,19 @@ def test_textual_wizard_clears_stale_auth_when_targets_change(tmp_path: Path) ->
 
             await pilot.press("enter")
             await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
             assert app.current_step == "auth"
 
             await pilot.click("#auth-clerk")
             await pilot.pause()
             assert app.selected_auth == "clerk"
+
+            await pilot.press("escape")
+            await pilot.pause()
+            assert app.current_step == "projects"
 
             await pilot.press("escape")
             await pilot.pause()
@@ -399,6 +439,10 @@ def test_textual_wizard_can_enable_tools_and_bmad_options(tmp_path: Path) -> Non
 
             await pilot.press("enter")
             await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
             assert app.current_step == "tools"
 
             await pilot.click("#tools-yes")
@@ -426,7 +470,59 @@ def test_textual_wizard_can_enable_tools_and_bmad_options(tmp_path: Path) -> Non
             auth=None,
             install_core_tools=True,
             install_bmad=True,
+            projects=("python:python-app",),
         )
+
+
+def test_textual_wizard_collects_multiple_named_projects_for_a_type(
+    tmp_path: Path,
+) -> None:
+    async def scenario() -> None:
+        app = NewProjectWizardApp(
+            project_name="demo-multi-projects",
+            output_root=tmp_path,
+        )
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.pause()
+
+            await pilot.press("down", "space")
+            await pilot.pause()
+            assert app.selected_targets == ("python",)
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
+
+            project_names_input = app.query_one("#project_names_input", Input)
+            project_names_input.value = "api, worker"
+            await pilot.pause()
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "tools"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "bmad"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "review"
+
+            await pilot.press("enter")
+            await pilot.pause()
+
+        assert app.final_result == InteractiveWizardResult(
+            project_name="demo-multi-projects",
+            targets=("python",),
+            auth=None,
+            install_core_tools=False,
+            install_bmad=True,
+            projects=("python:api", "python:worker"),
+        )
+
+    asyncio.run(scenario())
 
     asyncio.run(scenario())
 

@@ -79,7 +79,7 @@ def test_typescript_cli_runtime_scripts_install_and_run(tmp_path: Path) -> None:
         f"stderr:\n{install_result.stderr}"
     )
 
-    cli_root = output_dir / "apps" / "typescript-cli"
+    cli_root = output_dir / "apps" / "typescript-cli" / "typescript-cli"
     manifest = json.loads((cli_root / "package.json").read_text(encoding="utf-8"))
     scripts = manifest.get("scripts", {})
     assert scripts.get("dev") == "bun run ./src/cli.ts"

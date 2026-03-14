@@ -26,21 +26,22 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Scaffold contract: explicit preset-combination matrix and deterministic non-interactive CLI behavior
 - Generator write model: failure-atomic scaffolding (transactional writes or cleanup-on-failure)
 - TV input contract: remote-primary navigation with keyboard/mouse/gamepad support as secondary inputs
-- Root workspace invariant: generated repo roots scaffold shared monorepo files only (`.gitignore`, `package.json`, `turbo.json`, `eslint.config.mjs`, workspace directories), not Python-only metadata
+- Root workspace invariant: generated repo roots scaffold shared monorepo files only (`.gitignore`, `package.json`, `turbo.json`, `eslint.config.mjs`, workspace directories), while Python-enabled repos additionally scaffold root uv-workspace metadata
 - Python workspace boundary: Python-enabled repos generate a root uv workspace (`pyproject.toml`, `uv.lock`), `apps/python/.python-version` remains app-local, and `packages/python` joins the same workspace when the Python library target is selected
+- Multi-project scaffold layout: generated app/library instances now live under nested paths (`apps/<type>/<name>`, `packages/<language>/<name>`), while support packages remain at top-level `packages/*`
 - Security baseline: root `.gitignore` baseline (copied from template root) includes env/secret guards and JS dependency directory ignores (`node_modules/`, `**/node_modules/`); Python-only metadata is isolated to `apps/python`, and selected targets scaffold placeholder-only `.env.example`
 - Global UX direction: distribute and run as `nurt` global CLI installed via `uv tool install git+...`; user entrypoint is `nurt new <project-name>`
 
 ## Planned Topology
 
-- Root workspace with `apps/*` and `packages/*`
+- Root workspace with support-package globs plus nested generated-project globs (`apps/*`, `packages/*`, `apps/*/*`, `packages/*/*`)
 - Shared packages for config and reusable code
-- Selectable target generators within an always-on monorepo shell
+- Selectable target generators within an always-on monorepo shell, with repeatable named project instances per target type
 
 ## Current Implementation Status
 
 - Milestones M0-M5 are complete in tracker state; M4 hardware validation now includes durable emulator evidence plus a physical NVIDIA Shield pass, and the remaining keyboard-only fallback gap was explicitly closed by user direction rather than a direct keyboard hardware run. M5 hardening is complete with required PR checks now green and includes CI matrix/cache strategy expansion, branch-protection guidance, dedicated preset-regression CI coverage, dependency upgrade/versioning policy documentation, optional signing/release checklist design, CI env-template asset reliability hardening, Windows installer-script contract shell-resolution hardening, updater tooling support for GitHub CLI (`gh`), focused Windows-critical CI lane tuning, and advisory secret-scan stability hardening (pinned `gitleaks/gitleaks-action@v2.3.9`, comment/artifact upload API calls disabled, and full-history checkout enabled for commit-range scanning).
-- Planning history now includes the newly archived root plan at `docs/archive/plans/PLAN_2026-03-12_05-15-50_PM.md`; `PLAN.md` has been reset as a fresh next-cycle stub, and the older paired `PLAN.md` / `PROGRESS.md` archive remains at `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` and `docs/archive/plans/PROGRESS_2026-03-08_07-49-04_PM.md`.
+- Planning history now includes the newly archived root plan at `docs/archive/plans/PLAN_2026-03-13_07-05-11_PM.md`; root `PLAN.md` records the completed multi-project `nurt new` cycle, and the older paired `PLAN.md` / `PROGRESS.md` archive remains at `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` and `docs/archive/plans/PROGRESS_2026-03-08_07-49-04_PM.md`.
 - Project BTCA resource layer is now configured for the locked dependency set captured in `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`.
 - A reusable architecture markdown template now exists at `docs/markdown-templates/ARCHITECTURE.template.md`, mirroring this live document's section structure with placeholders for scope, decisions, topology, implementation status, and validation coverage.
 - A reusable living-doc markdown template now exists at `docs/markdown-templates/LIVING_DOCS.template.md`, mirroring the live living-doc section structure with placeholders for current state, active rules, decisions, constraints, and implementation notes.
@@ -154,6 +155,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - A dedicated Bun-native `typescript-cli` target is now part of the app matrix: generated `apps/typescript-cli` output includes a workspace-linked `bin`, Node-shared tsconfig inheritance, starter CLI/core source files, a Bun smoke test, target-local `.env.example`, and README guidance for local CLI development.
 - A dedicated `python-lib` target is now part of the package matrix: generated `packages/python` output includes a reusable Hatchling-based library package, starter source/test files, and root-workspace membership through the scaffolded uv workspace.
 - A dedicated `typescript-lib` target is now part of the package matrix: generated `packages/typescript` output includes a publishable TypeScript package manifest, Node-shared tsconfig inheritance, starter source/test files, and `dist` build output wiring.
+- `nurt new` now supports repeatable named project instances: the scaffold engine accepts repeatable `--project <type>:<name>` inputs, compatibility `--target` mode now maps to nested default-named projects, and interactive flows collect project names per selected target type.
 - Generated TV starter UI is now intentionally focus-first rather than low-level event-hook-driven: it uses `Pressable` items with `hasTVPreferredFocus`, `onFocus`, and `onPress` to provide a stable Android TV starter surface for manual remote-primary and fallback-input validation.
 - Local Android TV emulator evidence now confirms the generated TV baseline supports initial focus placement, deterministic D-pad progression across the starter rail, select stability, back-to-home behavior with relaunch focus recovery, and pointer/tap activation for the same controls.
 - Physical NVIDIA Shield validation now confirms the generated TV baseline launches successfully on-device, supports remote-primary control, exits cleanly via Back, relaunches correctly, and accepts mouse and gamepad fallback input on the same focus-first UI.
@@ -192,7 +194,7 @@ Current contract coverage:
 - `tests/contracts/test_failure_atomicity_contract.py`
   - Contract intent: simulated mid-generation failure leaves no partial output at the final scaffold path.
 - `tests/contracts/test_target_matrix_and_auth_contract.py`
-  - Contract intent: multi-target validation/auth rules, duplicate target rejection, unsupported mixed-combo auth validation, auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
+  - Contract intent: multi-target validation/auth rules, duplicate target rejection, project-instance validation (`--project` parsing, duplicate named projects, multi-backend binding requirements), auth-variant env placeholders, minimal auth wiring placeholders, and separate mobile/TV app scaffolding behavior.
 - `tests/contracts/test_required_preset_matrix_contract.py`
   - Contract intent: full required preset matrix scaffolds successfully across app and library lanes, emits a root uv workspace for Python-enabled presets, creates the expected target directories, and preserves auth-variant wiring assertions.
 - `tests/contracts/test_root_workspace_contract.py`
@@ -226,9 +228,9 @@ Current contract coverage:
 - `tests/contracts/test_installer_scripts_dry_run_contract.py`
   - Contract intent: non-destructive `--dry-run` behavior for installer/updater scripts and turborepo updater visibility.
 - `tests/contracts/test_nurt_cli_contract.py`
-  - Contract intent: `nurt` command routing, new-project dry-run parity, project-name prompting/normalization when omitted, startup update notice behavior, dry-run safety for `update`/`sync tools`/`sync template-assets`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
+  - Contract intent: `nurt` command routing, new-project dry-run parity, repeatable named `--project` support, project-name prompting/normalization when omitted, startup update notice behavior, dry-run safety for `update`/`sync tools`/`sync template-assets`, deterministic non-dry-run failure messaging for native sync paths, and deterministic interactive stdin-failure remediation.
 - `tests/contracts/test_interactive_tui_contract.py`
-  - Contract intent: the real Textual wizard supports stable project-name entry/normalization, conditional skipping of the project-name step when pre-seeded by the CLI, keyboard-driven target multi-select, `foundation` exclusivity, backend-driven explicit auth (including `none`), Escape/Ctrl+Q navigation semantics, wide-vs-compact layout invariants, and resolved-plan handoff on review confirmation.
+  - Contract intent: the real Textual wizard supports stable project-name entry/normalization, conditional skipping of the project-name step when pre-seeded by the CLI, keyboard-driven target multi-select, multi-name project entry per selected type, `foundation` exclusivity, backend-driven explicit auth (including `none`), Escape/Ctrl+Q navigation semantics, wide-vs-compact layout invariants, and resolved-plan handoff on review confirmation.
 - `tests/contracts/test_snapshot_assets_contract.py`
   - Contract intent: packaged snapshot template availability and deterministic snapshot metadata generation for the shared root `.gitignore` baseline and the Python-lane `.python-version` baseline.
 - `tests/contracts/test_version_baseline_contract.py`

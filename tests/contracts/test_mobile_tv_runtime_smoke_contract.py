@@ -82,7 +82,9 @@ def test_mobile_tv_lint_typecheck_test_baseline_scripts_run_in_ci_safe_mode(
     )
 
     mobile_manifest = json.loads(
-        (output_dir / "apps" / "mobile" / "package.json").read_text(encoding="utf-8")
+        (output_dir / "apps" / "mobile" / "mobile" / "package.json").read_text(
+            encoding="utf-8"
+        )
     )
     mobile_scripts = mobile_manifest.get("scripts", {})
     assert mobile_scripts.get("lint") == "bun run mobile:lint:smoke"
@@ -90,15 +92,15 @@ def test_mobile_tv_lint_typecheck_test_baseline_scripts_run_in_ci_safe_mode(
     assert mobile_scripts.get("test") == "bun run mobile:test:smoke"
 
     tv_manifest = json.loads(
-        (output_dir / "apps" / "tv" / "package.json").read_text(encoding="utf-8")
+        (output_dir / "apps" / "tv" / "tv" / "package.json").read_text(encoding="utf-8")
     )
     tv_scripts = tv_manifest.get("scripts", {})
     assert tv_scripts.get("lint") == "bun run tv:lint:smoke"
     assert tv_scripts.get("typecheck") == "bun run tv:typecheck:smoke"
     assert tv_scripts.get("test") == "bun run tv:test:smoke"
 
-    mobile_dir = output_dir / "apps" / "mobile"
-    tv_dir = output_dir / "apps" / "tv"
+    mobile_dir = output_dir / "apps" / "mobile" / "mobile"
+    tv_dir = output_dir / "apps" / "tv" / "tv"
 
     for script_name in ("lint", "typecheck", "test"):
         mobile_result = run_bun_command(

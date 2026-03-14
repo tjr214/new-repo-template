@@ -50,7 +50,7 @@ def test_mobile_scaffold_includes_setup_and_validation_readme(tmp_path: Path) ->
         f"stderr:\n{result.stderr}"
     )
 
-    readme_path = output_dir / "apps" / "mobile" / "README.md"
+    readme_path = output_dir / "apps" / "mobile" / "mobile" / "README.md"
     assert readme_path.exists(), f"Expected mobile setup README at {readme_path}"
 
     readme_text = readme_path.read_text(encoding="utf-8")
@@ -90,7 +90,7 @@ def test_tv_scaffold_includes_emulator_and_shield_validation_docs(
         f"stderr:\n{result.stderr}"
     )
 
-    tv_root = output_dir / "apps" / "tv"
+    tv_root = output_dir / "apps" / "tv" / "tv"
     readme_path = tv_root / "README.md"
     assert readme_path.exists(), f"Expected TV setup README at {readme_path}"
 
@@ -157,7 +157,7 @@ def test_mobile_tv_dry_run_reports_setup_docs_paths(tmp_path: Path) -> None:
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/mobile/README.md" in combined_output
-    assert "apps/tv/README.md" in combined_output
-    assert "apps/tv/TV_VALIDATION_LOG.md" in combined_output
+    assert "apps/mobile/mobile/README.md" in combined_output
+    assert "apps/tv/tv/README.md" in combined_output
+    assert "apps/tv/tv/TV_VALIDATION_LOG.md" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"

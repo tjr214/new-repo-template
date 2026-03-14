@@ -45,7 +45,7 @@ def test_typescript_cli_scaffold_writes_bun_native_cli_baseline(tmp_path: Path) 
         f"stderr:\n{result.stderr}"
     )
 
-    cli_root = output_dir / "apps" / "typescript-cli"
+    cli_root = output_dir / "apps" / "typescript-cli" / "typescript-cli"
     expected_paths = (
         cli_root / "package.json",
         cli_root / "README.md",
@@ -114,10 +114,10 @@ def test_typescript_cli_dry_run_lists_cli_scaffold_paths(tmp_path: Path) -> None
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/typescript-cli/package.json" in combined_output
-    assert "apps/typescript-cli/README.md" in combined_output
-    assert "apps/typescript-cli/tsconfig.json" in combined_output
-    assert "apps/typescript-cli/src/cli.ts" in combined_output
-    assert "apps/typescript-cli/src/index.ts" in combined_output
-    assert "apps/typescript-cli/smoke.test.ts" in combined_output
-    assert "apps/typescript-cli/.env.example" in combined_output
+    assert "apps/typescript-cli/typescript-cli/package.json" in combined_output
+    assert "apps/typescript-cli/typescript-cli/README.md" in combined_output
+    assert "apps/typescript-cli/typescript-cli/tsconfig.json" in combined_output
+    assert "apps/typescript-cli/typescript-cli/src/cli.ts" in combined_output
+    assert "apps/typescript-cli/typescript-cli/src/index.ts" in combined_output
+    assert "apps/typescript-cli/typescript-cli/smoke.test.ts" in combined_output
+    assert "apps/typescript-cli/typescript-cli/.env.example" in combined_output
