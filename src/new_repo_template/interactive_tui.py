@@ -619,6 +619,11 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     }
 
     SelectionList > .selection-list--button {
+        color: #79e0d4;
+    }
+
+    SelectionList > .selection-list--button-selected,
+    SelectionList > .selection-list--button-selected-highlighted {
         color: #ff3b30;
         text-style: bold;
     }

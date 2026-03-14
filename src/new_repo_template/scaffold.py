@@ -911,24 +911,30 @@ def write_python_workspace_activate_shim(
 ) -> None:
     activate_dir = member_root / ".venv" / "bin"
     activate_dir.mkdir(parents=True, exist_ok=True)
-    relative_root_venv = Path(
-        os.path.relpath(output_root / ".venv", activate_dir)
-    ).as_posix()
-    activate_script = "\n".join(
-        (
-            "# Auto-generated workspace activation shim.",
-            '_SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"',
-            f'_ROOT_VENV="${{_SCRIPT_DIR}}/{relative_root_venv}"',
-            'if [ ! -f "${_ROOT_VENV}/bin/activate" ]; then',
-            '  printf "Workspace virtual environment not found at %s\\n" "${_ROOT_VENV}/bin/activate" >&2',
-            "  return 1 2>/dev/null || exit 1",
-            "fi",
-            "# shellcheck source=/dev/null",
-            '. "${_ROOT_VENV}/bin/activate"',
-            "",
+    activate_path = activate_dir / "activate"
+    root_activate = output_root / ".venv" / "bin" / "activate"
+    relative_target = Path(os.path.relpath(root_activate, activate_dir)).as_posix()
+
+    if activate_path.exists() or activate_path.is_symlink():
+        activate_path.unlink()
+
+    try:
+        activate_path.symlink_to(relative_target)
+    except OSError:
+        activate_script = "\n".join(
+            (
+                "# Auto-generated workspace activation shim.",
+                f'_ROOT_ACTIVATE="{relative_target}"',
+                'if [ ! -f "${_ROOT_ACTIVATE}" ]; then',
+                '  printf "Workspace virtual environment not found at %s\\n" "${_ROOT_ACTIVATE}" >&2',
+                "  return 1 2>/dev/null || exit 1",
+                "fi",
+                "# shellcheck source=/dev/null",
+                '. "${_ROOT_ACTIVATE}"',
+                "",
+            )
         )
-    )
-    (activate_dir / "activate").write_text(activate_script, encoding="utf-8")
+        activate_path.write_text(activate_script, encoding="utf-8")
 
 
 def write_root_eslint_config(*, output_root: Path) -> None:
