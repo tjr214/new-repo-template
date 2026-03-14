@@ -1,6 +1,6 @@
 # Development Progress
 
-**Last Updated:** 2026-03-14 10:32:20 AM
+**Last Updated:** 2026-03-14 11:17:58 AM
 **Current Phase:** Multi-project `nurt new` completion
 
 ## Previous Cycle Archives
@@ -138,6 +138,7 @@
 - [x] Extended `nurt new` in `src/new_repo_template/nurt_cli.py` with repeatable `--project <type>:<name>` support, compatibility shims for `--target`, plain interactive multi-name prompts, optional `--backend-auth` / `--web-backend` routing, and updated Textual wizard project-name collection in `src/new_repo_template/interactive_tui.py`.
 - [x] Revalidated feature `3.0` with `uv run pytest` (190 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`.
 - [x] Followed up on the first multi-project bugfix slice: Python libraries now receive lane-local `.python-version`, Python app/library directories now scaffold `.venv/bin/activate` workspace shims that forward to the shared root uv environment, and the Textual wizard now uses stronger bright-red selected markers plus a slightly wider/wrapping summary pane for project names.
+- [x] Followed up again on Python workspace polish: the shared uv workspace name is now scaffolded as `{monorepo-name}-workspace`, so prompt tools like Starship show a repo-specific shared-environment label instead of the old generic `generated-python-workspace` name.
 
 ## Next Up
 

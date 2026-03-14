@@ -20,6 +20,7 @@ The template implementation remains intact, and the latest execution plan is now
 - The scaffold catalog now includes four dedicated Python/TypeScript lanes: `python` generates a Rich + Textual starter app under `apps/python`, `typescript-cli` generates a Bun-native CLI app under `apps/typescript-cli`, `python-lib` generates a reusable Python package under `packages/python`, and `typescript-lib` generates a reusable TypeScript package under `packages/typescript`.
 - Feature `3.0` is now complete: `nurt new` supports multiple named projects of the same type, generated app/library output now lives under nested instance directories, and the plain/TUI interactive flows both collect project names instead of relying on singleton lane paths.
 - Post-completion bugfix follow-up is also in place: Python libraries now mirror `.python-version`, Python workspace members ship a local activation shim at `.venv/bin/activate` that forwards to the root uv workspace environment, and the Textual wizard summary/selection visuals have been tuned for easier human scanning.
+- The root uv workspace metadata is now named from the generated monorepo directory as `{monorepo-name}-workspace`, which gives shared-environment prompt tools a meaningful repo-specific label while preserving the single-workspace-env model.
 
 ## Active Implementation Rules
 

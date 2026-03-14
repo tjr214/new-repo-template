@@ -134,6 +134,7 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
         encoding="utf-8"
     )
     assert "[tool.uv.workspace]" in root_pyproject_content
+    assert 'name = "python-output-workspace"' in root_pyproject_content
     assert "apps/python/*" in root_pyproject_content
     assert "packages/python" not in root_pyproject_content
     assert "[project]" in lane_content

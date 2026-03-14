@@ -78,6 +78,7 @@ def test_python_lib_target_scaffolds_workspace_library(tmp_path: Path) -> None:
 
     root_pyproject = (output_dir / "pyproject.toml").read_text(encoding="utf-8")
     assert "[tool.uv.workspace]" in root_pyproject
+    assert 'name = "python-lib-workspace"' in root_pyproject
     assert "packages/python/*" in root_pyproject
     assert "apps/python" not in root_pyproject
 
@@ -125,6 +126,7 @@ def test_python_app_and_library_scaffold_wire_uv_workspace_dependency(
     )
 
     root_pyproject = (output_dir / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'name = "python-workspace-workspace"' in root_pyproject
     assert "apps/python/*" in root_pyproject
     assert "packages/python/*" in root_pyproject
 

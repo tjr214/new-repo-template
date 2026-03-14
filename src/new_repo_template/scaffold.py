@@ -961,12 +961,14 @@ def _python_workspace_members(*, projects: tuple[ProjectSpec, ...]) -> tuple[str
     return tuple(members)
 
 
-def render_root_python_workspace_pyproject(*, projects: tuple[ProjectSpec, ...]) -> str:
+def render_root_python_workspace_pyproject(
+    *, projects: tuple[ProjectSpec, ...], workspace_project_name: str
+) -> str:
     members = _python_workspace_members(projects=projects)
     member_lines = "\n".join(f'  "{member}",' for member in members)
     return ROOT_PYTHON_WORKSPACE_PYPROJECT.replace(
-        "{{WORKSPACE_MEMBERS}}", member_lines
-    )
+        "{{WORKSPACE_PROJECT_NAME}}", workspace_project_name
+    ).replace("{{WORKSPACE_MEMBERS}}", member_lines)
 
 
 def render_python_lane_pyproject(
@@ -1043,7 +1045,10 @@ def scaffold_python_workspace_root(
         return
 
     (output_root / "pyproject.toml").write_text(
-        render_root_python_workspace_pyproject(projects=projects),
+        render_root_python_workspace_pyproject(
+            projects=projects,
+            workspace_project_name=f"{normalize_project_name(output_root.name)}-workspace",
+        ),
         encoding="utf-8",
     )
 
