@@ -65,6 +65,8 @@ def test_python_lib_target_scaffolds_workspace_library(tmp_path: Path) -> None:
     library_root = output_dir / "packages" / "python" / "python-lib"
     expected_paths = (
         output_dir / "pyproject.toml",
+        library_root / ".python-version",
+        library_root / ".venv" / "bin" / "activate",
         library_root / "pyproject.toml",
         library_root / "README.md",
         library_root / "src" / "python_lib" / "__init__.py",
@@ -80,9 +82,20 @@ def test_python_lib_target_scaffolds_workspace_library(tmp_path: Path) -> None:
     assert "apps/python" not in root_pyproject
 
     library_pyproject = (library_root / "pyproject.toml").read_text(encoding="utf-8")
+    library_python_version = (library_root / ".python-version").read_text(
+        encoding="utf-8"
+    )
+    activate_shim_text = (library_root / ".venv" / "bin" / "activate").read_text(
+        encoding="utf-8"
+    )
     assert 'name = "python-lib"' in library_pyproject
     assert 'requires-python = ">=3.14"' in library_pyproject
     assert 'packages = ["src/python_lib"]' in library_pyproject
+    assert library_python_version == (repo_root / ".python-version").read_text(
+        encoding="utf-8"
+    )
+    assert "Workspace virtual environment" in activate_shim_text
+    assert '. "${_ROOT_VENV}/bin/activate"' in activate_shim_text
 
 
 def test_python_app_and_library_scaffold_wire_uv_workspace_dependency(
@@ -119,9 +132,13 @@ def test_python_app_and_library_scaffold_wire_uv_workspace_dependency(
     app_pyproject = (
         output_dir / "apps" / "python" / "python-app" / "pyproject.toml"
     ).read_text(encoding="utf-8")
+    app_activate_shim = (
+        output_dir / "apps" / "python" / "python-app" / ".venv" / "bin" / "activate"
+    ).read_text(encoding="utf-8")
     assert '"python-lib>=0.1.0"' in app_pyproject
     assert "[tool.uv.sources]" in app_pyproject
     assert "python-lib = { workspace = true }" in app_pyproject
+    assert '. "${_ROOT_VENV}/bin/activate"' in app_activate_shim
 
     core_text = (
         output_dir / "apps" / "python" / "python-app" / "src" / "python_app" / "core.py"

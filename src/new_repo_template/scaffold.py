@@ -220,6 +220,9 @@ SHARED_WORKSPACE_PATHS: tuple[str, ...] = (
 PYTHON_PATHS: tuple[str, ...] = (
     "apps/python/",
     "apps/python/.python-version",
+    "apps/python/.venv/",
+    "apps/python/.venv/bin/",
+    "apps/python/.venv/bin/activate",
     "apps/python/pyproject.toml",
     "apps/python/README.md",
     "apps/python/src/python_app/",
@@ -236,6 +239,10 @@ PYTHON_PATHS: tuple[str, ...] = (
 
 PYTHON_LIBRARY_PATHS: tuple[str, ...] = (
     "packages/python/",
+    "packages/python/.python-version",
+    "packages/python/.venv/",
+    "packages/python/.venv/bin/",
+    "packages/python/.venv/bin/activate",
     "packages/python/pyproject.toml",
     "packages/python/README.md",
     "packages/python/src/",
@@ -899,6 +906,31 @@ def write_python_lane_python_version(*, lane_root: Path) -> None:
     )
 
 
+def write_python_workspace_activate_shim(
+    *, output_root: Path, member_root: Path
+) -> None:
+    activate_dir = member_root / ".venv" / "bin"
+    activate_dir.mkdir(parents=True, exist_ok=True)
+    relative_root_venv = Path(
+        os.path.relpath(output_root / ".venv", activate_dir)
+    ).as_posix()
+    activate_script = "\n".join(
+        (
+            "# Auto-generated workspace activation shim.",
+            '_SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"',
+            f'_ROOT_VENV="${{_SCRIPT_DIR}}/{relative_root_venv}"',
+            'if [ ! -f "${_ROOT_VENV}/bin/activate" ]; then',
+            '  printf "Workspace virtual environment not found at %s\\n" "${_ROOT_VENV}/bin/activate" >&2',
+            "  return 1 2>/dev/null || exit 1",
+            "fi",
+            "# shellcheck source=/dev/null",
+            '. "${_ROOT_VENV}/bin/activate"',
+            "",
+        )
+    )
+    (activate_dir / "activate").write_text(activate_script, encoding="utf-8")
+
+
 def write_root_eslint_config(*, output_root: Path) -> None:
     (output_root / "eslint.config.mjs").write_text(
         ROOT_ESLINT_CONFIG,
@@ -1180,6 +1212,7 @@ def scaffold_python_lane(
     package_root.mkdir(parents=True)
     tests_root.mkdir()
     write_python_lane_python_version(lane_root=lane_root)
+    write_python_workspace_activate_shim(output_root=output_root, member_root=lane_root)
     (lane_root / "pyproject.toml").write_text(
         render_python_lane_pyproject(project=project, library_project=library_project),
         encoding="utf-8",
@@ -1251,6 +1284,11 @@ def scaffold_python_library(*, output_root: Path, project: ProjectSpec) -> None:
     tests_root = library_root / "tests"
     package_root.mkdir(parents=True, exist_ok=True)
     tests_root.mkdir(parents=True, exist_ok=True)
+    write_python_lane_python_version(lane_root=library_root)
+    write_python_workspace_activate_shim(
+        output_root=output_root,
+        member_root=library_root,
+    )
 
     (library_root / "pyproject.toml").write_text(
         render_python_library_pyproject(project),

@@ -19,6 +19,7 @@ The template implementation remains intact, and the latest execution plan is now
 - The foundation OpenCode command baseline remains in sync for the new PR automation command, and the larger drift fix is now complete: `src/new_repo_template/snapshot_assets/source_manifest.json` is the source of truth for foundation scaffold file assets plus scaffold-only empty directories, while the packaged runtime `manifest.json` is regenerated from the file entries during `nurt template-assets validate`.
 - The scaffold catalog now includes four dedicated Python/TypeScript lanes: `python` generates a Rich + Textual starter app under `apps/python`, `typescript-cli` generates a Bun-native CLI app under `apps/typescript-cli`, `python-lib` generates a reusable Python package under `packages/python`, and `typescript-lib` generates a reusable TypeScript package under `packages/typescript`.
 - Feature `3.0` is now complete: `nurt new` supports multiple named projects of the same type, generated app/library output now lives under nested instance directories, and the plain/TUI interactive flows both collect project names instead of relying on singleton lane paths.
+- Post-completion bugfix follow-up is also in place: Python libraries now mirror `.python-version`, Python workspace members ship a local activation shim at `.venv/bin/activate` that forwards to the root uv workspace environment, and the Textual wizard summary/selection visuals have been tuned for easier human scanning.
 
 ## Active Implementation Rules
 

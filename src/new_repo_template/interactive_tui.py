@@ -128,6 +128,11 @@ def _format_output_path(output_path: Path | None) -> Text:
     return Text(str(output_path), style="#edf6f7", no_wrap=False, overflow="fold")
 
 
+def _format_wrapped_text(value: str | None) -> Text:
+    content = value if value not in {None, ""} else "Pending"
+    return Text(str(content), style="#edf6f7", no_wrap=False, overflow="fold")
+
+
 @dataclass(frozen=True)
 class WizardStepDefinition:
     key: str
@@ -609,8 +614,18 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     }
 
     #summary_column {
-        width: 38;
-        min-width: 32;
+        width: 44;
+        min-width: 36;
+    }
+
+    SelectionList > .selection-list--button {
+        color: #ff3b30;
+        text-style: bold;
+    }
+
+    RadioButton.-on > .toggle--button {
+        color: #ff3b30;
+        text-style: bold;
     }
 
     #summary_panel {
@@ -851,10 +866,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self._refresh_ui()
 
     def _render_hero_panel(self) -> Panel:
-        project_name = self.state.project_name or "Pending"
-        output_path = (
-            str(self.state.output_path) if self.state.output_path else "Pending"
-        )
+        project_name = _format_wrapped_text(self.state.project_name or "Pending")
+        output_path = _format_output_path(self.state.output_path)
 
         eyebrow = Text.assemble(
             ("nurt new", "bold #79e0d4"),
@@ -976,7 +989,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         return Panel(body, title="BMAD Method", border_style="#2b6674")
 
     def _render_summary_panel(self) -> Panel:
-        project_name = self.state.project_name or "Pending"
+        project_name = _format_wrapped_text(self.state.project_name or "Pending")
         output_path = _format_output_path(self.state.output_path)
 
         grid = Table.grid(expand=True, padding=(0, 1))
@@ -1027,7 +1040,10 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         plan_table = Table.grid(expand=True, padding=(0, 1))
         plan_table.add_column(style="bold #95dbe8", ratio=1)
         plan_table.add_column(style="#edf6f7", ratio=3)
-        plan_table.add_row("Project", self.state.project_name or "Pending")
+        plan_table.add_row(
+            "Project",
+            _format_wrapped_text(self.state.project_name or "Pending"),
+        )
         plan_table.add_row("Output", _format_output_path(self.state.output_path))
         plan_table.add_row("Targets", ", ".join(self.state.selected_targets))
         plan_table.add_row(

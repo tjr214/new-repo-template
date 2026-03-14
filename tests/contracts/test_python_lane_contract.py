@@ -102,6 +102,7 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
     lane_pyproject = lane_root / "pyproject.toml"
     lane_python_version = lane_root / ".python-version"
     expected_lane_files = (
+        lane_root / ".venv" / "bin" / "activate",
         lane_root / "src" / "python_app" / "__init__.py",
         lane_root / "src" / "python_app" / "core.py",
         lane_root / "src" / "python_app" / "cli.py",
@@ -129,6 +130,9 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
     lane_content = lane_pyproject.read_text(encoding="utf-8")
     root_pyproject_content = root_pyproject.read_text(encoding="utf-8")
     lane_python_version_content = lane_python_version.read_text(encoding="utf-8")
+    activate_shim_text = (lane_root / ".venv" / "bin" / "activate").read_text(
+        encoding="utf-8"
+    )
 
     assert lane_python_version_content == (repo_root / ".python-version").read_text(
         encoding="utf-8"
@@ -143,6 +147,7 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
     assert "[project.scripts]" in lane_content
     assert 'python-app = "python_app.entry_points:run_cli"' in lane_content
     assert 'python-app-tui = "python_app.entry_points:run_tui"' in lane_content
+    assert '. "${_ROOT_VENV}/bin/activate"' in activate_shim_text
 
 
 def test_python_target_scaffold_runs_baseline_commands(tmp_path: Path) -> None:
