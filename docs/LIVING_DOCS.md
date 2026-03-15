@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, and the latest execution plan is now archived.
+The template implementation remains intact, and the active execution plan now targets feature `4.0` for `nurt add` support on existing nurt-made repos.
 
-- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-13_07-05-11_PM.md`.
-- Root `PLAN.md` now records the just-completed multi-project `nurt new` cycle, while root `PROGRESS.md` remains the active cumulative tracker.
+- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-15_12-30-32_PM.md`.
+- Root `PLAN.md` now records the active feature `4.0` `nurt add` cycle, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -21,6 +21,7 @@ The template implementation remains intact, and the latest execution plan is now
 - Feature `3.0` is now complete: `nurt new` supports multiple named projects of the same type, generated app/library output now lives under nested instance directories, and the plain/TUI interactive flows both collect project names instead of relying on singleton lane paths.
 - Post-completion bugfix follow-up is also in place: Python libraries now mirror `.python-version`, Python workspace members ship a local activation shim at `.venv/bin/activate` that forwards to the root uv workspace environment, and the Textual wizard summary/selection visuals have been tuned for easier human scanning.
 - The root uv workspace metadata is now named from the generated monorepo directory as `{monorepo-name}-workspace`, which gives shared-environment prompt tools a meaningful repo-specific label while preserving the single-workspace-env model.
+- The next active delivery cycle is feature `4.0`: `nurt add` will target in-place project addition for existing nurt-made monorepos only, with matching CLI and Textual wizard flows plus additive-only retrofit rules for required root/workspace updates.
 
 ## Active Implementation Rules
 

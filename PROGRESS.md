@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-14 11:17:58 AM
-**Current Phase:** Multi-project `nurt new` completion
+**Last Updated:** 2026-03-15 12:30:32 PM
+**Current Phase:** Planning feature `4.0` (`nurt add` for existing nurt-made repos)
 
 ## Previous Cycle Archives
 
@@ -139,7 +139,8 @@
 - [x] Revalidated feature `3.0` with `uv run pytest` (190 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`.
 - [x] Followed up on the first multi-project bugfix slice: Python libraries now receive lane-local `.python-version`, Python app/library directories now scaffold `.venv/bin/activate` workspace shims that forward to the shared root uv environment, and the Textual wizard now uses stronger bright-red selected markers plus a slightly wider/wrapping summary pane for project names.
 - [x] Followed up again on Python workspace polish: the shared uv workspace name is now scaffolded as `{monorepo-name}-workspace`, so prompt tools like Starship show a repo-specific shared-environment label instead of the old generic `generated-python-workspace` name.
+- [x] Archived the completed feature `3.0` root `PLAN.md` to `docs/archive/plans/PLAN_2026-03-15_12-30-32_PM.md` and replaced the active root `PLAN.md` with the comprehensive feature `4.0` `nurt add` implementation plan.
 
 ## Next Up
 
-- [ ] Start `4.0 CREATE \`NURT ADD\` TO ADD PROJECT TYPES TO EXISTING MONOREPOS` with the same YELLOW-RED-GREEN-BLUE loop.
+- [ ] Execute the active feature `4.0` plan for `nurt add`, including repo-root validation, add-mode CLI/TUI flows, in-place mutation safety, and lockfile regeneration coverage.
