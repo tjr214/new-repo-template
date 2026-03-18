@@ -1,5 +1,5 @@
 {
-  "file_count": 42,
+  "file_count": 43,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -16,6 +16,10 @@
     {
       "destination": "templates/foundation/.github/workflows/release.yml",
       "sha256": "f097802f37202062030af66c2378e13090884cac9ff5afb21c8720a1a903940a"
+    },
+    {
+      "destination": "templates/foundation/.nurt/repo.json",
+      "sha256": "be26ba6ca430f57d0aaaa825635e0efbf9acccb0d7344ad2d33c992f7d620c03"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
@@ -170,7 +174,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-14T00:40:48.011626+00:00",
+  "generated_at": "2026-03-18T22:59:37.704256+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "c3e05a543bf3dad9edd4ac42ebeef7f0b66a4434"
+  "source_commit": "d99747a625e6fe3ac6e494b1a3063656670b8fd2"
 }

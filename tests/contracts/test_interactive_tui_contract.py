@@ -8,6 +8,8 @@ from textual.containers import Vertical
 from textual.widgets import Input, RadioSet, SelectionList, Static
 
 from new_repo_template.interactive_tui import (
+    AddProjectWizardApp,
+    AddWizardResult,
     InteractiveWizardResult,
     NewProjectWizardApp,
 )
@@ -625,3 +627,96 @@ def test_textual_wizard_summary_wraps_output_path_across_lines() -> None:
     assert "Users/example/projects" in rendered
     assert "ery/long/path/for/testing" in rendered
     assert "summary/output/demo-summ" in rendered
+
+
+def test_textual_add_wizard_collects_backend_auth_and_confirms(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        app = AddProjectWizardApp(repo_root=tmp_path)
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.pause()
+
+            await pilot.press("down", "down", "space")
+            await pilot.pause()
+            assert app.selected_targets == ("backend",)
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "auth"
+
+            await pilot.click("#add-auth-none")
+            await pilot.pause()
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "review"
+
+            await pilot.press("enter")
+            await pilot.pause()
+
+        assert app.final_result == AddWizardResult(
+            projects=("backend:backend",),
+            backend_auths=("backend:none",),
+            web_backends=(),
+        )
+
+    asyncio.run(scenario())
+
+
+def test_textual_add_wizard_requires_binding_when_multiple_backends_exist(
+    tmp_path: Path,
+) -> None:
+    async def scenario() -> None:
+        app = AddProjectWizardApp(
+            repo_root=tmp_path, existing_backend_names=("api", "worker")
+        )
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.pause()
+
+            await pilot.press("down", "space")
+            await pilot.pause()
+            assert app.selected_targets == ("web",)
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "binding"
+
+            await pilot.click("#binding-worker")
+            await pilot.pause()
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "review"
+
+            await pilot.press("enter")
+            await pilot.pause()
+
+        assert app.final_result == AddWizardResult(
+            projects=("web:web",),
+            backend_auths=(),
+            web_backends=("web:worker",),
+        )
+
+    asyncio.run(scenario())
+
+
+def test_textual_add_wizard_escape_exits_from_first_step(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        app = AddProjectWizardApp(repo_root=tmp_path)
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.press("escape")
+            await pilot.pause()
+
+        assert app.final_result is None
+
+    asyncio.run(scenario())

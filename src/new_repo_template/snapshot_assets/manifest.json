@@ -5,6 +5,7 @@
     "foundation/.agent/workflows/project/project-export-bmad-to-ralph.md",
     "foundation/.github/workflows/ci.yml",
     "foundation/.github/workflows/release.yml",
+    "foundation/.nurt/repo.json",
     "foundation/.opencode/command/project-export-bmad-to-ralph.md",
     "foundation/.opencode/command/project-get-back-to-work.md",
     "foundation/.opencode/command/project-resume-progress-from-last-checkpoint.md",

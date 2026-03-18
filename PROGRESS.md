@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-15 12:30:32 PM
-**Current Phase:** Planning feature `4.0` (`nurt add` for existing nurt-made repos)
+**Last Updated:** 2026-03-18 07:02:40 PM
+**Current Phase:** Feature `4.0` complete; next up is planning feature `5.0` (`nurt sync template-assets`)
 
 ## Previous Cycle Archives
 
@@ -140,7 +140,11 @@
 - [x] Followed up on the first multi-project bugfix slice: Python libraries now receive lane-local `.python-version`, Python app/library directories now scaffold `.venv/bin/activate` workspace shims that forward to the shared root uv environment, and the Textual wizard now uses stronger bright-red selected markers plus a slightly wider/wrapping summary pane for project names.
 - [x] Followed up again on Python workspace polish: the shared uv workspace name is now scaffolded as `{monorepo-name}-workspace`, so prompt tools like Starship show a repo-specific shared-environment label instead of the old generic `generated-python-workspace` name.
 - [x] Archived the completed feature `3.0` root `PLAN.md` to `docs/archive/plans/PLAN_2026-03-15_12-30-32_PM.md` and replaced the active root `PLAN.md` with the comprehensive feature `4.0` `nurt add` implementation plan.
+- [x] Ran the full feature `4.0` YELLOW pass by rereading the add-related CLI/scaffold/interactivity/lockfile/docs files, running `btca status` / `btca resources`, and using `btca ask` for uv workspace relock guidance, Bun workspace refresh guidance, and Textual in-place wizard flow recommendations.
+- [x] Added the explicit generated-repo identity marker `.nurt/repo.json` to the foundation scaffold baseline, updated the source/runtime snapshot metadata, and kept repo validation heuristic-free for `nurt add`.
+- [x] Implemented feature `4.0` end-to-end: `nurt add` CLI routing, strict repo-root validation, plain and Textual add flows, existing-repo inventory, additive mutation planning, rollback-safe in-place writes, first-Python-lane root uv workspace upgrades, single-app `python-lib` retrofit support, shared-package bootstrap, desktop-plus-web retrofit support, and lockfile-regeneration-only post-add completion.
+- [x] Revalidated feature `4.0` with targeted add contracts, snapshot asset coverage, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (209 passed).
 
 ## Next Up
 
-- [ ] Execute the active feature `4.0` plan for `nurt add`, including repo-root validation, add-mode CLI/TUI flows, in-place mutation safety, and lockfile regeneration coverage.
+- [ ] Plan feature `5.0` for fully native `nurt sync template-assets` behavior and legacy updater retirement.

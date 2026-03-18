@@ -10,9 +10,9 @@
   - [x] Allow `nurt new` to specify how many projects get added to the monorepo (both in Wizard and underlying CLI)
     - Example: 2 python apps, 1 typescript library, 3 webapps, etc.
     - [x] In these cases, `nurt new` should also ask for names for these sub-projects (so the directory names aren't "python1", "python2", etc.)
-- [ ] 4.0 CREATE `NURT ADD` TO ADD PROJECT TYPES TO EXISTING MONOREPOS (Blocked by 1.0, 2.0, 3.0)
-  - [ ] Add `nurt add` so we can add any new project type to an existing nurt-monorepo project
-- [ ] 5.0 PROPERLY IMPLEMENT THE TEMPLATE-ASSETS SYNC FEATURE (Blocked by: 1.0, 2.0, 3.0, 4.0)
+- [x] 4.0 CREATE `NURT ADD` TO ADD PROJECT TYPES TO EXISTING MONOREPOS (Blocked by 1.0, 2.0, 3.0)
+  - [x] Add `nurt add` so we can add any new project type to an existing nurt-monorepo project
+- [ ] 5.0 PROPERLY IMPLEMENT THE TEMPLATE-ASSETS SYNC FEATURE
   - [ ] Correctly implement new `nurt sync template-assets` functionality
     - [ ] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
 - [ ] 6.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
@@ -22,5 +22,5 @@
   - [ ] Figure out if we NEED to migrate from `hatchling` to `uv build`
   - [ ] If we DO, then plan the migration, fully and thoroughly
   - [ ] And, then, do the migration from `hatchling` to `uv build`
-- [ ] 8.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)
+- [ ] 8.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 5.0, 6.0, 7.0)
   - [ ] Thoroughly test all project types (manual step)

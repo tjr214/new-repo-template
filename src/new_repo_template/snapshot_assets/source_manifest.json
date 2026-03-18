@@ -45,6 +45,10 @@
 			"destination": "templates/foundation/PROGRESS.md"
 		},
 		{
+			"source": "templates-snapshot-files/snapshot-nurt-repo-json.txt",
+			"destination": "templates/foundation/.nurt/repo.json"
+		},
+		{
 			"source": "btca.config.jsonc",
 			"destination": "templates/foundation/btca.config.jsonc"
 		},

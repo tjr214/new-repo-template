@@ -176,3 +176,84 @@ def test_nurt_new_python_target_generates_root_workspace_uv_lockfile(
     assert '"ruff>=' in lane_content
     assert '"mypy>=' in lane_content
     assert "[tool.uv.workspace]" in root_pyproject.read_text(encoding="utf-8")
+
+
+def test_nurt_add_python_target_generates_root_workspace_uv_lockfile(
+    tmp_path: Path,
+) -> None:
+    """Adding the first Python lane should generate the root uv workspace lockfile."""
+
+    if shutil.which("uv") is None or shutil.which("bun") is None:
+        pytest.skip("uv and bun are required for add lockfile generation contract")
+
+    repo_root = Path(__file__).resolve().parents[2]
+    generated_repo = tmp_path / "generated-repo"
+
+    scaffold_result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--output",
+            str(generated_repo),
+        ],
+    )
+    assert scaffold_result.returncode == 0, (
+        "Expected foundation scaffold fixture to succeed.\n"
+        f"stdout:\n{scaffold_result.stdout}\n"
+        f"stderr:\n{scaffold_result.stderr}"
+    )
+
+    result = run_nurt_command(
+        cwd=generated_repo,
+        args=["add", "--target", "python", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt add python generation to succeed with lockfiles.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    assert (generated_repo / "bun.lock").exists(), "root bun.lock should exist"
+    assert (generated_repo / "pyproject.toml").exists(), (
+        "root pyproject.toml should exist for uv workspace"
+    )
+    assert (generated_repo / "uv.lock").exists(), "root uv.lock should exist"
+
+
+def test_nurt_add_keeps_git_setup_out_of_existing_repo_mutation(tmp_path: Path) -> None:
+    """Add mode should regenerate lockfiles without running the new-repo git bootstrap."""
+
+    if shutil.which("bun") is None:
+        pytest.skip("bun is required for add lockfile generation contract")
+
+    repo_root = Path(__file__).resolve().parents[2]
+    generated_repo = tmp_path / "generated-repo"
+
+    scaffold_result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--output",
+            str(generated_repo),
+        ],
+    )
+    assert scaffold_result.returncode == 0
+
+    result = run_nurt_command(
+        cwd=generated_repo,
+        args=["add", "--target", "desktop", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt add desktop generation to succeed with bun lockfile refresh.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    assert (generated_repo / "bun.lock").exists(), "root bun.lock should exist"
+    assert not (generated_repo / ".git").exists(), (
+        "nurt add must not initialize or mutate git state as part of lockfile generation"
+    )

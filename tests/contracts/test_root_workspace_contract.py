@@ -58,6 +58,7 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
         "PLAN.md",
         "README.md",
         "PROGRESS.md",
+        ".nurt/repo.json",
         "scripts/configure-repo-protections.sh",
         "docs/ARCHITECTURE.md",
         "docs/LIVING_DOCS.md",
@@ -186,6 +187,10 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         (
             repo_root / "docs" / "markdown-templates" / "PROGRESS.template.md",
             output_dir / "PROGRESS.md",
+        ),
+        (
+            repo_root / "templates-snapshot-files" / "snapshot-nurt-repo-json.txt",
+            output_dir / ".nurt" / "repo.json",
         ),
         (
             repo_root / "templates-snapshot-files" / "snapshot-architecture-md.txt",

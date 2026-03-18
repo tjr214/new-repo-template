@@ -528,6 +528,104 @@ def test_handle_new_prints_completion_overview_with_cd_instruction(
     assert "cd demo-ready" in captured.out
 
 
+def test_nurt_add_dry_run_routes_through_add_planning(tmp_path: Path) -> None:
+    """nurt add dry-run should report an add plan for an existing nurt repo."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    generated_repo = tmp_path / "generated-repo"
+    scaffold_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "new_repo_template.scaffold",
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--output",
+            str(generated_repo),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PYTHONPATH": str(repo_root / "src")},
+        check=False,
+    )
+    assert scaffold_result.returncode == 0, (
+        "Expected foundation scaffold fixture to succeed for nurt add planning.\n"
+        f"stdout:\n{scaffold_result.stdout}\n"
+        f"stderr:\n{scaffold_result.stderr}"
+    )
+
+    result = run_nurt_command(
+        cwd=generated_repo,
+        args=["add", "--target", "desktop", "--dry-run", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt add --dry-run to succeed in a generated repo.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    assert "Resolved add plan:" in combined_output
+    assert "- repo root:" in combined_output
+    assert "- requested additions:" in combined_output
+    assert "desktop:desktop" in combined_output
+    assert "Lockfile regeneration summary:" not in combined_output
+
+
+def test_nurt_add_rejects_foundation_target(tmp_path: Path) -> None:
+    """nurt add should reject the non-addable foundation target."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    generated_repo = tmp_path / "generated-repo"
+    scaffold_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "new_repo_template.scaffold",
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--output",
+            str(generated_repo),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PYTHONPATH": str(repo_root / "src")},
+        check=False,
+    )
+    assert scaffold_result.returncode == 0
+
+    result = run_nurt_command(
+        cwd=generated_repo,
+        args=["add", "--target", "foundation", "--dry-run", "--no-interactive"],
+    )
+
+    assert result.returncode != 0
+    combined_output = _combined_output(result)
+    assert "foundation" in combined_output
+    assert "invalid choice" in combined_output or "not addable" in combined_output
+
+
+def test_nurt_add_fails_outside_nurt_repo(tmp_path: Path) -> None:
+    """nurt add should fail clearly when no nurt repo marker is present."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["add", "--target", "desktop", "--dry-run", "--no-interactive"],
+    )
+
+    assert result.returncode == 1
+    combined_output = _combined_output(result)
+    assert ".nurt/repo.json" in combined_output
+    assert (
+        "nurt add must run from the root of a nurt-generated repository"
+        in combined_output
+    )
+
+
 def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:
     """RED: nurt update dry-run should be non-destructive and explicit."""
 

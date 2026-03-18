@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, and the active execution plan now targets feature `4.0` for `nurt add` support on existing nurt-made repos.
+The template implementation remains intact, feature `4.0` is now complete, and the next planning cycle is feature `5.0` for the native template-assets sync path.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-15_12-30-32_PM.md`.
-- Root `PLAN.md` now records the active feature `4.0` `nurt add` cycle, while root `PROGRESS.md` remains the active cumulative tracker.
+- Root `PLAN.md` now records the completed feature `4.0` `nurt add` cycle, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -21,7 +21,9 @@ The template implementation remains intact, and the active execution plan now ta
 - Feature `3.0` is now complete: `nurt new` supports multiple named projects of the same type, generated app/library output now lives under nested instance directories, and the plain/TUI interactive flows both collect project names instead of relying on singleton lane paths.
 - Post-completion bugfix follow-up is also in place: Python libraries now mirror `.python-version`, Python workspace members ship a local activation shim at `.venv/bin/activate` that forwards to the root uv workspace environment, and the Textual wizard summary/selection visuals have been tuned for easier human scanning.
 - The root uv workspace metadata is now named from the generated monorepo directory as `{monorepo-name}-workspace`, which gives shared-environment prompt tools a meaningful repo-specific label while preserving the single-workspace-env model.
-- The next active delivery cycle is feature `4.0`: `nurt add` will target in-place project addition for existing nurt-made monorepos only, with matching CLI and Textual wizard flows plus additive-only retrofit rules for required root/workspace updates.
+- Feature `4.0` is now complete: `nurt add` supports in-place project addition for existing nurt-generated monorepos, validates repo identity through an explicit root marker, and uses additive-only retrofits plus lockfile regeneration instead of the `nurt new` post-create lifecycle.
+- The foundation scaffold baseline now includes `.nurt/repo.json`, giving future generated repos an explicit repo-identity marker for `nurt add` with no heuristic fallback.
+- The next active delivery cycle is feature `5.0`: finish the native `nurt sync template-assets` implementation and retire the remaining legacy updater path after manual review.
 
 ## Active Implementation Rules
 
@@ -52,6 +54,7 @@ The template implementation remains intact, and the active execution plan now ta
 - Python library lane: dedicated reusable package target at `packages/python`
 - TypeScript library lane: dedicated reusable package target at `packages/typescript`
 - Global execution UX pivot: primary user flow is globally installed `nurt` (`uv tool install git+...` then `nurt new <project-name>`) with no `install.sh` fallback user path
+- Add-mode repo identity: explicit `.nurt/repo.json` marker at the repo root, with strict root-only validation and no heuristic fallback
 
 ## Known Constraints
 
@@ -64,6 +67,7 @@ The template implementation remains intact, and the active execution plan now ta
 - Generator failures must not leave partially scaffolded repos behind.
 - Foundation and JS-only outputs stay free of Python-only metadata files, while Python-enabled outputs scaffold a root uv workspace (`pyproject.toml`, `uv.lock`) plus app-local interpreter pinning at `apps/python/.python-version`.
 - Root JS workspaces now cover both support packages and nested generated projects with `apps/*`, `packages/*`, `apps/*/*`, and `packages/*/*`.
+- `nurt add` only operates from the repo root of an explicit nurt-generated repo, never searches parent directories for a marker, and never runs the new-repo git/BMAD/core-tools post-create lifecycle.
 
 ## Implementation Notes (M0-M1)
 
@@ -212,3 +216,5 @@ The template implementation remains intact, and the active execution plan now ta
 - Python-enabled repos now scaffold a root uv workspace (`pyproject.toml` + `uv.lock`), and the generated Python app declares `python-lib` as a workspace dependency via `[tool.uv.sources]` when both Python targets are selected.
 - Contract coverage now includes `tests/contracts/test_python_lib_scaffold_contract.py`, `tests/contracts/test_typescript_lib_scaffold_contract.py`, and `tests/contracts/test_typescript_lib_runtime_smoke_contract.py`, while the existing Python, preset-matrix, `nurt`, lockfile, CLI-validation, and Textual-wizard contracts were expanded to cover the new library lanes and workspace model.
 - Feature `3.0` is now complete: low-level scaffold parsing now accepts repeatable `--project <type>:<name>` inputs, `nurt new` can collect multiple names per selected type in plain prompts and the Textual wizard, and compatibility `--target` flows now scaffold nested default-named instances (for example `apps/web/web` and `apps/python/python-app`).
+- Feature `4.0` is now complete: `src/new_repo_template/nurt_cli.py` exposes `nurt add`, `src/new_repo_template/add_mode.py` inventories existing generated repos and applies rollback-safe additive mutations, and `src/new_repo_template/interactive_tui.py` now includes a dedicated add wizard for rich interactive sessions.
+- Add-mode retrofit coverage now includes first-Python-lane root uv workspace upgrades, single-existing-app `python-lib` patching, explicit multi-backend web binding, shared-package bootstrap, and desktop retrofit when web is introduced after desktop.
