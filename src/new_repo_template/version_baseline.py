@@ -246,7 +246,6 @@ def _resolve_lockfile_targets(*, project_root: Path) -> list[LockfileTarget]:
                     "bun",
                     "install",
                     "--save-text-lockfile",
-                    "--frozen-lockfile",
                     "--lockfile-only",
                 ),
                 working_directory=project_root,

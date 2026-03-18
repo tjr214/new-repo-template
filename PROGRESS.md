@@ -1,6 +1,6 @@
 # Development Progress
 
-**Last Updated:** 2026-03-18 07:02:40 PM
+**Last Updated:** 2026-03-18 07:34:05 PM
 **Current Phase:** Feature `4.0` complete; next up is planning feature `5.0` (`nurt sync template-assets`)
 
 ## Previous Cycle Archives
@@ -144,6 +144,8 @@
 - [x] Added the explicit generated-repo identity marker `.nurt/repo.json` to the foundation scaffold baseline, updated the source/runtime snapshot metadata, and kept repo validation heuristic-free for `nurt add`.
 - [x] Implemented feature `4.0` end-to-end: `nurt add` CLI routing, strict repo-root validation, plain and Textual add flows, existing-repo inventory, additive mutation planning, rollback-safe in-place writes, first-Python-lane root uv workspace upgrades, single-app `python-lib` retrofit support, shared-package bootstrap, desktop-plus-web retrofit support, and lockfile-regeneration-only post-add completion.
 - [x] Revalidated feature `4.0` with targeted add contracts, snapshot asset coverage, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (209 passed).
+- [x] Fixed the first `nurt add` lockfile regression after live usage: Bun lockfile regeneration now updates existing `bun.lock` files with `bun install --save-text-lockfile --lockfile-only` instead of incorrectly combining `--frozen-lockfile` with an add-mode workspace change.
+- [x] Added regression coverage for add-mode refreshing an existing `bun.lock`, reran `uv run pytest tests/contracts/test_generation_lockfiles_contract.py` (6 passed), reran `uv run ruff check src/new_repo_template tests/contracts`, and revalidated the repository with `uv run pytest` (209 passed).
 
 ## Next Up
 

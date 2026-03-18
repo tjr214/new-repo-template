@@ -257,3 +257,58 @@ def test_nurt_add_keeps_git_setup_out_of_existing_repo_mutation(tmp_path: Path) 
     assert not (generated_repo / ".git").exists(), (
         "nurt add must not initialize or mutate git state as part of lockfile generation"
     )
+
+
+def test_nurt_add_updates_existing_bun_lock_when_workspace_graph_changes(
+    tmp_path: Path,
+) -> None:
+    """Add mode should refresh an existing bun.lock when a new workspace is introduced."""
+
+    if shutil.which("bun") is None:
+        pytest.skip("bun is required for add bun.lock refresh coverage")
+
+    repo_root = Path(__file__).resolve().parents[2]
+    generated_repo = tmp_path / "generated-repo"
+
+    scaffold_result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--output",
+            str(generated_repo),
+        ],
+    )
+    assert scaffold_result.returncode == 0
+
+    bun_lock_seed = subprocess.run(
+        ["bun", "install", "--save-text-lockfile", "--lockfile-only"],
+        cwd=generated_repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert bun_lock_seed.returncode == 0, (
+        "Expected initial bun lockfile seed to succeed.\n"
+        f"stdout:\n{bun_lock_seed.stdout}\n"
+        f"stderr:\n{bun_lock_seed.stderr}"
+    )
+
+    bun_lock_before = (generated_repo / "bun.lock").read_text(encoding="utf-8")
+
+    result = run_nurt_command(
+        cwd=generated_repo,
+        args=["add", "--target", "mobile", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt add to refresh an existing bun.lock successfully.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    bun_lock_after = (generated_repo / "bun.lock").read_text(encoding="utf-8")
+    assert bun_lock_after != bun_lock_before, (
+        "Expected bun.lock to change after introducing a new workspace package graph"
+    )
