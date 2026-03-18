@@ -16,16 +16,27 @@ Implement `nurt add` so existing nurt-generated monorepos can gain new named pro
 ## Guardrails
 
 - `nurt add` only works from the root of a nurt-made repository.
-- Running in a normal directory or unrelated repository must fail with a clear remediation message.
+- Repo identity is explicit, not heuristic: the repo root must contain `.nurt/repo.json`.
+- Repo-root validation is strict: if inside a git repo, the current working directory must equal `git rev-parse --show-toplevel`; add mode must not walk upward looking for the root.
+- Running in a normal directory, a nested subdirectory, or an unrelated repository must fail with a clear remediation message.
 - `foundation` is not addable.
 - Add mode is additive-first: it may patch existing files only when required to make a supported combination work, but it must not broadly rewrite existing starter code for cosmetic parity.
 - Add mode must not run the `nurt new` post-create lifecycle (`git init`, `Initial Commit`, BMAD install prompt, or core-tools prompt).
+- Repo validation must not require `pyproject.toml`, `uv.lock`, or existing project directories; foundation-only nurt repos remain valid add targets.
 
 ## YELLOW
 
 - [ ] Read the repo files, tests, and docs relevant to feature `4.0`, including `TODO-FEATURES.md`, `PROGRESS.md`, `docs/{LIVING_DOCS.md,ARCHITECTURE.md}`, `src/new_repo_template/{nurt_cli.py,scaffold.py,interactive_ui.py,interactive_tui.py,version_baseline.py,post_create.py,sync_ops.py}`, and the contract suites covering CLI routing, root workspaces, lockfiles, auth wiring, shared-package wiring, Python library wiring, and failure atomicity.
 - [ ] Run `btca status`, `btca resources`, and targeted `btca ask` lookups for `uv`, `bun`, `turborepo`, and `textual` so the add workflow follows official guidance for in-place workspace mutation, lockfile regeneration, and wizard behavior.
-- [ ] Confirm the repo-identity contract for “nurt-made repo” and lock the exact root markers that `nurt add` will require before it proceeds.
+- [ ] Confirm the repo-identity contract for “nurt-made repo” and lock the explicit marker contract before `nurt add` proceeds:
+  - [ ] `.nurt/repo.json` must exist at the repo root
+  - [ ] the marker file must parse successfully
+  - [ ] `tool` must equal `nurt`
+  - [ ] `schema_version` must be a supported version
+- [ ] Confirm the strict root rule for add mode:
+  - [ ] if inside a git repo, `cwd` must equal `git rev-parse --show-toplevel`
+  - [ ] add mode must not search parent directories for a valid root
+  - [ ] foundation-only repos with no existing app/library directories are still valid when `.nurt/repo.json` is present
 - [ ] Confirm the add-mode mutation model and the highest-risk retrofit cases:
   - adding the first Python lane into a JS-only repo
   - adding `python-lib` into a repo that already has one Python app
@@ -38,6 +49,7 @@ Implement `nurt add` so existing nurt-generated monorepos can gain new named pro
   - TUI wizard mode for add should mirror `nurt new` where appropriate, but without the repo-name step or post-create prompts
   - repo validation happens before either the CLI add path or the wizard path can proceed
   - add mode gets a dedicated post-add lifecycle for lockfile regeneration and reporting only
+  - new repos scaffold `.nurt/repo.json` as the durable repo-identity marker for future `nurt add` runs
 
 ## RED
 
@@ -62,6 +74,7 @@ Implement `nurt add` so existing nurt-generated monorepos can gain new named pro
 - [ ] Add `add` subcommand parsing and orchestration in `src/new_repo_template/nurt_cli.py`.
 - [ ] Introduce shared planning helpers so `nurt new` and `nurt add` both reuse the `ProjectSpec`-based parsing and validation model where possible.
 - [ ] Add repo-root and nurt-repo validation helpers that confirm the current directory is the root of a nurt-generated repo before add mode proceeds.
+- [ ] Scaffold `.nurt/repo.json` into new repos so future generated repos carry the explicit add-mode identity marker.
 - [ ] Add an existing-repo inventory model that discovers current project instances under `apps/*/*` and `packages/*/*`, then validates requested additions against those live instances.
 - [ ] Build an add planner that merges requested new projects with existing repo state and computes:
   - [ ] new project directories/files to create
@@ -83,6 +96,7 @@ Implement `nurt add` so existing nurt-generated monorepos can gain new named pro
 - [ ] Harden add-mode rollback behavior for partial failures, especially around root manifest edits, shared-package introduction, and Python workspace upgrades.
 - [ ] Refine `nurt add --dry-run` output so it clearly separates detected repo state, requested additions, required retrofits, and lockfile actions.
 - [ ] Reconcile all add-mode docs, tests, and runtime helpers with the additive-only retrofit policy.
+- [ ] Keep repo-identity logic strict and explicit; do not reintroduce heuristic or legacy fallback detection without an explicit decision.
 - [ ] Rerun targeted contracts for `nurt add`, lockfiles, root workspaces, shared-package wiring, Python library wiring, and the Textual wizard.
 - [ ] Rerun `uv run ruff check src/new_repo_template tests/contracts`.
 - [ ] Rerun full `uv run pytest`.
