@@ -12,15 +12,15 @@
     - [x] In these cases, `nurt new` should also ask for names for these sub-projects (so the directory names aren't "python1", "python2", etc.)
 - [x] 4.0 CREATE `NURT ADD` TO ADD PROJECT TYPES TO EXISTING MONOREPOS (Blocked by 1.0, 2.0, 3.0)
   - [x] Add `nurt add` so we can add any new project type to an existing nurt-monorepo project
-- [ ] 5.0 PROPERLY IMPLEMENT THE TEMPLATE-ASSETS SYNC FEATURE
+- [x] 5.0 PROPERLY IMPLEMENT THE TEMPLATE-ASSETS SYNC FEATURE
   - [x] Discuss with user how to make this work and what files need to be included
     - [x] Sync only explicit managed files: `AGENTS.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`, selected `.opencode/command/*`, selected `.agent/rules/*`, selected `.agent/workflows/*`, and selected `docs/workflows/*`
     - [x] Never touch custom sibling files in those directories; only exact managed file paths may be replaced or created
     - [x] Keep sync eligibility inside `src/new_repo_template/snapshot_assets/source_manifest.json` via per-entry `management` metadata instead of introducing a separate sync manifest
     - [x] Use the bundled assets from the currently installed `nurt` version for sync, not a live template-repo clone
     - [x] Require a clean git working tree for real sync execution so template-maintenance diffs stay isolated
-  - [ ] Correctly implement new `nurt sync template-assets` functionality
-    - [ ] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
+  - [x] Correctly implement new `nurt sync template-assets` functionality
+    - [x] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
 - [ ] 6.0 INVESTIGATE AND UPDATE PYTHON BUILD SYSTEM FROM `HATCHLING` to `UV BUILD`
   - [ ] Figure out if we NEED to migrate from `hatchling` to `uv build`
   - [ ] If we DO, then plan the migration, fully and thoroughly

@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-19 02:57:08 PM
-**Current Phase:** Feature `5.0` planning complete; next up is implementing feature `5.0` (`nurt sync template-assets`)
+**Last Updated:** 2026-03-19 04:10:11 PM
+**Current Phase:** Feature `5.0` complete; next up is feature `6.0` investigation (`hatchling` vs `uv build`)
 
 ## Previous Cycle Archives
 
@@ -153,7 +153,15 @@
 - [x] Locked the feature `5.0` sync design with the user: real `nurt sync template-assets` runs will require a clean git working tree, `--dry-run` remains non-destructive, and sync will update only explicit managed files while leaving all custom sibling files and unrelated repo content untouched.
 - [x] Chose a single-manifest model for the upcoming implementation slice: `src/new_repo_template/snapshot_assets/source_manifest.json` will gain per-entry `management` metadata so scaffold and sync behavior derive from the same source of truth instead of from a second sync-specific manifest.
 - [x] Locked the feature boundary between `5.0` and `7.0`: template-asset sync will use the bundled assets shipped with the currently installed `nurt` version, while the future self-update command remains a separate `nurt upgrade` feature rather than a live-clone sync path.
+- [x] Added RED coverage for feature `5.0` across `tests/contracts/test_snapshot_assets_contract.py`, `tests/contracts/test_nurt_cli_contract.py`, and a rewritten `tests/contracts/test_template_asset_sync_contract.py`, covering source-manifest `management` metadata, the exact manifest-derived sync allowlist, dry-run reporting, root-marker validation, dirty-git refusal, custom-file preservation, and no-delete/no-empty-namespace behavior.
+- [x] Implemented manifest-aware sync metadata in `src/new_repo_template/foundation_manifest.py` so scaffold/runtime-manifest consumers keep using one source of truth while feature `5.0` derives a validated exact-path sync subset from `src/new_repo_template/snapshot_assets/source_manifest.json`.
+- [x] Updated `src/new_repo_template/snapshot_assets/source_manifest.json` to add explicit per-entry `management` flags, keeping scaffold behavior broad while limiting sync to the approved managed file set only.
+- [x] Replaced the clone-based `nurt sync template-assets` path in `src/new_repo_template/sync_ops.py` with bundled-snapshot exact-file writes, `.nurt/repo.json` root validation, strict clean-git enforcement, and a manifest-derived dry-run plan that no longer references the retired legacy updater flow.
+- [x] Regenerated bundled snapshot artifacts with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."` so `src/new_repo_template/snapshot_assets/{manifest.json,metadata.json}` stay aligned with the corrected source manifest and real packaged template assets.
+- [x] Manually reviewed and then removed the obsolete legacy updater `.template_scripts/update-template-from-git.sh`, updating `tests/contracts/test_installer_scripts_dry_run_contract.py` to enforce its absence.
+- [x] Corrected the stray feature `5.0` plan typo that referenced a non-existent `project-get-back-to-work.md` sync target; the real manifest-derived allowlist now excludes that file entirely.
+- [x] Revalidated feature `5.0` with `uv run pytest tests/contracts/test_nurt_cli_contract.py`, `uv run pytest tests/contracts/test_snapshot_assets_contract.py`, `uv run pytest tests/contracts/test_template_asset_sync_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py`, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (214 passed).
 
 ## Next Up
 
-- [ ] Implement feature `5.0` for fully native manifest-driven `nurt sync template-assets` behavior and legacy updater retirement after manual review.
+- [ ] Run the YELLOW planning/investigation pass for feature `6.0` and determine whether the Python build backend should remain `hatchling` or migrate to `uv build`.

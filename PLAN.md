@@ -1,7 +1,7 @@
 # Feature 5.0 Plan
 
-**Last Updated:** 2026-03-19 02:57:08 PM
-**Status:** Ready for Implementation
+**Last Updated:** 2026-03-19 04:10:11 PM
+**Status:** Completed
 **Previous Cycle Archive:** `docs/archive/plans/PLAN_2026-03-19_12-45-13_PM.md`
 **Previous Cycle Summary:** `docs/session-summaries/SESSION_111_SUMMARY.md`
 
@@ -22,7 +22,7 @@ If a future session starts with no conversational memory, reread these files in 
 3. `PROGRESS.md`
 4. `docs/LIVING_DOCS.md`
 5. `docs/ARCHITECTURE.md`
-6. `docs/session-summaries/SESSION_112_SUMMARY.md`
+6. `docs/session-summaries/SESSION_113_SUMMARY.md`
 7. `src/new_repo_template/sync_ops.py`
 8. `src/new_repo_template/nurt_cli.py`
 9. `src/new_repo_template/foundation_manifest.py`
@@ -63,7 +63,6 @@ As of this plan, the approved sync scope is the following exact repo-root destin
 - `.agent/rules/general-rules.md`
 - `.agent/workflows/project/project-export-bmad-to-ralph.md`
 - `.opencode/command/project-export-bmad-to-ralph.md`
-- `.opencode/command/project-get-back-to-work.md`
 - `.opencode/command/project-resume-progress-from-last-checkpoint.md`
 - `.opencode/command/project-save-progress-to-checkpoint.md`
 - `.opencode/command/project-setup-or-update-btca.md`
@@ -124,53 +123,53 @@ If the session is interrupted, the next restart should begin from this section a
 
 ## YELLOW
 
-- [ ] Reread the current sync/scaffold/runtime-manifest implementation files before editing: `src/new_repo_template/sync_ops.py`, `src/new_repo_template/nurt_cli.py`, `src/new_repo_template/foundation_manifest.py`, `src/new_repo_template/snapshot_builder.py`, and `src/new_repo_template/snapshot_assets_loader.py`.
-- [ ] Reread the manifest and packaged-template source-of-truth files that affect this slice: `src/new_repo_template/snapshot_assets/source_manifest.json` and the current bundled foundation template paths under `src/new_repo_template/snapshot_assets/templates/foundation/`.
-- [ ] Reread the current sync-facing contracts and any snapshot/root-validation tests that the new behavior will replace or extend, including `tests/contracts/test_nurt_cli_contract.py`, `tests/contracts/test_snapshot_assets_contract.py`, and any new dedicated template-sync contract coverage added for this feature.
-- [ ] Run `btca status` and use `btca ask` for any dependency or library guidance that affects implementation details for this slice; at minimum, preserve the current understanding that `uv tool upgrade` is the standard Git-installed tool refresh path so feature `5.0` and feature `7.0` remain cleanly separated.
-- [ ] Confirm the manifest schema update plan before coding: existing source-manifest consumers must continue to work once `management` metadata is added.
-- [ ] Confirm validation targets and out-of-scope boundaries: feature `5.0` implements manifest-driven bundled-asset sync plus legacy updater retirement, but does not implement the future `nurt upgrade` product surface.
+- [x] Reread the current sync/scaffold/runtime-manifest implementation files before editing: `src/new_repo_template/sync_ops.py`, `src/new_repo_template/nurt_cli.py`, `src/new_repo_template/foundation_manifest.py`, `src/new_repo_template/snapshot_builder.py`, and `src/new_repo_template/snapshot_assets_loader.py`.
+- [x] Reread the manifest and packaged-template source-of-truth files that affect this slice: `src/new_repo_template/snapshot_assets/source_manifest.json` and the current bundled foundation template paths under `src/new_repo_template/snapshot_assets/templates/foundation/`.
+- [x] Reread the current sync-facing contracts and any snapshot/root-validation tests that the new behavior will replace or extend, including `tests/contracts/test_nurt_cli_contract.py`, `tests/contracts/test_snapshot_assets_contract.py`, and any new dedicated template-sync contract coverage added for this feature.
+- [x] Run `btca status` and use `btca ask` for any dependency or library guidance that affects implementation details for this slice; at minimum, preserve the current understanding that `uv tool upgrade` is the standard Git-installed tool refresh path so feature `5.0` and feature `7.0` remain cleanly separated.
+- [x] Confirm the manifest schema update plan before coding: existing source-manifest consumers must continue to work once `management` metadata is added.
+- [x] Confirm validation targets and out-of-scope boundaries: feature `5.0` implements manifest-driven bundled-asset sync plus legacy updater retirement, but does not implement the future `nurt upgrade` product surface.
 
 ## RED
 
-- [ ] Add or update failing contract coverage for the source-manifest schema so entries can declare `management` metadata without breaking existing scaffold/runtime-manifest flows.
-- [ ] Add failing coverage for a manifest-derived sync allowlist that filters to exact file paths marked for sync, rather than hard-coded directory rules or a second sync-specific manifest.
-- [ ] Add failing coverage for `nurt sync template-assets --dry-run` so it reports the manifest-derived sync plan using the bundled-asset source model and does not reference the legacy clone script behavior.
-- [ ] Add failing coverage for non-dry-run root validation using `.nurt/repo.json` instead of the current `.template_scripts/`-based check.
-- [ ] Add failing coverage for the strict clean-git requirement so real sync refuses to run when the repo has uncommitted changes.
-- [ ] Add failing coverage proving that sync updates managed files while preserving custom sibling files in `.opencode/command/`, `.agent/`, and `docs/workflows/`.
-- [ ] Add failing coverage proving that sync does not delete unlisted files and does not create empty optional namespaces such as `.opencode/agent/` when there are no managed files for them.
+- [x] Add or update failing contract coverage for the source-manifest schema so entries can declare `management` metadata without breaking existing scaffold/runtime-manifest flows.
+- [x] Add failing coverage for a manifest-derived sync allowlist that filters to exact file paths marked for sync, rather than hard-coded directory rules or a second sync-specific manifest.
+- [x] Add failing coverage for `nurt sync template-assets --dry-run` so it reports the manifest-derived sync plan using the bundled-asset source model and does not reference the legacy clone script behavior.
+- [x] Add failing coverage for non-dry-run root validation using `.nurt/repo.json` instead of the current `.template_scripts/`-based check.
+- [x] Add failing coverage for the strict clean-git requirement so real sync refuses to run when the repo has uncommitted changes.
+- [x] Add failing coverage proving that sync updates managed files while preserving custom sibling files in `.opencode/command/`, `.agent/`, and `docs/workflows/`.
+- [x] Add failing coverage proving that sync does not delete unlisted files and does not create empty optional namespaces such as `.opencode/agent/` when there are no managed files for them.
 
 ## GREEN
 
-- [ ] Extend source-manifest parsing to understand per-entry `management` metadata while preserving the existing scaffold and snapshot-builder consumers.
-- [ ] Add helper logic that derives the syncable subset from `source_manifest.json`, maps `templates/foundation/...` entries back to repo-root destinations, and rejects entries that do not belong to the approved sync scope.
-- [ ] Replace the current clone-based template sync flow in `src/new_repo_template/sync_ops.py` with bundled-asset exact-path copy behavior driven by the manifest-derived sync subset.
-- [ ] Update repo-root validation for template sync so it uses the explicit nurt repo marker `.nurt/repo.json`.
-- [ ] Keep dry-run output useful and non-destructive by reporting the manifest-derived sync targets and bundled-asset source model clearly.
-- [ ] Preserve the strict clean-working-tree guard for non-dry-run sync execution.
-- [ ] Remove the remaining runtime dependency on live cloning for template-asset sync.
+- [x] Extend source-manifest parsing to understand per-entry `management` metadata while preserving the existing scaffold and snapshot-builder consumers.
+- [x] Add helper logic that derives the syncable subset from `source_manifest.json`, maps `templates/foundation/...` entries back to repo-root destinations, and rejects entries that do not belong to the approved sync scope.
+- [x] Replace the current clone-based template sync flow in `src/new_repo_template/sync_ops.py` with bundled-asset exact-path copy behavior driven by the manifest-derived sync subset.
+- [x] Update repo-root validation for template sync so it uses the explicit nurt repo marker `.nurt/repo.json`.
+- [x] Keep dry-run output useful and non-destructive by reporting the manifest-derived sync targets and bundled-asset source model clearly.
+- [x] Preserve the strict clean-working-tree guard for non-dry-run sync execution.
+- [x] Remove the remaining runtime dependency on live cloning for template-asset sync.
 
 ## BLUE
 
-- [ ] Refactor the new manifest helper code so scaffold-oriented and sync-oriented path derivation stay centralized, typed, and easy to extend.
-- [ ] Harden failure messaging so operators get clear remediation for invalid repo roots, dirty git state, or manifest/path inconsistencies.
-- [ ] Review the legacy `.template_scripts/update-template-from-git.sh` script after the native path is complete and manually confirm it is safe to retire.
-- [ ] Remove the legacy updater script only after the native implementation and contracts make it redundant.
-- [ ] Rerun targeted validation for the touched contracts plus broader repository validation as appropriate.
+- [x] Refactor the new manifest helper code so scaffold-oriented and sync-oriented path derivation stay centralized, typed, and easy to extend.
+- [x] Harden failure messaging so operators get clear remediation for invalid repo roots, dirty git state, or manifest/path inconsistencies.
+- [x] Review the legacy `.template_scripts/update-template-from-git.sh` script after the native path is complete and manually confirm it is safe to retire.
+- [x] Remove the legacy updater script only after the native implementation and contracts make it redundant.
+- [x] Rerun targeted validation for the touched contracts plus broader repository validation as appropriate.
 
 ## Validation Targets
 
-- [ ] `uv run pytest tests/contracts/test_nurt_cli_contract.py`
-- [ ] `uv run pytest tests/contracts/test_snapshot_assets_contract.py`
-- [ ] `uv run pytest <new-or-updated-template-sync-contracts>`
-- [ ] `uv run ruff check src/new_repo_template tests/contracts`
-- [ ] `uv run pytest`
+- [x] `uv run pytest tests/contracts/test_nurt_cli_contract.py`
+- [x] `uv run pytest tests/contracts/test_snapshot_assets_contract.py`
+- [x] `uv run pytest tests/contracts/test_template_asset_sync_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py`
+- [x] `uv run ruff check src/new_repo_template tests/contracts`
+- [x] `uv run pytest`
 
 ## Documentation Sync
 
-- [ ] Update `TODO-FEATURES.md` as implementation choices or follow-up scope evolve.
-- [ ] Update `PROGRESS.md`.
-- [ ] Update `docs/LIVING_DOCS.md`.
-- [ ] Update `docs/ARCHITECTURE.md`.
-- [ ] Create a new session summary in `docs/session-summaries/`.
+- [x] Update `TODO-FEATURES.md` as implementation choices or follow-up scope evolve.
+- [x] Update `PROGRESS.md`.
+- [x] Update `docs/LIVING_DOCS.md`.
+- [x] Update `docs/ARCHITECTURE.md`.
+- [x] Create a new session summary in `docs/session-summaries/`.

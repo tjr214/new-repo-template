@@ -3,6 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from new_repo_template.foundation_manifest import (
+    build_runtime_snapshot_manifest,
+    get_foundation_sync_template_file_pairs,
+    get_source_manifest_entries,
+)
 from new_repo_template.snapshot_assets_loader import (
     load_source_manifest,
     load_snapshot_manifest,
@@ -153,3 +158,57 @@ def test_snapshot_manifest_includes_foundation_opencode_commands_from_source_man
     )
 
     assert actual_templates == expected_templates
+
+
+def test_source_manifest_supports_management_metadata_without_breaking_runtime_manifest() -> (
+    None
+):
+    """RED: source-manifest entries should support management metadata safely."""
+
+    source_manifest = load_source_manifest()
+    entries = get_source_manifest_entries(source_manifest)
+
+    assert any(entry.management.sync for entry in entries)
+
+    runtime_manifest = build_runtime_snapshot_manifest(source_manifest)
+    expected_templates = sorted(
+        entry.destination.removeprefix("templates/")
+        for entry in entries
+        if entry.management.scaffold
+    )
+    assert runtime_manifest == {"version": 1, "templates": expected_templates}
+
+
+def test_source_manifest_derives_exact_foundation_sync_allowlist() -> None:
+    """RED: foundation sync targets should come from manifest metadata only."""
+
+    sync_pairs = get_foundation_sync_template_file_pairs(load_source_manifest())
+    sync_destinations = {destination for destination, _template in sync_pairs}
+
+    assert sync_destinations == {
+        "AGENTS.md",
+        "README.BMAD-GUIDE.md",
+        "README.RALPH.md",
+        ".agent/rules/general-rules.md",
+        ".agent/workflows/project/project-export-bmad-to-ralph.md",
+        ".opencode/command/project-export-bmad-to-ralph.md",
+        ".opencode/command/project-resume-progress-from-last-checkpoint.md",
+        ".opencode/command/project-save-progress-to-checkpoint.md",
+        ".opencode/command/project-setup-or-update-btca.md",
+        ".opencode/command/project-where-did-we-leave-off.md",
+        ".opencode/command/repo-git-commit-and-push.md",
+        ".opencode/command/repo-git-difference-between-branch-and-main.md",
+        ".opencode/command/repo-git-merge.md",
+        ".opencode/command/repo-git-new-branch.md",
+        ".opencode/command/repo-git-what-has-changed.md",
+        ".opencode/command/repo-gh-make-n-merge-PR.md",
+        "docs/workflows/export-to-ralph/workflow.md",
+        "docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
+        "docs/workflows/export-to-ralph/steps/step-02-extract.md",
+        "docs/workflows/export-to-ralph/steps/step-03-transform.md",
+        "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
+    }
+    assert "README.md" not in sync_destinations
+    assert "PLAN.md" not in sync_destinations
+    assert "PROGRESS.md" not in sync_destinations
+    assert "docs/tasks/task-template.yaml" not in sync_destinations

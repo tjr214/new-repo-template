@@ -9,11 +9,44 @@ from new_repo_template.snapshot_assets_loader import load_source_manifest
 TEMPLATES_PREFIX = "templates/"
 FOUNDATION_PREFIX = "templates/foundation/"
 
+FOUNDATION_SYNC_ALLOWED_DESTINATIONS: frozenset[str] = frozenset(
+    {
+        "AGENTS.md",
+        "README.BMAD-GUIDE.md",
+        "README.RALPH.md",
+        ".agent/rules/general-rules.md",
+        ".agent/workflows/project/project-export-bmad-to-ralph.md",
+        ".opencode/command/project-export-bmad-to-ralph.md",
+        ".opencode/command/project-resume-progress-from-last-checkpoint.md",
+        ".opencode/command/project-save-progress-to-checkpoint.md",
+        ".opencode/command/project-setup-or-update-btca.md",
+        ".opencode/command/project-where-did-we-leave-off.md",
+        ".opencode/command/repo-git-commit-and-push.md",
+        ".opencode/command/repo-git-difference-between-branch-and-main.md",
+        ".opencode/command/repo-git-merge.md",
+        ".opencode/command/repo-git-new-branch.md",
+        ".opencode/command/repo-git-what-has-changed.md",
+        ".opencode/command/repo-gh-make-n-merge-PR.md",
+        "docs/workflows/export-to-ralph/workflow.md",
+        "docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
+        "docs/workflows/export-to-ralph/steps/step-02-extract.md",
+        "docs/workflows/export-to-ralph/steps/step-03-transform.md",
+        "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
+    }
+)
+
+
+@dataclass(frozen=True)
+class SourceManifestManagement:
+    scaffold: bool = True
+    sync: bool = False
+
 
 @dataclass(frozen=True)
 class SourceManifestEntry:
     source: str
     destination: str
+    management: SourceManifestManagement
 
 
 def _normalize_relative_path(path: str) -> str:
@@ -26,6 +59,21 @@ def _normalize_relative_path(path: str) -> str:
     if any(part == ".." for part in pure_path.parts):
         raise ValueError(f"manifest path must not escape its root: {path!r}")
     return normalized
+
+
+def _parse_management(entry_obj: dict[str, object]) -> SourceManifestManagement:
+    management_obj = entry_obj.get("management")
+    if management_obj is None:
+        return SourceManifestManagement()
+    if not isinstance(management_obj, dict):
+        raise ValueError("source manifest entry management must be an object")
+
+    scaffold = management_obj.get("scaffold", True)
+    sync = management_obj.get("sync", False)
+    if not isinstance(scaffold, bool) or not isinstance(sync, bool):
+        raise ValueError("source manifest entry management flags must be booleans")
+
+    return SourceManifestManagement(scaffold=scaffold, sync=sync)
 
 
 def get_source_manifest_entries(
@@ -50,6 +98,7 @@ def get_source_manifest_entries(
             SourceManifestEntry(
                 source=_normalize_relative_path(source),
                 destination=_normalize_relative_path(destination),
+                management=_parse_management(entry_obj),
             )
         )
 
@@ -99,8 +148,35 @@ def get_foundation_template_file_pairs(
             _strip_prefix(path=entry.destination, prefix=TEMPLATES_PREFIX),
         )
         for entry in get_source_manifest_entries(source_manifest)
-        if entry.destination.startswith(FOUNDATION_PREFIX)
+        if entry.management.scaffold and entry.destination.startswith(FOUNDATION_PREFIX)
     ]
+    return tuple(sorted(pairs, key=lambda item: item[0]))
+
+
+def get_foundation_sync_template_file_pairs(
+    source_manifest: dict[str, object] | None = None,
+) -> tuple[tuple[str, str], ...]:
+    pairs = [
+        (
+            _strip_prefix(path=entry.destination, prefix=FOUNDATION_PREFIX),
+            _strip_prefix(path=entry.destination, prefix=TEMPLATES_PREFIX),
+        )
+        for entry in get_source_manifest_entries(source_manifest)
+        if entry.management.sync and entry.destination.startswith(FOUNDATION_PREFIX)
+    ]
+
+    invalid_destinations = sorted(
+        destination
+        for destination, _template_relative in pairs
+        if destination not in FOUNDATION_SYNC_ALLOWED_DESTINATIONS
+    )
+    if invalid_destinations:
+        invalid_joined = ", ".join(invalid_destinations)
+        raise ValueError(
+            "source manifest declares unsupported foundation sync destinations: "
+            f"{invalid_joined}"
+        )
+
     return tuple(sorted(pairs, key=lambda item: item[0]))
 
 
@@ -146,6 +222,7 @@ def build_runtime_snapshot_manifest(
     templates = sorted(
         _strip_prefix(path=entry.destination, prefix=TEMPLATES_PREFIX)
         for entry in get_source_manifest_entries(source_manifest)
+        if entry.management.scaffold
     )
     return {
         "version": 1,

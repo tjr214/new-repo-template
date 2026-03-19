@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, feature `4.0` is now complete, and feature `5.0` planning is now locked for the native template-assets sync path.
+The template implementation remains intact, feature `5.0` is now complete, and the next active delivery cycle is feature `6.0` investigation for the Python build backend.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-19_12-45-13_PM.md`.
 - Root `PLAN.md` now carries the comprehensive feature `5.0` implementation plan, while root `PROGRESS.md` remains the active cumulative tracker.
@@ -25,12 +25,14 @@ The template implementation remains intact, feature `4.0` is now complete, and f
 - The foundation scaffold baseline now includes `.nurt/repo.json`, giving future generated repos an explicit repo-identity marker for `nurt add` with no heuristic fallback.
 - The first post-ship `nurt add` lockfile bug is also fixed: add-mode Bun relock now uses `bun install --save-text-lockfile --lockfile-only`, so existing `bun.lock` files refresh correctly when the workspace graph changes.
 - The add-wizard UX is now tighter too: when a requested project name already exists in the current repo, the Textual `nurt add` wizard surfaces that collision inline on the naming step and prevents advance until the user chooses a non-conflicting name.
-- The next active delivery cycle is feature `5.0`: replace the remaining placeholder `nurt sync template-assets` flow with a manifest-driven native implementation and retire the legacy updater script after manual review.
-- Feature `5.0` planning now locks template-asset sync to an explicit narrow file set: `AGENTS.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`, selected `.opencode/command/*`, selected `.agent/rules/*`, selected `.agent/workflows/*`, and selected `docs/workflows/*` files only.
-- That same planning pass also locks the preservation rule for existing nurt-enabled repos: only exact managed file paths may be replaced or created, while any custom sibling files in `.opencode/`, `.agent/`, or `docs/workflows/` must remain untouched and sync never performs directory-wide deletion/pruning.
-- The source-of-truth model for feature `5.0` is now settled too: `src/new_repo_template/snapshot_assets/source_manifest.json` will stay the single manifest, and each entry will gain `management` metadata so scaffold and sync eligibility derive from one central allowlist.
-- Template-asset sync will use the bundled assets shipped with the currently installed `nurt` version instead of cloning the template repository live, which keeps synced assets aligned with the installed CLI/runtime behavior and avoids binary-versus-asset skew.
-- Real `nurt sync template-assets` runs will continue to require a clean git working tree so template maintenance diffs stay isolated from feature work, while `--dry-run` remains the safe planning path.
+- Feature `5.0` is now complete: `nurt sync template-assets` is fully native and manifest-driven, with no remaining runtime dependency on cloning the template repository.
+- Template-asset sync now derives its exact managed-file allowlist from `src/new_repo_template/snapshot_assets/source_manifest.json` via per-entry `management` metadata, while scaffold/runtime-manifest behavior continues to share that same manifest as the single source of truth.
+- The sync surface remains intentionally narrow: only explicit managed file paths are refreshed (`AGENTS.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`, selected `.opencode/command/*`, selected `.agent/*`, and selected `docs/workflows/*` files), with no directory mirroring, delete/prune pass, or custom-sibling rewrites.
+- Real `nurt sync template-assets` runs now validate `.nurt/repo.json` at the repo root, require a clean git working tree, and then refresh only the manifest-derived managed files from bundled snapshot assets shipped with the installed `nurt` version.
+- `nurt sync template-assets --dry-run` now reports the real manifest-derived sync plan and bundled-asset source model directly, rather than referencing the old clone-based shell updater flow.
+- The obsolete legacy updater `.template_scripts/update-template-from-git.sh` has now been manually reviewed and removed because the native feature `5.0` path fully supersedes it.
+- The stray planning typo that mentioned a non-existent `project-get-back-to-work.md` sync target has been corrected in practice: it is not part of the packaged assets and is not part of the real manifest-derived sync allowlist.
+- With feature `5.0` closed, the next active delivery cycle is feature `6.0`: investigate whether the Python build backend should remain on `hatchling` or migrate to `uv build`.
 - The future self-update command name is now intentionally `nurt upgrade`; the currently scaffolded `nurt update` behavior is not the locked feature `7.0` contract.
 
 ## Active Implementation Rules

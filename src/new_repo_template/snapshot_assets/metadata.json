@@ -1,5 +1,5 @@
 {
-  "file_count": 43,
+  "file_count": 44,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -22,16 +22,20 @@
       "sha256": "be26ba6ca430f57d0aaaa825635e0efbf9acccb0d7344ad2d33c992f7d620c03"
     },
     {
+      "destination": "templates/foundation/.opencode/command/project-archive-plan.md",
+      "sha256": "4b41208bb4293f8df20d8923e0decf923dd5d3254363383ce46b973d4716033c"
+    },
+    {
       "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
       "sha256": "e2a95303c1cfd527012c1025bb9a84e2df85b597d86514df4cf694e76d02fa29"
     },
     {
-      "destination": "templates/foundation/.opencode/command/project-get-back-to-work.md",
-      "sha256": "1ba759b89e3077d5443bfd594a6c1fe755318c0de3e1ad9dd23c02a725686407"
-    },
-    {
       "destination": "templates/foundation/.opencode/command/project-resume-progress-from-last-checkpoint.md",
       "sha256": "0467026975ecea44ef73abdb7175c65a631448c92b9aedca3ed1f70ad3936b00"
+    },
+    {
+      "destination": "templates/foundation/.opencode/command/project-save-discussion-as-plan.md",
+      "sha256": "88c192aa63a07cfb6f72a61da266418d14fbb133c17ada018151337e385157de"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-save-progress-to-checkpoint.md",
@@ -43,7 +47,7 @@
     },
     {
       "destination": "templates/foundation/.opencode/command/project-where-did-we-leave-off.md",
-      "sha256": "4e04a82b8e78614f8491ec8433be2b859ed0bbff7b44fc69b7ae221e13ae210b"
+      "sha256": "d6c72bf186c75cf1eb7eb6940ec6baaf88a885fe5a7b3b1b731997bfb3bbc665"
     },
     {
       "destination": "templates/foundation/.opencode/command/repo-gh-make-n-merge-PR.md",
@@ -174,7 +178,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-18T22:59:37.704256+00:00",
+  "generated_at": "2026-03-19T20:05:02.726128+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "d99747a625e6fe3ac6e494b1a3063656670b8fd2"
+  "source_commit": "47abfd6d11cee641a70c7545e1a587ba0d66319c"
 }

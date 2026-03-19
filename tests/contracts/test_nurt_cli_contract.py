@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from new_repo_template import nurt_cli
+from new_repo_template.repo_identity import render_repo_marker
 from new_repo_template.snapshot_assets_loader import load_source_manifest
 
 
@@ -676,8 +677,13 @@ def test_nurt_template_assets_sync_dry_run_reports_action(tmp_path: Path) -> Non
     combined_output = _combined_output(result)
     assert "DRY RUN" in combined_output
     assert "sync template-assets" in combined_output
+    assert "manifest-derived sync plan" in combined_output
+    assert "bundled snapshot assets" in combined_output
+    assert "AGENTS.md" in combined_output
+    assert "README.BMAD-GUIDE.md" in combined_output
+    assert "docs/workflows/export-to-ralph/workflow.md" in combined_output
     assert "update-template-from-git.sh" not in combined_output
-    assert "template source repo" in combined_output
+    assert "template source repo" not in combined_output
 
 
 def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
@@ -750,17 +756,18 @@ def test_nurt_template_assets_sync_fails_outside_project_root(tmp_path: Path) ->
         f"stderr:\n{result.stderr}"
     )
     combined_output = _combined_output(result)
-    assert "sync template-assets must run from project root" in combined_output
+    assert "nurt sync template-assets must run from the root" in combined_output
+    assert ".nurt/repo.json" in combined_output
 
 
 def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> None:
     """Non-dry sync template-assets should fail when working tree is dirty."""
 
-    (tmp_path / ".opencode").mkdir()
-    (tmp_path / ".template_scripts").mkdir()
-    (tmp_path / ".opencode" / "placeholder.md").write_text(
-        "# placeholder\n", encoding="utf-8"
+    (tmp_path / ".nurt").mkdir()
+    (tmp_path / ".nurt" / "repo.json").write_text(
+        render_repo_marker(), encoding="utf-8"
     )
+    (tmp_path / "README.BMAD-GUIDE.md").write_text("stale\n", encoding="utf-8")
 
     init_result = subprocess.run(
         ["git", "init"],
@@ -774,6 +781,43 @@ def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> 
         f"stdout:\n{init_result.stdout}\n"
         f"stderr:\n{init_result.stderr}"
     )
+
+    add_result = subprocess.run(
+        ["git", "add", "."],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert add_result.returncode == 0, (
+        "Expected git add to succeed in test fixture.\n"
+        f"stdout:\n{add_result.stdout}\n"
+        f"stderr:\n{add_result.stderr}"
+    )
+
+    commit_result = subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=Test User",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-m",
+            "Initial commit",
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert commit_result.returncode == 0, (
+        "Expected git commit to succeed in test fixture.\n"
+        f"stdout:\n{commit_result.stdout}\n"
+        f"stderr:\n{commit_result.stderr}"
+    )
+
+    (tmp_path / "README.BMAD-GUIDE.md").write_text("dirty change\n", encoding="utf-8")
 
     result = run_nurt_command(cwd=tmp_path, args=["sync", "template-assets"])
 
