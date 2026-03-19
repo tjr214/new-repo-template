@@ -36,7 +36,7 @@
   - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss
     - [ ] Keep this separate from feature `5.0`; `nurt sync template-assets` should assume the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
   - [ ] Once aligned, implement our new `nurt upgrade` process.
-- [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS (Not currently blocked, but should be saved for last right before section 9.0)
+- [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS (Not currently blocked, but should be saved for last right before section 10.0)
   - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
   - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
   - [ ] We need to first discuss how this will all work.
