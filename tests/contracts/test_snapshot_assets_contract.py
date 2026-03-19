@@ -182,33 +182,24 @@ def test_source_manifest_supports_management_metadata_without_breaking_runtime_m
 def test_source_manifest_derives_exact_foundation_sync_allowlist() -> None:
     """RED: foundation sync targets should come from manifest metadata only."""
 
-    sync_pairs = get_foundation_sync_template_file_pairs(load_source_manifest())
+    source_manifest = load_source_manifest()
+    entries = get_source_manifest_entries(source_manifest)
+    sync_pairs = get_foundation_sync_template_file_pairs(source_manifest)
     sync_destinations = {destination for destination, _template in sync_pairs}
-
-    assert sync_destinations == {
-        "AGENTS.md",
-        "README.BMAD-GUIDE.md",
-        "README.RALPH.md",
-        ".agent/rules/general-rules.md",
-        ".agent/workflows/project/project-export-bmad-to-ralph.md",
-        ".opencode/command/project-export-bmad-to-ralph.md",
-        ".opencode/command/project-resume-progress-from-last-checkpoint.md",
-        ".opencode/command/project-save-progress-to-checkpoint.md",
-        ".opencode/command/project-setup-or-update-btca.md",
-        ".opencode/command/project-where-did-we-leave-off.md",
-        ".opencode/command/repo-git-commit-and-push.md",
-        ".opencode/command/repo-git-difference-between-branch-and-main.md",
-        ".opencode/command/repo-git-merge.md",
-        ".opencode/command/repo-git-new-branch.md",
-        ".opencode/command/repo-git-what-has-changed.md",
-        ".opencode/command/repo-gh-make-n-merge-PR.md",
-        "docs/workflows/export-to-ralph/workflow.md",
-        "docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
-        "docs/workflows/export-to-ralph/steps/step-02-extract.md",
-        "docs/workflows/export-to-ralph/steps/step-03-transform.md",
-        "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
+    expected_sync_destinations = {
+        entry.destination.removeprefix("templates/foundation/")
+        for entry in entries
+        if entry.management.sync
+        and entry.destination.startswith("templates/foundation/")
     }
+
+    assert sync_destinations == expected_sync_destinations
+    assert ".opencode/command/project-archive-plan.md" in sync_destinations
+    assert ".opencode/command/project-save-discussion-as-plan.md" in sync_destinations
+    assert ".opencode/command/project-read-todo-features.md" in sync_destinations
+    assert "docs/markdown-templates/PLAN.template.md" in sync_destinations
+    assert "docs/markdown-templates/PROGRESS.template.md" in sync_destinations
+    assert "docs/tasks/task-template.yaml" in sync_destinations
     assert "README.md" not in sync_destinations
     assert "PLAN.md" not in sync_destinations
     assert "PROGRESS.md" not in sync_destinations
-    assert "docs/tasks/task-template.yaml" not in sync_destinations

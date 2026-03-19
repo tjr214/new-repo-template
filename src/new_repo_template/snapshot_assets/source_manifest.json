@@ -153,7 +153,7 @@
 			"destination": "templates/foundation/docs/markdown-templates/PLAN.template.md",
 			"management": {
 				"scaffold": true,
-				"sync": false
+				"sync": true
 			}
 		},
 		{
@@ -161,7 +161,7 @@
 			"destination": "templates/foundation/docs/markdown-templates/PROGRESS.template.md",
 			"management": {
 				"scaffold": true,
-				"sync": false
+				"sync": true
 			}
 		},
 		{
@@ -169,7 +169,7 @@
 			"destination": "templates/foundation/docs/tasks/task-template-schema.json",
 			"management": {
 				"scaffold": true,
-				"sync": false
+				"sync": true
 			}
 		},
 		{
@@ -177,7 +177,7 @@
 			"destination": "templates/foundation/docs/tasks/task-template.yaml",
 			"management": {
 				"scaffold": true,
-				"sync": false
+				"sync": true
 			}
 		},
 		{
@@ -185,7 +185,7 @@
 			"destination": "templates/foundation/docs/tasks/task-template-example.yaml",
 			"management": {
 				"scaffold": true,
-				"sync": false
+				"sync": true
 			}
 		},
 		{
@@ -353,7 +353,7 @@
 			"destination": "templates/foundation/.opencode/command/project-archive-plan.md",
 			"management": {
 				"scaffold": true,
-				"sync": false
+				"sync": true
 			}
 		},
 		{
@@ -361,7 +361,7 @@
 			"destination": "templates/foundation/.opencode/command/project-save-discussion-as-plan.md",
 			"management": {
 				"scaffold": true,
-				"sync": false
+				"sync": true
 			}
 		},
 		{
@@ -369,7 +369,7 @@
 			"destination": "templates/foundation/.opencode/command/project-read-todo-features.md",
 			"management": {
 				"scaffold": true,
-				"sync": false
+				"sync": true
 			}
 		}
 	]

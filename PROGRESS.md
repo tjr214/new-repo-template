@@ -1,6 +1,6 @@
 # Development Progress
 
-**Last Updated:** 2026-03-19 06:51:00 PM
+**Last Updated:** 2026-03-19 07:01:28 PM
 **Current Phase:** Feature `6.0` is complete and validated; next up is the YELLOW discussion/planning pass for feature `7.0` (`nurt upgrade`)
 
 ## Previous Cycle Archives
@@ -170,7 +170,8 @@
 - [x] Synced the feature `6.0` discussion outcome into `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, a new session summary, and a comprehensive restart-safe root `PLAN.md`.
 - [x] Completed the RED phase for feature `6.0` by expanding `tests/contracts/test_python_lane_contract.py`, `tests/contracts/test_python_lib_scaffold_contract.py`, and `tests/contracts/test_version_baseline_contract.py` to lock `uv_build` metadata, coordinator-only root workspace expectations, real `uv build` success paths, and the live repo root-package build contract.
 - [x] Migrated the live repo root package plus the generated `python` / `python-lib` templates from Hatchling to `uv_build`, added explicit root `tool.uv.build-backend` settings (`module-name`, `module-root`, `source-include`), updated the generated root Python workspace template to set `[tool.uv] package = false`, and refreshed the generated/live Python guidance in `AGENTS.md` plus the foundation agent-rule templates.
-- [x] Refreshed bundled snapshot metadata with `nurt template-assets validate` and corrected `src/new_repo_template/snapshot_assets/source_manifest.json` so scaffold-only foundation assets stay out of the approved template-sync allowlist while the packaged runtime manifest/metadata remain in sync.
+- [x] Refreshed bundled snapshot metadata with `nurt template-assets validate`, then restored the user-managed `sync` flags in `src/new_repo_template/snapshot_assets/source_manifest.json` and removed the over-strict hardcoded foundation sync allowlist from `src/new_repo_template/foundation_manifest.py` so the JSON manifest remains the sole source of truth for template-sync scope.
+- [x] Revalidated the manifest-driven sync correction with `uv run pytest tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_template_asset_sync_contract.py tests/contracts/test_nurt_cli_contract.py` (35 passed).
 - [x] Revalidated feature `6.0` end to end with targeted Python contracts (15 passed), explicit root and generated-package `uv build` checks, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (215 passed).
 
 ## Next Up

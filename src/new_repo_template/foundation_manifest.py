@@ -9,32 +9,6 @@ from new_repo_template.snapshot_assets_loader import load_source_manifest
 TEMPLATES_PREFIX = "templates/"
 FOUNDATION_PREFIX = "templates/foundation/"
 
-FOUNDATION_SYNC_ALLOWED_DESTINATIONS: frozenset[str] = frozenset(
-    {
-        "AGENTS.md",
-        "README.BMAD-GUIDE.md",
-        "README.RALPH.md",
-        ".agent/rules/general-rules.md",
-        ".agent/workflows/project/project-export-bmad-to-ralph.md",
-        ".opencode/command/project-export-bmad-to-ralph.md",
-        ".opencode/command/project-resume-progress-from-last-checkpoint.md",
-        ".opencode/command/project-save-progress-to-checkpoint.md",
-        ".opencode/command/project-setup-or-update-btca.md",
-        ".opencode/command/project-where-did-we-leave-off.md",
-        ".opencode/command/repo-git-commit-and-push.md",
-        ".opencode/command/repo-git-difference-between-branch-and-main.md",
-        ".opencode/command/repo-git-merge.md",
-        ".opencode/command/repo-git-new-branch.md",
-        ".opencode/command/repo-git-what-has-changed.md",
-        ".opencode/command/repo-gh-make-n-merge-PR.md",
-        "docs/workflows/export-to-ralph/workflow.md",
-        "docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
-        "docs/workflows/export-to-ralph/steps/step-02-extract.md",
-        "docs/workflows/export-to-ralph/steps/step-03-transform.md",
-        "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
-    }
-)
-
 
 @dataclass(frozen=True)
 class SourceManifestManagement:
@@ -164,18 +138,6 @@ def get_foundation_sync_template_file_pairs(
         for entry in get_source_manifest_entries(source_manifest)
         if entry.management.sync and entry.destination.startswith(FOUNDATION_PREFIX)
     ]
-
-    invalid_destinations = sorted(
-        destination
-        for destination, _template_relative in pairs
-        if destination not in FOUNDATION_SYNC_ALLOWED_DESTINATIONS
-    )
-    if invalid_destinations:
-        invalid_joined = ", ".join(invalid_destinations)
-        raise ValueError(
-            "source manifest declares unsupported foundation sync destinations: "
-            f"{invalid_joined}"
-        )
 
     return tuple(sorted(pairs, key=lambda item: item[0]))
 
