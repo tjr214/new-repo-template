@@ -1,368 +1,376 @@
 {
-  "version": 1.04,
-  "critical_maintenance_notes": [
-    "**CRITICAL**: NEVER substitute templates-snapshot-files symlink sources with direct paths in this manifest.",
-    "Keep templates-snapshot-files references intact for snapshot-managed alias entries.",
-    "If you are an AI agent, this Maintenance Note is NON-NEGOTIABLE!!!"
-  ],
-  "empty_directories": [
-    "templates/foundation/docs/archive",
-    "templates/foundation/docs/archive/plans",
-    "templates/foundation/docs/archive/progress",
-    "templates/foundation/docs/session-summaries"
-  ],
-  "entries": [
-    {
-      "source": "templates-snapshot-files/snapshot-gitignore.txt",
-      "destination": "templates/root_gitignore.txt",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "templates-snapshot-files/snapshot-python-version.txt",
-      "destination": "templates/python_lane_python_version.txt",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "AGENTS.md",
-      "destination": "templates/foundation/AGENTS.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": "docs/markdown-templates/PLAN.template.md",
-      "destination": "templates/foundation/PLAN.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "templates-snapshot-files/snapshot-readme-md.txt",
-      "destination": "templates/foundation/README.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "README.BMAD-GUIDE.md",
-      "destination": "templates/foundation/README.BMAD-GUIDE.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": "README.RALPH.md",
-      "destination": "templates/foundation/README.RALPH.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": "docs/markdown-templates/PROGRESS.template.md",
-      "destination": "templates/foundation/PROGRESS.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "templates-snapshot-files/snapshot-nurt-repo-json.txt",
-      "destination": "templates/foundation/.nurt/repo.json",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "btca.config.jsonc",
-      "destination": "templates/foundation/btca.config.jsonc",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "scripts/RALPH.sh",
-      "destination": "templates/foundation/scripts/RALPH.sh",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "scripts/configure-repo-protections.sh",
-      "destination": "templates/foundation/scripts/configure-repo-protections.sh",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "scripts/synthetic-quotas.sh",
-      "destination": "templates/foundation/scripts/synthetic-quotas.sh",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "scripts/task-template-schema.json",
-      "destination": "templates/foundation/scripts/task-template-schema.json",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "scripts/validate_template.py",
-      "destination": "templates/foundation/scripts/validate_template.py",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "scripts/visualize_plan.py",
-      "destination": "templates/foundation/scripts/visualize_plan.py",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "templates-snapshot-files/snapshot-architecture-md.txt",
-      "destination": "templates/foundation/docs/ARCHITECTURE.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "templates-snapshot-files/snapshot-living-docs-md.txt",
-      "destination": "templates/foundation/docs/LIVING_DOCS.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "docs/markdown-templates/PLAN.template.md",
-      "destination": "templates/foundation/docs/markdown-templates/PLAN.template.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "docs/markdown-templates/PROGRESS.template.md",
-      "destination": "templates/foundation/docs/markdown-templates/PROGRESS.template.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "docs/tasks/task-template.yaml",
-      "destination": "templates/foundation/docs/tasks/task-template.yaml",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "docs/tasks/task-template-example.yaml",
-      "destination": "templates/foundation/docs/tasks/task-template-example.yaml",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": "docs/workflows/export-to-ralph/workflow.md",
-      "destination": "templates/foundation/docs/workflows/export-to-ralph/workflow.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": "docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
-      "destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": "docs/workflows/export-to-ralph/steps/step-02-extract.md",
-      "destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-02-extract.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": "docs/workflows/export-to-ralph/steps/step-03-transform.md",
-      "destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-03-transform.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
-      "destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".github/workflows/ci.yml",
-      "destination": "templates/foundation/.github/workflows/ci.yml",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": ".github/workflows/release.yml",
-      "destination": "templates/foundation/.github/workflows/release.yml",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": ".agent/rules/general-rules.md",
-      "destination": "templates/foundation/.agent/rules/general-rules.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".agent/workflows/project/project-export-bmad-to-ralph.md",
-      "destination": "templates/foundation/.agent/workflows/project/project-export-bmad-to-ralph.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/project-export-bmad-to-ralph.md",
-      "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/project-resume-progress-from-last-checkpoint.md",
-      "destination": "templates/foundation/.opencode/command/project-resume-progress-from-last-checkpoint.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/project-save-progress-to-checkpoint.md",
-      "destination": "templates/foundation/.opencode/command/project-save-progress-to-checkpoint.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/project-setup-or-update-btca.md",
-      "destination": "templates/foundation/.opencode/command/project-setup-or-update-btca.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/project-where-did-we-leave-off.md",
-      "destination": "templates/foundation/.opencode/command/project-where-did-we-leave-off.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/repo-git-commit-and-push.md",
-      "destination": "templates/foundation/.opencode/command/repo-git-commit-and-push.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/repo-git-difference-between-branch-and-main.md",
-      "destination": "templates/foundation/.opencode/command/repo-git-difference-between-branch-and-main.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/repo-git-merge.md",
-      "destination": "templates/foundation/.opencode/command/repo-git-merge.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/repo-git-new-branch.md",
-      "destination": "templates/foundation/.opencode/command/repo-git-new-branch.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/repo-git-what-has-changed.md",
-      "destination": "templates/foundation/.opencode/command/repo-git-what-has-changed.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/repo-gh-make-n-merge-PR.md",
-      "destination": "templates/foundation/.opencode/command/repo-gh-make-n-merge-PR.md",
-      "management": {
-        "scaffold": true,
-        "sync": true
-      }
-    },
-    {
-      "source": ".opencode/command/project-archive-plan.md",
-      "destination": "templates/foundation/.opencode/command/project-archive-plan.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    },
-    {
-      "source": ".opencode/command/project-save-discussion-as-plan.md",
-      "destination": "templates/foundation/.opencode/command/project-save-discussion-as-plan.md",
-      "management": {
-        "scaffold": true,
-        "sync": false
-      }
-    }
-  ]
+	"version": 1.04,
+	"critical_maintenance_notes": [
+		"**CRITICAL**: NEVER substitute templates-snapshot-files symlink sources with direct paths in this manifest.",
+		"Keep templates-snapshot-files references intact for snapshot-managed alias entries.",
+		"If you are an AI agent, this Maintenance Note is NON-NEGOTIABLE!!!"
+	],
+	"empty_directories": [
+		"templates/foundation/docs/archive",
+		"templates/foundation/docs/archive/plans",
+		"templates/foundation/docs/archive/progress",
+		"templates/foundation/docs/session-summaries"
+	],
+	"entries": [
+		{
+			"source": "templates-snapshot-files/snapshot-gitignore.txt",
+			"destination": "templates/root_gitignore.txt",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "templates-snapshot-files/snapshot-python-version.txt",
+			"destination": "templates/python_lane_python_version.txt",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "AGENTS.md",
+			"destination": "templates/foundation/AGENTS.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/markdown-templates/PLAN.template.md",
+			"destination": "templates/foundation/PLAN.md",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "templates-snapshot-files/snapshot-readme-md.txt",
+			"destination": "templates/foundation/README.md",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "README.BMAD-GUIDE.md",
+			"destination": "templates/foundation/README.BMAD-GUIDE.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "README.RALPH.md",
+			"destination": "templates/foundation/README.RALPH.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/markdown-templates/PROGRESS.template.md",
+			"destination": "templates/foundation/PROGRESS.md",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "templates-snapshot-files/snapshot-nurt-repo-json.txt",
+			"destination": "templates/foundation/.nurt/repo.json",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "btca.config.jsonc",
+			"destination": "templates/foundation/btca.config.jsonc",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "scripts/RALPH.sh",
+			"destination": "templates/foundation/scripts/RALPH.sh",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "scripts/configure-repo-protections.sh",
+			"destination": "templates/foundation/scripts/configure-repo-protections.sh",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "scripts/synthetic-quotas.sh",
+			"destination": "templates/foundation/scripts/synthetic-quotas.sh",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "scripts/task-template-schema.json",
+			"destination": "templates/foundation/scripts/task-template-schema.json",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "scripts/validate_template.py",
+			"destination": "templates/foundation/scripts/validate_template.py",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "scripts/visualize_plan.py",
+			"destination": "templates/foundation/scripts/visualize_plan.py",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "templates-snapshot-files/snapshot-architecture-md.txt",
+			"destination": "templates/foundation/docs/ARCHITECTURE.md",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "templates-snapshot-files/snapshot-living-docs-md.txt",
+			"destination": "templates/foundation/docs/LIVING_DOCS.md",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": "docs/markdown-templates/PLAN.template.md",
+			"destination": "templates/foundation/docs/markdown-templates/PLAN.template.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/markdown-templates/PROGRESS.template.md",
+			"destination": "templates/foundation/docs/markdown-templates/PROGRESS.template.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/tasks/task-template.yaml",
+			"destination": "templates/foundation/docs/tasks/task-template.yaml",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/tasks/task-template-example.yaml",
+			"destination": "templates/foundation/docs/tasks/task-template-example.yaml",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/workflows/export-to-ralph/workflow.md",
+			"destination": "templates/foundation/docs/workflows/export-to-ralph/workflow.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
+			"destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/workflows/export-to-ralph/steps/step-02-extract.md",
+			"destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-02-extract.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/workflows/export-to-ralph/steps/step-03-transform.md",
+			"destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-03-transform.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/workflows/export-to-ralph/steps/step-04-write-file.md",
+			"destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".github/workflows/ci.yml",
+			"destination": "templates/foundation/.github/workflows/ci.yml",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": ".github/workflows/release.yml",
+			"destination": "templates/foundation/.github/workflows/release.yml",
+			"management": {
+				"scaffold": true,
+				"sync": false
+			}
+		},
+		{
+			"source": ".agent/rules/general-rules.md",
+			"destination": "templates/foundation/.agent/rules/general-rules.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".agent/workflows/project/project-export-bmad-to-ralph.md",
+			"destination": "templates/foundation/.agent/workflows/project/project-export-bmad-to-ralph.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/project-export-bmad-to-ralph.md",
+			"destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/project-resume-progress-from-last-checkpoint.md",
+			"destination": "templates/foundation/.opencode/command/project-resume-progress-from-last-checkpoint.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/project-save-progress-to-checkpoint.md",
+			"destination": "templates/foundation/.opencode/command/project-save-progress-to-checkpoint.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/project-setup-or-update-btca.md",
+			"destination": "templates/foundation/.opencode/command/project-setup-or-update-btca.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/project-where-did-we-leave-off.md",
+			"destination": "templates/foundation/.opencode/command/project-where-did-we-leave-off.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/repo-git-commit-and-push.md",
+			"destination": "templates/foundation/.opencode/command/repo-git-commit-and-push.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/repo-git-difference-between-branch-and-main.md",
+			"destination": "templates/foundation/.opencode/command/repo-git-difference-between-branch-and-main.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/repo-git-merge.md",
+			"destination": "templates/foundation/.opencode/command/repo-git-merge.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/repo-git-new-branch.md",
+			"destination": "templates/foundation/.opencode/command/repo-git-new-branch.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/repo-git-what-has-changed.md",
+			"destination": "templates/foundation/.opencode/command/repo-git-what-has-changed.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/repo-gh-make-n-merge-PR.md",
+			"destination": "templates/foundation/.opencode/command/repo-gh-make-n-merge-PR.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/project-archive-plan.md",
+			"destination": "templates/foundation/.opencode/command/project-archive-plan.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/project-save-discussion-as-plan.md",
+			"destination": "templates/foundation/.opencode/command/project-save-discussion-as-plan.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": ".opencode/command/project-read-todo-features.md",
+			"destination": "templates/foundation/.opencode/command/project-read-todo-features.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		}
+	]
 }
