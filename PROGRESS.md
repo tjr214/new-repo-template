@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-18 07:54:25 PM
-**Current Phase:** Feature `4.0` complete; next up is planning feature `5.0` (`nurt sync template-assets`)
+**Last Updated:** 2026-03-19 02:57:08 PM
+**Current Phase:** Feature `5.0` planning complete; next up is implementing feature `5.0` (`nurt sync template-assets`)
 
 ## Previous Cycle Archives
 
@@ -148,7 +148,12 @@
 - [x] Added regression coverage for add-mode refreshing an existing `bun.lock`, reran `uv run pytest tests/contracts/test_generation_lockfiles_contract.py` (6 passed), reran `uv run ruff check src/new_repo_template tests/contracts`, and revalidated the repository with `uv run pytest` (209 passed).
 - [x] Fixed the add-wizard project-name collision UX gap: the Textual `nurt add` flow now detects existing project-name collisions inline on the project-name step, blocks advancement while the collision remains, and lets the user correct the name without restarting the command.
 - [x] Added add-wizard regression coverage for inline name-collision handling, reran `uv run pytest tests/contracts/test_interactive_tui_contract.py tests/contracts/test_nurt_add_contract.py` (31 passed), reran `uv run ruff check src/new_repo_template tests/contracts`, and revalidated the repository with `uv run pytest` (211 passed).
+- [x] Ran the feature `5.0` planning YELLOW pass by rereading `TODO-FEATURES.md`, `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `src/new_repo_template/sync_ops.py`, `src/new_repo_template/foundation_manifest.py`, `src/new_repo_template/snapshot_assets/source_manifest.json`, and the current sync-related contracts.
+- [x] Revalidated BTCA context for the slice by running `btca status` and using `btca ask -r uv` to confirm that `uv tool upgrade` is the standard refresh path for a Git-installed tool, which keeps feature `5.0` and the future self-update feature logically separated.
+- [x] Locked the feature `5.0` sync design with the user: real `nurt sync template-assets` runs will require a clean git working tree, `--dry-run` remains non-destructive, and sync will update only explicit managed files while leaving all custom sibling files and unrelated repo content untouched.
+- [x] Chose a single-manifest model for the upcoming implementation slice: `src/new_repo_template/snapshot_assets/source_manifest.json` will gain per-entry `management` metadata so scaffold and sync behavior derive from the same source of truth instead of from a second sync-specific manifest.
+- [x] Locked the feature boundary between `5.0` and `7.0`: template-asset sync will use the bundled assets shipped with the currently installed `nurt` version, while the future self-update command remains a separate `nurt upgrade` feature rather than a live-clone sync path.
 
 ## Next Up
 
-- [ ] Plan feature `5.0` for fully native `nurt sync template-assets` behavior and legacy updater retirement.
+- [ ] Implement feature `5.0` for fully native manifest-driven `nurt sync template-assets` behavior and legacy updater retirement after manual review.

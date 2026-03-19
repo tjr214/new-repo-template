@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, feature `4.0` is now complete, and the next planning cycle is feature `5.0` for the native template-assets sync path.
+The template implementation remains intact, feature `4.0` is now complete, and feature `5.0` planning is now locked for the native template-assets sync path.
 
-- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-15_12-30-32_PM.md`.
-- Root `PLAN.md` now records the completed feature `4.0` `nurt add` cycle, while root `PROGRESS.md` remains the active cumulative tracker.
+- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-19_12-45-13_PM.md`.
+- Root `PLAN.md` now carries the comprehensive feature `5.0` implementation plan, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -25,7 +25,13 @@ The template implementation remains intact, feature `4.0` is now complete, and t
 - The foundation scaffold baseline now includes `.nurt/repo.json`, giving future generated repos an explicit repo-identity marker for `nurt add` with no heuristic fallback.
 - The first post-ship `nurt add` lockfile bug is also fixed: add-mode Bun relock now uses `bun install --save-text-lockfile --lockfile-only`, so existing `bun.lock` files refresh correctly when the workspace graph changes.
 - The add-wizard UX is now tighter too: when a requested project name already exists in the current repo, the Textual `nurt add` wizard surfaces that collision inline on the naming step and prevents advance until the user chooses a non-conflicting name.
-- The next active delivery cycle is feature `5.0`: finish the native `nurt sync template-assets` implementation and retire the remaining legacy updater path after manual review.
+- The next active delivery cycle is feature `5.0`: replace the remaining placeholder `nurt sync template-assets` flow with a manifest-driven native implementation and retire the legacy updater script after manual review.
+- Feature `5.0` planning now locks template-asset sync to an explicit narrow file set: `AGENTS.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`, selected `.opencode/command/*`, selected `.agent/rules/*`, selected `.agent/workflows/*`, and selected `docs/workflows/*` files only.
+- That same planning pass also locks the preservation rule for existing nurt-enabled repos: only exact managed file paths may be replaced or created, while any custom sibling files in `.opencode/`, `.agent/`, or `docs/workflows/` must remain untouched and sync never performs directory-wide deletion/pruning.
+- The source-of-truth model for feature `5.0` is now settled too: `src/new_repo_template/snapshot_assets/source_manifest.json` will stay the single manifest, and each entry will gain `management` metadata so scaffold and sync eligibility derive from one central allowlist.
+- Template-asset sync will use the bundled assets shipped with the currently installed `nurt` version instead of cloning the template repository live, which keeps synced assets aligned with the installed CLI/runtime behavior and avoids binary-versus-asset skew.
+- Real `nurt sync template-assets` runs will continue to require a clean git working tree so template maintenance diffs stay isolated from feature work, while `--dry-run` remains the safe planning path.
+- The future self-update command name is now intentionally `nurt upgrade`; the currently scaffolded `nurt update` behavior is not the locked feature `7.0` contract.
 
 ## Active Implementation Rules
 
@@ -57,6 +63,10 @@ The template implementation remains intact, feature `4.0` is now complete, and t
 - TypeScript library lane: dedicated reusable package target at `packages/typescript`
 - Global execution UX pivot: primary user flow is globally installed `nurt` (`uv tool install git+...` then `nurt new <project-name>`) with no `install.sh` fallback user path
 - Add-mode repo identity: explicit `.nurt/repo.json` marker at the repo root, with strict root-only validation and no heuristic fallback
+- Template-asset sync source: bundled assets from the currently installed `nurt` version, not live template-repo HEAD
+- Template-asset sync scope: exact manifest-declared file paths only; no broad directory syncs or delete/prune behavior
+- Template-asset sync manifest model: one `source_manifest.json` with per-entry `management` metadata for scaffold/sync responsibilities
+- Self-update command naming: the intended future command is `nurt upgrade`, not `nurt update`
 
 ## Known Constraints
 
@@ -103,7 +113,7 @@ The template implementation remains intact, feature `4.0` is now complete, and t
 - The template release workflow now also includes `iOS Packaging Preview`, which scaffolds a temporary mobile app, injects Expo/EAS project wiring from secrets, and submits a preview iOS EAS build on `macos-latest`.
 - Template artifact publishing is no longer docs-only: `Publish Template Release` can create or update a draft GitHub release for the template dist bundle when `publish_release=true` and `release_tag` is supplied.
 - Nightly workflow automation remains intentionally deferred; there is still no `.github/workflows/nightly.yml`.
-- New strategic direction: migrate fully to global `nurt` command model (`new`, `update`, `sync tools`, `sync bmad`, `sync template-assets`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
+- New strategic direction: migrate fully to global `nurt` command model (`new`, future `upgrade`, `sync tools`, `sync bmad`, `sync template-assets`) with startup update-check on every invocation and bundled snapshot assets as runtime default.
 - `nurt` bootstrap implementation is now in place with command routing and startup update-check hook.
 - `nurt new` now supports interactive target/auth prompt flow when flags are omitted.
 - Snapshot asset pipeline is now active: scaffold content is loaded from bundled package templates, `src/new_repo_template/snapshot_assets/templates/` is the canonical template source, `templates-content-store-symlink` is the root convenience view into that canonical store, and `nurt template-assets validate` is the maintainer validation/metadata-refresh path for the manifest-backed bundle.
