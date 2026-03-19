@@ -183,6 +183,14 @@
 		{
 			"source": ".opencode/command/repo-gh-make-n-merge-PR.md",
 			"destination": "templates/foundation/.opencode/command/repo-gh-make-n-merge-PR.md"
+		},
+		{
+			"source": ".opencode/command/project-archive-plan.md",
+			"destination": "templates/foundation/.opencode/command/project-archive-plan.md"
+		},
+		{
+			"source": ".opencode/command/project-save-discussion-as-plan.md",
+			"destination": "templates/foundation/.opencode/command/project-save-discussion-as-plan.md"
 		}
 	]
 }
