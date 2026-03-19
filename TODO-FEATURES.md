@@ -25,6 +25,7 @@
   - [ ] Figure out if we NEED to migrate from `hatchling` to `uv build`
   - [ ] If we DO, then plan the migration, fully and thoroughly
   - [ ] And, then, do the migration from `hatchling` to `uv build`
+  - [ ] First, let's discuss everything through.
 - [ ] 7.0 NURT TOOL SELF-UPDATE FEATURE (Blocked by 5.0 and 6.0)
   - [ ] I am not even sure how this feature should work so we need to discuss this, at length
   - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss
@@ -33,7 +34,12 @@
 - [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS (Not currently blocked, but should be saved for last right before section 9.0)
   - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
   - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
+  - [ ] We need to first discuss how this will all work.
 - [ ] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO
-  - [ ] x
+  - [ ] The `btca.config.jsonc` file in the root of every nurt-generated monorepo should be customized to match the project types in the monorepo
+  - [ ] Example: if we have a python TUI, a typescript backend with convex and clerk, and a TV app, then the `btca.config.jsonc` file should be customized to be pre-loaded with all the libraries and documentation those projects will require.
+  - [ ] This should be set up initially by `nurt new` but we need to be able to intelligently patch the btca.config.jsonc file whenever we do `nurt add`, as well.
+  - [ ] The end user may have already added libraries and documentation to their nurt-enabled projects (and, thus, the `btca.config.jsonc` file) so we do NOT want to delete those. Just add in (or update) the ones for our new project types.
+  - [ ] I am not sure how we should go about this, so let us first discuss.
 - [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 5.0, 6.0, 7.0, 8.0, 9.0)
   - [ ] Thoroughly test all project types (manual step)
