@@ -23,5 +23,9 @@
   - [ ] Figure out if we NEED to migrate from `hatchling` to `uv build`
   - [ ] If we DO, then plan the migration, fully and thoroughly
   - [ ] And, then, do the migration from `hatchling` to `uv build`
-- [ ] 8.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 5.0, 6.0, 7.0)
+- [ ] 8.0 NURT TOOL SELF-UPDATE FEATURE
+  - [ ] I am not even sure how this feature should work so we need to discuss this, at length
+  - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss
+  - [ ] Once aligned, implement our new `nurt upgrade` process.
+- [ ] 9.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 5.0, 6.0, 7.0, 8.0)
   - [ ] Thoroughly test all project types (manual step)
