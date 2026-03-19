@@ -1,6 +1,6 @@
 # Development Progress
 
-**Last Updated:** 2026-03-18 07:34:05 PM
+**Last Updated:** 2026-03-18 07:54:25 PM
 **Current Phase:** Feature `4.0` complete; next up is planning feature `5.0` (`nurt sync template-assets`)
 
 ## Previous Cycle Archives
@@ -146,6 +146,8 @@
 - [x] Revalidated feature `4.0` with targeted add contracts, snapshot asset coverage, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (209 passed).
 - [x] Fixed the first `nurt add` lockfile regression after live usage: Bun lockfile regeneration now updates existing `bun.lock` files with `bun install --save-text-lockfile --lockfile-only` instead of incorrectly combining `--frozen-lockfile` with an add-mode workspace change.
 - [x] Added regression coverage for add-mode refreshing an existing `bun.lock`, reran `uv run pytest tests/contracts/test_generation_lockfiles_contract.py` (6 passed), reran `uv run ruff check src/new_repo_template tests/contracts`, and revalidated the repository with `uv run pytest` (209 passed).
+- [x] Fixed the add-wizard project-name collision UX gap: the Textual `nurt add` flow now detects existing project-name collisions inline on the project-name step, blocks advancement while the collision remains, and lets the user correct the name without restarting the command.
+- [x] Added add-wizard regression coverage for inline name-collision handling, reran `uv run pytest tests/contracts/test_interactive_tui_contract.py tests/contracts/test_nurt_add_contract.py` (31 passed), reran `uv run ruff check src/new_repo_template tests/contracts`, and revalidated the repository with `uv run pytest` (211 passed).
 
 ## Next Up
 

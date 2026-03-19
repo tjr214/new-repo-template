@@ -736,6 +736,10 @@ def handle_add(args: argparse.Namespace) -> int:
                 wizard_result = run_interactive_add_wizard(
                     repo_root=repo_root,
                     existing_backend_names=existing_state.backend_names,
+                    existing_project_keys=tuple(
+                        (project.kind, project.name)
+                        for project in existing_state.projects
+                    ),
                 )
                 if wizard_result is None:
                     print(INTERACTIVE_WIZARD_CANCELLED, file=sys.stderr)

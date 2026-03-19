@@ -5,7 +5,7 @@ from pathlib import Path
 
 from rich.console import Console
 from textual.containers import Vertical
-from textual.widgets import Input, RadioSet, SelectionList, Static
+from textual.widgets import Button, Input, RadioSet, SelectionList, Static
 
 from new_repo_template.interactive_tui import (
     AddProjectWizardApp,
@@ -716,6 +716,54 @@ def test_textual_add_wizard_escape_exits_from_first_step(tmp_path: Path) -> None
         async with app.run_test(size=(120, 36)) as pilot:
             await pilot.press("escape")
             await pilot.pause()
+
+        assert app.final_result is None
+
+    asyncio.run(scenario())
+
+
+def test_textual_add_wizard_blocks_existing_project_name_collision(
+    tmp_path: Path,
+) -> None:
+    async def scenario() -> None:
+        app = AddProjectWizardApp(
+            repo_root=tmp_path,
+            existing_project_keys=(("python", "python-app"),),
+        )
+
+        async with app.run_test(size=(120, 36)) as pilot:
+            await pilot.pause()
+
+            await pilot.press("space")
+            await pilot.pause()
+            assert app.selected_targets == ("python",)
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
+            assert app.state.current_project_names == ("python-app",)
+            assert app.state.current_project_error == (
+                "Already exists in this repo: python:python-app"
+            )
+
+            next_button = app.query_one("#next_button", Button)
+            assert next_button.disabled is True
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "projects"
+
+            project_names_input = app.query_one("#project_names_input", Input)
+            project_names_input.value = "api"
+            await pilot.pause()
+
+            assert app.state.current_project_names == ("api",)
+            assert app.state.current_project_error is None
+            assert next_button.disabled is False
+
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.current_step == "review"
 
         assert app.final_result is None
 

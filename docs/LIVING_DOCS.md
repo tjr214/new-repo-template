@@ -24,6 +24,7 @@ The template implementation remains intact, feature `4.0` is now complete, and t
 - Feature `4.0` is now complete: `nurt add` supports in-place project addition for existing nurt-generated monorepos, validates repo identity through an explicit root marker, and uses additive-only retrofits plus lockfile regeneration instead of the `nurt new` post-create lifecycle.
 - The foundation scaffold baseline now includes `.nurt/repo.json`, giving future generated repos an explicit repo-identity marker for `nurt add` with no heuristic fallback.
 - The first post-ship `nurt add` lockfile bug is also fixed: add-mode Bun relock now uses `bun install --save-text-lockfile --lockfile-only`, so existing `bun.lock` files refresh correctly when the workspace graph changes.
+- The add-wizard UX is now tighter too: when a requested project name already exists in the current repo, the Textual `nurt add` wizard surfaces that collision inline on the naming step and prevents advance until the user chooses a non-conflicting name.
 - The next active delivery cycle is feature `5.0`: finish the native `nurt sync template-assets` implementation and retire the remaining legacy updater path after manual review.
 
 ## Active Implementation Rules
@@ -220,3 +221,4 @@ The template implementation remains intact, feature `4.0` is now complete, and t
 - Feature `4.0` is now complete: `src/new_repo_template/nurt_cli.py` exposes `nurt add`, `src/new_repo_template/add_mode.py` inventories existing generated repos and applies rollback-safe additive mutations, and `src/new_repo_template/interactive_tui.py` now includes a dedicated add wizard for rich interactive sessions.
 - Add-mode retrofit coverage now includes first-Python-lane root uv workspace upgrades, single-existing-app `python-lib` patching, explicit multi-backend web binding, shared-package bootstrap, and desktop retrofit when web is introduced after desktop.
 - Lockfile regeneration now distinguishes update vs verification semantics more cleanly for Bun workspaces: add/new/update flows that must rewrite `bun.lock` use a mutable lockfile-only install, while frozen-lockfile semantics remain appropriate for verification paths.
+- Add-wizard validation now checks the live repo inventory while the user is entering project names, so existing-name collisions are treated as step-local validation failures rather than post-wizard CLI errors.

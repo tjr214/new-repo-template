@@ -1469,6 +1469,7 @@ def _unique_preserve_order(values: Iterable[str]) -> tuple[str, ...]:
 class AddWizardState:
     repo_root: Path
     existing_backend_names: tuple[str, ...]
+    existing_project_keys: tuple[tuple[str, str], ...]
     current_step: str
     selected_targets: tuple[str, ...]
     project_entries: tuple[tuple[str, str], ...]
@@ -1485,6 +1486,7 @@ class AddWizardState:
         *,
         repo_root: Path,
         existing_backend_names: tuple[str, ...],
+        existing_project_keys: tuple[tuple[str, str], ...],
         initial_targets: tuple[str, ...] | None = None,
     ) -> AddWizardState:
         selected_targets = _normalize_add_targets(initial_targets)
@@ -1492,6 +1494,7 @@ class AddWizardState:
         return cls(
             repo_root=repo_root,
             existing_backend_names=existing_backend_names,
+            existing_project_keys=existing_project_keys,
             current_step=ADD_STEP_TARGETS,
             selected_targets=selected_targets,
             project_entries=_normalize_add_project_entries(selected_targets),
@@ -1528,6 +1531,21 @@ class AddWizardState:
     @property
     def current_project_names(self) -> tuple[str, ...] | None:
         return _parse_project_names(self.current_project_input)
+
+    @property
+    def current_project_error(self) -> str | None:
+        target = self.current_project_target
+        names = self.current_project_names
+        if target is None or names is None:
+            return None
+
+        existing_keys = set(self.existing_project_keys)
+        collisions = [name for name in names if (target, name) in existing_keys]
+        if not collisions:
+            return None
+
+        collision_list = ", ".join(f"{target}:{name}" for name in collisions)
+        return f"Already exists in this repo: {collision_list}"
 
     @property
     def resolved_projects(self) -> tuple[str, ...]:
@@ -1673,7 +1691,10 @@ class AddWizardState:
         if self.current_step == ADD_STEP_TARGETS and not self.selected_targets:
             return self
         if self.current_step == ADD_STEP_PROJECTS:
-            if self.current_project_names is None:
+            if (
+                self.current_project_names is None
+                or self.current_project_error is not None
+            ):
                 return self
             if self.project_target_index < len(self.named_targets) - 1:
                 return replace(
@@ -1799,12 +1820,14 @@ class AddProjectWizardApp(App[AddWizardResult | None]):
         *,
         repo_root: Path,
         existing_backend_names: tuple[str, ...] = (),
+        existing_project_keys: tuple[tuple[str, str], ...] = (),
         initial_targets: tuple[str, ...] | None = None,
     ) -> None:
         super().__init__()
         self.state = AddWizardState.create(
             repo_root=repo_root,
             existing_backend_names=existing_backend_names,
+            existing_project_keys=existing_project_keys,
             initial_targets=initial_targets,
         )
         self.final_result: AddWizardResult | None = None
@@ -1922,6 +1945,8 @@ class AddProjectWizardApp(App[AddWizardResult | None]):
         self.query_one("#project_names_note", Static).update(
             "Enter valid kebab-case names separated by commas."
             if self.state.current_project_names is None
+            else self.state.current_project_error
+            if self.state.current_project_error is not None
             else f"Current projects: {', '.join(self.state.current_project_names)}"
         )
         self.query_one("#auth_intro", Static).update(
@@ -1996,6 +2021,8 @@ class AddProjectWizardApp(App[AddWizardResult | None]):
         if self.state.current_step == ADD_STEP_TARGETS:
             return "Use arrows and Space to choose project types to add."
         if self.state.current_step == ADD_STEP_PROJECTS:
+            if self.state.current_project_error is not None:
+                return self.state.current_project_error
             return "Enter names for the selected project type, then press Enter to continue."
         if self.state.current_step == ADD_STEP_AUTH:
             return "Choose auth for each new backend."
@@ -2014,7 +2041,10 @@ class AddProjectWizardApp(App[AddWizardResult | None]):
         if self.state.current_step == ADD_STEP_TARGETS:
             next_button.disabled = not self.state.selected_targets
         elif self.state.current_step == ADD_STEP_PROJECTS:
-            next_button.disabled = self.state.current_project_names is None
+            next_button.disabled = (
+                self.state.current_project_names is None
+                or self.state.current_project_error is not None
+            )
         elif self.state.current_step == ADD_STEP_AUTH:
             next_button.disabled = self.state.current_backend_auth is None
         elif self.state.current_step == ADD_STEP_BINDING:
@@ -2127,10 +2157,12 @@ def run_interactive_add_wizard(
     *,
     repo_root: Path,
     existing_backend_names: tuple[str, ...],
+    existing_project_keys: tuple[tuple[str, str], ...],
     initial_targets: tuple[str, ...] | None = None,
 ) -> AddWizardResult | None:
     return AddProjectWizardApp(
         repo_root=repo_root,
         existing_backend_names=existing_backend_names,
+        existing_project_keys=existing_project_keys,
         initial_targets=initial_targets,
     ).run()
