@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-19 06:17:34 PM
-**Current Phase:** Feature `6.0` planning is locked; next up is RED/GREEN execution for the `uv_build` migration
+**Last Updated:** 2026-03-19 06:51:00 PM
+**Current Phase:** Feature `6.0` is complete and validated; next up is the YELLOW discussion/planning pass for feature `7.0` (`nurt upgrade`)
 
 ## Previous Cycle Archives
 
@@ -168,8 +168,11 @@
 - [x] Locked the feature `6.0` migration direction with the user: migrate the root `nurt` package and generated `python` / `python-lib` templates from Hatchling to `uv_build`, keep generated root Python workspace files coordinator-only with no build backend plus explicit `[tool.uv] package = false`, and standardize runtime Python package data on `src/<module>/...` plus package-resource loading.
 - [x] Confirmed no backward-compatibility shim is required for feature `6.0` because there are not yet any pre-existing nurt-generated repositories in the field.
 - [x] Synced the feature `6.0` discussion outcome into `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, a new session summary, and a comprehensive restart-safe root `PLAN.md`.
+- [x] Completed the RED phase for feature `6.0` by expanding `tests/contracts/test_python_lane_contract.py`, `tests/contracts/test_python_lib_scaffold_contract.py`, and `tests/contracts/test_version_baseline_contract.py` to lock `uv_build` metadata, coordinator-only root workspace expectations, real `uv build` success paths, and the live repo root-package build contract.
+- [x] Migrated the live repo root package plus the generated `python` / `python-lib` templates from Hatchling to `uv_build`, added explicit root `tool.uv.build-backend` settings (`module-name`, `module-root`, `source-include`), updated the generated root Python workspace template to set `[tool.uv] package = false`, and refreshed the generated/live Python guidance in `AGENTS.md` plus the foundation agent-rule templates.
+- [x] Refreshed bundled snapshot metadata with `nurt template-assets validate` and corrected `src/new_repo_template/snapshot_assets/source_manifest.json` so scaffold-only foundation assets stay out of the approved template-sync allowlist while the packaged runtime manifest/metadata remain in sync.
+- [x] Revalidated feature `6.0` end to end with targeted Python contracts (15 passed), explicit root and generated-package `uv build` checks, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (215 passed).
 
 ## Next Up
 
-- [ ] Execute the RED phase for feature `6.0` by updating/adding contract coverage for `uv_build`-backed Python packages, coordinator-only root workspace metadata, and `uv build` success paths.
-- [ ] Implement the GREEN migration for the root package and generated Python templates, regenerate bundled snapshot metadata, and then run the BLUE validation/documentation pass.
+- [ ] Run the YELLOW discussion/planning pass for feature `7.0` (`nurt upgrade`), including the dependency/update UX questions that are still intentionally unresolved.

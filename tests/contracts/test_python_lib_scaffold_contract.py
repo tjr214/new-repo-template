@@ -39,6 +39,13 @@ def run_uv_command(
     )
 
 
+def assert_built_artifacts_exist(dist_dir: Path) -> None:
+    wheels = tuple(dist_dir.glob("*.whl"))
+    sdists = tuple(dist_dir.glob("*.tar.gz"))
+    assert wheels, f"Expected at least one wheel artifact in {dist_dir}"
+    assert sdists, f"Expected at least one source distribution artifact in {dist_dir}"
+
+
 def test_python_lib_target_scaffolds_workspace_library(tmp_path: Path) -> None:
     """python-lib target should scaffold a reusable Python workspace package."""
 
@@ -77,6 +84,9 @@ def test_python_lib_target_scaffolds_workspace_library(tmp_path: Path) -> None:
         assert path.exists(), f"Expected scaffolded Python library file: {path}"
 
     root_pyproject = (output_dir / "pyproject.toml").read_text(encoding="utf-8")
+    assert "[tool.uv]" in root_pyproject
+    assert "package = false" in root_pyproject
+    assert "[build-system]" not in root_pyproject
     assert "[tool.uv.workspace]" in root_pyproject
     assert 'name = "python-lib-workspace"' in root_pyproject
     assert "packages/python/*" in root_pyproject
@@ -86,9 +96,11 @@ def test_python_lib_target_scaffolds_workspace_library(tmp_path: Path) -> None:
     library_python_version = (library_root / ".python-version").read_text(
         encoding="utf-8"
     )
+    assert "[build-system]" in library_pyproject
+    assert 'requires = ["uv_build>=0.10.12,<0.11.0"]' in library_pyproject
+    assert 'build-backend = "uv_build"' in library_pyproject
     assert 'name = "python-lib"' in library_pyproject
     assert 'requires-python = ">=3.14"' in library_pyproject
-    assert 'packages = ["src/python_lib"]' in library_pyproject
     assert library_python_version == (repo_root / ".python-version").read_text(
         encoding="utf-8"
     )
@@ -127,6 +139,8 @@ def test_python_app_and_library_scaffold_wire_uv_workspace_dependency(
 
     root_pyproject = (output_dir / "pyproject.toml").read_text(encoding="utf-8")
     assert 'name = "python-workspace-workspace"' in root_pyproject
+    assert "package = false" in root_pyproject
+    assert "[build-system]" not in root_pyproject
     assert "apps/python/*" in root_pyproject
     assert "packages/python/*" in root_pyproject
 
@@ -241,3 +255,17 @@ def test_python_app_and_library_workspace_run_together(tmp_path: Path) -> None:
             f"stdout:\n{command_result.stdout}\n"
             f"stderr:\n{command_result.stderr}"
         )
+
+    for package_name in ("python-app", "python-lib"):
+        dist_dir = output_dir / "dist" / package_name
+        build_result = run_uv_command(
+            uv_binary=uv_binary,
+            cwd=output_dir,
+            args=["build", "--package", package_name, "--out-dir", str(dist_dir)],
+        )
+        assert build_result.returncode == 0, (
+            f"Expected `uv build --package {package_name}` to succeed for the generated python workspace.\n"
+            f"stdout:\n{build_result.stdout}\n"
+            f"stderr:\n{build_result.stderr}"
+        )
+        assert_built_artifacts_exist(dist_dir)

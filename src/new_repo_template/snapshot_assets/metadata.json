@@ -3,7 +3,7 @@
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
-      "sha256": "75c3addd20255c8e0e6f9f073dacb5557eac59fbd6910cfa8ece2231d497ee10"
+      "sha256": "27dc0648e1f61fa1fdaf19b02a8831376dee045128962a25d5c8664dd54c6c1b"
     },
     {
       "destination": "templates/foundation/.agent/workflows/project/project-export-bmad-to-ralph.md",
@@ -79,7 +79,7 @@
     },
     {
       "destination": "templates/foundation/AGENTS.md",
-      "sha256": "6c635c02a83cc518ff212c00c27da1aaf55301da42946f2980a6aa0efd1c5126"
+      "sha256": "fb1762272057e1447f22c337b3dd0fd1d9d2747a324cc06d631a8ae35e15f108"
     },
     {
       "destination": "templates/foundation/PLAN.md",
@@ -182,7 +182,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-19T20:29:41.521546+00:00",
+  "generated_at": "2026-03-19T22:48:45.211175+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "a4af2092f2c295e3fa5aa6385a87e84f12bc07ae"
+  "source_commit": "0b75ba3e42fd699571fd3d2aeb55bf2eb89cdacc"
 }

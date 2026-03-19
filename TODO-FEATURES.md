@@ -21,7 +21,7 @@
     - [x] Require a clean git working tree for real sync execution so template-maintenance diffs stay isolated
   - [x] Correctly implement new `nurt sync template-assets` functionality
     - [x] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
-- [ ] 6.0 INVESTIGATE AND UPDATE PYTHON BUILD SYSTEM FROM `HATCHLING` to `UV BUILD`
+- [x] 6.0 INVESTIGATE AND UPDATE PYTHON BUILD SYSTEM FROM `HATCHLING` to `UV BUILD`
   - [x] Figure out if we NEED to migrate from `hatchling` to `uv build`
     - [x] Decision: yes; packaged Python projects should migrate to `uv_build` while standardizing on `uv build` as the frontend command
   - [x] If we DO, then plan the migration, fully and thoroughly
@@ -29,9 +29,9 @@
     - [x] Keep generated root Python workspace files coordinator-only: no `[build-system]`, explicit `[tool.uv] package = false`
     - [x] Treat `uv_build` as a bounded-range exception to the repo's usual lower-bound-only Python dependency rule
     - [x] Keep runtime Python package data inside `src/<module>/...` and load it as package resources
-  - [ ] And, then, do the migration from `hatchling` to `uv build`
+  - [x] And, then, do the migration from `hatchling` to `uv build`
   - [x] First, let's discuss everything through.
-- [ ] 7.0 NURT TOOL SELF-UPDATE FEATURE (Blocked by 5.0 and 6.0)
+- [ ] 7.0 NURT TOOL SELF-UPDATE FEATURE
   - [ ] I am not even sure how this feature should work so we need to discuss this, at length
   - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss
     - [ ] Keep this separate from feature `5.0`; `nurt sync template-assets` should assume the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
@@ -46,5 +46,5 @@
   - [ ] This should be set up initially by `nurt new` but we need to be able to intelligently patch the btca.config.jsonc file whenever we do `nurt add`, as well.
   - [ ] The end user may have already added libraries and documentation to their nurt-enabled projects (and, thus, the `btca.config.jsonc` file) so we do NOT want to delete those. Just add in (or update) the ones for our new project types.
   - [ ] I am not sure how we should go about this, so let us first discuss.
-- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 5.0, 6.0, 7.0, 8.0, 9.0)
+- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 7.0, 8.0, 9.0)
   - [ ] Thoroughly test all project types (manual step)

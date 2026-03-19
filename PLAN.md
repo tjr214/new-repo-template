@@ -1,8 +1,8 @@
 # Feature 6 Implementation Plan
 
-**Last Updated:** 2026-03-19 06:17:34 PM
-**Status:** Ready for RED/GREEN execution
-**Previous Completed Implementation Summary:** `docs/session-summaries/SESSION_113_SUMMARY.md`
+**Last Updated:** 2026-03-19 06:51:00 PM
+**Status:** Completed and fully validated
+**Latest Completed Implementation Summary:** `docs/session-summaries/SESSION_115_SUMMARY.md`
 **Current Planning Summary:** `docs/session-summaries/SESSION_114_SUMMARY.md`
 **Latest Plan Archive:** `docs/archive/plans/PLAN_2026-03-19_04-33-30_PM.md`
 
@@ -16,11 +16,12 @@ Implement feature `6.0` by migrating Python packaging from Hatchling to `uv_buil
 
 ## Current State Snapshot
 
-- The live repo root package still uses Hatchling in `pyproject.toml`.
-- The generated Python app template still uses Hatchling in `src/new_repo_template/snapshot_assets/templates/python_lane_pyproject.toml`.
-- The generated Python library template still uses Hatchling in `src/new_repo_template/snapshot_assets/templates/python_lib/python_lib_pyproject.toml`.
-- Generated root Python workspace files are already separate from package-member `pyproject.toml` files and currently act as workspace coordinators.
-- The active contract suite currently validates `uv sync` / `uv run` behavior for generated Python outputs, but does not yet lock `uv build` behavior for generated Python packages.
+- The live repo root package now uses `uv_build` in `pyproject.toml` with explicit `tool.uv.build-backend` settings for the `new_repo_template` module layout.
+- The generated Python app template now uses `uv_build` in `src/new_repo_template/snapshot_assets/templates/python_lane_pyproject.toml`.
+- The generated Python library template now uses `uv_build` in `src/new_repo_template/snapshot_assets/templates/python_lib/python_lib_pyproject.toml`.
+- Generated root Python workspace files remain separate from package-member `pyproject.toml` files and now explicitly act as coordinator-only roots via `[tool.uv] package = false` and no `[build-system]`.
+- The active contract suite now validates both generated-package `uv build` behavior and the live repo root-package `uv build` path alongside the existing generated `uv sync` / `uv run` behavior.
+- Bundled snapshot metadata and the template-sync manifest state are refreshed and back in sync after the migration closeout.
 - There are no pre-existing nurt-generated repos in the field, so this feature does not need compatibility shims, dual-backend support, or migration helpers for older generated outputs.
 
 ---

@@ -54,6 +54,13 @@ def run_workspace_command(
     )
 
 
+def assert_built_artifacts_exist(dist_dir: Path) -> None:
+    wheels = tuple(dist_dir.glob("*.whl"))
+    sdists = tuple(dist_dir.glob("*.tar.gz"))
+    assert wheels, f"Expected at least one wheel artifact in {dist_dir}"
+    assert sdists, f"Expected at least one source distribution artifact in {dist_dir}"
+
+
 def test_python_target_dry_run_reports_lane_python_files_only(tmp_path: Path) -> None:
     """RED: Python target dry-run should report Python metadata only inside the lane."""
 
@@ -133,10 +140,16 @@ def test_python_target_scaffold_creates_lane_python_files_only(tmp_path: Path) -
     assert lane_python_version_content == (repo_root / ".python-version").read_text(
         encoding="utf-8"
     )
+    assert "[tool.uv]" in root_pyproject_content
+    assert "package = false" in root_pyproject_content
+    assert "[build-system]" not in root_pyproject_content
     assert "[tool.uv.workspace]" in root_pyproject_content
     assert 'name = "python-output-workspace"' in root_pyproject_content
     assert "apps/python/*" in root_pyproject_content
     assert "packages/python" not in root_pyproject_content
+    assert "[build-system]" in lane_content
+    assert 'requires = ["uv_build>=0.10.12,<0.11.0"]' in lane_content
+    assert 'build-backend = "uv_build"' in lane_content
     assert "[project]" in lane_content
     assert 'requires-python = ">=3.14"' in lane_content
     assert "rich>=14.3.3" in lane_content
@@ -222,6 +235,19 @@ def test_python_target_scaffold_runs_baseline_commands(tmp_path: Path) -> None:
             f"stderr:\n{command_result.stderr}"
         )
 
+    build_dist_dir = output_dir / "dist" / "python-app"
+    build_result = run_workspace_command(
+        workspace_root=output_dir,
+        uv_binary=uv_binary,
+        args=["build", "--package", "python-app", "--out-dir", str(build_dist_dir)],
+    )
+    assert build_result.returncode == 0, (
+        "Expected `uv build --package python-app` to succeed for generated python lane.\n"
+        f"stdout:\n{build_result.stdout}\n"
+        f"stderr:\n{build_result.stderr}"
+    )
+    assert_built_artifacts_exist(build_dist_dir)
+
 
 def test_python_target_scaffold_supports_legacy_extra_dev_sync_compatibility(
     tmp_path: Path,
@@ -271,3 +297,34 @@ def test_python_target_scaffold_supports_legacy_extra_dev_sync_compatibility(
         f"stdout:\n{pytest_result.stdout}\n"
         f"stderr:\n{pytest_result.stderr}"
     )
+
+
+def test_live_repo_root_package_uses_uv_build_and_builds(tmp_path: Path) -> None:
+    """The live repo root package should use uv_build and build successfully."""
+
+    uv_binary = shutil.which("uv")
+    if uv_binary is None:
+        pytest.skip("uv executable is required for root package build contract")
+
+    repo_root = Path(__file__).resolve().parents[2]
+    pyproject_content = (repo_root / "pyproject.toml").read_text(encoding="utf-8")
+
+    assert 'requires = ["uv_build>=0.10.12,<0.11.0"]' in pyproject_content
+    assert 'build-backend = "uv_build"' in pyproject_content
+    assert "[tool.uv.build-backend]" in pyproject_content
+    assert 'module-name = "new_repo_template"' in pyproject_content
+    assert 'module-root = "src"' in pyproject_content
+    assert 'source-include = ["tests/**"]' in pyproject_content
+
+    dist_dir = tmp_path / "dist"
+    build_result = run_workspace_command(
+        workspace_root=repo_root,
+        uv_binary=uv_binary,
+        args=["build", "--out-dir", str(dist_dir)],
+    )
+    assert build_result.returncode == 0, (
+        "Expected `uv build` to succeed for the live repo root package.\n"
+        f"stdout:\n{build_result.stdout}\n"
+        f"stderr:\n{build_result.stderr}"
+    )
+    assert_built_artifacts_exist(dist_dir)

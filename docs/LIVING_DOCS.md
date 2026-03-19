@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, feature `5.0` is now complete, and feature `6.0` has completed its discussion/YELLOW planning pass with the Python build migration direction locked.
+The template implementation remains intact, features `5.0` and `6.0` are now complete, and the next open planning front is feature `7.0` (`nurt upgrade`).
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-19_04-33-30_PM.md`.
 - Root `PLAN.md` now carries the comprehensive feature `6.0` implementation plan, while root `PROGRESS.md` remains the active cumulative tracker.
@@ -32,11 +32,13 @@ The template implementation remains intact, feature `5.0` is now complete, and f
 - `nurt sync template-assets --dry-run` now reports the real manifest-derived sync plan and bundled-asset source model directly, rather than referencing the old clone-based shell updater flow.
 - The obsolete legacy updater `.template_scripts/update-template-from-git.sh` has now been manually reviewed and removed because the native feature `5.0` path fully supersedes it.
 - The stray planning typo that mentioned a non-existent `project-get-back-to-work.md` sync target has been corrected in practice: it is not part of the packaged assets and is not part of the real manifest-derived sync allowlist.
-- With feature `5.0` closed, the feature `6.0` discussion and YELLOW planning pass are now complete: the repo root package and generated `python` / `python-lib` packages are planned to migrate from Hatchling to `uv_build`, while generated root Python workspace files remain coordinator-only.
-- Generated root Python workspace `pyproject.toml` files are planned to stay free of `[build-system]` and to set `[tool.uv] package = false` explicitly so the root acts only as the uv workspace coordinator.
+- Feature `6.0` is now complete: the repo root package and generated `python` / `python-lib` packages now use `uv_build`, while generated root Python workspace files remain coordinator-only.
+- Generated root Python workspace `pyproject.toml` files now stay free of `[build-system]` and explicitly set `[tool.uv] package = false` so the root acts only as the uv workspace coordinator.
 - There are not yet any pre-existing nurt-generated repositories in the field, so feature `6.0` does not need a backward-compatibility layer or dual-backend transition period.
-- Feature `6.0` also locks one deliberate packaging-versioning exception: `uv_build` will follow uv's recommended bounded compatible range in `[build-system].requires`, even though ordinary Python dependency additions in this repo continue to use lower-bound `>=` pins.
-- Runtime JSON/YAML/data files remain valid for generated Python projects under the locked plan, but they should live inside `src/<module>/...` and be loaded as package resources rather than from ad hoc working-directory paths.
+- Feature `6.0` also establishes one deliberate packaging-versioning exception: `uv_build` follows uv's recommended bounded compatible range in `[build-system].requires`, even though ordinary Python dependency additions in this repo continue to use lower-bound `>=` pins.
+- The live root package now carries explicit `tool.uv.build-backend` settings (`module-name = "new_repo_template"`, `module-root = "src"`, `source-include = ["tests/**"]`) so `uv_build` packages the repo correctly despite the distribution/module-name mismatch.
+- Runtime JSON/YAML/data files remain valid for generated Python projects, but they should live inside `src/<module>/...` and be loaded as package resources rather than from ad hoc working-directory paths.
+- Feature `6.0` closeout also re-affirmed the narrow template-sync surface: the source manifest now keeps plan-template, task-template, and plan-helper OpenCode assets scaffold-only so `nurt sync template-assets` continues to refresh only the approved exact-path managed files.
 - The future self-update command name is now intentionally `nurt upgrade`; the currently scaffolded `nurt update` behavior is not the locked feature `7.0` contract.
 
 ## Active Implementation Rules
@@ -63,7 +65,7 @@ The template implementation remains intact, feature `5.0` is now complete, and f
 - Generator writes: failure-atomic (transactional write strategy or cleanup-on-failure)
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
 - Python workspace model: Python-enabled repos generate a root `pyproject.toml` uv workspace and root `uv.lock`, while `apps/python/.python-version` remains app-local and `packages/python` joins the same workspace when `python-lib` is selected
-- Python build backend direction: the repo root package and generated `python` / `python-lib` members are planned to standardize on `uv_build`, with `uv build` as the build frontend command
+- Python build backend direction: the repo root package and generated `python` / `python-lib` members standardize on `uv_build`, with `uv build` as the build frontend command
 - Python workspace coordinator rule: generated root Python workspace files remain non-package coordinators, omit `[build-system]`, and set `[tool.uv] package = false`
 - Python packaged-data rule: runtime JSON/YAML/data files for generated Python projects live inside `src/<module>/...` and should be loaded as package resources
 - Python backend versioning exception: `uv_build` uses a bounded compatible range in `[build-system].requires`
