@@ -1,5 +1,5 @@
 {
-  "file_count": 44,
+  "file_count": 45,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -28,6 +28,10 @@
     {
       "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
       "sha256": "e2a95303c1cfd527012c1025bb9a84e2df85b597d86514df4cf694e76d02fa29"
+    },
+    {
+      "destination": "templates/foundation/.opencode/command/project-read-todo-features.md",
+      "sha256": "767b66bf9e3a1fecfa1e3eaad53ddaaa542fca1c8897c454b8d98092b0f42432"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-resume-progress-from-last-checkpoint.md",
@@ -122,6 +126,10 @@
       "sha256": "68fabeb0d0b01812f48d9e8d2ccce229835c473b51da7ca801a8d3484dc3ac03"
     },
     {
+      "destination": "templates/foundation/docs/tasks/task-template-schema.json",
+      "sha256": "4009f44ca89b5299ea168bba8c18e6af0f3f6cbe6d9281e370872fa6c4ea0320"
+    },
+    {
       "destination": "templates/foundation/docs/tasks/task-template.yaml",
       "sha256": "112029fd9440b8a92c0b02b354e4e6f37171e50c8b7b7016f264931aecbf954f"
     },
@@ -158,10 +166,6 @@
       "sha256": "f538db2f18af1b04709fbe18369b8b3923eb75085eb2f4aaa34575f02b21ff92"
     },
     {
-      "destination": "templates/foundation/scripts/task-template-schema.json",
-      "sha256": "4009f44ca89b5299ea168bba8c18e6af0f3f6cbe6d9281e370872fa6c4ea0320"
-    },
-    {
       "destination": "templates/foundation/scripts/validate_template.py",
       "sha256": "75696fc984c3baaaee5fc2903eeca7cbfd7f86cb86b122103ed3795ae5866115"
     },
@@ -178,7 +182,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-19T20:05:02.726128+00:00",
+  "generated_at": "2026-03-19T20:29:41.521546+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "47abfd6d11cee641a70c7545e1a587ba0d66319c"
+  "source_commit": "a4af2092f2c295e3fa5aa6385a87e84f12bc07ae"
 }
