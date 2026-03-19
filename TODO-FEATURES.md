@@ -16,16 +16,16 @@
   - [ ] Discuss with user how to make this work and what files need to be included
   - [ ] Correctly implement new `nurt sync template-assets` functionality
     - [ ] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
-- [ ] 6.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
-  - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
-  - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
-- [ ] 7.0 INVESTIGATE AND UPDATE PYTHON BUILD SYSTEM FROM `HATCHLING` to `UV BUILD`
+- [ ] 6.0 INVESTIGATE AND UPDATE PYTHON BUILD SYSTEM FROM `HATCHLING` to `UV BUILD`
   - [ ] Figure out if we NEED to migrate from `hatchling` to `uv build`
   - [ ] If we DO, then plan the migration, fully and thoroughly
   - [ ] And, then, do the migration from `hatchling` to `uv build`
-- [ ] 8.0 NURT TOOL SELF-UPDATE FEATURE
+- [ ] 7.0 NURT TOOL SELF-UPDATE FEATURE (Blocked by 5.0 and 6.0)
   - [ ] I am not even sure how this feature should work so we need to discuss this, at length
   - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss
   - [ ] Once aligned, implement our new `nurt upgrade` process.
+- [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS (Not currently blocked, but should be saved for last right before section 9.0)
+  - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
+  - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
 - [ ] 9.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 5.0, 6.0, 7.0, 8.0)
   - [ ] Thoroughly test all project types (manual step)
