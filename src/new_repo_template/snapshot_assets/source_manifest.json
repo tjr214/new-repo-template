@@ -117,14 +117,6 @@
 			}
 		},
 		{
-			"source": "scripts/task-template-schema.json",
-			"destination": "templates/foundation/scripts/task-template-schema.json",
-			"management": {
-				"scaffold": true,
-				"sync": true
-			}
-		},
-		{
 			"source": "scripts/validate_template.py",
 			"destination": "templates/foundation/scripts/validate_template.py",
 			"management": {
@@ -167,6 +159,14 @@
 		{
 			"source": "docs/markdown-templates/PROGRESS.template.md",
 			"destination": "templates/foundation/docs/markdown-templates/PROGRESS.template.md",
+			"management": {
+				"scaffold": true,
+				"sync": true
+			}
+		},
+		{
+			"source": "docs/tasks/task-template-schema.json",
+			"destination": "templates/foundation/docs/tasks/task-template-schema.json",
 			"management": {
 				"scaffold": true,
 				"sync": true
