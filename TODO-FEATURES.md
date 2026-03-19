@@ -33,5 +33,7 @@
 - [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS (Not currently blocked, but should be saved for last right before section 9.0)
   - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
   - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
-- [ ] 9.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 5.0, 6.0, 7.0, 8.0)
+- [ ] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO
+  - [ ] x
+- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 5.0, 6.0, 7.0, 8.0, 9.0)
   - [ ] Thoroughly test all project types (manual step)
