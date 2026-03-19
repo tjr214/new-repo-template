@@ -11,7 +11,7 @@
 		},
 		"turbo": {
 			"source": "npm:turbo",
-			"version": "2.8.19"
+			"version": "2.8.20"
 		},
 		"typescript": {
 			"source": "npm:typescript",
