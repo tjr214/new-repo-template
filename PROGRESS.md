@@ -1,10 +1,12 @@
 # Development Progress
 
-**Last Updated:** 2026-03-19 04:10:11 PM
-**Current Phase:** Feature `5.0` complete; next up is feature `6.0` investigation (`hatchling` vs `uv build`)
+**Last Updated:** 2026-03-19 06:17:34 PM
+**Current Phase:** Feature `6.0` planning is locked; next up is RED/GREEN execution for the `uv_build` migration
 
 ## Previous Cycle Archives
 
+- `docs/archive/plans/PLAN_2026-03-19_04-33-30_PM.md`
+- `docs/archive/plans/PLAN_2026-03-19_12-45-13_PM.md`
 - `docs/archive/plans/PLAN_2026-03-12_06-50-03_PM.md`
 - `docs/archive/plans/PLAN_2026-03-12_05-15-50_PM.md`
 - `docs/archive/plans/PLAN_2026-03-12_02-32-23_PM.md`
@@ -161,7 +163,13 @@
 - [x] Manually reviewed and then removed the obsolete legacy updater `.template_scripts/update-template-from-git.sh`, updating `tests/contracts/test_installer_scripts_dry_run_contract.py` to enforce its absence.
 - [x] Corrected the stray feature `5.0` plan typo that referenced a non-existent `project-get-back-to-work.md` sync target; the real manifest-derived allowlist now excludes that file entirely.
 - [x] Revalidated feature `5.0` with `uv run pytest tests/contracts/test_nurt_cli_contract.py`, `uv run pytest tests/contracts/test_snapshot_assets_contract.py`, `uv run pytest tests/contracts/test_template_asset_sync_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py`, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (214 passed).
+- [x] Ran the full feature `6.0` YELLOW planning/discussion pass: reread `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, the latest session summary, the live/root Python packaging files, the generated Python template `pyproject.toml` files, the add-mode/root-workspace rendering paths, and the relevant Python/version-baseline contracts before changing any files.
+- [x] Revalidated dependency/tool context for feature `6.0` with `btca status` and `btca ask -r uv`, confirming that `uv build` is a frontend that invokes the declared backend, that `uv_build` should use a bounded compatible range in `[build-system].requires`, and that coordinator-only workspace roots should omit `[build-system]` and may explicitly set `[tool.uv] package = false`.
+- [x] Locked the feature `6.0` migration direction with the user: migrate the root `nurt` package and generated `python` / `python-lib` templates from Hatchling to `uv_build`, keep generated root Python workspace files coordinator-only with no build backend plus explicit `[tool.uv] package = false`, and standardize runtime Python package data on `src/<module>/...` plus package-resource loading.
+- [x] Confirmed no backward-compatibility shim is required for feature `6.0` because there are not yet any pre-existing nurt-generated repositories in the field.
+- [x] Synced the feature `6.0` discussion outcome into `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, a new session summary, and a comprehensive restart-safe root `PLAN.md`.
 
 ## Next Up
 
-- [ ] Run the YELLOW planning/investigation pass for feature `6.0` and determine whether the Python build backend should remain `hatchling` or migrate to `uv build`.
+- [ ] Execute the RED phase for feature `6.0` by updating/adding contract coverage for `uv_build`-backed Python packages, coordinator-only root workspace metadata, and `uv build` success paths.
+- [ ] Implement the GREEN migration for the root package and generated Python templates, regenerate bundled snapshot metadata, and then run the BLUE validation/documentation pass.

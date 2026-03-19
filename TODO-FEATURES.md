@@ -22,10 +22,15 @@
   - [x] Correctly implement new `nurt sync template-assets` functionality
     - [x] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
 - [ ] 6.0 INVESTIGATE AND UPDATE PYTHON BUILD SYSTEM FROM `HATCHLING` to `UV BUILD`
-  - [ ] Figure out if we NEED to migrate from `hatchling` to `uv build`
-  - [ ] If we DO, then plan the migration, fully and thoroughly
+  - [x] Figure out if we NEED to migrate from `hatchling` to `uv build`
+    - [x] Decision: yes; packaged Python projects should migrate to `uv_build` while standardizing on `uv build` as the frontend command
+  - [x] If we DO, then plan the migration, fully and thoroughly
+    - [x] Include the repo root package and both generated Python package templates (`python` and `python-lib`) in the migration scope
+    - [x] Keep generated root Python workspace files coordinator-only: no `[build-system]`, explicit `[tool.uv] package = false`
+    - [x] Treat `uv_build` as a bounded-range exception to the repo's usual lower-bound-only Python dependency rule
+    - [x] Keep runtime Python package data inside `src/<module>/...` and load it as package resources
   - [ ] And, then, do the migration from `hatchling` to `uv build`
-  - [ ] First, let's discuss everything through.
+  - [x] First, let's discuss everything through.
 - [ ] 7.0 NURT TOOL SELF-UPDATE FEATURE (Blocked by 5.0 and 6.0)
   - [ ] I am not even sure how this feature should work so we need to discuss this, at length
   - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss

@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, feature `5.0` is now complete, and the next active delivery cycle is feature `6.0` investigation for the Python build backend.
+The template implementation remains intact, feature `5.0` is now complete, and feature `6.0` has completed its discussion/YELLOW planning pass with the Python build migration direction locked.
 
-- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-19_12-45-13_PM.md`.
-- Root `PLAN.md` now carries the comprehensive feature `5.0` implementation plan, while root `PROGRESS.md` remains the active cumulative tracker.
+- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-19_04-33-30_PM.md`.
+- Root `PLAN.md` now carries the comprehensive feature `6.0` implementation plan, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -32,7 +32,11 @@ The template implementation remains intact, feature `5.0` is now complete, and t
 - `nurt sync template-assets --dry-run` now reports the real manifest-derived sync plan and bundled-asset source model directly, rather than referencing the old clone-based shell updater flow.
 - The obsolete legacy updater `.template_scripts/update-template-from-git.sh` has now been manually reviewed and removed because the native feature `5.0` path fully supersedes it.
 - The stray planning typo that mentioned a non-existent `project-get-back-to-work.md` sync target has been corrected in practice: it is not part of the packaged assets and is not part of the real manifest-derived sync allowlist.
-- With feature `5.0` closed, the next active delivery cycle is feature `6.0`: investigate whether the Python build backend should remain on `hatchling` or migrate to `uv build`.
+- With feature `5.0` closed, the feature `6.0` discussion and YELLOW planning pass are now complete: the repo root package and generated `python` / `python-lib` packages are planned to migrate from Hatchling to `uv_build`, while generated root Python workspace files remain coordinator-only.
+- Generated root Python workspace `pyproject.toml` files are planned to stay free of `[build-system]` and to set `[tool.uv] package = false` explicitly so the root acts only as the uv workspace coordinator.
+- There are not yet any pre-existing nurt-generated repositories in the field, so feature `6.0` does not need a backward-compatibility layer or dual-backend transition period.
+- Feature `6.0` also locks one deliberate packaging-versioning exception: `uv_build` will follow uv's recommended bounded compatible range in `[build-system].requires`, even though ordinary Python dependency additions in this repo continue to use lower-bound `>=` pins.
+- Runtime JSON/YAML/data files remain valid for generated Python projects under the locked plan, but they should live inside `src/<module>/...` and be loaded as package resources rather than from ad hoc working-directory paths.
 - The future self-update command name is now intentionally `nurt upgrade`; the currently scaffolded `nurt update` behavior is not the locked feature `7.0` contract.
 
 ## Active Implementation Rules
@@ -59,6 +63,10 @@ The template implementation remains intact, feature `5.0` is now complete, and t
 - Generator writes: failure-atomic (transactional write strategy or cleanup-on-failure)
 - TV input contract: remote primary; keyboard/mouse/gamepad supported when connected
 - Python workspace model: Python-enabled repos generate a root `pyproject.toml` uv workspace and root `uv.lock`, while `apps/python/.python-version` remains app-local and `packages/python` joins the same workspace when `python-lib` is selected
+- Python build backend direction: the repo root package and generated `python` / `python-lib` members are planned to standardize on `uv_build`, with `uv build` as the build frontend command
+- Python workspace coordinator rule: generated root Python workspace files remain non-package coordinators, omit `[build-system]`, and set `[tool.uv] package = false`
+- Python packaged-data rule: runtime JSON/YAML/data files for generated Python projects live inside `src/<module>/...` and should be loaded as package resources
+- Python backend versioning exception: `uv_build` uses a bounded compatible range in `[build-system].requires`
 - Multi-project layout model: generated app/library projects now live at `apps/<type>/<name>` and `packages/<language>/<name>`, while internal support packages remain directly under `packages/`
 - TypeScript CLI lane: dedicated Bun-native app target at `apps/typescript-cli`
 - Python library lane: dedicated reusable package target at `packages/python`
@@ -226,7 +234,7 @@ The template implementation remains intact, feature `5.0` is now complete, and t
 - The repository-level contract suite is back in sync with the live repo layout: stale tests around the deleted root `install.sh`, the old `.template_scripts/configure-repo-protections.sh` location, and placeholder README git-install text were updated, and `uv run pytest` is green again at 161 passing tests.
 - The Python lane is now a real CLI/TUI starter rather than a minimal package stub: generated `apps/python` outputs include `rich` + `textual` dependencies, console scripts (`python-app`, `python-app-tui`), shared starter logic, a Textual app shell, starter tests, and expanded README guidance.
 - A dedicated `typescript-cli` target is now part of the scaffold matrix: generated `apps/typescript-cli` outputs include a Bun-native CLI package manifest with `bin` wiring, Node-shared tsconfig inheritance, starter source files, a Bun smoke test, and target-local `.env.example` generation.
-- Feature `2.0` is now complete too: generated `packages/python` outputs include a reusable Hatchling-based Python library starter, generated `packages/typescript` outputs include a reusable Bun/TypeScript library starter, and the plain/Textual target pickers expose both new lanes.
+- Feature `2.0` is now complete too: generated `packages/python` outputs include a reusable Python library starter, generated `packages/typescript` outputs include a reusable Bun/TypeScript library starter, and the plain/Textual target pickers expose both new lanes.
 - Python-enabled repos now scaffold a root uv workspace (`pyproject.toml` + `uv.lock`), and the generated Python app declares `python-lib` as a workspace dependency via `[tool.uv.sources]` when both Python targets are selected.
 - Contract coverage now includes `tests/contracts/test_python_lib_scaffold_contract.py`, `tests/contracts/test_typescript_lib_scaffold_contract.py`, and `tests/contracts/test_typescript_lib_runtime_smoke_contract.py`, while the existing Python, preset-matrix, `nurt`, lockfile, CLI-validation, and Textual-wizard contracts were expanded to cover the new library lanes and workspace model.
 - Feature `3.0` is now complete: low-level scaffold parsing now accepts repeatable `--project <type>:<name>` inputs, `nurt new` can collect multiple names per selected type in plain prompts and the Textual wizard, and compatibility `--target` flows now scaffold nested default-named instances (for example `apps/web/web` and `apps/python/python-app`).
