@@ -48,3 +48,10 @@
   - [ ] I am not sure how we should go about this, so let us first discuss.
 - [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 7.0, 8.0, 9.0)
   - [ ] Thoroughly test all project types (manual step)
+  - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
+  - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly
+  - [ ] Test to see if the desktop app package is correctly initializing Electron. Once again, test that Electron can RUN
+  - [ ] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)
+  - [ ] Test to see if the TV app package is working (and can load the app onto an nVidia Shield Pro)
+  - [ ] We also need to be able to run local dev versions of the backend and web frontend packages. Since we use Convex, we probably need to use a docker compose file to bring up local services for the local dev mode.
+  - [ ] We are going to need to thoroughly discuss ALL of these things before acting upon them.
