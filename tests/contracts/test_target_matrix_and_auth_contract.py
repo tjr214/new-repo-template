@@ -99,7 +99,7 @@ def test_backend_with_none_auth_succeeds_and_is_dry_run_only(tmp_path: Path) -> 
         f"stderr:\n{result.stderr}"
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/backend/" in combined_output
+    assert "apps/backend/backend/" in combined_output
     assert "- auth: none" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"
 
@@ -132,8 +132,8 @@ def test_web_backend_with_auth_succeeds_and_is_dry_run_only(tmp_path: Path) -> N
         f"stderr:\n{result.stderr}"
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/web/" in combined_output
-    assert "apps/backend/" in combined_output
+    assert "apps/web/web/" in combined_output
+    assert "apps/backend/backend/" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"
 
 
@@ -188,8 +188,8 @@ def test_mobile_and_tv_targets_create_distinct_apps(tmp_path: Path) -> None:
         f"stderr:\n{result.stderr}"
     )
     assert not (output_dir / "pyproject.toml").exists()
-    assert (output_dir / "apps" / "mobile").exists()
-    assert (output_dir / "apps" / "tv").exists()
+    assert (output_dir / "apps" / "mobile" / "mobile").exists()
+    assert (output_dir / "apps" / "tv" / "tv").exists()
 
 
 def test_tv_only_scaffold_omits_root_pyproject(tmp_path: Path) -> None:
@@ -216,7 +216,7 @@ def test_tv_only_scaffold_omits_root_pyproject(tmp_path: Path) -> None:
     )
     assert not (output_dir / "pyproject.toml").exists()
     assert not (output_dir / ".python-version").exists()
-    assert (output_dir / "apps" / "tv").exists()
+    assert (output_dir / "apps" / "tv" / "tv").exists()
 
 
 def test_web_only_scaffold_omits_root_pyproject(tmp_path: Path) -> None:
@@ -243,7 +243,7 @@ def test_web_only_scaffold_omits_root_pyproject(tmp_path: Path) -> None:
     )
     assert not (output_dir / "pyproject.toml").exists()
     assert not (output_dir / ".python-version").exists()
-    assert (output_dir / "apps" / "web").exists()
+    assert (output_dir / "apps" / "web" / "web").exists()
 
 
 def test_duplicate_target_selection_fails_deterministically(tmp_path: Path) -> None:
@@ -328,8 +328,8 @@ def test_auth_with_backend_desktop_without_web_succeeds(
         f"stderr:\n{result.stderr}"
     )
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/backend/" in combined_output
-    assert "apps/desktop/" in combined_output
+    assert "apps/backend/backend/" in combined_output
+    assert "apps/desktop/desktop/" in combined_output
     assert "- auth: better-auth" in combined_output
 
 
@@ -362,10 +362,12 @@ def test_web_backend_clerk_env_examples_include_required_placeholders(
         f"stderr:\n{result.stderr}"
     )
 
-    web_env = (output_dir / "apps" / "web" / ".env.example").read_text(encoding="utf-8")
-    backend_env = (output_dir / "apps" / "backend" / ".env.example").read_text(
+    web_env = (output_dir / "apps" / "web" / "web" / ".env.example").read_text(
         encoding="utf-8"
     )
+    backend_env = (
+        output_dir / "apps" / "backend" / "backend" / ".env.example"
+    ).read_text(encoding="utf-8")
 
     assert "VITE_CONVEX_URL=" in web_env
     assert "VITE_CLERK_PUBLISHABLE_KEY=" in web_env
@@ -402,10 +404,12 @@ def test_web_backend_better_auth_env_examples_include_required_placeholders(
         f"stderr:\n{result.stderr}"
     )
 
-    web_env = (output_dir / "apps" / "web" / ".env.example").read_text(encoding="utf-8")
-    backend_env = (output_dir / "apps" / "backend" / ".env.example").read_text(
+    web_env = (output_dir / "apps" / "web" / "web" / ".env.example").read_text(
         encoding="utf-8"
     )
+    backend_env = (
+        output_dir / "apps" / "backend" / "backend" / ".env.example"
+    ).read_text(encoding="utf-8")
 
     assert "VITE_CONVEX_URL=" in web_env
     assert "VITE_CONVEX_SITE_URL=" in web_env
@@ -441,8 +445,10 @@ def test_web_backend_clerk_scaffolds_auth_wiring_placeholders(tmp_path: Path) ->
         f"stderr:\n{result.stderr}"
     )
 
-    backend_wiring = output_dir / "apps" / "backend" / "convex" / "auth.config.ts"
-    frontend_wiring = output_dir / "apps" / "web" / "src" / "auth-provider.ts"
+    backend_wiring = (
+        output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
+    )
+    frontend_wiring = output_dir / "apps" / "web" / "web" / "src" / "auth-provider.ts"
 
     assert backend_wiring.exists()
     assert frontend_wiring.exists()
@@ -483,8 +489,10 @@ def test_web_backend_better_auth_scaffolds_auth_wiring_placeholders(
         f"stderr:\n{result.stderr}"
     )
 
-    backend_wiring = output_dir / "apps" / "backend" / "convex" / "auth.config.ts"
-    frontend_wiring = output_dir / "apps" / "web" / "src" / "auth-client.ts"
+    backend_wiring = (
+        output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
+    )
+    frontend_wiring = output_dir / "apps" / "web" / "web" / "src" / "auth-client.ts"
 
     assert backend_wiring.exists()
     assert frontend_wiring.exists()
@@ -494,3 +502,98 @@ def test_web_backend_better_auth_scaffolds_auth_wiring_placeholders(
 
     assert 'provider: "better-auth"' in backend_text
     assert "better auth" in frontend_text.lower()
+
+
+def test_project_flag_supports_multiple_same_type_projects_in_dry_run(
+    tmp_path: Path,
+) -> None:
+    """RED: --project should allow multiple named projects of the same type."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "multi-project-dry-run"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--project",
+            "python:api",
+            "--project",
+            "python:worker",
+            "--project",
+            "typescript-lib:sdk",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected multi-project dry-run scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "apps/python/api/pyproject.toml" in combined_output
+    assert "apps/python/worker/pyproject.toml" in combined_output
+    assert "packages/typescript/sdk/package.json" in combined_output
+    assert not output_dir.exists(), "--dry-run should not write scaffold output"
+
+
+def test_duplicate_project_paths_fail_deterministically(tmp_path: Path) -> None:
+    """RED: duplicate project paths should fail with deterministic guidance."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "duplicate-project-path"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--project",
+            "web:dashboard",
+            "--project",
+            "web:dashboard",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert "duplicate project selections are not allowed" in result.stderr
+
+
+def test_multiple_backends_require_explicit_web_backend_bindings(
+    tmp_path: Path,
+) -> None:
+    """RED: web apps must bind explicitly when multiple backend instances exist."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "multi-backend-bindings"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--project",
+            "web:dashboard",
+            "--project",
+            "backend:core",
+            "--project",
+            "backend:ops",
+            "--backend-auth",
+            "core:clerk",
+            "--backend-auth",
+            "ops:none",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert (
+        "web-backend binding is required when multiple backend projects exist"
+        in result.stderr
+    )

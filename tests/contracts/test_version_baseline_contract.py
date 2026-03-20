@@ -254,8 +254,8 @@ def test_nurt_versions_check_lockfiles_fails_when_uv_lock_missing(
     (tmp_path / "pyproject.toml").write_text(
         """
 [build-system]
-requires = ["hatchling>=1.26.3"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.10.12,<0.11.0"]
+build-backend = "uv_build"
 
 [project]
 name = "demo"
@@ -316,8 +316,8 @@ def test_nurt_versions_update_regenerates_uv_lockfile_and_reports_summary(
     (tmp_path / "pyproject.toml").write_text(
         """
 [build-system]
-requires = ["hatchling>=1.26.3"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.10.12,<0.11.0"]
+build-backend = "uv_build"
 
 [project]
 name = "demo"
@@ -380,8 +380,8 @@ def test_nurt_versions_update_dry_run_reports_lockfile_plan_without_writing(
     (tmp_path / "pyproject.toml").write_text(
         """
 [build-system]
-requires = ["hatchling>=1.26.3"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.10.12,<0.11.0"]
+build-backend = "uv_build"
 
 [project]
 name = "demo"

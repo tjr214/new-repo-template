@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling>=1.26.3"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.10.12,<0.11.0"]
+build-backend = "uv_build"
 
 [project]
 name = "nurt-ai"
@@ -29,17 +29,10 @@ dev = [
   "types-requests>=2.32.4.20260107",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/new_repo_template"]
-include = ["src/new_repo_template/snapshot_assets/**"]
-
-[tool.hatch.build.targets.sdist]
-include = [
-  "/src",
-  "/tests",
-  "README.md",
-  "pyproject.toml",
-]
+[tool.uv.build-backend]
+module-name = "new_repo_template"
+module-root = "src"
+source-include = ["tests/**"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

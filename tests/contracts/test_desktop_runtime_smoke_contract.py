@@ -80,7 +80,9 @@ def test_desktop_runtime_smoke_commands_and_unsigned_output_paths(
     )
 
     desktop_manifest = json.loads(
-        (output_dir / "apps" / "desktop" / "package.json").read_text(encoding="utf-8")
+        (output_dir / "apps" / "desktop" / "desktop" / "package.json").read_text(
+            encoding="utf-8"
+        )
     )
     desktop_scripts = desktop_manifest.get("scripts", {})
 
@@ -99,7 +101,7 @@ def test_desktop_runtime_smoke_commands_and_unsigned_output_paths(
         "electron-forge make --help --outDir out/unsigned-smoke/make"
     )
 
-    desktop_dir = output_dir / "apps" / "desktop"
+    desktop_dir = output_dir / "apps" / "desktop" / "desktop"
     start_smoke_result = run_bun_command(
         bun_binary=bun_binary,
         cwd=desktop_dir,

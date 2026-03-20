@@ -8,6 +8,10 @@ from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
+from new_repo_template.foundation_manifest import (
+    build_runtime_snapshot_manifest,
+    get_source_manifest_entries,
+)
 from new_repo_template.snapshot_assets_loader import load_source_manifest
 
 
@@ -18,6 +22,7 @@ FORBIDDEN_SEGMENTS = {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_ca
 class SnapshotResult:
     copied_files: tuple[str, ...]
     metadata_path: Path | None
+    manifest_path: Path | None
 
 
 def _sha256_text(text: str) -> str:
@@ -63,25 +68,14 @@ def build_snapshot_assets(
     source_commit: str | None = None,
 ) -> SnapshotResult:
     manifest = load_source_manifest()
-    entries_obj = manifest.get("entries")
-    if not isinstance(entries_obj, list):
-        raise ValueError("source manifest must contain list field 'entries'")
+    entries = get_source_manifest_entries(manifest)
 
     copied_files: list[str] = []
     metadata_files: list[dict[str, str]] = []
 
-    for entry in sorted(entries_obj, key=lambda item: str(item.get("destination", ""))):
-        if not isinstance(entry, dict):
-            raise ValueError("source manifest entries must be objects")
-
-        source_relative = entry.get("source")
-        destination_relative = entry.get("destination")
-        if not isinstance(source_relative, str) or not isinstance(
-            destination_relative, str
-        ):
-            raise ValueError(
-                "source manifest entries require string source and destination"
-            )
+    for entry in sorted(entries, key=lambda item: item.destination):
+        source_relative = entry.source
+        destination_relative = entry.destination
 
         if _is_forbidden_source_path(source_relative):
             raise ValueError(
@@ -125,11 +119,22 @@ def build_snapshot_assets(
     }
 
     metadata_path: Path | None = None
+    manifest_path: Path | None = None
     if not dry_run:
+        runtime_manifest = build_runtime_snapshot_manifest(manifest)
+        manifest_path = output_root / "manifest.json"
+        manifest_path.write_text(
+            json.dumps(runtime_manifest, indent=2) + "\n",
+            encoding="utf-8",
+        )
         metadata_path = output_root / "metadata.json"
         metadata_path.write_text(
             json.dumps(metadata, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
 
-    return SnapshotResult(copied_files=tuple(copied_files), metadata_path=metadata_path)
+    return SnapshotResult(
+        copied_files=tuple(copied_files),
+        metadata_path=metadata_path,
+        manifest_path=manifest_path,
+    )

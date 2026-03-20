@@ -28,6 +28,26 @@ MATRIX_CASES: tuple[PresetMatrixCase, ...] = (
         auth=None,
     ),
     PresetMatrixCase(
+        name="python-lib-only",
+        targets=("python-lib",),
+        auth=None,
+    ),
+    PresetMatrixCase(
+        name="python-app-and-lib",
+        targets=("python", "python-lib"),
+        auth=None,
+    ),
+    PresetMatrixCase(
+        name="typescript-cli-only",
+        targets=("typescript-cli",),
+        auth=None,
+    ),
+    PresetMatrixCase(
+        name="typescript-lib-only",
+        targets=("typescript-lib",),
+        auth=None,
+    ),
+    PresetMatrixCase(
         name="web-backend-clerk",
         targets=("web", "backend"),
         auth="clerk",
@@ -99,24 +119,47 @@ MATRIX_CASES: tuple[PresetMatrixCase, ...] = (
     ),
     PresetMatrixCase(
         name="all-targets-clerk",
-        targets=("python", "web", "backend", "mobile", "tv", "desktop"),
+        targets=(
+            "python",
+            "python-lib",
+            "typescript-cli",
+            "typescript-lib",
+            "web",
+            "backend",
+            "mobile",
+            "tv",
+            "desktop",
+        ),
         auth="clerk",
     ),
     PresetMatrixCase(
         name="all-targets-better-auth",
-        targets=("python", "web", "backend", "mobile", "tv", "desktop"),
+        targets=(
+            "python",
+            "python-lib",
+            "typescript-cli",
+            "typescript-lib",
+            "web",
+            "backend",
+            "mobile",
+            "tv",
+            "desktop",
+        ),
         auth="better-auth",
     ),
 )
 
 
 APP_DIRS_BY_TARGET: dict[str, Path] = {
-    "python": Path("apps/python"),
-    "web": Path("apps/web"),
-    "backend": Path("apps/backend"),
-    "desktop": Path("apps/desktop"),
-    "mobile": Path("apps/mobile"),
-    "tv": Path("apps/tv"),
+    "python": Path("apps/python/python-app"),
+    "python-lib": Path("packages/python/python-lib"),
+    "typescript-cli": Path("apps/typescript-cli/typescript-cli"),
+    "typescript-lib": Path("packages/typescript/typescript-lib"),
+    "web": Path("apps/web/web"),
+    "backend": Path("apps/backend/backend"),
+    "desktop": Path("apps/desktop/desktop"),
+    "mobile": Path("apps/mobile/mobile"),
+    "tv": Path("apps/tv/tv"),
 }
 
 
@@ -163,9 +206,16 @@ def test_required_preset_matrix_scaffold_contract(
     )
 
     assert (output_dir / ".gitignore").exists(), "root .gitignore must exist"
-    assert not (output_dir / "pyproject.toml").exists(), (
-        "root pyproject.toml must not exist"
-    )
+    expects_python_workspace = "python" in case.targets or "python-lib" in case.targets
+    root_pyproject = output_dir / "pyproject.toml"
+    if expects_python_workspace:
+        assert root_pyproject.exists(), (
+            "python-enabled presets require a root pyproject"
+        )
+    else:
+        assert not root_pyproject.exists(), (
+            "non-Python presets should not emit root pyproject"
+        )
     assert not (output_dir / ".python-version").exists(), (
         "root .python-version must not exist"
     )
@@ -177,26 +227,30 @@ def test_required_preset_matrix_scaffold_contract(
                 f"Expected app directory for target '{target}' in case '{case.name}'"
             )
 
-    python_lane_pyproject = output_dir / "apps" / "python" / "pyproject.toml"
+    python_lane_pyproject = (
+        output_dir / "apps" / "python" / "python-app" / "pyproject.toml"
+    )
     if "python" in case.targets:
         assert python_lane_pyproject.exists(), "python target requires lane pyproject"
-        assert (output_dir / "apps" / "python" / ".python-version").exists(), (
-            "python target requires lane .python-version"
-        )
-        assert not (output_dir / "apps" / "python" / ".python-version").is_symlink(), (
-            "python target keeps .python-version as a lane-local file"
-        )
+        assert (
+            output_dir / "apps" / "python" / "python-app" / ".python-version"
+        ).exists(), "python target requires lane .python-version"
+        assert not (
+            output_dir / "apps" / "python" / "python-app" / ".python-version"
+        ).is_symlink(), "python target keeps .python-version as a lane-local file"
 
     if case.auth is not None:
         backend_auth_config = (
-            output_dir / "apps" / "backend" / "convex" / "auth.config.ts"
+            output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
         )
         assert backend_auth_config.exists(), (
             "auth matrix cases require backend auth config"
         )
 
-        web_auth_provider = output_dir / "apps" / "web" / "src" / "auth-provider.ts"
-        web_auth_client = output_dir / "apps" / "web" / "src" / "auth-client.ts"
+        web_auth_provider = (
+            output_dir / "apps" / "web" / "web" / "src" / "auth-provider.ts"
+        )
+        web_auth_client = output_dir / "apps" / "web" / "web" / "src" / "auth-client.ts"
         if case.auth == "clerk":
             assert web_auth_provider.exists(), (
                 "clerk variants require auth-provider scaffold"

@@ -77,6 +77,9 @@ def test_missing_no_interactive_fails_with_clear_error(tmp_path: Path) -> None:
     [
         (["--target", "foundation"], "foundation-no-interactive"),
         (["--target", "python"], "python-no-interactive"),
+        (["--target", "typescript-cli"], "typescript-cli-no-interactive"),
+        (["--target", "python-lib"], "python-lib-no-interactive"),
+        (["--target", "typescript-lib"], "typescript-lib-no-interactive"),
         (
             [
                 "--target",
@@ -134,7 +137,7 @@ def test_missing_required_target_fails_with_deterministic_error(tmp_path: Path) 
     )
 
     assert result.returncode == 2
-    assert "the following arguments are required: --target" in result.stderr
+    assert "at least one --target or --project selection is required" in result.stderr
 
 
 def test_missing_required_output_fails_with_deterministic_error() -> None:
@@ -227,13 +230,15 @@ def test_python_scaffold_includes_baseline_uv_commands(tmp_path: Path) -> None:
         f"stderr:\n{result.stderr}"
     )
 
-    command_doc = output_dir / "apps" / "python" / "README.md"
+    command_doc = output_dir / "apps" / "python" / "python-app" / "README.md"
     assert command_doc.exists(), "Python lane should include command documentation"
 
     command_doc_text = command_doc.read_text(encoding="utf-8")
     assert "Python Lane" in command_doc_text
     assert "Baseline developer commands" in command_doc_text
     assert "uv sync" in command_doc_text
+    assert "python-app" in command_doc_text
+    assert "python-app-tui" in command_doc_text
     assert "pytest" in command_doc_text
     assert "ruff" in command_doc_text
     assert "mypy" in command_doc_text

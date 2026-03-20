@@ -36,15 +36,12 @@ def _resolve_posix_shell() -> str:
     pytest.skip("POSIX shell executable not available for installer script contract")
 
 
-def test_legacy_template_update_script_excludes_removed_assistant_assets() -> None:
-    """RED: legacy template sync script should not manage removed assistant assets."""
+def test_legacy_template_update_script_is_absent() -> None:
+    """Feature 5.0 retires the old template sync shell script entirely."""
 
     repo_root = Path(__file__).resolve().parents[2]
     script_path = repo_root / ".template_scripts" / "update-template-from-git.sh"
-    script_text = script_path.read_text(encoding="utf-8")
-
-    assert _removed_root_doc_name() not in script_text
-    assert _removed_config_dir_name() not in script_text
+    assert not script_path.exists()
 
 
 def test_legacy_install_script_is_absent_from_repo_root() -> None:

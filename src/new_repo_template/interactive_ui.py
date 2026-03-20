@@ -16,6 +16,9 @@ TARGET_DESCRIPTIONS: dict[str, str] = {
     "desktop": "Desktop app",
     "mobile": "Mobile app",
     "tv": "AndroidTV app",
+    "typescript-cli": "TypeScript CLI app",
+    "python-lib": "Python library",
+    "typescript-lib": "TypeScript library",
 }
 
 

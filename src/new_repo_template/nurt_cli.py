@@ -8,6 +8,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from new_repo_template import add_mode
 from new_repo_template.bmad_runner import run_bmad_sync
 from new_repo_template.post_create import (
     render_completion_overview,
@@ -24,8 +25,12 @@ from new_repo_template.interactive_ui import (
     render_yes_no_menu,
     resolve_ui_config,
 )
-from new_repo_template.interactive_tui import run_interactive_wizard
+from new_repo_template.interactive_tui import (
+    run_interactive_add_wizard,
+    run_interactive_wizard,
+)
 from new_repo_template.project_naming import normalize_project_name
+from new_repo_template.repo_identity import validate_nurt_repo_root
 from new_repo_template.snapshot_builder import build_snapshot_assets
 from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
 from new_repo_template.version_baseline import (
@@ -165,6 +170,53 @@ def prompt_targets(*, ui_config: InteractiveUIConfig) -> list[str]:
         return choices
 
 
+def prompt_add_targets(*, ui_config: InteractiveUIConfig) -> list[str]:
+    print("nurt add interactive mode")
+    print("Select targets to add (comma-separated):")
+    for index, target in enumerate(add_mode.ADDABLE_TARGET_CHOICES, start=1):
+        print(f"  {index}) {target}")
+
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt="Targets to add: ",
+                default="",
+            )
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_TARGETS_REMEDIATION) from exc
+
+        choices: list[str] = []
+        invalid_tokens: list[str] = []
+        for token in [piece.strip().lower() for piece in user_input.split(",")]:
+            if token == "":
+                continue
+            if token.isdigit():
+                index = int(token)
+                if 1 <= index <= len(add_mode.ADDABLE_TARGET_CHOICES):
+                    token = add_mode.ADDABLE_TARGET_CHOICES[index - 1]
+                else:
+                    invalid_tokens.append(token)
+                    continue
+
+            if token not in add_mode.ADDABLE_TARGET_CHOICES:
+                invalid_tokens.append(token)
+                continue
+
+            if token not in choices:
+                choices.append(token)
+
+        if invalid_tokens:
+            print(
+                "Invalid target selection:", ", ".join(invalid_tokens), file=sys.stderr
+            )
+            continue
+        if not choices:
+            print("At least one add target must be selected.", file=sys.stderr)
+            continue
+        return choices
+
+
 def prompt_auth(*, ui_config: InteractiveUIConfig) -> str:
     render_auth_menu(config=ui_config)
 
@@ -185,6 +237,89 @@ def prompt_auth(*, ui_config: InteractiveUIConfig) -> str:
             return "none"
         print(
             "Invalid auth choice. Use 1, 2, 3, clerk, better-auth, or none.",
+            file=sys.stderr,
+        )
+
+
+def prompt_project_names_for_target(
+    *, ui_config: InteractiveUIConfig, target: str
+) -> list[str]:
+    default_name = scaffold.default_project_name(target)
+
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt=f"Names for {target} projects [{default_name}]: ",
+                default=default_name,
+            )
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_TARGETS_REMEDIATION) from exc
+
+        raw_value = user_input or default_name
+        names: list[str] = []
+        try:
+            for token in [piece.strip() for piece in raw_value.split(",")]:
+                if token == "":
+                    continue
+                normalized = resolve_project_name(token)
+                if normalized not in names:
+                    names.append(normalized)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            continue
+
+        if names:
+            return names
+        print("At least one project name is required.", file=sys.stderr)
+
+
+def prompt_backend_auth_for_project(
+    *, ui_config: InteractiveUIConfig, backend_name: str
+) -> str:
+    render_auth_menu(config=ui_config)
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt=f"Auth for backend '{backend_name}' [none]: ",
+                default="none",
+            ).lower()
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_AUTH_REMEDIATION) from exc
+        if user_input in {"1", "clerk"}:
+            return "clerk"
+        if user_input in {"2", "better-auth"}:
+            return "better-auth"
+        if user_input in {"", "3", "none"}:
+            return "none"
+        print(
+            "Invalid auth choice. Use 1, 2, 3, clerk, better-auth, or none.",
+            file=sys.stderr,
+        )
+
+
+def prompt_web_backend_binding(
+    *, ui_config: InteractiveUIConfig, web_name: str, backend_names: tuple[str, ...]
+) -> str:
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt=(
+                    f"Backend for web '{web_name}' "
+                    f"[{backend_names[0]}] ({', '.join(backend_names)}): "
+                ),
+                default=backend_names[0],
+            )
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_AUTH_REMEDIATION) from exc
+
+        candidate = resolve_project_name(user_input or backend_names[0])
+        if candidate in backend_names:
+            return candidate
+        print(
+            "Invalid backend choice. Use one of: " + ", ".join(backend_names),
             file=sys.stderr,
         )
 
@@ -255,6 +390,9 @@ def build_parser() -> argparse.ArgumentParser:
     new_parser.add_argument(
         "--target", action="append", choices=scaffold.TARGET_CHOICES
     )
+    new_parser.add_argument("--project", action="append")
+    new_parser.add_argument("--backend-auth", action="append")
+    new_parser.add_argument("--web-backend", action="append")
     new_parser.add_argument("--auth", choices=AUTH_CHOICES)
     new_parser.add_argument(
         "--install-core-tools",
@@ -269,6 +407,18 @@ def build_parser() -> argparse.ArgumentParser:
     new_parser.add_argument("--no-interactive", action="store_true")
     new_parser.add_argument("--dry-run", action="store_true")
     new_parser.set_defaults(handler=handle_new)
+
+    add_parser = subparsers.add_parser("add", help="Add projects to an existing repo")
+    add_parser.add_argument(
+        "--target", action="append", choices=add_mode.ADDABLE_TARGET_CHOICES
+    )
+    add_parser.add_argument("--project", action="append")
+    add_parser.add_argument("--backend-auth", action="append")
+    add_parser.add_argument("--web-backend", action="append")
+    add_parser.add_argument("--auth", choices=AUTH_CHOICES)
+    add_parser.add_argument("--no-interactive", action="store_true")
+    add_parser.add_argument("--dry-run", action="store_true")
+    add_parser.set_defaults(handler=handle_add)
 
     update_parser = subparsers.add_parser("update", help="Upgrade nurt")
     update_parser.add_argument("--dry-run", action="store_true")
@@ -366,6 +516,9 @@ def handle_new(args: argparse.Namespace) -> int:
         return 1
 
     selected_targets: list[str]
+    selected_projects: list[str] = list(getattr(args, "project", None) or [])
+    selected_backend_auths: list[str] = list(getattr(args, "backend_auth", None) or [])
+    selected_web_backends: list[str] = list(getattr(args, "web_backend", None) or [])
     selected_auth = args.auth
     install_core_tools = args.install_core_tools
     install_bmad = args.install_bmad
@@ -384,6 +537,9 @@ def handle_new(args: argparse.Namespace) -> int:
                 return 1
             project_name = wizard_result.project_name
             selected_targets = list(wizard_result.targets)
+            selected_projects = list(getattr(wizard_result, "projects", ()))
+            selected_backend_auths = list(getattr(wizard_result, "backend_auths", ()))
+            selected_web_backends = list(getattr(wizard_result, "web_backends", ()))
             selected_auth = wizard_result.auth
             install_core_tools = wizard_result.install_core_tools
             install_bmad = wizard_result.install_bmad
@@ -393,6 +549,8 @@ def handle_new(args: argparse.Namespace) -> int:
 
             if args.target:
                 selected_targets = list(args.target)
+            elif selected_projects:
+                selected_targets = []
             elif args.no_interactive:
                 selected_targets = ["foundation"]
             elif ui_config.use_rich:
@@ -409,16 +567,72 @@ def handle_new(args: argparse.Namespace) -> int:
                     return 1
                 project_name = wizard_result.project_name
                 selected_targets = list(wizard_result.targets)
+                selected_projects = list(getattr(wizard_result, "projects", ()))
+                selected_backend_auths = list(
+                    getattr(wizard_result, "backend_auths", ())
+                )
+                selected_web_backends = list(getattr(wizard_result, "web_backends", ()))
                 selected_auth = wizard_result.auth
                 install_core_tools = wizard_result.install_core_tools
                 install_bmad = wizard_result.install_bmad
             else:
                 selected_targets = prompt_targets(ui_config=ui_config)
 
+        if not selected_projects:
+            for target in selected_targets:
+                if target == "foundation":
+                    continue
+                if args.no_interactive or args.target:
+                    names = [scaffold.default_project_name(target)]
+                else:
+                    names = prompt_project_names_for_target(
+                        ui_config=ui_config,
+                        target=target,
+                    )
+                selected_projects.extend(f"{target}:{name}" for name in names)
+
         output_path = (Path.cwd() / project_name).resolve()
-        has_backend = "backend" in selected_targets
-        if has_backend and selected_auth is None and not args.no_interactive:
-            selected_auth = prompt_auth(ui_config=ui_config)
+        backend_names = tuple(
+            resolve_project_name(project.split(":", 1)[1])
+            for project in selected_projects
+            if project.split(":", 1)[0] == "backend"
+        )
+        web_names = tuple(
+            resolve_project_name(project.split(":", 1)[1])
+            for project in selected_projects
+            if project.split(":", 1)[0] == "web"
+        )
+
+        if backend_names and not selected_backend_auths:
+            if selected_auth is not None:
+                selected_backend_auths.extend(
+                    f"{backend_name}:{selected_auth}" for backend_name in backend_names
+                )
+            elif not args.no_interactive:
+                for backend_name in backend_names:
+                    backend_auth = prompt_backend_auth_for_project(
+                        ui_config=ui_config,
+                        backend_name=backend_name,
+                    )
+                    selected_backend_auths.append(f"{backend_name}:{backend_auth}")
+
+        if web_names and len(backend_names) == 1 and not selected_web_backends:
+            selected_web_backends.extend(
+                f"{web_name}:{backend_names[0]}" for web_name in web_names
+            )
+        elif (
+            web_names
+            and len(backend_names) > 1
+            and not selected_web_backends
+            and not args.no_interactive
+        ):
+            for web_name in web_names:
+                backend_binding = prompt_web_backend_binding(
+                    ui_config=ui_config,
+                    web_name=web_name,
+                    backend_names=backend_names,
+                )
+                selected_web_backends.append(f"{web_name}:{backend_binding}")
 
         if install_core_tools is None:
             install_core_tools = (
@@ -438,11 +652,19 @@ def handle_new(args: argparse.Namespace) -> int:
         return 1
 
     scaffold_args: list[str] = []
-    for target in selected_targets:
-        scaffold_args.extend(["--target", target])
+    if selected_projects:
+        for project in selected_projects:
+            scaffold_args.extend(["--project", project])
+    else:
+        for target in selected_targets:
+            scaffold_args.extend(["--target", target])
 
     if selected_auth is not None:
         scaffold_args.extend(["--auth", selected_auth])
+    for backend_auth in selected_backend_auths:
+        scaffold_args.extend(["--backend-auth", backend_auth])
+    for web_backend in selected_web_backends:
+        scaffold_args.extend(["--web-backend", web_backend])
 
     scaffold_args.extend(["--no-interactive", "--output", str(output_path)])
     if args.dry_run:
@@ -486,6 +708,151 @@ def handle_new(args: argparse.Namespace) -> int:
         )
     )
 
+    return 0
+
+
+def handle_add(args: argparse.Namespace) -> int:
+    ui_config = resolve_ui_config()
+    if ui_config.warning is not None:
+        print(f"Warning: {ui_config.warning}", file=sys.stderr)
+
+    try:
+        repo_root = validate_nurt_repo_root(cwd=Path.cwd().resolve())
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    existing_state = add_mode.inventory_existing_repo(repo_root=repo_root)
+
+    selected_targets: list[str] = list(getattr(args, "target", None) or [])
+    selected_projects: list[str] = list(getattr(args, "project", None) or [])
+    selected_backend_auths: list[str] = list(getattr(args, "backend_auth", None) or [])
+    selected_web_backends: list[str] = list(getattr(args, "web_backend", None) or [])
+    selected_auth = args.auth
+
+    try:
+        if not selected_targets and not selected_projects and not args.no_interactive:
+            if ui_config.use_rich:
+                wizard_result = run_interactive_add_wizard(
+                    repo_root=repo_root,
+                    existing_backend_names=existing_state.backend_names,
+                    existing_project_keys=tuple(
+                        (project.kind, project.name)
+                        for project in existing_state.projects
+                    ),
+                )
+                if wizard_result is None:
+                    print(INTERACTIVE_WIZARD_CANCELLED, file=sys.stderr)
+                    return 1
+                selected_projects = list(wizard_result.projects)
+                selected_backend_auths = list(wizard_result.backend_auths)
+                selected_web_backends = list(wizard_result.web_backends)
+            else:
+                selected_targets = prompt_add_targets(ui_config=ui_config)
+
+        if not selected_projects:
+            for target in selected_targets:
+                if args.no_interactive or args.target:
+                    names = [scaffold.default_project_name(target)]
+                else:
+                    names = prompt_project_names_for_target(
+                        ui_config=ui_config,
+                        target=target,
+                    )
+                selected_projects.extend(f"{target}:{name}" for name in names)
+
+        requested_backend_names = tuple(
+            resolve_project_name(project.split(":", 1)[1])
+            for project in selected_projects
+            if project.split(":", 1)[0] == "backend"
+        )
+        requested_web_names = tuple(
+            resolve_project_name(project.split(":", 1)[1])
+            for project in selected_projects
+            if project.split(":", 1)[0] == "web"
+        )
+        combined_backend_names = tuple(
+            dict.fromkeys((*existing_state.backend_names, *requested_backend_names))
+        )
+
+        if requested_backend_names and not selected_backend_auths:
+            if selected_auth is not None:
+                selected_backend_auths.extend(
+                    f"{backend_name}:{selected_auth}"
+                    for backend_name in requested_backend_names
+                )
+            elif not args.no_interactive:
+                for backend_name in requested_backend_names:
+                    backend_auth = prompt_backend_auth_for_project(
+                        ui_config=ui_config,
+                        backend_name=backend_name,
+                    )
+                    selected_backend_auths.append(f"{backend_name}:{backend_auth}")
+
+        if (
+            requested_web_names
+            and len(combined_backend_names) == 1
+            and not selected_web_backends
+        ):
+            selected_web_backends.extend(
+                f"{web_name}:{combined_backend_names[0]}"
+                for web_name in requested_web_names
+            )
+        elif (
+            requested_web_names
+            and len(combined_backend_names) > 1
+            and not selected_web_backends
+            and not args.no_interactive
+        ):
+            for web_name in requested_web_names:
+                backend_binding = prompt_web_backend_binding(
+                    ui_config=ui_config,
+                    web_name=web_name,
+                    backend_names=combined_backend_names,
+                )
+                selected_web_backends.append(f"{web_name}:{backend_binding}")
+    except RuntimeError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    validation_parser = argparse.ArgumentParser(prog="nurt add")
+    try:
+        requested_projects = add_mode.resolve_add_projects(
+            parser=validation_parser,
+            args=argparse.Namespace(
+                target=None if selected_projects else selected_targets or None,
+                project=selected_projects or None,
+                backend_auth=selected_backend_auths or None,
+                web_backend=selected_web_backends or None,
+                auth=selected_auth,
+            ),
+            existing_state=existing_state,
+        )
+    except SystemExit as exc:
+        code = exc.code
+        return 1 if isinstance(code, int) and code != 0 else 0 if code == 0 else 1
+
+    try:
+        plan = add_mode.build_add_plan(
+            repo_root=repo_root,
+            existing_state=existing_state,
+            requested_projects=requested_projects,
+        )
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    print(add_mode.render_add_plan(plan))
+    if args.dry_run:
+        return 0
+
+    try:
+        summary = add_mode.execute_add(plan)
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    print(add_mode.render_add_completion(repo_root=repo_root, summary=summary))
     return 0
 
 
@@ -541,11 +908,14 @@ def handle_template_assets_validate(args: argparse.Namespace) -> int:
         for relative_path in result.copied_files:
             print(f"  - would validate bundled template: {relative_path}")
         print("DRY RUN: metadata would be refreshed at metadata.json")
+        print("DRY RUN: runtime manifest would be refreshed at manifest.json")
         return 0
 
     print("Template-assets validate completed:")
     for relative_path in result.copied_files:
         print(f"  - validated bundled template: {relative_path}")
+    if result.manifest_path is not None:
+        print(f"  - runtime manifest refreshed: {result.manifest_path}")
     if result.metadata_path is not None:
         print(f"  - metadata refreshed: {result.metadata_path}")
     return 0

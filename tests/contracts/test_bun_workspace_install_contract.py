@@ -57,8 +57,8 @@ def test_web_backend_dry_run_reports_workspace_package_manifests(
 
     combined_output = f"{result.stdout}\n{result.stderr}"
     assert "package.json" in combined_output
-    assert "apps/web/package.json" in combined_output
-    assert "apps/backend/package.json" in combined_output
+    assert "apps/web/web/package.json" in combined_output
+    assert "apps/backend/backend/package.json" in combined_output
 
 
 def test_generated_web_backend_workspace_supports_bun_install(tmp_path: Path) -> None:
@@ -89,15 +89,20 @@ def test_generated_web_backend_workspace_supports_bun_install(tmp_path: Path) ->
     )
 
     root_manifest = output_dir / "package.json"
-    web_manifest = output_dir / "apps" / "web" / "package.json"
-    backend_manifest = output_dir / "apps" / "backend" / "package.json"
+    web_manifest = output_dir / "apps" / "web" / "web" / "package.json"
+    backend_manifest = output_dir / "apps" / "backend" / "backend" / "package.json"
 
     assert root_manifest.exists(), "root package.json must exist"
     assert web_manifest.exists(), "web workspace package.json must exist"
     assert backend_manifest.exists(), "backend workspace package.json must exist"
 
     root_data = json.loads(root_manifest.read_text(encoding="utf-8"))
-    assert root_data.get("workspaces") == ["apps/*", "packages/*"]
+    assert root_data.get("workspaces") == [
+        "apps/*",
+        "packages/*",
+        "apps/*/*",
+        "packages/*/*",
+    ]
 
     for manifest_path in (web_manifest, backend_manifest):
         package_data = json.loads(manifest_path.read_text(encoding="utf-8"))

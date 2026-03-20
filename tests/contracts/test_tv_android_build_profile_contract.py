@@ -45,7 +45,7 @@ def test_tv_only_scaffold_includes_android_build_profiles(tmp_path: Path) -> Non
         f"stderr:\n{result.stderr}"
     )
 
-    tv_root = output_dir / "apps" / "tv"
+    tv_root = output_dir / "apps" / "tv" / "tv"
     eas_json_path = tv_root / "eas.json"
     assert eas_json_path.exists(), (
         f"Expected scaffolded TV EAS config at {eas_json_path}"
@@ -97,7 +97,7 @@ def test_tv_package_scripts_include_android_profile_build_commands(
     )
 
     tv_manifest = json.loads(
-        (output_dir / "apps" / "tv" / "package.json").read_text(encoding="utf-8")
+        (output_dir / "apps" / "tv" / "tv" / "package.json").read_text(encoding="utf-8")
     )
     scripts = tv_manifest.get("scripts")
     assert isinstance(scripts, dict)
@@ -138,7 +138,7 @@ def test_tv_dry_run_reports_android_build_profile_config_path(tmp_path: Path) ->
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/tv/eas.json" in combined_output
+    assert "apps/tv/tv/eas.json" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"
 
 
@@ -168,7 +168,7 @@ def test_tv_scaffold_includes_android_wrapper_patch_flow_for_local_builds(
     )
 
     tv_manifest = json.loads(
-        (output_dir / "apps" / "tv" / "package.json").read_text(encoding="utf-8")
+        (output_dir / "apps" / "tv" / "tv" / "package.json").read_text(encoding="utf-8")
     )
     scripts = tv_manifest.get("scripts")
     assert isinstance(scripts, dict)
@@ -193,7 +193,7 @@ def test_tv_scaffold_includes_android_wrapper_patch_flow_for_local_builds(
     assert dev_dependencies.get("@types/react") == "^19.2.14"
 
     patch_script_path = (
-        output_dir / "apps" / "tv" / "scripts" / "patch-android-wrapper.mjs"
+        output_dir / "apps" / "tv" / "tv" / "scripts" / "patch-android-wrapper.mjs"
     )
     assert patch_script_path.exists(), (
         f"Expected scaffolded Android wrapper patch helper at {patch_script_path}"

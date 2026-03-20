@@ -30,6 +30,7 @@ from new_repo_template.project_naming import normalize_project_name
 
 WIZARD_STEP_PROJECT = "project"
 WIZARD_STEP_TARGETS = "targets"
+WIZARD_STEP_PROJECTS = "projects"
 WIZARD_STEP_AUTH = "auth"
 WIZARD_STEP_TOOLS = "tools"
 WIZARD_STEP_BMAD = "bmad"
@@ -56,16 +57,22 @@ TARGET_DESCRIPTIONS: dict[str, str] = {
     "desktop": "Desktop app",
     "mobile": "Mobile app",
     "tv": "AndroidTV app",
+    "typescript-cli": "TypeScript CLI app",
+    "python-lib": "Python library",
+    "typescript-lib": "TypeScript library",
 }
 
 TARGET_NOTES: dict[str, str] = {
     "foundation": "Baseline workspace only. This stays mutually exclusive with all app lanes.",
-    "python": "Scaffolds the Python lane under apps/python with uv-based tooling.",
+    "python": "Scaffolds the Python lane under apps/python with Rich and Textual starter entry points.",
     "web": "Adds the TanStack Start web frontend lane.",
     "backend": "Adds the Convex backend lane and requires an explicit auth choice, including no auth.",
     "desktop": "Adds the Electron desktop lane.",
     "mobile": "Adds the Expo mobile app lane.",
     "tv": "Adds the Expo Android TV lane with remote-first starter wiring.",
+    "typescript-cli": "Adds a Bun-native TypeScript CLI lane with a workspace-linked bin entry.",
+    "python-lib": "Adds a reusable Python library package under packages/python and wires it into the uv workspace.",
+    "typescript-lib": "Adds a reusable TypeScript library package under packages/typescript.",
 }
 
 AUTH_NOTES: dict[str, str] = {
@@ -75,12 +82,55 @@ AUTH_NOTES: dict[str, str] = {
 }
 
 TARGET_CHOICES: tuple[str, ...] = tuple(TARGET_DESCRIPTIONS)
+DEFAULT_PROJECT_NAMES: dict[str, str] = {
+    "python": "python-app",
+    "web": "web",
+    "backend": "backend",
+    "desktop": "desktop",
+    "mobile": "mobile",
+    "tv": "tv",
+    "typescript-cli": "typescript-cli",
+    "python-lib": "python-lib",
+    "typescript-lib": "typescript-lib",
+}
+
+
+def _normalize_project_entries_by_target(
+    selected_targets: Iterable[str],
+    project_entries: tuple[tuple[str, str], ...] | None = None,
+) -> tuple[tuple[str, str], ...]:
+    existing = dict(project_entries or ())
+    normalized: list[tuple[str, str]] = []
+    for target in _normalize_targets(selected_targets):
+        if target == "foundation":
+            continue
+        normalized.append((target, existing.get(target, DEFAULT_PROJECT_NAMES[target])))
+    return tuple(normalized)
+
+
+def _parse_project_names(raw_value: str) -> tuple[str, ...] | None:
+    names: list[str] = []
+    for token in [piece.strip() for piece in raw_value.split(",")]:
+        if token == "":
+            continue
+        try:
+            normalized = normalize_project_name(token)
+        except ValueError:
+            return None
+        if normalized not in names:
+            names.append(normalized)
+    return tuple(names) if names else None
 
 
 def _format_output_path(output_path: Path | None) -> Text:
     if output_path is None:
         return Text("Pending", style="#edf6f7")
     return Text(str(output_path), style="#edf6f7", no_wrap=False, overflow="fold")
+
+
+def _format_wrapped_text(value: str | None) -> Text:
+    content = value if value not in {None, ""} else "Pending"
+    return Text(str(content), style="#edf6f7", no_wrap=False, overflow="fold")
 
 
 @dataclass(frozen=True)
@@ -103,6 +153,12 @@ STEP_DEFINITIONS: dict[str, WizardStepDefinition] = {
         label="Targets",
         title="Select scaffold targets",
         description="Use direct keyboard or mouse selection and keep foundation exclusive from app lanes.",
+    ),
+    WIZARD_STEP_PROJECTS: WizardStepDefinition(
+        key=WIZARD_STEP_PROJECTS,
+        label="Names",
+        title="Name project instances",
+        description="For each selected type, enter one or more comma-separated project names.",
     ),
     WIZARD_STEP_AUTH: WizardStepDefinition(
         key=WIZARD_STEP_AUTH,
@@ -159,6 +215,7 @@ class InteractiveWizardResult:
     auth: str | None
     install_core_tools: bool
     install_bmad: bool
+    projects: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -168,6 +225,8 @@ class WizardState:
     project_name_input: str
     current_step: str
     selected_targets: tuple[str, ...]
+    project_entries: tuple[tuple[str, str], ...]
+    project_target_index: int
     selected_auth: str | None
     install_core_tools: bool
     install_bmad: bool
@@ -201,6 +260,8 @@ class WizardState:
             project_name_input=initial_name,
             current_step=initial_step,
             selected_targets=selected_targets,
+            project_entries=_normalize_project_entries_by_target(selected_targets),
+            project_target_index=0,
             selected_auth=selected_auth,
             install_core_tools=bool(initial_install_core_tools),
             install_bmad=True if initial_install_bmad is None else initial_install_bmad,
@@ -217,6 +278,8 @@ class WizardState:
         if self.include_project_step:
             step_order.append(WIZARD_STEP_PROJECT)
         step_order.append(WIZARD_STEP_TARGETS)
+        if self.selected_targets != ("foundation",):
+            step_order.append(WIZARD_STEP_PROJECTS)
         if self.auth_required:
             step_order.append(WIZARD_STEP_AUTH)
         step_order.append(WIZARD_STEP_TOOLS)
@@ -247,6 +310,44 @@ class WizardState:
     @property
     def project_name(self) -> str:
         return self.normalized_project_name or ""
+
+    @property
+    def named_targets(self) -> tuple[str, ...]:
+        return tuple(
+            target for target in self.selected_targets if target != "foundation"
+        )
+
+    @property
+    def current_project_target(self) -> str | None:
+        if not self.named_targets:
+            return None
+        return self.named_targets[
+            min(self.project_target_index, len(self.named_targets) - 1)
+        ]
+
+    @property
+    def current_project_input(self) -> str:
+        target = self.current_project_target
+        if target is None:
+            return ""
+        for entry_target, raw_value in self.project_entries:
+            if entry_target == target:
+                return raw_value
+        return DEFAULT_PROJECT_NAMES[target]
+
+    @property
+    def current_project_names(self) -> tuple[str, ...] | None:
+        return _parse_project_names(self.current_project_input)
+
+    @property
+    def resolved_projects(self) -> tuple[str, ...]:
+        projects: list[str] = []
+        for target, raw_value in self.project_entries:
+            names = _parse_project_names(raw_value)
+            if names is None:
+                continue
+            projects.extend(f"{target}:{name}" for name in names)
+        return tuple(projects)
 
     @property
     def output_path(self) -> Path | None:
@@ -281,9 +382,24 @@ class WizardState:
         return replace(
             self,
             selected_targets=normalized_targets,
+            project_entries=_normalize_project_entries_by_target(
+                normalized_targets,
+                self.project_entries,
+            ),
+            project_target_index=0,
             selected_auth=selected_auth,
             highlighted_target=highlighted_target,
         )._clamp_step()
+
+    def with_project_names_input(self, project_names_input: str) -> WizardState:
+        target = self.current_project_target
+        if target is None:
+            return self
+        updated_entries = [
+            (entry_target, project_names_input if entry_target == target else raw_value)
+            for entry_target, raw_value in self.project_entries
+        ]
+        return replace(self, project_entries=tuple(updated_entries))
 
     def with_highlighted_target(self, highlighted_target: str) -> WizardState:
         if highlighted_target not in TARGET_CHOICES:
@@ -312,6 +428,11 @@ class WizardState:
             return self
         if self.current_step == WIZARD_STEP_TARGETS and not self.selected_targets:
             return self
+        if self.current_step == WIZARD_STEP_PROJECTS:
+            if self.current_project_names is None:
+                return self
+            if self.project_target_index < len(self.named_targets) - 1:
+                return replace(self, project_target_index=self.project_target_index + 1)
         if self.current_step == WIZARD_STEP_AUTH and self.selected_auth is None:
             return self
 
@@ -322,6 +443,8 @@ class WizardState:
         return replace(self, current_step=step_order[current_index + 1])._clamp_step()
 
     def previous_step(self) -> WizardState:
+        if self.current_step == WIZARD_STEP_PROJECTS and self.project_target_index > 0:
+            return replace(self, project_target_index=self.project_target_index - 1)
         step_order = self.step_order
         current_index = step_order.index(self.current_step)
         if current_index == 0:
@@ -335,6 +458,7 @@ class WizardState:
         return InteractiveWizardResult(
             project_name=project_name,
             targets=self.selected_targets,
+            projects=self.resolved_projects,
             auth=self.resolved_auth,
             install_core_tools=self.install_core_tools,
             install_bmad=self.install_bmad,
@@ -400,6 +524,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
 
     #project,
     #targets,
+    #projects,
     #auth,
     #tools,
     #bmad,
@@ -412,7 +537,17 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         margin-bottom: 1;
     }
 
+    #project_names_input {
+        margin-top: 1;
+        margin-bottom: 1;
+    }
+
     #project_name_note {
+        color: #c5d8de;
+        min-height: 2;
+    }
+
+    #project_names_note {
         color: #c5d8de;
         min-height: 2;
     }
@@ -479,8 +614,23 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
     }
 
     #summary_column {
-        width: 38;
-        min-width: 32;
+        width: 44;
+        min-width: 36;
+    }
+
+    SelectionList > .selection-list--button {
+        color: #79e0d4;
+    }
+
+    SelectionList > .selection-list--button-selected,
+    SelectionList > .selection-list--button-selected-highlighted {
+        color: #ff3b30;
+        text-style: bold;
+    }
+
+    RadioButton.-on > .toggle--button {
+        color: #ff3b30;
+        text-style: bold;
     }
 
     #summary_panel {
@@ -631,6 +781,14 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
                                 id="targets_list",
                             )
                             yield Static(id="target_details")
+                    with Vertical(id=WIZARD_STEP_PROJECTS):
+                        yield Static(id="project_names_intro")
+                        yield Input(
+                            value=self.state.current_project_input,
+                            placeholder="api, worker",
+                            id="project_names_input",
+                        )
+                        yield Static(id="project_names_note")
                     with Vertical(id=WIZARD_STEP_AUTH):
                         with RadioSet(id="auth_options"):
                             yield RadioButton("Clerk", id="auth-clerk")
@@ -713,10 +871,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self._refresh_ui()
 
     def _render_hero_panel(self) -> Panel:
-        project_name = self.state.project_name or "Pending"
-        output_path = (
-            str(self.state.output_path) if self.state.output_path else "Pending"
-        )
+        project_name = _format_wrapped_text(self.state.project_name or "Pending")
+        output_path = _format_output_path(self.state.output_path)
 
         eyebrow = Text.assemble(
             ("nurt new", "bold #79e0d4"),
@@ -838,7 +994,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         return Panel(body, title="BMAD Method", border_style="#2b6674")
 
     def _render_summary_panel(self) -> Panel:
-        project_name = self.state.project_name or "Pending"
+        project_name = _format_wrapped_text(self.state.project_name or "Pending")
         output_path = _format_output_path(self.state.output_path)
 
         grid = Table.grid(expand=True, padding=(0, 1))
@@ -848,6 +1004,7 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         grid.add_row("Project", project_name)
         grid.add_row("Output", output_path)
         grid.add_row("Targets", ", ".join(self.state.selected_targets))
+        grid.add_row("Projects", ", ".join(self.state.resolved_projects) or "Pending")
         grid.add_row(
             "Auth",
             self.state.resolved_auth
@@ -888,9 +1045,15 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         plan_table = Table.grid(expand=True, padding=(0, 1))
         plan_table.add_column(style="bold #95dbe8", ratio=1)
         plan_table.add_column(style="#edf6f7", ratio=3)
-        plan_table.add_row("Project", self.state.project_name or "Pending")
+        plan_table.add_row(
+            "Project",
+            _format_wrapped_text(self.state.project_name or "Pending"),
+        )
         plan_table.add_row("Output", _format_output_path(self.state.output_path))
         plan_table.add_row("Targets", ", ".join(self.state.selected_targets))
+        plan_table.add_row(
+            "Projects", ", ".join(self.state.resolved_projects) or "Pending"
+        )
         plan_table.add_row("Auth", self.state.resolved_auth or "Not required")
         plan_table.add_row(
             "Core tools",
@@ -929,6 +1092,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             return (
                 "Use arrows and Space to choose targets. Press Enter for the next step."
             )
+        if self.state.current_step == WIZARD_STEP_PROJECTS:
+            target = self.state.current_project_target or "project"
+            return f"Enter one or more comma-separated names for {target}, then press Enter to continue."
         if self.state.current_step == WIZARD_STEP_AUTH:
             return "Choose an auth strategy for backend, then press Enter to continue."
         if self.state.current_step == WIZARD_STEP_TOOLS:
@@ -943,6 +1109,12 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         project_input = self.query_one("#project_name_input", Input)
         if project_input.value != self.state.project_name_input:
             project_input.value = self.state.project_name_input
+
+    def _sync_project_names_input(self) -> None:
+        names_input = self.query_one("#project_names_input", Input)
+        desired_value = self.state.current_project_input
+        if names_input.value != desired_value:
+            names_input.value = desired_value
 
     def _sync_auth_controls(self) -> None:
         radio_set = self.query_one("#auth_options", RadioSet)
@@ -999,8 +1171,19 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             self.state.project_name_note
             or "The directory updates as soon as the name is valid."
         )
+        target = self.state.current_project_target or "project"
+        self.query_one("#project_names_intro", Static).update(
+            f"Enter one or more comma-separated names for {target}."
+        )
+        names_note = (
+            f"Current projects: {', '.join(self.state.current_project_names)}"
+            if self.state.current_project_names is not None
+            else "Enter valid kebab-case names separated by commas."
+        )
+        self.query_one("#project_names_note", Static).update(names_note)
         self.query_one("#status_message", Static).update(self._status_text())
         self._sync_project_input()
+        self._sync_project_names_input()
         self._sync_auth_controls()
         self._sync_boolean_controls(
             radio_set_id="#tools_options",
@@ -1039,6 +1222,8 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
 
         if self.state.current_step == WIZARD_STEP_PROJECT:
             next_button.disabled = self.state.normalized_project_name is None
+        elif self.state.current_step == WIZARD_STEP_PROJECTS:
+            next_button.disabled = self.state.current_project_names is None
         elif self.state.current_step == WIZARD_STEP_AUTH:
             next_button.disabled = self.state.selected_auth is None
         elif self.state.current_step == WIZARD_STEP_TARGETS:
@@ -1052,6 +1237,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
             return
         if self.state.current_step == WIZARD_STEP_TARGETS:
             self.query_one("#targets_list", SelectionList).focus()
+            return
+        if self.state.current_step == WIZARD_STEP_PROJECTS:
+            self.query_one("#project_names_input", Input).focus()
             return
         if self.state.current_step == WIZARD_STEP_AUTH:
             self.query_one("#auth_options", RadioSet).focus()
@@ -1068,6 +1256,9 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         self._set_state(self.state.with_targets(selection_list.selected))
 
     def _advance_from_project_input(self) -> None:
+        self._set_state(self.state.next_step())
+
+    def _advance_from_project_names_input(self) -> None:
         self._set_state(self.state.next_step())
 
     def action_next_step(self) -> None:
@@ -1113,6 +1304,17 @@ class NewProjectWizardApp(App[InteractiveWizardResult | None]):
         if self.state.normalized_project_name is None:
             return
         self._advance_from_project_input()
+
+    @on(Input.Changed, "#project_names_input")
+    def _handle_project_names_changed(self, event: Input.Changed) -> None:
+        self._set_state(self.state.with_project_names_input(event.value))
+
+    @on(Input.Submitted, "#project_names_input")
+    def _handle_project_names_submitted(self, event: Input.Submitted) -> None:
+        self._set_state(self.state.with_project_names_input(event.value))
+        if self.state.current_project_names is None:
+            return
+        self._advance_from_project_names_input()
 
     @on(Button.Pressed, "#back_button")
     def _handle_back_button(self) -> None:
@@ -1210,4 +1412,757 @@ def run_interactive_wizard(
         initial_auth=initial_auth,
         initial_install_core_tools=initial_install_core_tools,
         initial_install_bmad=initial_install_bmad,
+    ).run()
+
+
+ADD_STEP_TARGETS = "targets"
+ADD_STEP_PROJECTS = "projects"
+ADD_STEP_AUTH = "auth"
+ADD_STEP_BINDING = "binding"
+ADD_STEP_REVIEW = "review"
+
+
+@dataclass(frozen=True)
+class AddWizardResult:
+    projects: tuple[str, ...]
+    backend_auths: tuple[str, ...]
+    web_backends: tuple[str, ...]
+
+
+def _normalize_add_targets(selected_targets: Iterable[str] | None) -> tuple[str, ...]:
+    seen: set[str] = set()
+    normalized: list[str] = []
+    for target in selected_targets or ():
+        if target in DEFAULT_PROJECT_NAMES and target not in seen:
+            seen.add(target)
+            normalized.append(target)
+    return tuple(
+        target
+        for target in TARGET_CHOICES
+        if target in normalized and target != "foundation"
+    )
+
+
+def _normalize_add_project_entries(
+    selected_targets: Iterable[str],
+    project_entries: tuple[tuple[str, str], ...] | None = None,
+) -> tuple[tuple[str, str], ...]:
+    existing = dict(project_entries or ())
+    normalized: list[tuple[str, str]] = []
+    for target in _normalize_add_targets(selected_targets):
+        normalized.append((target, existing.get(target, DEFAULT_PROJECT_NAMES[target])))
+    return tuple(normalized)
+
+
+def _unique_preserve_order(values: Iterable[str]) -> tuple[str, ...]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        ordered.append(value)
+    return tuple(ordered)
+
+
+@dataclass(frozen=True)
+class AddWizardState:
+    repo_root: Path
+    existing_backend_names: tuple[str, ...]
+    existing_project_keys: tuple[tuple[str, str], ...]
+    current_step: str
+    selected_targets: tuple[str, ...]
+    project_entries: tuple[tuple[str, str], ...]
+    project_target_index: int
+    backend_auth_by_name: tuple[tuple[str, str | None], ...]
+    backend_auth_index: int
+    web_binding_by_name: tuple[tuple[str, str | None], ...]
+    web_binding_index: int
+    highlighted_target: str
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        repo_root: Path,
+        existing_backend_names: tuple[str, ...],
+        existing_project_keys: tuple[tuple[str, str], ...],
+        initial_targets: tuple[str, ...] | None = None,
+    ) -> AddWizardState:
+        selected_targets = _normalize_add_targets(initial_targets)
+        highlighted_target = selected_targets[0] if selected_targets else "python"
+        return cls(
+            repo_root=repo_root,
+            existing_backend_names=existing_backend_names,
+            existing_project_keys=existing_project_keys,
+            current_step=ADD_STEP_TARGETS,
+            selected_targets=selected_targets,
+            project_entries=_normalize_add_project_entries(selected_targets),
+            project_target_index=0,
+            backend_auth_by_name=(),
+            backend_auth_index=0,
+            web_binding_by_name=(),
+            web_binding_index=0,
+            highlighted_target=highlighted_target,
+        )._sync_indexes()
+
+    @property
+    def named_targets(self) -> tuple[str, ...]:
+        return self.selected_targets
+
+    @property
+    def current_project_target(self) -> str | None:
+        if not self.named_targets:
+            return None
+        return self.named_targets[
+            min(self.project_target_index, len(self.named_targets) - 1)
+        ]
+
+    @property
+    def current_project_input(self) -> str:
+        target = self.current_project_target
+        if target is None:
+            return ""
+        for entry_target, raw_value in self.project_entries:
+            if entry_target == target:
+                return raw_value
+        return DEFAULT_PROJECT_NAMES[target]
+
+    @property
+    def current_project_names(self) -> tuple[str, ...] | None:
+        return _parse_project_names(self.current_project_input)
+
+    @property
+    def current_project_error(self) -> str | None:
+        target = self.current_project_target
+        names = self.current_project_names
+        if target is None or names is None:
+            return None
+
+        existing_keys = set(self.existing_project_keys)
+        collisions = [name for name in names if (target, name) in existing_keys]
+        if not collisions:
+            return None
+
+        collision_list = ", ".join(f"{target}:{name}" for name in collisions)
+        return f"Already exists in this repo: {collision_list}"
+
+    @property
+    def resolved_projects(self) -> tuple[str, ...]:
+        projects: list[str] = []
+        for target, raw_value in self.project_entries:
+            names = _parse_project_names(raw_value)
+            if names is None:
+                continue
+            projects.extend(f"{target}:{name}" for name in names)
+        return tuple(projects)
+
+    @property
+    def requested_backend_names(self) -> tuple[str, ...]:
+        return tuple(
+            project.split(":", 1)[1]
+            for project in self.resolved_projects
+            if project.split(":", 1)[0] == "backend"
+        )
+
+    @property
+    def requested_web_names(self) -> tuple[str, ...]:
+        return tuple(
+            project.split(":", 1)[1]
+            for project in self.resolved_projects
+            if project.split(":", 1)[0] == "web"
+        )
+
+    @property
+    def combined_backend_names(self) -> tuple[str, ...]:
+        return _unique_preserve_order(
+            (*self.existing_backend_names, *self.requested_backend_names)
+        )
+
+    @property
+    def auth_required(self) -> bool:
+        return bool(self.requested_backend_names)
+
+    @property
+    def binding_required(self) -> bool:
+        return bool(self.requested_web_names) and len(self.combined_backend_names) > 1
+
+    @property
+    def step_order(self) -> tuple[str, ...]:
+        steps = [ADD_STEP_TARGETS]
+        if self.selected_targets:
+            steps.append(ADD_STEP_PROJECTS)
+        if self.auth_required:
+            steps.append(ADD_STEP_AUTH)
+        if self.binding_required:
+            steps.append(ADD_STEP_BINDING)
+        steps.append(ADD_STEP_REVIEW)
+        return tuple(steps)
+
+    @property
+    def current_backend_name(self) -> str | None:
+        names = self.requested_backend_names
+        if not names:
+            return None
+        return names[min(self.backend_auth_index, len(names) - 1)]
+
+    @property
+    def current_backend_auth(self) -> str | None:
+        current_name = self.current_backend_name
+        if current_name is None:
+            return None
+        for backend_name, auth in self.backend_auth_by_name:
+            if backend_name == current_name:
+                return auth
+        return None
+
+    @property
+    def current_web_name(self) -> str | None:
+        names = self.requested_web_names
+        if not names:
+            return None
+        return names[min(self.web_binding_index, len(names) - 1)]
+
+    @property
+    def current_web_binding(self) -> str | None:
+        current_name = self.current_web_name
+        if current_name is None:
+            return None
+        for web_name, backend_name in self.web_binding_by_name:
+            if web_name == current_name:
+                return backend_name
+        return None
+
+    def with_targets(self, selected_targets: Iterable[str]) -> AddWizardState:
+        normalized_targets = _normalize_add_targets(selected_targets)
+        highlighted_target = self.highlighted_target
+        if highlighted_target not in normalized_targets and normalized_targets:
+            highlighted_target = normalized_targets[0]
+        if not normalized_targets:
+            highlighted_target = "python"
+        return replace(
+            self,
+            selected_targets=normalized_targets,
+            project_entries=_normalize_add_project_entries(
+                normalized_targets, self.project_entries
+            ),
+            project_target_index=0,
+            highlighted_target=highlighted_target,
+        )._sync_indexes()
+
+    def with_project_names_input(self, project_names_input: str) -> AddWizardState:
+        target = self.current_project_target
+        if target is None:
+            return self
+        updated_entries = [
+            (entry_target, project_names_input if entry_target == target else raw_value)
+            for entry_target, raw_value in self.project_entries
+        ]
+        return replace(self, project_entries=tuple(updated_entries))._sync_indexes()
+
+    def with_highlighted_target(self, highlighted_target: str) -> AddWizardState:
+        if highlighted_target not in DEFAULT_PROJECT_NAMES:
+            return self
+        return replace(self, highlighted_target=highlighted_target)
+
+    def with_selected_backend_auth(self, selected_auth: str | None) -> AddWizardState:
+        current_name = self.current_backend_name
+        if current_name is None:
+            return self
+        mapping = dict(self.backend_auth_by_name)
+        mapping[current_name] = selected_auth if selected_auth in AUTH_CHOICES else None
+        ordered = tuple(
+            (name, mapping.get(name)) for name in self.requested_backend_names
+        )
+        return replace(self, backend_auth_by_name=ordered)._sync_indexes()
+
+    def with_selected_binding(self, backend_name: str | None) -> AddWizardState:
+        current_name = self.current_web_name
+        if current_name is None:
+            return self
+        mapping = dict(self.web_binding_by_name)
+        mapping[current_name] = (
+            backend_name if backend_name in self.combined_backend_names else None
+        )
+        ordered = tuple((name, mapping.get(name)) for name in self.requested_web_names)
+        return replace(self, web_binding_by_name=ordered)._sync_indexes()
+
+    def next_step(self) -> AddWizardState:
+        if self.current_step == ADD_STEP_TARGETS and not self.selected_targets:
+            return self
+        if self.current_step == ADD_STEP_PROJECTS:
+            if (
+                self.current_project_names is None
+                or self.current_project_error is not None
+            ):
+                return self
+            if self.project_target_index < len(self.named_targets) - 1:
+                return replace(
+                    self, project_target_index=self.project_target_index + 1
+                )._sync_indexes()
+        if self.current_step == ADD_STEP_AUTH:
+            if self.current_backend_auth is None:
+                return self
+            if self.backend_auth_index < len(self.requested_backend_names) - 1:
+                return replace(
+                    self, backend_auth_index=self.backend_auth_index + 1
+                )._sync_indexes()
+        if self.current_step == ADD_STEP_BINDING:
+            if self.current_web_binding is None:
+                return self
+            if self.web_binding_index < len(self.requested_web_names) - 1:
+                return replace(
+                    self, web_binding_index=self.web_binding_index + 1
+                )._sync_indexes()
+        step_order = self.step_order
+        current_index = step_order.index(self.current_step)
+        if current_index >= len(step_order) - 1:
+            return self
+        return replace(self, current_step=step_order[current_index + 1])._sync_indexes()
+
+    def previous_step(self) -> AddWizardState:
+        if self.current_step == ADD_STEP_PROJECTS and self.project_target_index > 0:
+            return replace(
+                self, project_target_index=self.project_target_index - 1
+            )._sync_indexes()
+        if self.current_step == ADD_STEP_AUTH and self.backend_auth_index > 0:
+            return replace(
+                self, backend_auth_index=self.backend_auth_index - 1
+            )._sync_indexes()
+        if self.current_step == ADD_STEP_BINDING and self.web_binding_index > 0:
+            return replace(
+                self, web_binding_index=self.web_binding_index - 1
+            )._sync_indexes()
+        step_order = self.step_order
+        current_index = step_order.index(self.current_step)
+        if current_index == 0:
+            return self
+        return replace(self, current_step=step_order[current_index - 1])._sync_indexes()
+
+    def build_result(self) -> AddWizardResult:
+        backend_auths = tuple(
+            f"{name}:{auth if auth is not None else 'none'}"
+            for name, auth in self.backend_auth_by_name
+        )
+        web_backends_map = dict(self.web_binding_by_name)
+        if len(self.combined_backend_names) == 1:
+            backend_name = self.combined_backend_names[0]
+            for web_name in self.requested_web_names:
+                web_backends_map.setdefault(web_name, backend_name)
+        web_backends = tuple(
+            f"{web_name}:{backend_name}"
+            for web_name, backend_name in web_backends_map.items()
+            if backend_name is not None
+        )
+        return AddWizardResult(
+            projects=self.resolved_projects,
+            backend_auths=backend_auths,
+            web_backends=web_backends,
+        )
+
+    def _sync_indexes(self) -> AddWizardState:
+        ordered_backend_auths = tuple(
+            (name, dict(self.backend_auth_by_name).get(name))
+            for name in self.requested_backend_names
+        )
+        ordered_web_bindings = tuple(
+            (name, dict(self.web_binding_by_name).get(name))
+            for name in self.requested_web_names
+        )
+        current_step = (
+            self.current_step
+            if self.current_step in self.step_order
+            else self.step_order[-1]
+        )
+        return replace(
+            self,
+            current_step=current_step,
+            backend_auth_by_name=ordered_backend_auths,
+            web_binding_by_name=ordered_web_bindings,
+            project_target_index=min(
+                self.project_target_index, max(len(self.named_targets) - 1, 0)
+            ),
+            backend_auth_index=min(
+                self.backend_auth_index, max(len(self.requested_backend_names) - 1, 0)
+            ),
+            web_binding_index=min(
+                self.web_binding_index, max(len(self.requested_web_names) - 1, 0)
+            ),
+        )
+
+
+class AddProjectWizardApp(App[AddWizardResult | None]):
+    CSS = """
+    Screen { background: #071521; color: #edf6f7; }
+    Header { dock: top; }
+    Footer { dock: bottom; }
+    #body { padding: 1; }
+    #step_copy { margin-bottom: 1; color: #c5d8de; }
+    #status_message { min-height: 2; margin-top: 1; color: #f5cf85; }
+    #actions { height: auto; align-horizontal: right; margin-top: 1; }
+    #actions Button { margin-left: 1; min-width: 12; }
+    #targets_list, #add_auth_options, #binding_options { border: round #3f9cae; padding: 1 1; margin-bottom: 1; }
+    #review_panel { border: round #3f9cae; padding: 1 1; }
+    """
+
+    TITLE = "nurt add"
+    SUB_TITLE = "Interactive add wizard"
+
+    BINDINGS = [
+        Binding("enter", "next_step", "Next"),
+        Binding("escape", "back_or_exit", "Back"),
+        Binding("ctrl+q", "quit_app", "Quit"),
+        Binding("ctrl+c", "quit_app", show=False),
+    ]
+
+    def __init__(
+        self,
+        *,
+        repo_root: Path,
+        existing_backend_names: tuple[str, ...] = (),
+        existing_project_keys: tuple[tuple[str, str], ...] = (),
+        initial_targets: tuple[str, ...] | None = None,
+    ) -> None:
+        super().__init__()
+        self.state = AddWizardState.create(
+            repo_root=repo_root,
+            existing_backend_names=existing_backend_names,
+            existing_project_keys=existing_project_keys,
+            initial_targets=initial_targets,
+        )
+        self.final_result: AddWizardResult | None = None
+        self._syncing_targets = False
+        self._syncing_auth = False
+        self._syncing_binding = False
+
+    @property
+    def current_step(self) -> str:
+        return self.state.current_step
+
+    @property
+    def selected_targets(self) -> tuple[str, ...]:
+        return self.state.selected_targets
+
+    def compose(self) -> ComposeResult:
+        yield Header(show_clock=False)
+        with Vertical(id="body"):
+            yield Static(id="step_copy")
+            with ContentSwitcher(initial=self.state.current_step, id="step_switcher"):
+                with Vertical(id=ADD_STEP_TARGETS):
+                    yield SelectionList[str](
+                        *self._build_target_selections(), id="targets_list"
+                    )
+                with Vertical(id=ADD_STEP_PROJECTS):
+                    yield Static(id="project_names_intro")
+                    yield Input(
+                        value=self.state.current_project_input,
+                        placeholder="api, worker",
+                        id="project_names_input",
+                    )
+                    yield Static(id="project_names_note")
+                with Vertical(id=ADD_STEP_AUTH):
+                    yield Static(id="auth_intro")
+                    with RadioSet(id="add_auth_options"):
+                        yield RadioButton("Clerk", id="add-auth-clerk")
+                        yield RadioButton("Better Auth", id="add-auth-better-auth")
+                        yield RadioButton("No auth", id="add-auth-none")
+                with Vertical(id=ADD_STEP_BINDING):
+                    yield Static(id="binding_intro")
+                    with RadioSet(id="binding_options"):
+                        for backend_name in self.state.combined_backend_names:
+                            yield RadioButton(
+                                backend_name, id=f"binding-{backend_name}"
+                            )
+                yield Static(id=ADD_STEP_REVIEW)
+            yield Static(id="status_message")
+            with Horizontal(id="actions"):
+                yield Button("Back", id="back_button")
+                yield Button("Next", id="next_button", variant="primary")
+                yield Button("Confirm", id="confirm_button", variant="success")
+                yield Button("Quit", id="cancel_button")
+        yield Footer()
+
+    def _build_target_selections(self) -> tuple[Selection[str], ...]:
+        return tuple(
+            Selection(
+                Text.assemble(
+                    (target, "bold white"), "  ", (TARGET_DESCRIPTIONS[target], "dim")
+                ),
+                target,
+                target in self.state.selected_targets,
+            )
+            for target in TARGET_CHOICES
+            if target != "foundation"
+        )
+
+    def on_mount(self) -> None:
+        self._refresh_ui()
+
+    def on_key(self, event: events.Key) -> None:
+        if event.key != "enter":
+            return
+        if self.state.current_step == ADD_STEP_PROJECTS and isinstance(
+            self.focused, Input
+        ):
+            return
+        self.action_next_step()
+        event.stop()
+        event.prevent_default()
+
+    def _set_state(self, new_state: AddWizardState) -> None:
+        if new_state == self.state:
+            return
+        self.state = new_state
+        self._refresh_ui()
+
+    def _render_review_panel(self) -> Panel:
+        return Panel(
+            Group(
+                Text(f"Repo root: {self.state.repo_root}", style="#edf6f7"),
+                Text(
+                    f"Projects: {', '.join(self.state.resolved_projects)}",
+                    style="#edf6f7",
+                ),
+                Text(
+                    "Press Enter to confirm and return the add plan to the CLI.",
+                    style="#c5d8de",
+                ),
+            ),
+            title="Resolved Add Plan",
+            border_style="#3f9cae",
+        )
+
+    def _refresh_ui(self) -> None:
+        self.query_one("#step_copy", Static).update(
+            f"Step {self.state.step_order.index(self.state.current_step) + 1} of {len(self.state.step_order)}"
+        )
+        self.query_one(
+            "#step_switcher", ContentSwitcher
+        ).current = self.state.current_step
+        self.query_one("#project_names_intro", Static).update(
+            f"Enter one or more comma-separated names for {self.state.current_project_target or 'project'}."
+        )
+        self.query_one("#project_names_note", Static).update(
+            "Enter valid kebab-case names separated by commas."
+            if self.state.current_project_names is None
+            else self.state.current_project_error
+            if self.state.current_project_error is not None
+            else f"Current projects: {', '.join(self.state.current_project_names)}"
+        )
+        self.query_one("#auth_intro", Static).update(
+            f"Select auth for backend '{self.state.current_backend_name or 'backend'}'."
+        )
+        self.query_one("#binding_intro", Static).update(
+            f"Select a backend for web '{self.state.current_web_name or 'web'}'."
+        )
+        self.query_one(f"#{ADD_STEP_REVIEW}", Static).update(
+            self._render_review_panel()
+        )
+        self.query_one("#status_message", Static).update(self._status_text())
+        self._sync_project_names_input()
+        self._sync_auth_controls()
+        self._sync_binding_controls()
+        self._refresh_actions()
+        self.call_after_refresh(self._focus_current_step)
+
+    def _sync_project_names_input(self) -> None:
+        names_input = self.query_one("#project_names_input", Input)
+        desired_value = self.state.current_project_input
+        if names_input.value != desired_value:
+            names_input.value = desired_value
+
+    def _sync_auth_controls(self) -> None:
+        if not self.is_mounted or self.state.current_step != ADD_STEP_AUTH:
+            return
+        radio_set = self.query_one("#add_auth_options", RadioSet)
+        current_button = radio_set.pressed_button
+        current_id = current_button.id if current_button is not None else None
+        desired_id = (
+            f"add-auth-{self.state.current_backend_auth}"
+            if self.state.current_backend_auth is not None
+            else None
+        )
+        if current_id == desired_id:
+            return
+        self._syncing_auth = True
+        try:
+            if desired_id is None:
+                if current_button is not None:
+                    current_button.value = False
+            else:
+                self.query_one(f"#{desired_id}", RadioButton).value = True
+        finally:
+            self._syncing_auth = False
+
+    def _sync_binding_controls(self) -> None:
+        if not self.is_mounted or self.state.current_step != ADD_STEP_BINDING:
+            return
+        radio_set = self.query_one("#binding_options", RadioSet)
+        current_button = radio_set.pressed_button
+        current_id = current_button.id if current_button is not None else None
+        desired_id = (
+            f"binding-{self.state.current_web_binding}"
+            if self.state.current_web_binding is not None
+            else None
+        )
+        if current_id == desired_id:
+            return
+        self._syncing_binding = True
+        try:
+            if desired_id is None:
+                if current_button is not None:
+                    current_button.value = False
+            else:
+                self.query_one(f"#{desired_id}", RadioButton).value = True
+        finally:
+            self._syncing_binding = False
+
+    def _status_text(self) -> str:
+        if self.state.current_step == ADD_STEP_TARGETS:
+            return "Use arrows and Space to choose project types to add."
+        if self.state.current_step == ADD_STEP_PROJECTS:
+            if self.state.current_project_error is not None:
+                return self.state.current_project_error
+            return "Enter names for the selected project type, then press Enter to continue."
+        if self.state.current_step == ADD_STEP_AUTH:
+            return "Choose auth for each new backend."
+        if self.state.current_step == ADD_STEP_BINDING:
+            return "Choose a backend binding for each new web app."
+        return "Press Enter to confirm, Escape to go back, or Ctrl+Q / Ctrl+C to quit."
+
+    def _refresh_actions(self) -> None:
+        back_button = self.query_one("#back_button", Button)
+        next_button = self.query_one("#next_button", Button)
+        confirm_button = self.query_one("#confirm_button", Button)
+        back_button.disabled = self.state.step_order.index(self.state.current_step) == 0
+        next_button.display = self.state.current_step != ADD_STEP_REVIEW
+        confirm_button.display = self.state.current_step == ADD_STEP_REVIEW
+
+        if self.state.current_step == ADD_STEP_TARGETS:
+            next_button.disabled = not self.state.selected_targets
+        elif self.state.current_step == ADD_STEP_PROJECTS:
+            next_button.disabled = (
+                self.state.current_project_names is None
+                or self.state.current_project_error is not None
+            )
+        elif self.state.current_step == ADD_STEP_AUTH:
+            next_button.disabled = self.state.current_backend_auth is None
+        elif self.state.current_step == ADD_STEP_BINDING:
+            next_button.disabled = self.state.current_web_binding is None
+        else:
+            next_button.disabled = False
+
+    def _focus_current_step(self) -> None:
+        if self.state.current_step == ADD_STEP_TARGETS:
+            self.query_one("#targets_list", SelectionList).focus()
+            return
+        if self.state.current_step == ADD_STEP_PROJECTS:
+            self.query_one("#project_names_input", Input).focus()
+            return
+        if self.state.current_step == ADD_STEP_AUTH:
+            self.query_one("#add_auth_options", RadioSet).focus()
+            return
+        if self.state.current_step == ADD_STEP_BINDING:
+            self.query_one("#binding_options", RadioSet).focus()
+            return
+        self.query_one("#confirm_button", Button).focus()
+
+    def action_next_step(self) -> None:
+        if self.state.current_step == ADD_STEP_REVIEW:
+            self.action_confirm_step()
+            return
+        self._set_state(self.state.next_step())
+
+    def action_back_or_exit(self) -> None:
+        if self.state.step_order.index(self.state.current_step) == 0:
+            self.action_quit_app()
+            return
+        self._set_state(self.state.previous_step())
+
+    def action_confirm_step(self) -> None:
+        if self.state.current_step != ADD_STEP_REVIEW:
+            return
+        self.final_result = self.state.build_result()
+        self.exit(self.final_result)
+
+    def action_quit_app(self) -> None:
+        self.final_result = None
+        self.exit(None)
+
+    @on(Input.Changed, "#project_names_input")
+    def _handle_project_names_changed(self, event: Input.Changed) -> None:
+        self._set_state(self.state.with_project_names_input(event.value))
+
+    @on(Input.Submitted, "#project_names_input")
+    def _handle_project_names_submitted(self, event: Input.Submitted) -> None:
+        self._set_state(self.state.with_project_names_input(event.value))
+        if self.state.current_project_names is None:
+            return
+        self._set_state(self.state.next_step())
+
+    @on(Button.Pressed, "#back_button")
+    def _handle_back_button(self) -> None:
+        self.action_back_or_exit()
+
+    @on(Button.Pressed, "#next_button")
+    def _handle_next_button(self) -> None:
+        self.action_next_step()
+
+    @on(Button.Pressed, "#confirm_button")
+    def _handle_confirm_button(self) -> None:
+        self.action_confirm_step()
+
+    @on(Button.Pressed, "#cancel_button")
+    def _handle_cancel_button(self) -> None:
+        self.action_quit_app()
+
+    @on(SelectionList.SelectionHighlighted, "#targets_list")
+    def _handle_target_highlighted(
+        self, event: SelectionList.SelectionHighlighted[str]
+    ) -> None:
+        self._set_state(self.state.with_highlighted_target(str(event.selection.value)))
+
+    @on(SelectionList.SelectedChanged, "#targets_list")
+    def _handle_targets_changed(
+        self, event: SelectionList.SelectedChanged[str]
+    ) -> None:
+        if self._syncing_targets:
+            return
+        self._set_state(self.state.with_targets(event.selection_list.selected))
+
+    @on(RadioSet.Changed, "#add_auth_options")
+    def _handle_auth_changed(self, event: RadioSet.Changed) -> None:
+        if self._syncing_auth:
+            return
+        pressed_id = event.pressed.id
+        if pressed_id == "add-auth-clerk":
+            self._set_state(self.state.with_selected_backend_auth("clerk"))
+        elif pressed_id == "add-auth-better-auth":
+            self._set_state(self.state.with_selected_backend_auth("better-auth"))
+        elif pressed_id == "add-auth-none":
+            self._set_state(self.state.with_selected_backend_auth("none"))
+
+    @on(RadioSet.Changed, "#binding_options")
+    def _handle_binding_changed(self, event: RadioSet.Changed) -> None:
+        if self._syncing_binding:
+            return
+        pressed_id = event.pressed.id or ""
+        if pressed_id.startswith("binding-"):
+            self._set_state(
+                self.state.with_selected_binding(pressed_id.removeprefix("binding-"))
+            )
+
+
+def run_interactive_add_wizard(
+    *,
+    repo_root: Path,
+    existing_backend_names: tuple[str, ...],
+    existing_project_keys: tuple[tuple[str, str], ...],
+    initial_targets: tuple[str, ...] | None = None,
+) -> AddWizardResult | None:
+    return AddProjectWizardApp(
+        repo_root=repo_root,
+        existing_backend_names=existing_backend_names,
+        existing_project_keys=existing_project_keys,
+        initial_targets=initial_targets,
     ).run()

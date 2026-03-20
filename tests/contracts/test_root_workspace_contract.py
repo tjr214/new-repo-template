@@ -58,6 +58,7 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
         "PLAN.md",
         "README.md",
         "PROGRESS.md",
+        ".nurt/repo.json",
         "scripts/configure-repo-protections.sh",
         "docs/ARCHITECTURE.md",
         "docs/LIVING_DOCS.md",
@@ -66,6 +67,7 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
         ".github/workflows/ci.yml",
         ".agent/rules/",
         ".opencode/command/",
+        ".opencode/command/repo-gh-make-n-merge-PR.md",
     ]
 
     for marker in expected_markers:
@@ -105,7 +107,12 @@ def test_foundation_scaffold_writes_workspace_config_and_cross_platform_scripts(
 
     package_data = json.loads(root_package_json.read_text(encoding="utf-8"))
     assert package_data.get("private") is True
-    assert package_data.get("workspaces") == ["apps/*", "packages/*"]
+    assert package_data.get("workspaces") == [
+        "apps/*",
+        "packages/*",
+        "apps/*/*",
+        "packages/*/*",
+    ]
 
     scripts = package_data.get("scripts")
     assert isinstance(scripts, dict), "root scripts must be defined"
@@ -136,6 +143,15 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
     """RED: foundation scaffold should include the governance asset baseline."""
 
     repo_root = Path(__file__).resolve().parents[2]
+    source_manifest = json.loads(
+        (
+            repo_root
+            / "src"
+            / "new_repo_template"
+            / "snapshot_assets"
+            / "source_manifest.json"
+        ).read_text(encoding="utf-8")
+    )
     output_dir = tmp_path / "foundation-governance-output"
 
     result = run_scaffold_command(
@@ -171,6 +187,10 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         (
             repo_root / "docs" / "markdown-templates" / "PROGRESS.template.md",
             output_dir / "PROGRESS.md",
+        ),
+        (
+            repo_root / "templates-snapshot-files" / "snapshot-nurt-repo-json.txt",
+            output_dir / ".nurt" / "repo.json",
         ),
         (
             repo_root / "templates-snapshot-files" / "snapshot-architecture-md.txt",
@@ -212,11 +232,23 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
                 encoding="utf-8"
             ) == source_path.read_text(encoding="utf-8")
 
-    assert (output_dir / "docs" / "archive").is_dir()
-    assert (output_dir / "docs" / "archive" / "plans").is_dir()
-    assert (output_dir / "docs" / "archive" / "progress").is_dir()
+    empty_directories = source_manifest.get("empty_directories")
+    assert isinstance(empty_directories, list)
+    expected_empty_directories = sorted(
+        directory.removeprefix("templates/foundation/")
+        for directory in empty_directories
+        if isinstance(directory, str) and directory.startswith("templates/foundation/")
+    )
+    assert expected_empty_directories, (
+        "source manifest should declare foundation empty directories"
+    )
+
+    for relative_directory in expected_empty_directories:
+        assert (output_dir / relative_directory).is_dir(), (
+            f"Expected empty directory at {output_dir / relative_directory}"
+        )
+
     assert (output_dir / "docs" / "markdown-templates").is_dir()
-    assert (output_dir / "docs" / "session-summaries").is_dir()
     assert (output_dir / ".github").is_dir()
     assert (output_dir / ".github" / "workflows").is_dir()
     assert not (output_dir / ".opencode" / "package.json").exists()

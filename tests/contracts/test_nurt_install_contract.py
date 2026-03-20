@@ -109,4 +109,4 @@ def test_uv_tool_install_from_local_git_repo_exposes_nurt_executable(
 
     combined_output = f"{run_result.stdout}\n{run_result.stderr}"
     assert "Resolved scaffold plan:" in combined_output
-    assert "- targets: foundation" in combined_output
+    assert "- project types: foundation" in combined_output

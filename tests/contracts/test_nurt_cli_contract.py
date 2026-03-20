@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from new_repo_template import nurt_cli
+from new_repo_template.repo_identity import render_repo_marker
 from new_repo_template.snapshot_assets_loader import load_source_manifest
 
 
@@ -22,10 +23,15 @@ def _assert_scaffold_plan(
     output_path: Path | None = None,
 ) -> None:
     assert "Resolved scaffold plan:" in output
-    assert f"- targets: {', '.join(targets)}" in output
+    assert f"- project types: {', '.join(targets)}" in output
     assert f"- auth: {auth if auth is not None else 'none'}" in output
     if output_path is not None:
         assert f"- output: {output_path}" in output
+
+
+def _assert_project_entries(output: str, *, projects: tuple[str, ...]) -> None:
+    for project in projects:
+        assert f"  - {project}" in output
 
 
 def _assert_post_create_plan(
@@ -129,6 +135,130 @@ def test_nurt_new_defaults_to_foundation_when_targets_omitted(tmp_path: Path) ->
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
+def test_nurt_new_dry_run_supports_typescript_cli_target(tmp_path: Path) -> None:
+    """nurt new should route the new typescript-cli target through scaffold dry-run."""
+
+    output_dir = tmp_path / "demo-typescript-cli"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "new",
+            output_dir.name,
+            "--target",
+            "typescript-cli",
+            "--dry-run",
+            "--no-interactive",
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected typescript-cli nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("typescript-cli",),
+        auth="none",
+        output_path=output_dir,
+    )
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
+def test_nurt_new_dry_run_supports_library_targets(tmp_path: Path) -> None:
+    """nurt new should route the new library targets through scaffold dry-run."""
+
+    output_dir = tmp_path / "demo-libraries"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "new",
+            output_dir.name,
+            "--target",
+            "python-lib",
+            "--target",
+            "typescript-lib",
+            "--dry-run",
+            "--no-interactive",
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected library-target nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("python-lib", "typescript-lib"),
+        auth="none",
+        output_path=output_dir,
+    )
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
+def test_nurt_new_dry_run_supports_named_project_specs(tmp_path: Path) -> None:
+    """nurt new should route repeatable --project specs through scaffold dry-run."""
+
+    output_dir = tmp_path / "demo-named-projects"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "new",
+            output_dir.name,
+            "--project",
+            "python:api",
+            "--project",
+            "python:worker",
+            "--project",
+            "typescript-lib:sdk",
+            "--dry-run",
+            "--no-interactive",
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected named-project nurt new dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    assert "- project types: python, python, typescript-lib" in combined_output
+    _assert_project_entries(
+        combined_output,
+        projects=("python:api", "python:worker", "typescript-lib:sdk"),
+    )
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
+def test_nurt_new_plain_interactive_collects_multiple_names_per_type(
+    tmp_path: Path,
+) -> None:
+    """Plain interactive mode should collect multiple named projects for a selected type."""
+
+    output_dir = tmp_path / "demo-multi-name-input"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["new", output_dir.name, "--dry-run"],
+        input_text="2,9\napi,worker\nsdk\n\n\n",
+        env={"NURT_UI_MODE": "plain"},
+    )
+
+    assert result.returncode == 0, (
+        "Expected plain interactive multi-name flow to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    _assert_project_entries(
+        combined_output,
+        projects=("python:api", "python:worker", "python-lib:sdk"),
+    )
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
 def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     tmp_path: Path,
 ) -> None:
@@ -138,7 +268,7 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n2\n\n\n",
+        input_text="3,4\n\n\n2\n\n\n",
     )
 
     assert result.returncode == 0, (
@@ -171,7 +301,7 @@ def test_nurt_new_without_project_name_prompts_and_normalizes_directory(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", "--dry-run"],
-        input_text="My Cool App\n4\n3\n\n\n",
+        input_text="My Cool App\n4\n\n3\n\n\n",
     )
 
     assert result.returncode == 0, (
@@ -203,7 +333,7 @@ def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n2\n\n\n",
+        input_text="3,4\n\n\n2\n\n\n",
         env={
             "NURT_UI_MODE": "rich",
             "NURT_SIMULATE_RICH_UNAVAILABLE": "1",
@@ -233,7 +363,7 @@ def test_nurt_new_interactive_rich_mode_falls_back_without_tty(tmp_path: Path) -
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n1\n\n\n",
+        input_text="3,4\n\n\n1\n\n\n",
         env={"NURT_UI_MODE": "rich"},
     )
 
@@ -260,7 +390,7 @@ def test_nurt_new_interactive_plain_ui_mode_has_no_rich_warning(tmp_path: Path) 
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n1\n\n\n",
+        input_text="3,4\n\n\n1\n\n\n",
         env={"NURT_UI_MODE": "plain", "NURT_SIMULATE_RICH_UNAVAILABLE": "1"},
     )
 
@@ -310,7 +440,7 @@ def test_nurt_new_interactive_auth_prompt_without_stdin_fails_with_remediation(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", "demo-auth-no-stdin", "--dry-run"],
-        input_text="4\n",
+        input_text="4\n\n",
     )
 
     assert result.returncode == 1, (
@@ -399,6 +529,104 @@ def test_handle_new_prints_completion_overview_with_cd_instruction(
     assert "cd demo-ready" in captured.out
 
 
+def test_nurt_add_dry_run_routes_through_add_planning(tmp_path: Path) -> None:
+    """nurt add dry-run should report an add plan for an existing nurt repo."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    generated_repo = tmp_path / "generated-repo"
+    scaffold_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "new_repo_template.scaffold",
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--output",
+            str(generated_repo),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PYTHONPATH": str(repo_root / "src")},
+        check=False,
+    )
+    assert scaffold_result.returncode == 0, (
+        "Expected foundation scaffold fixture to succeed for nurt add planning.\n"
+        f"stdout:\n{scaffold_result.stdout}\n"
+        f"stderr:\n{scaffold_result.stderr}"
+    )
+
+    result = run_nurt_command(
+        cwd=generated_repo,
+        args=["add", "--target", "desktop", "--dry-run", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt add --dry-run to succeed in a generated repo.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    assert "Resolved add plan:" in combined_output
+    assert "- repo root:" in combined_output
+    assert "- requested additions:" in combined_output
+    assert "desktop:desktop" in combined_output
+    assert "Lockfile regeneration summary:" not in combined_output
+
+
+def test_nurt_add_rejects_foundation_target(tmp_path: Path) -> None:
+    """nurt add should reject the non-addable foundation target."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    generated_repo = tmp_path / "generated-repo"
+    scaffold_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "new_repo_template.scaffold",
+            "--target",
+            "foundation",
+            "--no-interactive",
+            "--output",
+            str(generated_repo),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PYTHONPATH": str(repo_root / "src")},
+        check=False,
+    )
+    assert scaffold_result.returncode == 0
+
+    result = run_nurt_command(
+        cwd=generated_repo,
+        args=["add", "--target", "foundation", "--dry-run", "--no-interactive"],
+    )
+
+    assert result.returncode != 0
+    combined_output = _combined_output(result)
+    assert "foundation" in combined_output
+    assert "invalid choice" in combined_output or "not addable" in combined_output
+
+
+def test_nurt_add_fails_outside_nurt_repo(tmp_path: Path) -> None:
+    """nurt add should fail clearly when no nurt repo marker is present."""
+
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=["add", "--target", "desktop", "--dry-run", "--no-interactive"],
+    )
+
+    assert result.returncode == 1
+    combined_output = _combined_output(result)
+    assert ".nurt/repo.json" in combined_output
+    assert (
+        "nurt add must run from the root of a nurt-generated repository"
+        in combined_output
+    )
+
+
 def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:
     """RED: nurt update dry-run should be non-destructive and explicit."""
 
@@ -449,8 +677,13 @@ def test_nurt_template_assets_sync_dry_run_reports_action(tmp_path: Path) -> Non
     combined_output = _combined_output(result)
     assert "DRY RUN" in combined_output
     assert "sync template-assets" in combined_output
+    assert "manifest-derived sync plan" in combined_output
+    assert "bundled snapshot assets" in combined_output
+    assert "AGENTS.md" in combined_output
+    assert "README.BMAD-GUIDE.md" in combined_output
+    assert "docs/workflows/export-to-ralph/workflow.md" in combined_output
     assert "update-template-from-git.sh" not in combined_output
-    assert "template source repo" in combined_output
+    assert "template source repo" not in combined_output
 
 
 def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
@@ -523,17 +756,18 @@ def test_nurt_template_assets_sync_fails_outside_project_root(tmp_path: Path) ->
         f"stderr:\n{result.stderr}"
     )
     combined_output = _combined_output(result)
-    assert "sync template-assets must run from project root" in combined_output
+    assert "nurt sync template-assets must run from the root" in combined_output
+    assert ".nurt/repo.json" in combined_output
 
 
 def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> None:
     """Non-dry sync template-assets should fail when working tree is dirty."""
 
-    (tmp_path / ".opencode").mkdir()
-    (tmp_path / ".template_scripts").mkdir()
-    (tmp_path / ".opencode" / "placeholder.md").write_text(
-        "# placeholder\n", encoding="utf-8"
+    (tmp_path / ".nurt").mkdir()
+    (tmp_path / ".nurt" / "repo.json").write_text(
+        render_repo_marker(), encoding="utf-8"
     )
+    (tmp_path / "README.BMAD-GUIDE.md").write_text("stale\n", encoding="utf-8")
 
     init_result = subprocess.run(
         ["git", "init"],
@@ -547,6 +781,43 @@ def test_nurt_template_assets_sync_fails_with_dirty_git_repo(tmp_path: Path) -> 
         f"stdout:\n{init_result.stdout}\n"
         f"stderr:\n{init_result.stderr}"
     )
+
+    add_result = subprocess.run(
+        ["git", "add", "."],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert add_result.returncode == 0, (
+        "Expected git add to succeed in test fixture.\n"
+        f"stdout:\n{add_result.stdout}\n"
+        f"stderr:\n{add_result.stderr}"
+    )
+
+    commit_result = subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=Test User",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-m",
+            "Initial commit",
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert commit_result.returncode == 0, (
+        "Expected git commit to succeed in test fixture.\n"
+        f"stdout:\n{commit_result.stdout}\n"
+        f"stderr:\n{commit_result.stderr}"
+    )
+
+    (tmp_path / "README.BMAD-GUIDE.md").write_text("dirty change\n", encoding="utf-8")
 
     result = run_nurt_command(cwd=tmp_path, args=["sync", "template-assets"])
 
@@ -626,3 +897,4 @@ def test_nurt_template_assets_validate_dry_run_reports_action(tmp_path: Path) ->
         assert f"would validate bundled template: {destination}" in combined_output
 
     assert "metadata would be refreshed at metadata.json" in combined_output
+    assert "runtime manifest would be refreshed at manifest.json" in combined_output

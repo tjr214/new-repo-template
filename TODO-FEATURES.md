@@ -1,13 +1,50 @@
 # FEATURES TODO
 
-- [ ] Add Python Library scaffolding
-- [ ] Same with Typescript library
-- [ ] Allow `nurt new` to specify how many projects get added to the monorepo
-  - Example: 2 python apps, 1 typescript library, 3 webapps, etc.
-  - In these cases, `nurt new` should also ask for names for these sub-projects (so the directory names aren't "python1", "python2", etc.)
-- [ ] Add `nurt add` so we can add any new project type to an existing monorepo
-- [ ] Correctly implement new `nurt sync template-assets` functionality
-  - [ ] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
-- [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
-- [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
-- [ ] Thoroughly test all project types (manual step)
+- [x] 1.0 ADD PYTHON AND TYPESCRIPT CLI / TUI PROJECTS
+  - [x] Update existing Python scaffolding with CLI support via Rich and Textual libraries
+  - [x] Ane new specific Typescript scaffolding for CLIs
+- [x] 2.0 ADD SUPPORT FOR PYTHON AND TYPESCRIPT LIBRARIES
+  - [x] Add new Python Library scaffolding (python-lib)
+  - [x] Same for Typescript library (typescript-lib)
+- [x] 3.0 UPDATE THE `NURT NEW` FLOW TO SUPPORT MULTIPLE PROJECTS OF THE SAME TYPE (Blocked by 1.0 and 2.0)
+  - [x] Allow `nurt new` to specify how many projects get added to the monorepo (both in Wizard and underlying CLI)
+    - Example: 2 python apps, 1 typescript library, 3 webapps, etc.
+    - [x] In these cases, `nurt new` should also ask for names for these sub-projects (so the directory names aren't "python1", "python2", etc.)
+- [x] 4.0 CREATE `NURT ADD` TO ADD PROJECT TYPES TO EXISTING MONOREPOS (Blocked by 1.0, 2.0, 3.0)
+  - [x] Add `nurt add` so we can add any new project type to an existing nurt-monorepo project
+- [x] 5.0 PROPERLY IMPLEMENT THE TEMPLATE-ASSETS SYNC FEATURE
+  - [x] Discuss with user how to make this work and what files need to be included
+    - [x] Sync only explicit managed files: `AGENTS.md`, `README.BMAD-GUIDE.md`, `README.RALPH.md`, selected `.opencode/command/*`, selected `.agent/rules/*`, selected `.agent/workflows/*`, and selected `docs/workflows/*`
+    - [x] Never touch custom sibling files in those directories; only exact managed file paths may be replaced or created
+    - [x] Keep sync eligibility inside `src/new_repo_template/snapshot_assets/source_manifest.json` via per-entry `management` metadata instead of introducing a separate sync manifest
+    - [x] Use the bundled assets from the currently installed `nurt` version for sync, not a live template-repo clone
+    - [x] Require a clean git working tree for real sync execution so template-maintenance diffs stay isolated
+  - [x] Correctly implement new `nurt sync template-assets` functionality
+    - [x] When done, and manually reviewed, remove old legacy update-template-from-git.sh script
+- [x] 6.0 INVESTIGATE AND UPDATE PYTHON BUILD SYSTEM FROM `HATCHLING` to `UV BUILD`
+  - [x] Figure out if we NEED to migrate from `hatchling` to `uv build`
+    - [x] Decision: yes; packaged Python projects should migrate to `uv_build` while standardizing on `uv build` as the frontend command
+  - [x] If we DO, then plan the migration, fully and thoroughly
+    - [x] Include the repo root package and both generated Python package templates (`python` and `python-lib`) in the migration scope
+    - [x] Keep generated root Python workspace files coordinator-only: no `[build-system]`, explicit `[tool.uv] package = false`
+    - [x] Treat `uv_build` as a bounded-range exception to the repo's usual lower-bound-only Python dependency rule
+    - [x] Keep runtime Python package data inside `src/<module>/...` and load it as package resources
+  - [x] And, then, do the migration from `hatchling` to `uv build`
+  - [x] First, let's discuss everything through.
+- [ ] 7.0 NURT TOOL SELF-UPDATE FEATURE
+  - [ ] I am not even sure how this feature should work so we need to discuss this, at length
+  - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss
+    - [ ] Keep this separate from feature `5.0`; `nurt sync template-assets` should assume the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
+  - [ ] Once aligned, implement our new `nurt upgrade` process.
+- [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
+  - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
+  - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
+  - [ ] We need to first discuss how this will all work.
+- [ ] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO
+  - [ ] The `btca.config.jsonc` file in the root of every nurt-generated monorepo should be customized to match the project types in the monorepo
+  - [ ] Example: if we have a python TUI, a typescript backend with convex and clerk, and a TV app, then the `btca.config.jsonc` file should be customized to be pre-loaded with all the libraries and documentation those projects will require.
+  - [ ] This should be set up initially by `nurt new` but we need to be able to intelligently patch the btca.config.jsonc file whenever we do `nurt add`, as well.
+  - [ ] The end user may have already added libraries and documentation to their nurt-enabled projects (and, thus, the `btca.config.jsonc` file) so we do NOT want to delete those. Just add in (or update) the ones for our new project types.
+  - [ ] I am not sure how we should go about this, so let us first discuss.
+- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 7.0, 8.0, 9.0)
+  - [ ] Thoroughly test all project types (manual step)

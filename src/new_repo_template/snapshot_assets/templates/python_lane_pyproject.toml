@@ -1,13 +1,22 @@
 [build-system]
-requires = ["hatchling>=1.26.3"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.10.12,<0.11.0"]
+build-backend = "uv_build"
 
 [project]
 name = "python-app"
 version = "0.1.0"
-description = "Python lane application"
+description = "Python CLI and Textual TUI application"
+readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+  "rich>=14.3.3",
+  "textual>=8.0.1",
+{{PYTHON_LIB_DEPENDENCY}}
+]
+
+[project.scripts]
+python-app = "python_app.entry_points:run_cli"
+python-app-tui = "python_app.entry_points:run_tui"
 
 [project.optional-dependencies]
 dev = [
@@ -16,11 +25,13 @@ dev = [
   "mypy>=1.19.1"
 ]
 
+{{PYTHON_LIB_SOURCE_BLOCK}}
+
 [dependency-groups]
 dev = [
   "pytest>=9.0.2",
   "ruff>=0.14.14",
-  "mypy>=1.19.1"
+  "mypy>=1.19.1",
 ]
 
 [tool.pytest.ini_options]

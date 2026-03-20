@@ -45,7 +45,7 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
         f"stderr:\n{result.stderr}"
     )
 
-    mobile_root = output_dir / "apps" / "mobile"
+    mobile_root = output_dir / "apps" / "mobile" / "mobile"
     expected_paths = (
         mobile_root / "package.json",
         mobile_root / "app.json",
@@ -143,7 +143,7 @@ def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
         f"stderr:\n{result.stderr}"
     )
 
-    tv_root = output_dir / "apps" / "tv"
+    tv_root = output_dir / "apps" / "tv" / "tv"
     expected_paths = (
         tv_root / "package.json",
         tv_root / "app.json",
@@ -234,12 +234,12 @@ def test_mobile_tv_dry_run_reports_separate_mobile_and_tv_paths(tmp_path: Path) 
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/mobile/app.json" in combined_output
-    assert "apps/mobile/App.tsx" in combined_output
-    assert "apps/mobile/smoke.test.js" in combined_output
-    assert "apps/tv/app.json" in combined_output
-    assert "apps/tv/App.tsx" in combined_output
-    assert "apps/tv/smoke.test.js" in combined_output
-    assert "apps/tv/package.json" in combined_output
-    assert "apps/tv/TV_VALIDATION_LOG.md" in combined_output
+    assert "apps/mobile/mobile/app.json" in combined_output
+    assert "apps/mobile/mobile/App.tsx" in combined_output
+    assert "apps/mobile/mobile/smoke.test.js" in combined_output
+    assert "apps/tv/tv/app.json" in combined_output
+    assert "apps/tv/tv/App.tsx" in combined_output
+    assert "apps/tv/tv/smoke.test.js" in combined_output
+    assert "apps/tv/tv/package.json" in combined_output
+    assert "apps/tv/tv/TV_VALIDATION_LOG.md" in combined_output
     assert not output_dir.exists(), "--dry-run should not write scaffold output"

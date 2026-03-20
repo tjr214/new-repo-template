@@ -1,9 +1,9 @@
 {
-  "file_count": 41,
+  "file_count": 45,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
-      "sha256": "75c3addd20255c8e0e6f9f073dacb5557eac59fbd6910cfa8ece2231d497ee10"
+      "sha256": "27dc0648e1f61fa1fdaf19b02a8831376dee045128962a25d5c8664dd54c6c1b"
     },
     {
       "destination": "templates/foundation/.agent/workflows/project/project-export-bmad-to-ralph.md",
@@ -18,16 +18,28 @@
       "sha256": "f097802f37202062030af66c2378e13090884cac9ff5afb21c8720a1a903940a"
     },
     {
+      "destination": "templates/foundation/.nurt/repo.json",
+      "sha256": "be26ba6ca430f57d0aaaa825635e0efbf9acccb0d7344ad2d33c992f7d620c03"
+    },
+    {
+      "destination": "templates/foundation/.opencode/command/project-archive-plan.md",
+      "sha256": "b935a6c86f3243a5a1ee7eee032a685ff85cb721157451bc54a63b56008cc7bc"
+    },
+    {
       "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
       "sha256": "e2a95303c1cfd527012c1025bb9a84e2df85b597d86514df4cf694e76d02fa29"
     },
     {
-      "destination": "templates/foundation/.opencode/command/project-get-back-to-work.md",
-      "sha256": "1ba759b89e3077d5443bfd594a6c1fe755318c0de3e1ad9dd23c02a725686407"
+      "destination": "templates/foundation/.opencode/command/project-read-todo-features.md",
+      "sha256": "767b66bf9e3a1fecfa1e3eaad53ddaaa542fca1c8897c454b8d98092b0f42432"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-resume-progress-from-last-checkpoint.md",
       "sha256": "0467026975ecea44ef73abdb7175c65a631448c92b9aedca3ed1f70ad3936b00"
+    },
+    {
+      "destination": "templates/foundation/.opencode/command/project-save-discussion-as-plan.md",
+      "sha256": "88c192aa63a07cfb6f72a61da266418d14fbb133c17ada018151337e385157de"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-save-progress-to-checkpoint.md",
@@ -39,7 +51,11 @@
     },
     {
       "destination": "templates/foundation/.opencode/command/project-where-did-we-leave-off.md",
-      "sha256": "4e04a82b8e78614f8491ec8433be2b859ed0bbff7b44fc69b7ae221e13ae210b"
+      "sha256": "d6c72bf186c75cf1eb7eb6940ec6baaf88a885fe5a7b3b1b731997bfb3bbc665"
+    },
+    {
+      "destination": "templates/foundation/.opencode/command/repo-gh-make-n-merge-PR.md",
+      "sha256": "31023c6f4c343308ae70b378521444b7b49b1c89836724baf6a2421e3df4f8ef"
     },
     {
       "destination": "templates/foundation/.opencode/command/repo-git-commit-and-push.md",
@@ -63,7 +79,7 @@
     },
     {
       "destination": "templates/foundation/AGENTS.md",
-      "sha256": "6c635c02a83cc518ff212c00c27da1aaf55301da42946f2980a6aa0efd1c5126"
+      "sha256": "fb1762272057e1447f22c337b3dd0fd1d9d2747a324cc06d631a8ae35e15f108"
     },
     {
       "destination": "templates/foundation/PLAN.md",
@@ -87,7 +103,7 @@
     },
     {
       "destination": "templates/foundation/btca.config.jsonc",
-      "sha256": "2957f228dc0a4a266c92377a5de290dcf0b38476d79de3842506e45ff377aaf7"
+      "sha256": "52c8ac11924105ce6e5b5b94cf2ab2546195fa8fff1d166e53886d0f82499a20"
     },
     {
       "destination": "templates/foundation/docs/ARCHITECTURE.md",
@@ -108,6 +124,10 @@
     {
       "destination": "templates/foundation/docs/tasks/task-template-example.yaml",
       "sha256": "68fabeb0d0b01812f48d9e8d2ccce229835c473b51da7ca801a8d3484dc3ac03"
+    },
+    {
+      "destination": "templates/foundation/docs/tasks/task-template-schema.json",
+      "sha256": "4009f44ca89b5299ea168bba8c18e6af0f3f6cbe6d9281e370872fa6c4ea0320"
     },
     {
       "destination": "templates/foundation/docs/tasks/task-template.yaml",
@@ -139,15 +159,11 @@
     },
     {
       "destination": "templates/foundation/scripts/configure-repo-protections.sh",
-      "sha256": "56a8f4d3fa5ca829c45430d0554d4e130aecf5cbff38c87c5c025a72740f9e49"
+      "sha256": "bc8274599cf1686d16487439675554a8aa307e83e49309e3c9bd2feb155803e2"
     },
     {
       "destination": "templates/foundation/scripts/synthetic-quotas.sh",
       "sha256": "f538db2f18af1b04709fbe18369b8b3923eb75085eb2f4aaa34575f02b21ff92"
-    },
-    {
-      "destination": "templates/foundation/scripts/task-template-schema.json",
-      "sha256": "4009f44ca89b5299ea168bba8c18e6af0f3f6cbe6d9281e370872fa6c4ea0320"
     },
     {
       "destination": "templates/foundation/scripts/validate_template.py",
@@ -166,7 +182,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-13T04:27:11.603264+00:00",
+  "generated_at": "2026-03-20T04:06:29.423272+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "ddeb91a0c7d9d24429034b54fd3c879aa37c5110"
+  "source_commit": "dcdb7f9ed5c0c0b79c364e322af94416f3030fc9"
 }

@@ -97,4 +97,13 @@
 <special_notes>Snapshot-testing plugin for Textual visual regression coverage and review workflows.</special_notes>
 </configured_resource>
 
+<configured_resource>
+<name>uv</name>
+<type>git</type>
+<url>https://github.com/astral-sh/uv</url>
+<branch>main</branch>
+<search_path>docs</search_path>
+<special_notes>Official uv docs and repo for project management and command behavior guidance.</special_notes>
+</configured_resource>
+
 </current_btca_resources>

@@ -1,0 +1,23 @@
+{
+  "name": "@generated/typescript-lib",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "bun test",
+    "lint": "bun --version",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@generated/typescript-config": "workspace:*",
+    "@types/node": "^25.5.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -3,17 +3,17 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from platform import system
 
+from new_repo_template.foundation_manifest import (
+    get_foundation_sync_template_file_pairs,
+)
+from new_repo_template.repo_identity import validate_nurt_repo_root
+from new_repo_template.snapshot_assets_loader import load_template_text
 from new_repo_template.tool_sync_runner import run_tool_sync
 from new_repo_template.tool_sync_tui import run_tool_sync_tui
-
-
-TEMPLATE_REPO_HTTPS = "https://github.com/tjr214/new-repo-template.git"
-TEMPLATE_REPO_SSH = "git@github.com:tjr214/new-repo-template.git"
 
 SIMULATE_TOOLS_SYNC_FAILURE_ENV = "NURT_TOOLS_SYNC_SIMULATE_FAILURE"
 
@@ -332,13 +332,14 @@ def run_tools_sync(
 
 
 def _validate_template_sync_root(project_root: Path) -> None:
-    if (
-        not (project_root / ".opencode").is_dir()
-        or not (project_root / ".template_scripts").is_dir()
-    ):
-        raise RuntimeError(
-            "sync template-assets must run from project root containing .opencode/ and .template_scripts/"
+    try:
+        validate_nurt_repo_root(cwd=project_root.resolve())
+    except ValueError as exc:
+        detail = str(exc).replace(
+            "nurt add",
+            "nurt sync template-assets",
         )
+        raise RuntimeError(detail) from exc
 
 
 def _ensure_git_clean(project_root: Path) -> None:
@@ -351,108 +352,41 @@ def _ensure_git_clean(project_root: Path) -> None:
         )
 
 
-def _clone_template_repo(project_root: Path, clone_dir: Path) -> None:
-    https_result = _run_command(
-        ["git", "clone", TEMPLATE_REPO_HTTPS, str(clone_dir)], cwd=project_root
-    )
-    if https_result.returncode == 0:
-        return
-
-    ssh_result = _run_command(
-        ["git", "clone", TEMPLATE_REPO_SSH, str(clone_dir)], cwd=project_root
-    )
-    if ssh_result.returncode == 0:
-        return
-
-    details = (
-        f"https clone failed: {_stderr_or_stdout(https_result)}; "
-        f"ssh clone failed: {_stderr_or_stdout(ssh_result)}"
-    )
-    raise RuntimeError(details)
-
-
-def _copy_file(source: Path, destination: Path) -> None:
-    if not source.exists() or not source.is_file():
-        raise FileNotFoundError(f"missing template file: {source}")
+def _write_template_text(template_relative_path: str, destination: Path) -> None:
+    template_text = load_template_text(template_relative_path)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source, destination)
+    destination.write_text(template_text, encoding="utf-8")
 
 
-def _copy_globbed_files(source_root: Path, pattern: str, destination_root: Path) -> int:
-    if not source_root.exists() or not source_root.is_dir():
-        raise FileNotFoundError(f"missing template directory: {source_root}")
-
-    copied = 0
-    for file_path in sorted(source_root.glob(pattern)):
-        if not file_path.is_file():
-            continue
-        _copy_file(file_path, destination_root / file_path.name)
-        copied += 1
-    return copied
-
-
-def _copy_directory_contents(source_root: Path, destination_root: Path) -> int:
-    if not source_root.exists() or not source_root.is_dir():
-        raise FileNotFoundError(f"missing template directory: {source_root}")
-
-    copied = 0
-    for file_path in sorted(source_root.rglob("*")):
-        if not file_path.is_file():
-            continue
-        relative = file_path.relative_to(source_root)
-        _copy_file(file_path, destination_root / relative)
-        copied += 1
-    return copied
-
-
-def _apply_template_sync(clone_root: Path, project_root: Path) -> None:
-    _copy_file(clone_root / "AGENTS.md", project_root / "AGENTS.md")
-
-    template_scripts_dir = clone_root / ".template_scripts"
-    if not template_scripts_dir.exists() or not template_scripts_dir.is_dir():
-        raise FileNotFoundError(f"missing template directory: {template_scripts_dir}")
-    for script in sorted(template_scripts_dir.glob("*")):
-        if script.is_file():
-            _copy_file(script, project_root / ".template_scripts" / script.name)
-
-    _copy_globbed_files(
-        clone_root / ".opencode" / "command",
-        "*.md",
-        project_root / ".opencode" / "command",
-    )
-    _copy_globbed_files(
-        clone_root / ".agent" / "workflows" / "project",
-        "*.md",
-        project_root / ".agent" / "workflows" / "project",
-    )
-    _copy_globbed_files(
-        clone_root / ".agent" / "rules",
-        "*.md",
-        project_root / ".agent" / "rules",
-    )
-
-    (project_root / "docs" / "tasks").mkdir(parents=True, exist_ok=True)
-    _copy_file(
-        clone_root / "docs" / "tasks" / "task-template.yaml",
-        project_root / "docs" / "tasks" / "task-template.yaml",
-    )
-    _copy_file(
-        clone_root / "docs" / "tasks" / "task-template-example.yaml",
-        project_root / "docs" / "tasks" / "task-template-example.yaml",
-    )
-
-    _copy_directory_contents(
-        clone_root / "docs" / "workflows", project_root / "docs" / "workflows"
-    )
+def _apply_template_sync(project_root: Path) -> tuple[str, ...]:
+    copied_files: list[str] = []
+    for (
+        destination_relative,
+        template_relative,
+    ) in get_foundation_sync_template_file_pairs():
+        _write_template_text(template_relative, project_root / destination_relative)
+        copied_files.append(destination_relative)
+    return tuple(copied_files)
 
 
 def run_template_assets_sync(*, dry_run: bool, project_root: Path) -> int:
+    try:
+        sync_pairs = get_foundation_sync_template_file_pairs()
+    except ValueError as exc:
+        print(f"Error: sync template-assets failed: {exc}")
+        return 1
+
     if dry_run:
-        print("DRY RUN: sync template-assets (native Python implementation)")
-        print(f"DRY RUN: template source repo: {TEMPLATE_REPO_HTTPS}")
-        print(f"DRY RUN: template source fallback: {TEMPLATE_REPO_SSH}")
-        print("DRY RUN: would verify project root markers and clean git status")
-        print("DRY RUN: would clone template repository and copy managed assets")
+        print("DRY RUN: sync template-assets (manifest-derived native implementation)")
+        print(
+            "DRY RUN: bundled snapshot assets shipped with the installed nurt version"
+        )
+        print(
+            "DRY RUN: real runs validate `.nurt/repo.json` at the repo root and require a clean git working tree"
+        )
+        print("DRY RUN: manifest-derived sync plan:")
+        for destination_relative, _template_relative in sync_pairs:
+            print(f"  - {destination_relative}")
         return 0
 
     try:
@@ -462,14 +396,14 @@ def run_template_assets_sync(*, dry_run: bool, project_root: Path) -> int:
         print(f"Error: {exc}")
         return 1
 
-    with tempfile.TemporaryDirectory(prefix="nurt-template-sync-") as temp_dir:
-        clone_dir = Path(temp_dir) / "nr"
-        try:
-            _clone_template_repo(project_root, clone_dir)
-            _apply_template_sync(clone_dir, project_root)
-        except (RuntimeError, FileNotFoundError) as exc:
-            print(f"Error: sync template-assets failed: {exc}")
-            return 1
+    try:
+        copied_files = _apply_template_sync(project_root)
+    except (ValueError, FileNotFoundError) as exc:
+        print(f"Error: sync template-assets failed: {exc}")
+        return 1
 
-    print("Sync template-assets completed.")
+    print(
+        "Sync template-assets completed "
+        f"({len(copied_files)} managed files refreshed from bundled snapshot assets)."
+    )
     return 0

@@ -35,7 +35,7 @@
 
 ### 1.1 CRITICAL PYTHON INSTRUCTIONS
 
-- **IMPORTANT**: Python projects use Python 3.14+, and `uv` and `pyproject.toml` for project management. All dev dependencies should be specified in the `dev` dependency group. Use `hatchling` as the build backend. When adding libraries to the project, look up their latest version and use that version number for the pin with the `>=` operator. Do NOT use `uv pip install` to install packages as this will not update the `pyproject.toml`. When implementing concurrency use Python 3.14+'s `concurrent.interpreters` to achieve _true multi-core parallelism._
+- **IMPORTANT**: Python projects use Python 3.14+, and `uv` and `pyproject.toml` for project management. All dev dependencies should be specified in the `dev` dependency group. Use `uv_build` as the build backend for packaged Python projects, and keep coordinator-only uv workspace roots free of `[build-system]` with `[tool.uv] package = false`. When adding libraries to the project, look up their latest version and use that version number for the pin with the `>=` operator. Do NOT use `uv pip install` to install packages as this will not update the `pyproject.toml`. When implementing concurrency use Python 3.14+'s `concurrent.interpreters` to achieve _true multi-core parallelism._
 
 ### 1.2 CRITICAL TYPESCRIPT INSTRUCTIONS
 
