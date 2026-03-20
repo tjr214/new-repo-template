@@ -6,6 +6,6 @@ IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the c
 
 <steps CRITICAL="TRUE">
 1. Run the `date` command to get the current date and time in the format `YYYY-MM-DD HH:MM:SS AM/PM`.
-2. Archive the current PLAN.md file from the project root into `docs/archive/plans/PLAN_YYYY-MM-DD_HH-MM-SS_AM/PM.md.`
-3. Start a new PLAN.md file in the project root using `docs/markdown-templates/PLAN.template.md` as a template.
+2. Archive the current PLAN.md file from the project root into `docs/archive/plans/PLAN_YYYY-MM-DD_HH-MM-SS_AM/PM.md.` Do this pby using the `mv` command instead of your builtin tools.
+3. Start a new PLAN.md file in the project root using `docs/markdown-templates/PLAN.template.md` as a template. Similarly, use your `cp` tool for this instead of built in write tools.
 </steps>
