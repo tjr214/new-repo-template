@@ -23,7 +23,7 @@
     },
     {
       "destination": "templates/foundation/.opencode/command/project-archive-plan.md",
-      "sha256": "4b41208bb4293f8df20d8923e0decf923dd5d3254363383ce46b973d4716033c"
+      "sha256": "b935a6c86f3243a5a1ee7eee032a685ff85cb721157451bc54a63b56008cc7bc"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
@@ -182,7 +182,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-19T23:13:11.749086+00:00",
+  "generated_at": "2026-03-20T04:06:29.423272+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "83cd665fef0290a09f0e2244a9839801f3cd04c2"
+  "source_commit": "dcdb7f9ed5c0c0b79c364e322af94416f3030fc9"
 }
