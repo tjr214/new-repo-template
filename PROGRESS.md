@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-24 01:33:44 PM
-**Current Phase:** Feature `7.0` is complete and validated; next up is the YELLOW discussion/planning pass for feature `8.0` (convert legacy scripts into native `nurt` commands)
+**Last Updated:** 2026-03-24 07:31:28 PM
+**Current Phase:** The first feature `8.0` slice is complete: `nurt secure-repo` now replaces the legacy branch-protection shell script, and next up is the YELLOW discussion/planning pass for the remaining `nurt ralph` work.
 
 ## Previous Cycle Archives
 
@@ -179,7 +179,12 @@
 - [x] Completed the RED/GREEN/BLUE work for feature `7.0`: replaced the old `update` command with `upgrade`, removed the `nurt update` CLI surface entirely, switched startup notices to `uv tool list --outdated`, updated contract coverage for `nurt upgrade`, old-command rejection, missing-uv remediation, and distribution-name targeting, and kept template-asset sync as a separate operator step.
 - [x] Revalidated feature `7.0` with `uv run pytest tests/contracts/test_nurt_cli_contract.py` (31 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (219 passed).
 - [x] Synced the feature `7.0` closeout across `README.md`, `TODO-FEATURES.md`, `PLAN.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
+- [x] Ran the feature `8.0` YELLOW pass for the secure-repo slice by rereading the roadmap, active trackers/docs, CLI/scaffold/snapshot files, the legacy protections shell script, and the existing branch-protection contracts; also ran `btca status`, `btca resources`, and `btca ask -r rich-docs` to confirm the preferred Rich patterns for a short prompt-and-summary terminal flow.
+- [x] Added RED coverage for the native `nurt secure-repo` command, including shell-script removal, dry-run action reporting, repo/branch default parity, interactive required-approvals prompting with default `0`, branch-protection guidance updates, and foundation-baseline removal of the old script.
+- [x] Implemented native repository-protection automation in `src/new_repo_template/repo_security.py` and `src/new_repo_template/nurt_cli.py`, preserving the legacy behavior surface (`--repo`, `--branch`, `--required-check`, `--workflow`, `--required-approvals`, `--no-auto-detect-checks`, `--exclude-admins`, `--dry-run`) while making interactive approvals prompting explicit and removing `scripts/configure-repo-protections.sh` from the live repo, scaffold baseline, and bundled snapshot source manifest.
+- [x] Updated `docs/BRANCH_PROTECTION.md`, `TODO-FEATURES.md`, and the live tracker/docs so the supported maintainer path is now `nurt secure-repo`, while intentionally deferring the larger `nurt ralph` conversion to the next session.
+- [x] Revalidated the secure-repo slice with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, `uv run pytest tests/contracts/test_nurt_cli_contract.py tests/contracts/test_installer_scripts_dry_run_contract.py tests/contracts/test_branch_protection_guidance_contract.py tests/contracts/test_root_workspace_contract.py tests/contracts/test_snapshot_assets_contract.py` (49 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (220 passed).
 
 ## Next Up
 
-- [ ] Run the YELLOW discussion/planning pass for feature `8.0` (convert old scripts into native `nurt` commands), including the command-surface decisions for branch protection and RALPH workflows before implementation begins.
+- [ ] Run the YELLOW discussion/planning pass for the remaining feature `8.0` work: convert `RALPH.sh`, `validate_template.py`, and `visualize_plan.py` into the future `nurt ralph` flow before implementation begins.

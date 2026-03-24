@@ -59,7 +59,6 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
         "README.md",
         "PROGRESS.md",
         ".nurt/repo.json",
-        "scripts/configure-repo-protections.sh",
         "docs/ARCHITECTURE.md",
         "docs/LIVING_DOCS.md",
         "docs/markdown-templates/",

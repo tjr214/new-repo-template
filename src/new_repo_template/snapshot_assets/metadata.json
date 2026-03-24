@@ -1,5 +1,5 @@
 {
-  "file_count": 45,
+  "file_count": 44,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -23,7 +23,7 @@
     },
     {
       "destination": "templates/foundation/.opencode/command/project-archive-plan.md",
-      "sha256": "b935a6c86f3243a5a1ee7eee032a685ff85cb721157451bc54a63b56008cc7bc"
+      "sha256": "a4f7307b518a139ae2cc137dd18e4fff569b187e0a11567f5c5f3e6388ee0a9d"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
@@ -158,10 +158,6 @@
       "sha256": "36deac7097d2a8174bd9dd848daf28ce79ffb9c02f1522d54549cd3d1b3f4359"
     },
     {
-      "destination": "templates/foundation/scripts/configure-repo-protections.sh",
-      "sha256": "bc8274599cf1686d16487439675554a8aa307e83e49309e3c9bd2feb155803e2"
-    },
-    {
       "destination": "templates/foundation/scripts/synthetic-quotas.sh",
       "sha256": "f538db2f18af1b04709fbe18369b8b3923eb75085eb2f4aaa34575f02b21ff92"
     },
@@ -182,7 +178,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-20T04:06:29.423272+00:00",
+  "generated_at": "2026-03-24T23:33:04.125494+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "dcdb7f9ed5c0c0b79c364e322af94416f3030fc9"
+  "source_commit": "949b60889516df11da80b2c2a34bc1d2d22a56fa"
 }

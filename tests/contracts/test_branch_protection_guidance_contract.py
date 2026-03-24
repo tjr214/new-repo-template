@@ -37,7 +37,8 @@ def test_branch_protection_guidance_doc_lists_required_status_checks() -> None:
 
     guidance_text = guidance_path.read_text(encoding="utf-8")
     assert "Branch Protection" in guidance_text
-    assert "scripts/configure-repo-protections.sh" in guidance_text
+    assert "nurt secure-repo" in guidance_text
+    assert "scripts/configure-repo-protections.sh" not in guidance_text
     assert "--required-approvals" in guidance_text
     assert "solo-dev" in guidance_text
     assert "Require a pull request before merging" in guidance_text

@@ -1019,7 +1019,6 @@ def write_foundation_governance_assets(*, output_root: Path) -> None:
 
     for executable_relative in (
         "scripts/RALPH.sh",
-        "scripts/configure-repo-protections.sh",
         "scripts/synthetic-quotas.sh",
         "scripts/validate_template.py",
         "scripts/visualize_plan.py",

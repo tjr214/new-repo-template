@@ -40,7 +40,6 @@
     "foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
     "foundation/docs/workflows/export-to-ralph/workflow.md",
     "foundation/scripts/RALPH.sh",
-    "foundation/scripts/configure-repo-protections.sh",
     "foundation/scripts/synthetic-quotas.sh",
     "foundation/scripts/validate_template.py",
     "foundation/scripts/visualize_plan.py",

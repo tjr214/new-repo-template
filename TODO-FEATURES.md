@@ -37,7 +37,7 @@
     - [x] Keep this separate from feature `5.0`; `nurt sync template-assets` assumes the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
   - [x] Once aligned, implemented the new `nurt upgrade` process.
 - [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
-  - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
+  - [x] Convert `scripts/configure-repo-protections.sh` into a native `nurt secure-repo` feature with interactive required-approvals prompting (default `0`) and immediate shell-script removal
   - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
   - [ ] We need to first discuss how this will all work.
 - [ ] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO

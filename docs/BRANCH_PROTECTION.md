@@ -2,28 +2,28 @@
 
 This guide defines the baseline branch-protection policy for this template repository.
 
-## Automation Script
+## Automation Command
 
-Use the maintainer script at `scripts/configure-repo-protections.sh` to apply baseline policy to this template repo or any repo generated from it.
+Use `nurt secure-repo` to apply baseline policy to this template repo or any repo generated from it.
 
 Defaults:
 
-- If `--repo` is omitted, the script auto-detects the current repository via `gh repo view`.
-- If `--branch` is omitted, the script defaults to `main`.
-- If `--required-approvals` is omitted, the script keeps PR-based merging but defaults approval count to `0` so solo-maintainer repos are not blocked waiting on a second reviewer.
+- If `--repo` is omitted, the command auto-detects the current repository via `gh repo view`.
+- If `--branch` is omitted, the command defaults to `main`.
+- If `--required-approvals` is omitted, interactive runs ask for it with default `0`, and `--no-interactive` runs default it to `0` automatically so solo-maintainer repos are not blocked waiting on a second reviewer.
 
 Examples:
 
 - Auto-detect repo/checks and apply protections to `main`:
-  - `sh scripts/configure-repo-protections.sh`
+  - `nurt secure-repo`
 - Apply a team-oriented policy that requires one write-access approval:
-  - `sh scripts/configure-repo-protections.sh --repo <owner>/<repo> --required-approvals 1`
+  - `nurt secure-repo --repo <owner>/<repo> --required-approvals 1`
 - Apply protections to an explicit repository (still defaults to `main`):
-  - `sh scripts/configure-repo-protections.sh --repo <owner>/<repo>`
+  - `nurt secure-repo --repo <owner>/<repo>`
 - Preview changes without applying:
-  - `sh scripts/configure-repo-protections.sh --dry-run --repo <owner>/<repo> --required-check "Tests (ubuntu-latest)" --required-check "Preset Regression Suite" --required-check "Version Baseline Guardrail"`
+  - `nurt secure-repo --dry-run --repo <owner>/<repo> --required-check "Tests (ubuntu-latest)" --required-check "Preset Regression Suite" --required-check "Version Baseline Guardrail"`
 
-Script baseline behavior:
+Command baseline behavior:
 
 - Enables `dependabot_security_updates` at repository level.
 - Applies branch protection requiring pull requests, required status checks, up-to-date branches, conversation resolution, and linear history.

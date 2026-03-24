@@ -101,14 +101,6 @@
 			}
 		},
 		{
-			"source": "scripts/configure-repo-protections.sh",
-			"destination": "templates/foundation/scripts/configure-repo-protections.sh",
-			"management": {
-				"scaffold": true,
-				"sync": false
-			}
-		},
-		{
 			"source": "scripts/synthetic-quotas.sh",
 			"destination": "templates/foundation/scripts/synthetic-quotas.sh",
 			"management": {

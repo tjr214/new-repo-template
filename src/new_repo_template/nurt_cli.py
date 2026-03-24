@@ -30,6 +30,13 @@ from new_repo_template.interactive_tui import (
     run_interactive_wizard,
 )
 from new_repo_template.project_naming import normalize_project_name
+from new_repo_template.repo_security import (
+    DEFAULT_BRANCH_NAME,
+    DEFAULT_WORKFLOW_NAME,
+    SecureRepoError,
+    parse_non_negative_int,
+    run_secure_repo,
+)
 from new_repo_template.repo_identity import validate_nurt_repo_root
 from new_repo_template.snapshot_builder import build_snapshot_assets
 from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
@@ -70,6 +77,11 @@ INTERACTIVE_CORE_TOOLS_REMEDIATION = (
 INTERACTIVE_BMAD_REMEDIATION = (
     "interactive input unavailable while selecting BMAD Method installation; rerun with "
     "--no-interactive and provide --install-bmad or --no-install-bmad"
+)
+
+INTERACTIVE_REQUIRED_APPROVALS_REMEDIATION = (
+    "interactive input unavailable while selecting required approvals; rerun with "
+    "--no-interactive or provide --required-approvals <n>"
 )
 
 
@@ -394,6 +406,31 @@ def prompt_install_bmad(*, ui_config: InteractiveUIConfig) -> bool:
     )
 
 
+def prompt_required_approvals(*, ui_config: InteractiveUIConfig) -> int:
+    if not ui_config.use_rich:
+        print("Repository approval policy")
+        print("How many approving reviews should be required before merge?")
+    else:
+        console = Console()
+        console.rule("[bold cyan]nurt secure-repo")
+        console.print("How many approving reviews should be required before merge?")
+
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt="Required approvals [0]: ",
+                default="0",
+            )
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_REQUIRED_APPROVALS_REMEDIATION) from exc
+
+        try:
+            return parse_non_negative_int(user_input or "0")
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nurt")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -432,6 +469,22 @@ def build_parser() -> argparse.ArgumentParser:
     add_parser.add_argument("--no-interactive", action="store_true")
     add_parser.add_argument("--dry-run", action="store_true")
     add_parser.set_defaults(handler=handle_add)
+
+    secure_repo_parser = subparsers.add_parser(
+        "secure-repo", help="Apply baseline GitHub repository protections"
+    )
+    secure_repo_parser.add_argument("--repo")
+    secure_repo_parser.add_argument("--branch", default=DEFAULT_BRANCH_NAME)
+    secure_repo_parser.add_argument("--required-check", action="append")
+    secure_repo_parser.add_argument("--workflow", default=DEFAULT_WORKFLOW_NAME)
+    secure_repo_parser.add_argument(
+        "--required-approvals", type=parse_non_negative_int, default=None
+    )
+    secure_repo_parser.add_argument("--no-auto-detect-checks", action="store_true")
+    secure_repo_parser.add_argument("--exclude-admins", action="store_true")
+    secure_repo_parser.add_argument("--no-interactive", action="store_true")
+    secure_repo_parser.add_argument("--dry-run", action="store_true")
+    secure_repo_parser.set_defaults(handler=handle_secure_repo)
 
     upgrade_parser = subparsers.add_parser("upgrade", help="Upgrade nurt")
     upgrade_parser.add_argument("--dry-run", action="store_true")
@@ -907,6 +960,34 @@ def handle_upgrade(args: argparse.Namespace) -> int:
         "run `nurt sync template-assets` separately."
     )
     return 0
+
+
+def handle_secure_repo(args: argparse.Namespace) -> int:
+    ui_config = resolve_ui_config()
+    if ui_config.warning is not None:
+        print(f"Warning: {ui_config.warning}", file=sys.stderr)
+
+    if args.required_approvals is None:
+        required_approvals = (
+            0 if args.no_interactive else prompt_required_approvals(ui_config=ui_config)
+        )
+    else:
+        required_approvals = args.required_approvals
+
+    try:
+        return run_secure_repo(
+            repo=args.repo,
+            branch=args.branch,
+            required_checks=tuple(args.required_check or ()),
+            workflow_name=args.workflow,
+            required_approvals=required_approvals,
+            auto_detect_checks=not args.no_auto_detect_checks,
+            include_admins=not args.exclude_admins,
+            dry_run=args.dry_run,
+        )
+    except (RuntimeError, SecureRepoError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
 
 
 def handle_tools_sync(args: argparse.Namespace) -> int:

@@ -1,39 +1,34 @@
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-import pytest
 
+def run_nurt_command(
+    *,
+    cwd: Path,
+    args: list[str],
+    env: dict[str, str] | None = None,
+    input_text: str | None = None,
+) -> subprocess.CompletedProcess[str]:
+    command_env = os.environ.copy()
+    repo_root = Path(__file__).resolve().parents[2]
+    command_env["PYTHONPATH"] = str(repo_root / "src")
+    command_env.setdefault("NURT_UPDATE_CHECK_SIMULATE", "none")
+    if env is not None:
+        command_env.update(env)
 
-def _removed_root_doc_name() -> str:
-    return "CLAUDE" + ".md"
-
-
-def _removed_config_dir_name() -> str:
-    return "." + "claude"
-
-
-def _resolve_posix_shell() -> str:
-    """Return a usable POSIX shell executable for script contract tests."""
-
-    if sys.platform == "win32":
-        pytest.skip(
-            "installer shell-script dry-run contracts are validated on POSIX runners"
-        )
-
-    bash_path = shutil.which("bash")
-    if bash_path is not None:
-        return bash_path
-
-    sh_path = shutil.which("sh")
-    if sh_path is not None:
-        return sh_path
-
-    pytest.skip("POSIX shell executable not available for installer script contract")
+    return subprocess.run(
+        [sys.executable, "-m", "new_repo_template.nurt_cli", *args],
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        input=input_text,
+        env=command_env,
+        check=False,
+    )
 
 
 def test_legacy_template_update_script_is_absent() -> None:
@@ -51,27 +46,33 @@ def test_legacy_install_script_is_absent_from_repo_root() -> None:
     assert not (repo_root / "install.sh").exists()
 
 
-def test_branch_protection_script_lives_under_scripts_directory() -> None:
-    """Branch-protection automation should live in `scripts/`, not `.template_scripts/`."""
+def test_branch_protection_shell_script_is_absent_from_repo_and_snapshot_assets() -> (
+    None
+):
+    """Feature 8.0 removes the old shell entrypoint immediately."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    assert (repo_root / "scripts" / "configure-repo-protections.sh").exists()
+    assert not (repo_root / "scripts" / "configure-repo-protections.sh").exists()
     assert not (
-        repo_root / ".template_scripts" / "configure-repo-protections.sh"
+        repo_root
+        / "src"
+        / "new_repo_template"
+        / "snapshot_assets"
+        / "templates"
+        / "foundation"
+        / "scripts"
+        / "configure-repo-protections.sh"
     ).exists()
 
 
-def test_configure_repo_protections_script_dry_run_reports_actions() -> None:
-    """RED: protections script dry-run should show branch-protection + dependabot actions."""
+def test_nurt_secure_repo_dry_run_reports_actions() -> None:
+    """The native secure-repo command should show the planned protections clearly."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    script_path = repo_root / "scripts" / "configure-repo-protections.sh"
-
-    shell = _resolve_posix_shell()
-    result = subprocess.run(
-        [
-            shell,
-            str(script_path),
+    result = run_nurt_command(
+        cwd=repo_root,
+        args=[
+            "secure-repo",
             "--dry-run",
             "--repo",
             "example-org/example-repo",
@@ -81,15 +82,12 @@ def test_configure_repo_protections_script_dry_run_reports_actions() -> None:
             "Tests (ubuntu-latest)",
             "--required-check",
             "Preset Regression Suite",
+            "--no-interactive",
         ],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
     )
 
     assert result.returncode == 0, (
-        "Expected protections script dry-run to succeed.\n"
+        "Expected nurt secure-repo dry-run to succeed.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
@@ -100,16 +98,13 @@ def test_configure_repo_protections_script_dry_run_reports_actions() -> None:
     assert "Require a pull request before merging" in combined_output
     assert "- required approvals: 0" in combined_output
     assert "Tests (ubuntu-latest)" in combined_output
+    assert "scripts/configure-repo-protections.sh" not in combined_output
 
 
-def test_configure_repo_protections_defaults_branch_and_auto_detects_repo(
-    tmp_path: Path,
-) -> None:
-    """Protections script should auto-detect repo and default branch to main."""
+def test_nurt_secure_repo_defaults_branch_and_auto_detects_repo(tmp_path: Path) -> None:
+    """The native command should keep branch and repo detection parity."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    script_path = repo_root / "scripts" / "configure-repo-protections.sh"
-
     fake_bin = tmp_path / "fake-bin"
     fake_bin.mkdir(parents=True)
     fake_gh = fake_bin / "gh"
@@ -130,24 +125,20 @@ exit 9
     env = os.environ.copy()
     env["PATH"] = f"{fake_bin}{os.pathsep}{env.get('PATH', '')}"
 
-    shell = _resolve_posix_shell()
-    result = subprocess.run(
-        [
-            shell,
-            str(script_path),
+    result = run_nurt_command(
+        cwd=repo_root,
+        args=[
+            "secure-repo",
             "--dry-run",
             "--required-check",
             "Tests (ubuntu-latest)",
+            "--no-interactive",
         ],
-        cwd=repo_root,
         env=env,
-        capture_output=True,
-        text=True,
-        check=False,
     )
 
     assert result.returncode == 0, (
-        "Expected protections script dry-run defaults to succeed.\n"
+        "Expected secure-repo defaults dry-run to succeed.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
@@ -158,17 +149,44 @@ exit 9
     assert "- required approvals: 0" in combined_output
 
 
-def test_configure_repo_protections_allows_explicit_required_approvals() -> None:
-    """Dry-run output should reflect non-default approval requirements."""
+def test_nurt_secure_repo_interactively_prompts_for_required_approvals() -> None:
+    """Interactive secure-repo runs should ask for required approvals and default to 0."""
 
     repo_root = Path(__file__).resolve().parents[2]
-    script_path = repo_root / "scripts" / "configure-repo-protections.sh"
+    result = run_nurt_command(
+        cwd=repo_root,
+        args=[
+            "secure-repo",
+            "--dry-run",
+            "--repo",
+            "example-org/example-repo",
+            "--required-check",
+            "Tests (ubuntu-latest)",
+        ],
+        env={"NURT_UI_MODE": "plain"},
+        input_text="\n",
+    )
 
-    shell = _resolve_posix_shell()
-    result = subprocess.run(
-        [
-            shell,
-            str(script_path),
+    assert result.returncode == 0, (
+        "Expected interactive secure-repo dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    combined_output = f"{result.stdout}\n{result.stderr}"
+    assert "Repository approval policy" in combined_output
+    assert "Required approvals [0]:" in combined_output
+    assert "- required approvals: 0" in combined_output
+
+
+def test_nurt_secure_repo_allows_explicit_required_approvals() -> None:
+    """Explicit approval counts should flow through the dry-run payload."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    result = run_nurt_command(
+        cwd=repo_root,
+        args=[
+            "secure-repo",
             "--dry-run",
             "--repo",
             "example-org/example-repo",
@@ -176,15 +194,12 @@ def test_configure_repo_protections_allows_explicit_required_approvals() -> None
             "2",
             "--required-check",
             "Tests (ubuntu-latest)",
+            "--no-interactive",
         ],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
     )
 
     assert result.returncode == 0, (
-        "Expected protections script dry-run with explicit approvals to succeed.\n"
+        "Expected secure-repo dry-run with explicit approvals to succeed.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
