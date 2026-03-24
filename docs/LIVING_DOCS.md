@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` and `6.0` are now complete, and the next open planning front is feature `7.0` (`nurt upgrade`).
+The template implementation remains intact, features `5.0`, `6.0`, and `7.0` are now complete, and the next open planning front is feature `8.0` (converting legacy scripts into native `nurt` commands).
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-19_04-33-30_PM.md`.
-- Root `PLAN.md` now carries the comprehensive feature `6.0` implementation plan, while root `PROGRESS.md` remains the active cumulative tracker.
+- Root `PLAN.md` now carries the comprehensive feature `7.0` implementation record, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -39,7 +39,9 @@ The template implementation remains intact, features `5.0` and `6.0` are now com
 - The live root package now carries explicit `tool.uv.build-backend` settings (`module-name = "new_repo_template"`, `module-root = "src"`, `source-include = ["tests/**"]`) so `uv_build` packages the repo correctly despite the distribution/module-name mismatch.
 - Runtime JSON/YAML/data files remain valid for generated Python projects, but they should live inside `src/<module>/...` and be loaded as package resources rather than from ad hoc working-directory paths.
 - Feature `6.0` closeout also re-affirmed the manifest-driven template-sync rule: the JSON source manifest itself controls which exact foundation files participate in `nurt sync template-assets`, and the Python helper layer no longer imposes a second hardcoded sync allowlist on top of those flags.
-- The future self-update command name is now intentionally `nurt upgrade`; the currently scaffolded `nurt update` behavior is not the locked feature `7.0` contract.
+- Feature `7.0` is now complete: `nurt upgrade` is the only supported self-update command, `nurt update` has been removed instead of preserved as an alias, and v1 support is intentionally limited to `uv`-managed installs.
+- The self-update implementation now targets the installed uv distribution name `nurt-ai` even though the exposed executable remains `nurt`, which keeps the operator-facing command stable while matching uv's installed-tool identity rules.
+- Startup update notices now use `uv tool list --outdated` as the non-mutating detection surface, and successful `nurt upgrade` runs keep template-asset refresh as a separate suggested step via `nurt sync template-assets` rather than auto-running sync.
 
 ## Active Implementation Rules
 
@@ -78,7 +80,7 @@ The template implementation remains intact, features `5.0` and `6.0` are now com
 - Template-asset sync source: bundled assets from the currently installed `nurt` version, not live template-repo HEAD
 - Template-asset sync scope: exact manifest-declared file paths only; no broad directory syncs or delete/prune behavior
 - Template-asset sync manifest model: one `source_manifest.json` with per-entry `management` metadata for scaffold/sync responsibilities
-- Self-update command naming: the intended future command is `nurt upgrade`, not `nurt update`
+- Self-update workflow: `nurt upgrade` is the only supported command, it targets the uv-installed package `nurt-ai`, and startup notices use `uv tool list --outdated`
 
 ## Known Constraints
 
@@ -92,6 +94,7 @@ The template implementation remains intact, features `5.0` and `6.0` are now com
 - Foundation and JS-only outputs stay free of Python-only metadata files, while Python-enabled outputs scaffold a root uv workspace (`pyproject.toml`, `uv.lock`) plus app-local interpreter pinning at `apps/python/.python-version`.
 - Root JS workspaces now cover both support packages and nested generated projects with `apps/*`, `packages/*`, `apps/*/*`, and `packages/*/*`.
 - `nurt add` only operates from the repo root of an explicit nurt-generated repo, never searches parent directories for a marker, and never runs the new-repo git/BMAD/core-tools post-create lifecycle.
+- Self-update v1 is intentionally narrow: only `uv`-managed installs are supported, and non-uv/manual channels fall back to explicit reinstall guidance instead of best-effort auto-detection.
 
 ## Implementation Notes (M0-M1)
 

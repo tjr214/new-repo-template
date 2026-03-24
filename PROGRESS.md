@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-19 07:01:28 PM
-**Current Phase:** Feature `6.0` is complete and validated; next up is the YELLOW discussion/planning pass for feature `7.0` (`nurt upgrade`)
+**Last Updated:** 2026-03-24 01:33:44 PM
+**Current Phase:** Feature `7.0` is complete and validated; next up is the YELLOW discussion/planning pass for feature `8.0` (convert legacy scripts into native `nurt` commands)
 
 ## Previous Cycle Archives
 
@@ -173,7 +173,13 @@
 - [x] Refreshed bundled snapshot metadata with `nurt template-assets validate`, then restored the user-managed `sync` flags in `src/new_repo_template/snapshot_assets/source_manifest.json` and removed the over-strict hardcoded foundation sync allowlist from `src/new_repo_template/foundation_manifest.py` so the JSON manifest remains the sole source of truth for template-sync scope.
 - [x] Revalidated the manifest-driven sync correction with `uv run pytest tests/contracts/test_snapshot_assets_contract.py tests/contracts/test_template_asset_sync_contract.py tests/contracts/test_nurt_cli_contract.py` (35 passed).
 - [x] Revalidated feature `6.0` end to end with targeted Python contracts (15 passed), explicit root and generated-package `uv build` checks, `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (215 passed).
+- [x] Ran the full feature `7.0` YELLOW pass by rereading the roadmap, active plan, progress/docs files, release workflow, CLI implementation, README install guidance, and the `nurt` CLI contract suite before editing.
+- [x] Revalidated BTCA context for feature `7.0` with `btca status`, `btca resources`, and multiple `btca ask -r uv` lookups, confirming that `uv tool upgrade <installed-package>` is the supported self-update path, that `uv tool list --outdated` is the safer non-mutating startup-check surface than `uv tool upgrade --dry-run`, and that reinstall remediation should reuse `uv tool install` with the same Git source when needed.
+- [x] Empirically verified the real uv tool target shape in an isolated workspace-local uv tool directory: the installed executable is `nurt`, but the upgradeable uv distribution name is `nurt-ai`, so the supported command path is `uv tool upgrade nurt-ai`.
+- [x] Completed the RED/GREEN/BLUE work for feature `7.0`: replaced the old `update` command with `upgrade`, removed the `nurt update` CLI surface entirely, switched startup notices to `uv tool list --outdated`, updated contract coverage for `nurt upgrade`, old-command rejection, missing-uv remediation, and distribution-name targeting, and kept template-asset sync as a separate operator step.
+- [x] Revalidated feature `7.0` with `uv run pytest tests/contracts/test_nurt_cli_contract.py` (31 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (219 passed).
+- [x] Synced the feature `7.0` closeout across `README.md`, `TODO-FEATURES.md`, `PLAN.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
 
 ## Next Up
 
-- [ ] Run the YELLOW discussion/planning pass for feature `7.0` (`nurt upgrade`), including the dependency/update UX questions that are still intentionally unresolved.
+- [ ] Run the YELLOW discussion/planning pass for feature `8.0` (convert old scripts into native `nurt` commands), including the command-surface decisions for branch protection and RALPH workflows before implementation begins.

@@ -41,6 +41,10 @@ from new_repo_template.version_baseline import (
 
 AUTH_CHOICES: tuple[str, str, str] = ("clerk", "better-auth", "none")
 
+SELF_UPDATE_PACKAGE_NAME = "nurt-ai"
+SELF_UPDATE_COMMAND_NAME = "nurt"
+SELF_UPDATE_INSTALL_SPEC = "git+https://github.com/tjr214/new-repo-template.git"
+
 INTERACTIVE_WIZARD_CANCELLED = "Interactive wizzard cancelled. Maybe next time!"
 
 INTERACTIVE_PROJECT_NAME_REMEDIATION = (
@@ -98,14 +102,14 @@ def perform_startup_update_check() -> None:
         normalized = simulated_version.strip().lower()
         if normalized not in {"", "none", "0", "false", "no"}:
             print(
-                f"Update available for nurt: {simulated_version}. Run `nurt update`.",
+                f"Update available for nurt: {simulated_version}. Run `nurt upgrade`.",
                 file=sys.stderr,
             )
         return
 
     try:
         check_result = subprocess.run(
-            ["uv", "tool", "upgrade", "--dry-run", "nurt"],
+            ["uv", "tool", "list", "--outdated"],
             capture_output=True,
             text=True,
             check=False,
@@ -114,14 +118,23 @@ def perform_startup_update_check() -> None:
     except FileNotFoundError, subprocess.TimeoutExpired:
         return
 
-    combined_output = f"{check_result.stdout}\n{check_result.stderr}".lower()
-    if (
-        check_result.returncode == 0
-        and "upgrade" in combined_output
-        and "nurt" in combined_output
-        and "would" in combined_output
-    ):
-        print("Update available for nurt. Run `nurt update`.", file=sys.stderr)
+    if check_result.returncode != 0:
+        return
+
+    if _outdated_tools_include_nurt(check_result.stdout):
+        print("Update available for nurt. Run `nurt upgrade`.", file=sys.stderr)
+
+
+def _outdated_tools_include_nurt(output: str) -> bool:
+    package_names = {SELF_UPDATE_PACKAGE_NAME, SELF_UPDATE_COMMAND_NAME}
+    for raw_line in output.splitlines():
+        line = raw_line.strip().lower()
+        if line == "" or line.startswith("-"):
+            continue
+        package_name = line.split(maxsplit=1)[0]
+        if package_name in package_names:
+            return True
+    return False
 
 
 def prompt_targets(*, ui_config: InteractiveUIConfig) -> list[str]:
@@ -420,9 +433,9 @@ def build_parser() -> argparse.ArgumentParser:
     add_parser.add_argument("--dry-run", action="store_true")
     add_parser.set_defaults(handler=handle_add)
 
-    update_parser = subparsers.add_parser("update", help="Upgrade nurt")
-    update_parser.add_argument("--dry-run", action="store_true")
-    update_parser.set_defaults(handler=handle_update)
+    upgrade_parser = subparsers.add_parser("upgrade", help="Upgrade nurt")
+    upgrade_parser.add_argument("--dry-run", action="store_true")
+    upgrade_parser.set_defaults(handler=handle_upgrade)
 
     sync_parser = subparsers.add_parser("sync", help="Sync managed resources")
     sync_subparsers = sync_parser.add_subparsers(dest="sync_command", required=True)
@@ -856,19 +869,44 @@ def handle_add(args: argparse.Namespace) -> int:
     return 0
 
 
-def handle_update(args: argparse.Namespace) -> int:
-    command = ["uv", "tool", "upgrade", "nurt"]
+def handle_upgrade(args: argparse.Namespace) -> int:
+    command = ["uv", "tool", "upgrade", SELF_UPDATE_PACKAGE_NAME]
     if args.dry_run:
-        print("DRY RUN: would execute `uv tool upgrade nurt`")
+        print(
+            "DRY RUN: would execute "
+            f"`uv tool upgrade {SELF_UPDATE_PACKAGE_NAME}` "
+            f"to refresh the installed `{SELF_UPDATE_COMMAND_NAME}` tool"
+        )
         return 0
 
     try:
-        result = subprocess.run(command, check=False)
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
     except FileNotFoundError:
-        print("Error: uv is required to update nurt.", file=sys.stderr)
+        print(
+            "Error: uv is required to upgrade nurt. Install uv and rerun `nurt upgrade`.",
+            file=sys.stderr,
+        )
         return 1
 
-    return result.returncode
+    if result.stdout:
+        print(result.stdout, end="")
+    if result.stderr:
+        print(result.stderr, end="", file=sys.stderr)
+
+    if result.returncode != 0:
+        print(
+            "Error: `uv tool upgrade nurt-ai` failed. "
+            "If the current install is no longer upgradeable through uv, reinstall with "
+            f"`uv tool install {SELF_UPDATE_INSTALL_SPEC}`.",
+            file=sys.stderr,
+        )
+        return result.returncode
+
+    print(
+        "If you want to refresh bundled managed files in a generated repo, "
+        "run `nurt sync template-assets` separately."
+    )
+    return 0
 
 
 def handle_tools_sync(args: argparse.Namespace) -> int:

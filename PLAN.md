@@ -1,11 +1,19 @@
 # Feature 7.0 Plan - `nurt upgrade`
 
-**Last Updated:** 2026-03-24 01:17:07 PM
-**Status:** Ready for YELLOW
+**Last Updated:** 2026-03-24 01:33:44 PM
+**Status:** Completed
 **Previous Cycle Archive:** `docs/archive/plans/PLAN_2026-03-20_12-11-26_AM.md`
 **Previous Cycle Summary:** `docs/session-summaries/SESSION_116_SUMMARY.md`
 **Roadmap Source:** `TODO-FEATURES.md`
 **Primary Goal:** Replace the transitional `nurt update` behavior with the real feature `7.0` contract: a supported `nurt upgrade` command for `uv`-managed installs, with no alias and no automatic template-asset sync.
+
+## Outcome
+
+- Feature `7.0` is now complete.
+- The live CLI now exposes `nurt upgrade` as the only supported self-update command.
+- The old `nurt update` surface has been removed rather than preserved as a compatibility alias.
+- Startup notices now use `uv tool list --outdated`, and the real upgrade command targets uv package `nurt-ai` while preserving the operator-facing executable name `nurt`.
+- Template-asset sync remains intentionally separate and is only suggested as a follow-up via `nurt sync template-assets`.
 
 ---
 
@@ -108,14 +116,14 @@ The YELLOW phase must be completed and documented before implementation edits be
 
 ### YELLOW completion checklist
 
-- [ ] Reread the full file set above.
-- [ ] Run `btca status`.
-- [ ] Run `btca resources`.
-- [ ] Run the required `btca ask` lookups for `uv` self-upgrade semantics.
-- [ ] Confirm the exact supported upgrade command shape.
-- [ ] Confirm whether the startup check can stay as `uv tool upgrade --dry-run ...` or needs a safer/clearer variant.
-- [ ] Confirm all user-visible wording to replace `update` with `upgrade`.
-- [ ] Record any remaining risks before starting RED.
+- [x] Reread the full file set above.
+- [x] Run `btca status`.
+- [x] Run `btca resources`.
+- [x] Run the required `btca ask` lookups for `uv` self-upgrade semantics.
+- [x] Confirm the exact supported upgrade command shape.
+- [x] Confirm whether the startup check can stay as `uv tool upgrade --dry-run ...` or needs a safer/clearer variant.
+- [x] Confirm all user-visible wording to replace `update` with `upgrade`.
+- [x] Record any remaining risks before starting RED.
 
 ---
 
@@ -143,11 +151,11 @@ Add or update failing tests/contracts so the desired feature surface is locked b
 
 ### RED completion checklist
 
-- [ ] Replace old-name dry-run test coverage with `nurt upgrade` coverage.
-- [ ] Add explicit rejection coverage for `nurt update`.
-- [ ] Update startup-notice contract wording.
-- [ ] Add missing-`uv` failure coverage if absent.
-- [ ] Ensure RED fails for the right reasons before GREEN begins.
+- [x] Replace old-name dry-run test coverage with `nurt upgrade` coverage.
+- [x] Add explicit rejection coverage for `nurt update`.
+- [x] Update startup-notice contract wording.
+- [x] Add missing-`uv` failure coverage if absent.
+- [x] Ensure RED fails for the right reasons before GREEN begins.
 
 ---
 
@@ -174,11 +182,11 @@ Implement the minimum change set required to satisfy the RED contracts without b
 
 ### GREEN completion checklist
 
-- [ ] Parser exposes `upgrade`, not `update`.
-- [ ] Startup notice text uses `nurt upgrade`.
-- [ ] Dry-run output is explicit and non-destructive.
-- [ ] Missing-`uv` and unsupported-path failures are clear.
-- [ ] No implementation path auto-runs template sync.
+- [x] Parser exposes `upgrade`, not `update`.
+- [x] Startup notice text uses `nurt upgrade`.
+- [x] Dry-run output is explicit and non-destructive.
+- [x] Missing-`uv` and unsupported-path failures are clear.
+- [x] No implementation path auto-runs template sync.
 
 ---
 
@@ -205,10 +213,10 @@ Refactor, harden, and align copy/docs after the feature works.
 
 ### BLUE completion checklist
 
-- [ ] No live CLI/docs/tests reference `nurt update` as a supported command.
-- [ ] User-visible success/failure copy is concise and actionable.
-- [ ] Tests assert stable behavior rather than fragile prose where possible.
-- [ ] Full validation passes.
+- [x] No live CLI/docs/tests reference `nurt update` as a supported command.
+- [x] User-visible success/failure copy is concise and actionable.
+- [x] Tests assert stable behavior rather than fragile prose where possible.
+- [x] Full validation passes.
 
 ---
 
@@ -238,10 +246,10 @@ These commands are the expected validation path unless YELLOW finds a better-tar
 
 When implementation begins or completes, keep the living docs synchronized. This is mandatory, not optional.
 
-- [ ] Update `PROGRESS.md` with the YELLOW findings, implementation progress, validation commands, and feature `7.0` state.
-- [ ] Update `docs/LIVING_DOCS.md` to reflect the real `nurt upgrade` contract and current implementation status.
-- [ ] Update `docs/ARCHITECTURE.md` to remove transitional `nurt update` language from live sections and document the supported `uv`-managed self-upgrade workflow.
-- [ ] Create a brand-new session summary in `docs/session-summaries/` with the current date/time in the required format; never overwrite an existing summary.
+- [x] Update `PROGRESS.md` with the YELLOW findings, implementation progress, validation commands, and feature `7.0` state.
+- [x] Update `docs/LIVING_DOCS.md` to reflect the real `nurt upgrade` contract and current implementation status.
+- [x] Update `docs/ARCHITECTURE.md` to remove transitional `nurt update` language from live sections and document the supported `uv`-managed self-upgrade workflow.
+- [x] Create a brand-new session summary in `docs/session-summaries/` with the current date/time in the required format; never overwrite an existing summary.
 
 ---
 

@@ -627,20 +627,32 @@ def test_nurt_add_fails_outside_nurt_repo(tmp_path: Path) -> None:
     )
 
 
-def test_nurt_update_dry_run_prints_upgrade_command(tmp_path: Path) -> None:
-    """RED: nurt update dry-run should be non-destructive and explicit."""
+def test_nurt_upgrade_dry_run_prints_upgrade_command(tmp_path: Path) -> None:
+    """RED: nurt upgrade dry-run should be non-destructive and explicit."""
 
-    result = run_nurt_command(cwd=tmp_path, args=["update", "--dry-run"])
+    result = run_nurt_command(cwd=tmp_path, args=["upgrade", "--dry-run"])
 
     assert result.returncode == 0, (
-        "Expected nurt update --dry-run to succeed.\n"
+        "Expected nurt upgrade --dry-run to succeed.\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )
     combined_output = _combined_output(result)
     assert "DRY RUN" in combined_output
     assert "uv tool upgrade" in combined_output
-    assert "nurt" in combined_output
+    assert "nurt-ai" in combined_output
+    assert "nurt sync template-assets" not in combined_output
+
+
+def test_nurt_update_is_no_longer_a_supported_command(tmp_path: Path) -> None:
+    """Feature 7.0 removes the old `nurt update` command surface entirely."""
+
+    result = run_nurt_command(cwd=tmp_path, args=["update", "--dry-run"])
+
+    assert result.returncode != 0
+    combined_output = _combined_output(result)
+    assert "invalid choice" in combined_output
+    assert "upgrade" in combined_output
 
 
 def test_nurt_startup_update_check_notice_appears_when_update_available(
@@ -660,6 +672,78 @@ def test_nurt_startup_update_check_notice_appears_when_update_available(
         f"stderr:\n{result.stderr}"
     )
     assert "Update available for nurt: 9.9.9" in result.stderr
+    assert "Run `nurt upgrade`." in result.stderr
+
+
+def test_perform_startup_update_check_uses_outdated_tool_listing(
+    monkeypatch, capsys
+) -> None:
+    """Startup notices should use uv's non-mutating outdated-tool listing."""
+
+    recorded_command: list[str] | None = None
+
+    def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        nonlocal recorded_command
+        recorded_command = command
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            stdout="nurt-ai v0.2.0\n- nurt\n",
+            stderr="",
+        )
+
+    monkeypatch.delenv("NURT_UPDATE_CHECK_SIMULATE", raising=False)
+    monkeypatch.setattr(nurt_cli.subprocess, "run", fake_run)
+
+    nurt_cli.perform_startup_update_check()
+
+    captured = capsys.readouterr()
+    assert recorded_command == ["uv", "tool", "list", "--outdated"]
+    assert "Run `nurt upgrade`." in captured.err
+
+
+def test_handle_upgrade_runs_uv_tool_upgrade_for_distribution_name(
+    monkeypatch, capsys
+) -> None:
+    """The CLI command should upgrade the installed uv tool by distribution name."""
+
+    recorded_command: list[str] | None = None
+
+    def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        nonlocal recorded_command
+        recorded_command = command
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            stdout="Nothing to upgrade\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(nurt_cli.subprocess, "run", fake_run)
+
+    exit_code = nurt_cli.handle_upgrade(argparse.Namespace(dry_run=False))
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert recorded_command == ["uv", "tool", "upgrade", "nurt-ai"]
+    assert "Nothing to upgrade" in captured.out
+
+
+def test_handle_upgrade_reports_missing_uv(monkeypatch, capsys) -> None:
+    """A missing uv executable should fail with clear remediation."""
+
+    def missing_uv(
+        *_args: object, **_kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
+        raise FileNotFoundError
+
+    monkeypatch.setattr(nurt_cli.subprocess, "run", missing_uv)
+
+    exit_code = nurt_cli.handle_upgrade(argparse.Namespace(dry_run=False))
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "uv is required to upgrade nurt" in captured.err
 
 
 def test_nurt_template_assets_sync_dry_run_reports_action(tmp_path: Path) -> None:

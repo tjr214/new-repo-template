@@ -31,11 +31,11 @@
     - [x] Keep runtime Python package data inside `src/<module>/...` and load it as package resources
   - [x] And, then, do the migration from `hatchling` to `uv build`
   - [x] First, let's discuss everything through.
-- [ ] 7.0 NURT TOOL SELF-UPDATE FEATURE
-  - [ ] I am not even sure how this feature should work so we need to discuss this, at length
-  - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss
-    - [ ] Keep this separate from feature `5.0`; `nurt sync template-assets` should assume the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
-  - [ ] Once aligned, implement our new `nurt upgrade` process.
+- [x] 7.0 NURT TOOL SELF-UPDATE FEATURE
+  - [x] Discussed and locked the supported v1 scope: `nurt upgrade` is the only self-update command, it supports `uv`-managed installs, and there is no `nurt update` alias
+  - [x] The end result is that the `nurt upgrade` command updates the installed `nurt` tool through the supported `uv` workflow
+    - [x] Keep this separate from feature `5.0`; `nurt sync template-assets` assumes the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
+  - [x] Once aligned, implemented the new `nurt upgrade` process.
 - [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
   - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
   - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
