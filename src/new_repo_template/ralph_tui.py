@@ -192,7 +192,7 @@ class RalphTuiApp(App[None]):
         self.agent_name = "N/A"
         self.bmad_closeout_label = "disabled"
         self.pending_archive_path: Path | None = None
-        self._running = False
+        self._run_in_progress = False
 
     @property
     def selected_task_path(self) -> Path | None:
@@ -297,7 +297,7 @@ class RalphTuiApp(App[None]):
         self.query_one("#run_button", Button).disabled = False
         self.query_one("#status_message", Static).update(
             "Ready to run the selected task."
-            if not self._running
+            if not self._run_in_progress
             else "RALPH is running."
         )
         self.current_visualization = visualize_ralph_task_file(plan.path)
@@ -345,7 +345,7 @@ class RalphTuiApp(App[None]):
         self.update_max_loops(event.value)
 
     def update_max_loops(self, raw_value: str) -> None:
-        if self._running:
+        if self._run_in_progress:
             return
         normalized = raw_value.strip()
         if normalized == "":
@@ -370,16 +370,17 @@ class RalphTuiApp(App[None]):
         self.action_archive_completed()
 
     def action_run_selected(self) -> None:
-        if self.selected_task_path is None or self._running:
+        if self.selected_task_path is None or self._run_in_progress:
             return
-        self._running = True
+        self._run_in_progress = True
         self.current_loop = 0
         self.last_run_summary = None
         self.pending_archive_path = None
         self.query_one("#archive_button", Button).disabled = True
-        self.query_one("#status_message", Static).update("RALPH is running...")
+        self.query_one("#status_message", Static).update("Launching Agent Loop...")
         self.query_one("#log_pane", RichLog).clear()
         self.log_history.clear()
+        self._handle_log_line(RalphTuiApp.LogLine("Launching Agent Loop..."))
         self._refresh_status_summary()
         if self.use_worker_thread:
             self.execute_run()
@@ -454,6 +455,8 @@ class RalphTuiApp(App[None]):
     def _handle_log_line(self, message: LogLine) -> None:
         self.log_history.append(message.line)
         self.query_one("#log_pane", RichLog).write(Text.from_ansi(message.line))
+        if self._run_in_progress and message.line != "Launching Agent Loop...":
+            self.query_one("#status_message", Static).update("Agent Loop Running...")
 
     @on(LoopChanged)
     def _handle_loop_changed(self, message: LoopChanged) -> None:
@@ -467,7 +470,7 @@ class RalphTuiApp(App[None]):
 
     @on(RunFinished)
     def _handle_run_finished(self, message: RunFinished) -> None:
-        self._running = False
+        self._run_in_progress = False
         if message.error_message is not None:
             self.last_run_summary = None
             self.query_one("#status_message", Static).update(
