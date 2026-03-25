@@ -8,17 +8,19 @@ from rich.text import Text
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.message import Message
 from textual.worker import Worker
 from textual.widgets import (
     Button,
+    ContentSwitcher,
     Footer,
     Header,
     Input,
     Label,
     ListItem,
     ListView,
+    Markdown,
     RichLog,
     Static,
 )
@@ -33,8 +35,10 @@ from new_repo_template.ralph_runner import (
 from new_repo_template.ralph_tasks import (
     RalphExecutionSettings,
     RalphTaskPlan,
+    build_ralph_dashboard_snapshot,
     discover_ralph_task_files,
     load_ralph_task_plan,
+    render_ralph_dashboard_markdown,
     resolve_execution_settings,
     visualize_ralph_task_file,
 )
@@ -106,9 +110,26 @@ class RalphTuiApp(App[None]):
         color: #f5cf85;
     }
 
-    #visualization {
+    #toggle_visualization_button {
+        width: 100%;
+        margin-bottom: 1;
+    }
+
+    #visualization_switcher {
         height: 18;
+    }
+
+    #visual_dashboard_scroll,
+    #visual_detail_scroll {
+        height: 1fr;
         overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    #visualization_dashboard,
+    #visualization_detail {
+        width: 100%;
+        text-wrap: wrap;
     }
 
     #log_pane {
@@ -133,6 +154,7 @@ class RalphTuiApp(App[None]):
     BINDINGS = [
         Binding("r", "run_selected", "Run"),
         Binding("t", "terminate_loop", "Terminate"),
+        Binding("v", "toggle_visualization_mode", "View"),
         Binding("a", "archive_completed", "Archive"),
         Binding("q", "quit", "Quit"),
         Binding("ctrl+c", "quit", show=False),
@@ -189,6 +211,8 @@ class RalphTuiApp(App[None]):
         self.max_loops = config.max_loops
         self.current_loop = 0
         self.current_visualization = ""
+        self.current_dashboard_markdown = ""
+        self.visualization_mode = "dashboard"
         self.log_history: list[str] = []
         self.last_run_summary: RalphRunSummary | None = None
         self.framework_label = "N/A"
@@ -236,7 +260,19 @@ class RalphTuiApp(App[None]):
                     yield Static(id="status_summary")
                 with Vertical(classes="panel"):
                     yield Static("Visualization", classes="panel_title")
-                    yield Static(id="visualization")
+                    yield Button(
+                        "Show Full Plan",
+                        id="toggle_visualization_button",
+                        variant="default",
+                    )
+                    with ContentSwitcher(
+                        initial="visual_dashboard_scroll",
+                        id="visualization_switcher",
+                    ):
+                        with VerticalScroll(id="visual_dashboard_scroll"):
+                            yield Markdown("", id="visualization_dashboard")
+                        with VerticalScroll(id="visual_detail_scroll"):
+                            yield Static("", id="visualization_detail")
             with Vertical(id="right_column"):
                 yield RichLog(
                     id="log_pane",
@@ -296,7 +332,8 @@ class RalphTuiApp(App[None]):
             )
             self.query_one("#run_button", Button).disabled = True
             self.current_visualization = "No visualization available."
-            self.query_one("#visualization", Static).update(self.current_visualization)
+            self.current_dashboard_markdown = "# No task selected\n\nSelect a task file to see the live Ralph dashboard.\n"
+            self._refresh_visualization_widgets()
             self._apply_run_controls_state(is_running=False)
             self._refresh_status_summary()
             return
@@ -310,9 +347,30 @@ class RalphTuiApp(App[None]):
             else "RALPH is running."
         )
         self.current_visualization = visualize_ralph_task_file(plan.path)
-        self.query_one("#visualization", Static).update(self.current_visualization)
+        self.current_dashboard_markdown = render_ralph_dashboard_markdown(plan.path)
+        self._refresh_visualization_widgets()
         self._apply_run_controls_state(is_running=self._run_in_progress)
         self._refresh_status_summary()
+
+    def _refresh_visualization_widgets(self) -> None:
+        self.query_one("#visualization_dashboard", Markdown).update(
+            self.current_dashboard_markdown
+        )
+        self.query_one("#visualization_detail", Static).update(
+            self.current_visualization
+        )
+        switcher = self.query_one("#visualization_switcher", ContentSwitcher)
+        switcher.current = (
+            "visual_dashboard_scroll"
+            if self.visualization_mode == "dashboard"
+            else "visual_detail_scroll"
+        )
+        toggle_button = self.query_one("#toggle_visualization_button", Button)
+        toggle_button.label = (
+            "Show Full Plan"
+            if self.visualization_mode == "dashboard"
+            else "Show Dashboard"
+        )
 
     def _apply_run_controls_state(self, *, is_running: bool) -> None:
         has_task = self.selected_task_path is not None
@@ -342,6 +400,12 @@ class RalphTuiApp(App[None]):
         self.query_one("#status_summary", Static).update(
             Panel.fit(summary, border_style="#3f9cae")
         )
+
+    def action_toggle_visualization_mode(self) -> None:
+        self.visualization_mode = (
+            "detail" if self.visualization_mode == "dashboard" else "dashboard"
+        )
+        self._refresh_visualization_widgets()
 
     @on(ListView.Highlighted, "#task_list")
     def _handle_task_highlighted(self, event: ListView.Highlighted) -> None:
@@ -392,6 +456,10 @@ class RalphTuiApp(App[None]):
     @on(Button.Pressed, "#terminate_button")
     def _handle_terminate_pressed(self) -> None:
         self.action_terminate_loop()
+
+    @on(Button.Pressed, "#toggle_visualization_button")
+    def _handle_visualization_toggle_pressed(self) -> None:
+        self.action_toggle_visualization_mode()
 
     def action_run_selected(self) -> None:
         if self.selected_task_path is None or self._run_in_progress:
@@ -515,7 +583,12 @@ class RalphTuiApp(App[None]):
     @on(VisualizationChanged)
     def _handle_visualization_changed(self, message: VisualizationChanged) -> None:
         self.current_visualization = message.visualization
-        self.query_one("#visualization", Static).update(self.current_visualization)
+        task_path = self.selected_task_path
+        if task_path is not None and task_path.exists():
+            self.current_dashboard_markdown = render_ralph_dashboard_markdown(task_path)
+            snapshot = build_ralph_dashboard_snapshot(task_path)
+            self.framework_label = snapshot.framework
+        self._refresh_visualization_widgets()
 
     @on(RunFinished)
     def _handle_run_finished(self, message: RunFinished) -> None:

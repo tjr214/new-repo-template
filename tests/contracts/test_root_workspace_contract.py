@@ -211,27 +211,31 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
             encoding="utf-8"
         )
 
-    mirrored_directories = (
-        repo_root / "scripts",
-        repo_root / "docs" / "markdown-templates",
-        repo_root / "docs" / "tasks",
-        repo_root / "docs" / "workflows",
-        repo_root / ".github" / "workflows",
-        repo_root / ".agent" / "rules",
-        repo_root / ".agent" / "workflows" / "project",
-        repo_root / ".opencode" / "command",
-    )
+    entries = source_manifest.get("entries")
+    assert isinstance(entries, list)
 
-    for source_root in mirrored_directories:
-        for relative in _iter_relative_files(source_root):
-            source_path = source_root / relative
-            destination_path = output_dir / source_path.relative_to(repo_root)
-            assert destination_path.exists(), (
-                f"Expected mirrored file at {destination_path}"
-            )
-            assert destination_path.read_text(
-                encoding="utf-8"
-            ) == source_path.read_text(encoding="utf-8")
+    for entry in entries:
+        assert isinstance(entry, dict)
+        source = entry.get("source")
+        destination = entry.get("destination")
+        management = entry.get("management")
+        if not isinstance(source, str) or not isinstance(destination, str):
+            continue
+        if not isinstance(management, dict) or not management.get("scaffold"):
+            continue
+        if not destination.startswith("templates/foundation/"):
+            continue
+
+        source_path = repo_root / source
+        destination_path = output_dir / destination.removeprefix(
+            "templates/foundation/"
+        )
+        assert destination_path.exists(), (
+            f"Expected mirrored file at {destination_path}"
+        )
+        assert destination_path.read_text(encoding="utf-8") == source_path.read_text(
+            encoding="utf-8"
+        )
 
     empty_directories = source_manifest.get("empty_directories")
     assert isinstance(empty_directories, list)

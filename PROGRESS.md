@@ -190,6 +190,8 @@
 - [x] Replaced hardcoded Ralph model/loop settings with `ralph.config.yaml`, added required `metadata.framework` task schema support (`bmad` or `standalone`), updated the export-to-RALPH workflow/docs to emit BMAD-backed tasks correctly, and removed the obsolete `scripts/{RALPH.sh,validate_template.py,visualize_plan.py}` wrappers from the live repo and scaffold baseline.
 - [x] Revalidated the native Ralph migration with `nurt template-assets validate`, the targeted Ralph contract suite (58 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest`.
 - [x] Hardened the Ralph TUI lifecycle so agent execution no longer auto-starts from mount state, the log pane wraps long `opencode` output, model/task/max-loop controls lock while a run is active, and both the new `Terminate` action plus app shutdown now force-kill the live `opencode` process group instead of leaving it running in the background.
+- [x] Redesigned the Ralph TUI visualization widget into a dashboard/detail system: the default pane now shows a compact live dashboard (`Overview`, `Active Now`, `Blocked`, `Up Next`, `Recent Completions`), the full tree report moved behind a toggleable detail mode, both views use vertical scrolling, and horizontal overflow now wraps instead of relying on side-scrolling or clipped text.
+- [x] Added dashboard/detail regression coverage for the Ralph TUI, fixed an unrelated foundation workspace contract to assert scaffolded files from the source manifest rather than every ad hoc repo file under `docs/tasks/`, and revalidated the full repository suite at 233 passing tests.
 
 ## Next Up
 

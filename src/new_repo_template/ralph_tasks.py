@@ -44,6 +44,31 @@ class RalphValidationResult:
     schema_path: Path | None
 
 
+@dataclass(frozen=True)
+class RalphDashboardEntry:
+    kind: str
+    item_id: str
+    title: str
+    status: str
+    blocked_reason: str | None
+
+
+@dataclass(frozen=True)
+class RalphDashboardSnapshot:
+    task_name: str
+    framework: str
+    task_status: str
+    done_count: int
+    active_count: int
+    blocked_count: int
+    pending_count: int
+    percent_complete: float
+    active_items: tuple[RalphDashboardEntry, ...]
+    blocked_items: tuple[RalphDashboardEntry, ...]
+    up_next_items: tuple[RalphDashboardEntry, ...]
+    recent_completions: tuple[RalphDashboardEntry, ...]
+
+
 def discover_ralph_task_files(project_root: Path) -> tuple[Path, ...]:
     tasks_root = project_root / "docs" / "tasks"
     if not tasks_root.exists():
@@ -351,6 +376,190 @@ def _append_phase_lines(
         for sub_phase_obj in sub_phases_obj:
             if isinstance(sub_phase_obj, dict):
                 _append_phase_lines(lines, sub_phase_obj, indent + "  ")
+
+
+def _instruction_title(instruction: dict[str, object]) -> str:
+    content = instruction.get("content", "")
+    first_line = content.split("\n")[0].strip() if isinstance(content, str) else ""
+    if len(first_line) > 90:
+        return first_line[:87] + "..."
+    return first_line or "Instruction"
+
+
+def _build_dashboard_entries_for_step(
+    entries: list[RalphDashboardEntry],
+    step: dict[str, object],
+) -> None:
+    step_status = step.get("status", "pending")
+    entries.append(
+        RalphDashboardEntry(
+            kind="Step",
+            item_id=str(step.get("id", "unknown")),
+            title=str(step.get("name", "Unnamed")),
+            status=str(step_status),
+            blocked_reason=(
+                str(step.get("blocked_reason"))
+                if step.get("blocked_reason") is not None
+                else None
+            ),
+        )
+    )
+
+    instructions_obj = step.get("instructions", [])
+    if isinstance(instructions_obj, list):
+        for instruction_obj in instructions_obj:
+            if not isinstance(instruction_obj, dict):
+                continue
+            instruction_status = instruction_obj.get("status", "pending")
+            entries.append(
+                RalphDashboardEntry(
+                    kind="Instruction",
+                    item_id=str(instruction_obj.get("id", "unknown")),
+                    title=_instruction_title(instruction_obj),
+                    status=str(instruction_status),
+                    blocked_reason=(
+                        str(instruction_obj.get("blocked_reason"))
+                        if instruction_obj.get("blocked_reason") is not None
+                        else None
+                    ),
+                )
+            )
+
+
+def _build_dashboard_entries_for_phase(
+    entries: list[RalphDashboardEntry],
+    phase: dict[str, object],
+) -> None:
+    phase_status = phase.get("status", "pending")
+    entries.append(
+        RalphDashboardEntry(
+            kind="Phase",
+            item_id=str(phase.get("id", "unknown")),
+            title=str(phase.get("name", "Unnamed")),
+            status=str(phase_status),
+            blocked_reason=(
+                str(phase.get("blocked_reason"))
+                if phase.get("blocked_reason") is not None
+                else None
+            ),
+        )
+    )
+
+    steps_obj = phase.get("steps", [])
+    if isinstance(steps_obj, list):
+        for step_obj in steps_obj:
+            if isinstance(step_obj, dict):
+                _build_dashboard_entries_for_step(entries, step_obj)
+
+    sub_phases_obj = phase.get("sub_phases", [])
+    if isinstance(sub_phases_obj, list):
+        for sub_phase_obj in sub_phases_obj:
+            if isinstance(sub_phase_obj, dict):
+                _build_dashboard_entries_for_phase(entries, sub_phase_obj)
+
+
+def build_ralph_dashboard_snapshot(task_file: Path) -> RalphDashboardSnapshot:
+    data = _read_yaml_mapping(task_file)
+    metadata = data.get("metadata", {})
+    task_obj = data.get("task", {})
+    if not isinstance(metadata, dict) or not isinstance(task_obj, dict):
+        raise ValueError(f"invalid Ralph task structure in {task_file}")
+
+    overall_counts = {"pending": 0, "active": 0, "blocked": 0, "done": 0}
+    phases_obj = task_obj.get("phases", [])
+    if isinstance(phases_obj, list):
+        for phase_obj in phases_obj:
+            if not isinstance(phase_obj, dict):
+                continue
+            phase_counts = _count_statuses_in_phase(phase_obj)
+            for status_name, count in phase_counts.items():
+                overall_counts[status_name] = overall_counts.get(status_name, 0) + count
+
+    entries: list[RalphDashboardEntry] = []
+    if isinstance(phases_obj, list):
+        for phase_obj in phases_obj:
+            if isinstance(phase_obj, dict):
+                _build_dashboard_entries_for_phase(entries, phase_obj)
+
+    active_items = tuple(entry for entry in entries if entry.status == "active")
+    blocked_items = tuple(entry for entry in entries if entry.status == "blocked")
+    up_next_items = tuple(entry for entry in entries if entry.status == "pending")[:5]
+    recent_completions = tuple(entry for entry in entries if entry.status == "done")[
+        -5:
+    ]
+    recent_completions = tuple(reversed(recent_completions))
+
+    total_count = sum(overall_counts.values())
+    percent_complete = (
+        (overall_counts.get("done", 0) / total_count) * 100 if total_count > 0 else 0.0
+    )
+
+    return RalphDashboardSnapshot(
+        task_name=str(task_obj.get("name", "Unnamed")),
+        framework=str(metadata.get("framework", "N/A")),
+        task_status=str(task_obj.get("status", "pending")),
+        done_count=overall_counts.get("done", 0),
+        active_count=overall_counts.get("active", 0),
+        blocked_count=overall_counts.get("blocked", 0),
+        pending_count=overall_counts.get("pending", 0),
+        percent_complete=percent_complete,
+        active_items=active_items,
+        blocked_items=blocked_items,
+        up_next_items=up_next_items,
+        recent_completions=recent_completions,
+    )
+
+
+def _entry_markdown_line(entry: RalphDashboardEntry) -> str:
+    return f"- **{entry.kind} {entry.item_id}** - {entry.title}"
+
+
+def render_ralph_dashboard_markdown(task_file: Path) -> str:
+    snapshot = build_ralph_dashboard_snapshot(task_file)
+    lines = [
+        f"# {snapshot.task_name}",
+        "",
+        "## Overview",
+        f"- **Framework:** `{snapshot.framework}`",
+        f"- **Task Status:** {STATUS_ICONS.get(snapshot.task_status, '❓')} {STATUS_NAMES.get(snapshot.task_status, snapshot.task_status.upper())}",
+        f"- **Progress:** {snapshot.percent_complete:.1f}% complete",
+        (
+            f"- **Counts:** ✅ {snapshot.done_count} done / 🔵 {snapshot.active_count} active / "
+            f"🔴 {snapshot.blocked_count} blocked / ⭕ {snapshot.pending_count} pending"
+        ),
+        "",
+        "## Active Now",
+    ]
+
+    if snapshot.active_items:
+        lines.extend(_entry_markdown_line(entry) for entry in snapshot.active_items)
+    else:
+        lines.append("- No active items right now.")
+
+    lines.extend(["", "## Blocked"])
+    if snapshot.blocked_items:
+        for entry in snapshot.blocked_items:
+            lines.append(_entry_markdown_line(entry))
+            if entry.blocked_reason:
+                lines.append(f"  - Reason: {entry.blocked_reason}")
+    else:
+        lines.append("- No blocked items.")
+
+    lines.extend(["", "## Up Next"])
+    if snapshot.up_next_items:
+        lines.extend(_entry_markdown_line(entry) for entry in snapshot.up_next_items)
+    else:
+        lines.append("- No pending items remain.")
+
+    lines.extend(["", "## Recent Completions"])
+    if snapshot.recent_completions:
+        lines.extend(
+            _entry_markdown_line(entry) for entry in snapshot.recent_completions
+        )
+    else:
+        lines.append("- No completed items yet.")
+
+    return "\n".join(lines).strip() + "\n"
 
 
 def visualize_ralph_task_file(task_file: Path) -> str:

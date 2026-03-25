@@ -200,6 +200,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - The old RALPH shell/Python wrappers are retired: generated repos no longer scaffold `scripts/RALPH.sh`, `scripts/validate_template.py`, or `scripts/visualize_plan.py`, and the supported maintainer/runtime surface is now the native `nurt ralph` command family.
 - Ralph task plans are now framework-aware at the schema level: `docs/tasks/task-template-schema.json` requires `metadata.framework`, BMAD exports must emit `framework: bmad`, standalone plans must emit `framework: standalone`, and runner branching derives the active agent (`bmad-master` or `build`) plus BMAD closeout behavior from that field.
 - Ralph subprocess management now uses an explicit controller/process-group model in `src/new_repo_template/ralph_runner.py`: active `opencode` runs are launched in their own process group, the Textual app locks mutable execution controls while a loop is active, and both the terminate action and app shutdown path kill the active process group before the app exits.
+- Ralph task summarization is now dual-purpose in `src/new_repo_template/ralph_tasks.py`: the CLI `visualize` path still emits the full text/tree report, while the TUI consumes a separate dashboard snapshot/markdown projection that emphasizes active, blocked, next, and recently completed work for live operations.
+- The Ralph TUI visualization column now uses `ContentSwitcher` plus `VerticalScroll` containers in `src/new_repo_template/ralph_tui.py`, which keeps the default dashboard compact, allows switching to the full-plan detail pane, and enforces vertical scrolling with wrapped content rather than horizontal scrolling.
 
 ## Validation Model
 

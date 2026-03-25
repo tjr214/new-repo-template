@@ -5,7 +5,8 @@ from threading import Event
 from time import sleep
 from pathlib import Path
 
-from textual.widgets import Button, Input, ListView, RichLog
+from textual.containers import VerticalScroll
+from textual.widgets import Button, ContentSwitcher, Input, ListView, Markdown, RichLog
 
 from new_repo_template.ralph_config import load_ralph_config
 from new_repo_template.ralph_runner import RalphRunController
@@ -53,6 +54,29 @@ def test_ralph_tui_loads_tasks_models_and_derived_status(tmp_path: Path) -> None
             assert app.agent_name == "bmad-master"
             assert app.bmad_closeout_label == "enabled"
             assert max_loops_input.value == "20"
+            assert app.visualization_mode == "dashboard"
+            assert "## Overview" in app.current_dashboard_markdown
+            assert "## Up Next" in app.current_dashboard_markdown
+            assert (
+                "TASK IMPLEMENTATION PLAN - STATUS SUMMARY" in app.current_visualization
+            )
+
+            switcher = app.query_one("#visualization_switcher", ContentSwitcher)
+            toggle_button = app.query_one("#toggle_visualization_button", Button)
+            dashboard_scroll = app.query_one("#visual_dashboard_scroll", VerticalScroll)
+            detail_scroll = app.query_one("#visual_detail_scroll", VerticalScroll)
+
+            assert switcher.current == "visual_dashboard_scroll"
+            assert str(toggle_button.label) == "Show Full Plan"
+            assert dashboard_scroll.styles.overflow_x == "hidden"
+            assert detail_scroll.styles.overflow_x == "hidden"
+
+            app.action_toggle_visualization_mode()
+            await pilot.pause()
+
+            assert app.visualization_mode == "detail"
+            assert switcher.current == "visual_detail_scroll"
+            assert str(toggle_button.label) == "Show Dashboard"
 
             await pilot.click("#task_list")
             await pilot.press("down")
@@ -114,6 +138,7 @@ def test_ralph_tui_runs_injected_runner_and_updates_loop_and_logs(
             assert app.last_run_summary is not None
             assert app.last_run_summary.completed is True
             assert "demo visualization" in app.current_visualization
+            assert "## Overview" in app.current_dashboard_markdown
             assert app.log_history[-1] == "loop started"
             assert log_widget.lines
 
@@ -167,12 +192,14 @@ def test_ralph_tui_locks_controls_and_can_terminate_active_run(tmp_path: Path) -
             max_loops_input = app.query_one("#max_loops_input", Input)
             terminate_button = app.query_one("#terminate_button", Button)
             log_widget = app.query_one("#log_pane", RichLog)
+            dashboard_widget = app.query_one("#visualization_dashboard", Markdown)
 
             assert model_list.disabled is True
             assert task_list.disabled is True
             assert max_loops_input.disabled is True
             assert terminate_button.disabled is False
             assert log_widget.wrap is True
+            assert dashboard_widget.parent is not None
 
             app.action_terminate_loop()
             await pilot.pause(0.2)
