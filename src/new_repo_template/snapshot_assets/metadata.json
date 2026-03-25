@@ -155,7 +155,7 @@
     },
     {
       "destination": "templates/foundation/ralph.config.yaml",
-      "sha256": "fd0fbd200b9aaab9b94c5be5740d7f2b5f2c5751dc9045693af28f092586230a"
+      "sha256": "0cc542a9ce0a1c66360b6efd36f6f00ee00130450d8aacd3f69a8e79f55e9884"
     },
     {
       "destination": "templates/foundation/scripts/synthetic-quotas.sh",
@@ -170,7 +170,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-25T00:56:23.000235+00:00",
+  "generated_at": "2026-03-25T01:10:04.021514+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "3d5496b74321252c79bd7e56a82e9ec399dcec6a"
+  "source_commit": "66d9f1edca978d7e472417dd0d07c260ec74b29e"
 }
