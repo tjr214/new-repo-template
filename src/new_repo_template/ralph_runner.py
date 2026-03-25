@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import os
+import signal
 import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from threading import Lock
 from typing import TextIO
 
 from new_repo_template.ralph_tasks import (
@@ -26,6 +29,77 @@ class RalphRunSummary:
     task_file: Path
     archived_path: Path | None
     framework: str
+    terminated: bool = False
+
+
+class RalphLoopTerminationRequested(RuntimeError):
+    """Raised when the active Ralph loop is terminated by the operator."""
+
+
+class RalphRunController:
+    def __init__(self) -> None:
+        self._lock = Lock()
+        self._active_process: subprocess.Popen[str] | None = None
+        self._stop_requested = False
+
+    @property
+    def stop_requested(self) -> bool:
+        with self._lock:
+            return self._stop_requested
+
+    def request_stop(self) -> None:
+        with self._lock:
+            self._stop_requested = True
+
+    def attach_process(self, process: subprocess.Popen[str]) -> None:
+        should_terminate = False
+        with self._lock:
+            self._active_process = process
+            should_terminate = self._stop_requested
+        if should_terminate:
+            terminate_process_tree(process)
+            raise RalphLoopTerminationRequested("Agent loop terminated by user.")
+
+    def clear_process(self, process: subprocess.Popen[str] | None = None) -> None:
+        with self._lock:
+            if process is None or self._active_process is process:
+                self._active_process = None
+
+    def terminate_active_process(self) -> None:
+        process: subprocess.Popen[str] | None
+        with self._lock:
+            self._stop_requested = True
+            process = self._active_process
+        if process is not None:
+            terminate_process_tree(process)
+
+
+def terminate_process_tree(process: subprocess.Popen[str]) -> None:
+    if process.poll() is not None:
+        return
+
+    if os.name != "nt":
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+        except ProcessLookupError:
+            return
+        try:
+            process.wait(timeout=2)
+            return
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+            except ProcessLookupError:
+                return
+            process.wait()
+            return
+
+    process.terminate()
+    try:
+        process.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
 
 
 def _emit_log(on_log, line: str) -> None:
@@ -38,27 +112,64 @@ def _stream_process(
     *,
     on_log,
     cwd: Path,
+    controller: RalphRunController | None = None,
 ) -> int:
     try:
-        process = subprocess.Popen(
-            command,
-            cwd=cwd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            bufsize=1,
-        )
+        if os.name == "nt":
+            process = subprocess.Popen(
+                command,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                bufsize=1,
+                creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
+            )
+        else:
+            process = subprocess.Popen(
+                command,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                bufsize=1,
+                start_new_session=True,
+            )
     except FileNotFoundError as exc:
         raise RuntimeError(f"required command not found: {command[0]}") from exc
 
-    assert process.stdout is not None
-    for raw_line in process.stdout:
-        line = raw_line.rstrip("\n")
-        if line != "":
-            _emit_log(on_log, line)
-    return process.wait()
+    if controller is not None:
+        controller.attach_process(process)
+
+    try:
+        assert process.stdout is not None
+        for raw_line in process.stdout:
+            if controller is not None and controller.stop_requested:
+                terminate_process_tree(process)
+                break
+            line = raw_line.rstrip("\n")
+            if line != "":
+                _emit_log(on_log, line)
+
+        if (
+            controller is not None
+            and controller.stop_requested
+            and process.poll() is None
+        ):
+            terminate_process_tree(process)
+
+        return_code = process.wait()
+    finally:
+        if controller is not None:
+            controller.clear_process(process)
+
+    if controller is not None and controller.stop_requested:
+        raise RalphLoopTerminationRequested("Agent loop terminated by user.")
+    return return_code
 
 
 def _build_closeout_prompt(
@@ -331,6 +442,7 @@ def run_ralph_loop(
     no_interactive: bool,
     archive_completed: bool | None = None,
     stdin: TextIO | None = None,
+    controller: RalphRunController | None = None,
 ) -> RalphRunSummary:
     validation = validate_ralph_task_file(task_file, cwd=cwd)
     if not validation.is_valid:
@@ -342,6 +454,17 @@ def run_ralph_loop(
     settings = resolve_execution_settings(latest_plan)
 
     while True:
+        if controller is not None and controller.stop_requested:
+            return RalphRunSummary(
+                succeeded=False,
+                completed=False,
+                reached_max_loops=False,
+                final_loop=max(loop_counter - 1, 0),
+                task_file=task_file,
+                archived_path=None,
+                framework=settings.framework,
+                terminated=True,
+            )
         if loop_counter > max_loops:
             _emit_log(
                 on_log, f"Maximum iterations reached ({max_loops}). Stopping loop."
@@ -372,21 +495,34 @@ def run_ralph_loop(
                     task_visualization=task_visualization,
                     task_file=task_file,
                 )
-                closeout_return_code = _stream_process(
-                    [
-                        "opencode",
-                        "run",
-                        "-m",
-                        model,
-                        "--title",
-                        f"RALPH: {latest_plan.task_name} [CLOSEOUT PHASE]",
-                        "--agent",
-                        settings.closeout_agent,
-                        closeout_prompt,
-                    ],
-                    on_log=on_log,
-                    cwd=cwd,
-                )
+                try:
+                    closeout_return_code = _stream_process(
+                        [
+                            "opencode",
+                            "run",
+                            "-m",
+                            model,
+                            "--title",
+                            f"RALPH: {latest_plan.task_name} [CLOSEOUT PHASE]",
+                            "--agent",
+                            settings.closeout_agent,
+                            closeout_prompt,
+                        ],
+                        on_log=on_log,
+                        cwd=cwd,
+                        controller=controller,
+                    )
+                except RalphLoopTerminationRequested:
+                    return RalphRunSummary(
+                        succeeded=False,
+                        completed=False,
+                        reached_max_loops=False,
+                        final_loop=max(loop_counter - 1, 0),
+                        task_file=task_file,
+                        archived_path=None,
+                        framework=settings.framework,
+                        terminated=True,
+                    )
                 succeeded = closeout_return_code == 0
 
             if _should_archive_completed_task(
@@ -421,21 +557,34 @@ def run_ralph_loop(
             timestamp=datetime.now().strftime("%Y-%m-%d-%I:%M %p"),
             task_visualization=task_visualization,
         )
-        return_code = _stream_process(
-            [
-                "opencode",
-                "run",
-                "-m",
-                model,
-                "--title",
-                f"RALPH: {latest_plan.task_name} [{loop_counter}]",
-                "--agent",
-                settings.agent,
-                prompt,
-            ],
-            on_log=on_log,
-            cwd=cwd,
-        )
+        try:
+            return_code = _stream_process(
+                [
+                    "opencode",
+                    "run",
+                    "-m",
+                    model,
+                    "--title",
+                    f"RALPH: {latest_plan.task_name} [{loop_counter}]",
+                    "--agent",
+                    settings.agent,
+                    prompt,
+                ],
+                on_log=on_log,
+                cwd=cwd,
+                controller=controller,
+            )
+        except RalphLoopTerminationRequested:
+            return RalphRunSummary(
+                succeeded=False,
+                completed=False,
+                reached_max_loops=False,
+                final_loop=loop_counter,
+                task_file=task_file,
+                archived_path=None,
+                framework=settings.framework,
+                terminated=True,
+            )
         if return_code != 0:
             raise RuntimeError(f"opencode run failed with exit code {return_code}")
         loop_counter += 1

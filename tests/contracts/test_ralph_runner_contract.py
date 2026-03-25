@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import subprocess
+import sys
 from pathlib import Path
 
 from new_repo_template.ralph_config import (
@@ -7,6 +9,7 @@ from new_repo_template.ralph_config import (
     load_ralph_config,
     resolve_user_ralph_config_path,
 )
+from new_repo_template.ralph_runner import RalphRunController
 from new_repo_template.ralph_tasks import (
     load_ralph_task_plan,
     resolve_execution_settings,
@@ -194,3 +197,23 @@ task:
 
     assert result.is_valid is False
     assert "framework" in result.output
+
+
+def test_ralph_run_controller_terminates_active_process() -> None:
+    controller = RalphRunController()
+    process = subprocess.Popen(
+        [sys.executable, "-c", "import time; time.sleep(30)"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        start_new_session=True,
+    )
+    try:
+        controller.attach_process(process)
+        controller.terminate_active_process()
+        process.wait(timeout=5)
+        assert controller.stop_requested is True
+        assert process.poll() is not None
+    finally:
+        if process.poll() is None:
+            process.kill()

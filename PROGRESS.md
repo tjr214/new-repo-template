@@ -189,6 +189,7 @@
 - [x] Implemented native Ralph support with `src/new_repo_template/{ralph_config.py,ralph_tasks.py,ralph_runner.py,ralph_tui.py}` and new `nurt ralph`, `nurt ralph run`, `nurt ralph validate`, and `nurt ralph visualize` command paths in `src/new_repo_template/nurt_cli.py`.
 - [x] Replaced hardcoded Ralph model/loop settings with `ralph.config.yaml`, added required `metadata.framework` task schema support (`bmad` or `standalone`), updated the export-to-RALPH workflow/docs to emit BMAD-backed tasks correctly, and removed the obsolete `scripts/{RALPH.sh,validate_template.py,visualize_plan.py}` wrappers from the live repo and scaffold baseline.
 - [x] Revalidated the native Ralph migration with `nurt template-assets validate`, the targeted Ralph contract suite (58 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest`.
+- [x] Hardened the Ralph TUI lifecycle so agent execution no longer auto-starts from mount state, the log pane wraps long `opencode` output, model/task/max-loop controls lock while a run is active, and both the new `Terminate` action plus app shutdown now force-kill the live `opencode` process group instead of leaving it running in the background.
 
 ## Next Up
 

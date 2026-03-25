@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+from threading import Event
+from time import sleep
 from pathlib import Path
 
-from textual.widgets import Input, ListView, RichLog
+from textual.widgets import Button, Input, ListView, RichLog
 
 from new_repo_template.ralph_config import load_ralph_config
+from new_repo_template.ralph_runner import RalphRunController
 from new_repo_template.ralph_tui import RalphRunSummary, RalphTuiApp
 
 
@@ -113,5 +116,71 @@ def test_ralph_tui_runs_injected_runner_and_updates_loop_and_logs(
             assert "demo visualization" in app.current_visualization
             assert app.log_history[-1] == "loop started"
             assert log_widget.lines
+
+    asyncio.run(scenario())
+
+
+def test_ralph_tui_locks_controls_and_can_terminate_active_run(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        repo_root = tmp_path / "repo"
+        repo_root.mkdir()
+        (repo_root / "ralph.config.yaml").write_text(
+            """default_model: openai/gpt-5.4\nmax_loops: 20\nmodels:\n  - id: openai/gpt-5.4\n    label: GPT-5.4\n""",
+            encoding="utf-8",
+        )
+        _write_task_file(repo_root, framework="bmad", name="alpha-task")
+        started = Event()
+
+        def fake_run_callable(**kwargs: object) -> RalphRunSummary:
+            controller = kwargs["controller"]
+            assert controller is not None
+            assert isinstance(controller, RalphRunController)
+            started.set()
+            while not controller.stop_requested:
+                sleep(0.02)
+            return RalphRunSummary(
+                succeeded=False,
+                completed=False,
+                reached_max_loops=False,
+                final_loop=1,
+                task_file=repo_root / "docs" / "tasks" / "alpha-task.yaml",
+                archived_path=None,
+                framework="bmad",
+                terminated=True,
+            )
+
+        app = RalphTuiApp(
+            project_root=repo_root,
+            config=load_ralph_config(cwd=repo_root),
+            auto_start=False,
+            run_callable=fake_run_callable,
+        )
+
+        async with app.run_test(size=(140, 42)) as pilot:
+            await pilot.pause()
+            app.action_run_selected()
+            await pilot.pause(0.2)
+            assert started.is_set() is True
+
+            model_list = app.query_one("#model_list", ListView)
+            task_list = app.query_one("#task_list", ListView)
+            max_loops_input = app.query_one("#max_loops_input", Input)
+            terminate_button = app.query_one("#terminate_button", Button)
+            log_widget = app.query_one("#log_pane", RichLog)
+
+            assert model_list.disabled is True
+            assert task_list.disabled is True
+            assert max_loops_input.disabled is True
+            assert terminate_button.disabled is False
+            assert log_widget.wrap is True
+
+            app.action_terminate_loop()
+            await pilot.pause(0.2)
+
+            assert app._run_in_progress is False
+            assert app.last_run_summary is not None
+            assert app.last_run_summary.terminated is True
+            assert app.query_one("#model_list", ListView).disabled is False
+            assert app.query_one("#terminate_button", Button).disabled is True
 
     asyncio.run(scenario())

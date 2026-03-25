@@ -10,6 +10,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.message import Message
+from textual.worker import Worker
 from textual.widgets import (
     Button,
     Footer,
@@ -24,6 +25,7 @@ from textual.widgets import (
 
 from new_repo_template.ralph_config import RalphConfig, load_ralph_config
 from new_repo_template.ralph_runner import (
+    RalphRunController,
     RalphRunSummary,
     archive_completed_task_file,
     run_ralph_loop,
@@ -130,6 +132,7 @@ class RalphTuiApp(App[None]):
 
     BINDINGS = [
         Binding("r", "run_selected", "Run"),
+        Binding("t", "terminate_loop", "Terminate"),
         Binding("a", "archive_completed", "Archive"),
         Binding("q", "quit", "Quit"),
         Binding("ctrl+c", "quit", show=False),
@@ -193,6 +196,8 @@ class RalphTuiApp(App[None]):
         self.bmad_closeout_label = "disabled"
         self.pending_archive_path: Path | None = None
         self._run_in_progress = False
+        self._run_controller: RalphRunController | None = None
+        self._run_worker: Worker | None = None
 
     @property
     def selected_task_path(self) -> Path | None:
@@ -221,6 +226,9 @@ class RalphTuiApp(App[None]):
                     yield Static(id="status_message")
                     with Horizontal(id="actions"):
                         yield Button("Run", id="run_button", variant="primary")
+                        yield Button(
+                            "Terminate", id="terminate_button", variant="error"
+                        )
                         yield Button("Archive", id="archive_button")
             with Vertical(id="center_column"):
                 with Vertical(classes="panel"):
@@ -233,7 +241,7 @@ class RalphTuiApp(App[None]):
                 yield RichLog(
                     id="log_pane",
                     auto_scroll=True,
-                    wrap=False,
+                    wrap=True,
                     markup=False,
                     highlight=False,
                 )
@@ -266,6 +274,7 @@ class RalphTuiApp(App[None]):
 
     def on_mount(self) -> None:
         self.query_one("#archive_button", Button).disabled = True
+        self.query_one("#terminate_button", Button).disabled = True
         task_list = self.query_one("#task_list", ListView)
         model_list = self.query_one("#model_list", ListView)
         if self.task_files:
@@ -288,13 +297,13 @@ class RalphTuiApp(App[None]):
             self.query_one("#run_button", Button).disabled = True
             self.current_visualization = "No visualization available."
             self.query_one("#visualization", Static).update(self.current_visualization)
+            self._apply_run_controls_state(is_running=False)
             self._refresh_status_summary()
             return
 
         self.framework_label = plan.framework
         self.agent_name = settings.agent
         self.bmad_closeout_label = "enabled" if settings.bmad_closeout else "disabled"
-        self.query_one("#run_button", Button).disabled = False
         self.query_one("#status_message", Static).update(
             "Ready to run the selected task."
             if not self._run_in_progress
@@ -302,7 +311,18 @@ class RalphTuiApp(App[None]):
         )
         self.current_visualization = visualize_ralph_task_file(plan.path)
         self.query_one("#visualization", Static).update(self.current_visualization)
+        self._apply_run_controls_state(is_running=self._run_in_progress)
         self._refresh_status_summary()
+
+    def _apply_run_controls_state(self, *, is_running: bool) -> None:
+        has_task = self.selected_task_path is not None
+        self.query_one("#task_list", ListView).disabled = is_running
+        self.query_one("#model_list", ListView).disabled = is_running
+        self.query_one("#max_loops_input", Input).disabled = is_running
+        self.query_one("#run_button", Button).disabled = is_running or not has_task
+        self.query_one("#terminate_button", Button).disabled = not is_running
+        if is_running:
+            self.query_one("#archive_button", Button).disabled = True
 
     def _refresh_status_summary(self) -> None:
         task_label = (
@@ -369,23 +389,51 @@ class RalphTuiApp(App[None]):
     def _handle_archive_pressed(self) -> None:
         self.action_archive_completed()
 
+    @on(Button.Pressed, "#terminate_button")
+    def _handle_terminate_pressed(self) -> None:
+        self.action_terminate_loop()
+
     def action_run_selected(self) -> None:
         if self.selected_task_path is None or self._run_in_progress:
             return
         self._run_in_progress = True
+        self._run_controller = RalphRunController()
+        self._run_worker = None
         self.current_loop = 0
         self.last_run_summary = None
         self.pending_archive_path = None
-        self.query_one("#archive_button", Button).disabled = True
         self.query_one("#status_message", Static).update("Launching Agent Loop...")
         self.query_one("#log_pane", RichLog).clear()
         self.log_history.clear()
         self._handle_log_line(RalphTuiApp.LogLine("Launching Agent Loop..."))
+        self._apply_run_controls_state(is_running=True)
         self._refresh_status_summary()
         if self.use_worker_thread:
-            self.execute_run()
+            self._run_worker = self.execute_run()
             return
         self._perform_run_sync()
+
+    def _terminate_active_run(self, *, reason: str | None = None) -> None:
+        if not self._run_in_progress:
+            return
+        if reason is not None:
+            self.query_one("#status_message", Static).update(reason)
+            self._handle_log_line(RalphTuiApp.LogLine(reason))
+        if self._run_controller is not None:
+            self._run_controller.terminate_active_process()
+        if self._run_worker is not None:
+            self._run_worker.cancel()
+
+    def action_terminate_loop(self) -> None:
+        self._terminate_active_run(reason="Terminating Agent Loop...")
+
+    async def action_quit(self) -> None:
+        self._terminate_active_run(reason="App closing. Terminating Agent Loop...")
+        self.exit()
+
+    def on_unmount(self) -> None:
+        if self._run_controller is not None:
+            self._run_controller.terminate_active_process()
 
     def action_archive_completed(self) -> None:
         if self.pending_archive_path is None:
@@ -444,6 +492,7 @@ class RalphTuiApp(App[None]):
                 on_visualization=emit_visualization,
                 no_interactive=True,
                 archive_completed=False,
+                controller=self._run_controller,
             )
         except Exception as exc:
             emit_message(RalphTuiApp.RunFinished(None, str(exc)))
@@ -471,6 +520,9 @@ class RalphTuiApp(App[None]):
     @on(RunFinished)
     def _handle_run_finished(self, message: RunFinished) -> None:
         self._run_in_progress = False
+        self._run_worker = None
+        self._run_controller = None
+        self._apply_run_controls_state(is_running=False)
         if message.error_message is not None:
             self.last_run_summary = None
             self.query_one("#status_message", Static).update(
@@ -488,7 +540,9 @@ class RalphTuiApp(App[None]):
                 self.pending_archive_path = current_task_path
                 self.query_one("#archive_button", Button).disabled = False
 
-        if message.summary.succeeded:
+        if message.summary.terminated:
+            self.query_one("#status_message", Static).update("Agent Loop Terminated.")
+        elif message.summary.succeeded:
             if message.summary.completed:
                 self.query_one("#status_message", Static).update(
                     "RALPH completed. Press a to archive the completed task or q to quit."

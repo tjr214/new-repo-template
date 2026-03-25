@@ -199,6 +199,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Native Ralph architecture now lives in `src/new_repo_template/{ralph_config.py,ralph_tasks.py,ralph_runner.py,ralph_tui.py}` with clear separation between config resolution, task/schema handling, loop orchestration, and the fullscreen Textual control surface.
 - The old RALPH shell/Python wrappers are retired: generated repos no longer scaffold `scripts/RALPH.sh`, `scripts/validate_template.py`, or `scripts/visualize_plan.py`, and the supported maintainer/runtime surface is now the native `nurt ralph` command family.
 - Ralph task plans are now framework-aware at the schema level: `docs/tasks/task-template-schema.json` requires `metadata.framework`, BMAD exports must emit `framework: bmad`, standalone plans must emit `framework: standalone`, and runner branching derives the active agent (`bmad-master` or `build`) plus BMAD closeout behavior from that field.
+- Ralph subprocess management now uses an explicit controller/process-group model in `src/new_repo_template/ralph_runner.py`: active `opencode` runs are launched in their own process group, the Textual app locks mutable execution controls while a loop is active, and both the terminate action and app shutdown path kill the active process group before the app exits.
 
 ## Validation Model
 
