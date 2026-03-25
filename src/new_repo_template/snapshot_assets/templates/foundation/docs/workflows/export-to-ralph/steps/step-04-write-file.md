@@ -119,8 +119,8 @@ tail -5 "$FILEPATH"
 Validate the written file one more time:
 
 ```bash
-# Run validation script on the written file
-.template_scripts/validate_template.py "$FILEPATH"
+# Run final validation on the written file
+nurt ralph validate "$FILEPATH"
 ```
 
 **Expected:** Exit code 0 (valid)
@@ -166,7 +166,7 @@ This shouldn't happen if Step 3 validation passed.
 RALPH can now execute this task plan using:
 
 ```bash
-./scripts/RALPH.sh docs/tasks/{filename}.yaml
+nurt ralph run docs/tasks/{filename}.yaml
 ```
 ````
 
@@ -220,12 +220,12 @@ Preserved artifacts:
 
 1. **Execute with the Ralph Loop:**
    ```bash
-   ./scripts/RALPH.sh docs/tasks/{filename}.yaml
+   nurt ralph run docs/tasks/{filename}.yaml
    ```
 
 2. **Track progress:**
-    - RALPH.sh will update status fields as work progresses
-    - Completed tasks are moved to `docs/tasks/completed/` by the script
+     - `nurt ralph` will update status fields as work progresses
+     - BMAD-backed tasks will run BMAD closeout automatically when they reach `done`
 
 ---
 

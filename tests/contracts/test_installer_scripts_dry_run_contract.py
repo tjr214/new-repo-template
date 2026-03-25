@@ -65,6 +65,39 @@ def test_branch_protection_shell_script_is_absent_from_repo_and_snapshot_assets(
     ).exists()
 
 
+def test_legacy_ralph_scripts_are_absent_from_repo_and_snapshot_assets() -> None:
+    """Feature 8.0 retires the old Ralph shell/Python wrappers entirely."""
+
+    repo_root = Path(__file__).resolve().parents[2]
+    for relative_path in (
+        Path("scripts") / "RALPH.sh",
+        Path("scripts") / "validate_template.py",
+        Path("scripts") / "visualize_plan.py",
+        Path("src")
+        / "new_repo_template"
+        / "snapshot_assets"
+        / "templates"
+        / "foundation"
+        / "scripts"
+        / "RALPH.sh",
+        Path("src")
+        / "new_repo_template"
+        / "snapshot_assets"
+        / "templates"
+        / "foundation"
+        / "scripts"
+        / "validate_template.py",
+        Path("src")
+        / "new_repo_template"
+        / "snapshot_assets"
+        / "templates"
+        / "foundation"
+        / "scripts"
+        / "visualize_plan.py",
+    ):
+        assert not (repo_root / relative_path).exists(), relative_path
+
+
 def test_nurt_secure_repo_dry_run_reports_actions() -> None:
     """The native secure-repo command should show the planned protections clearly."""
 

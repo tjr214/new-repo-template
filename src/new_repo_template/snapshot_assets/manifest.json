@@ -39,10 +39,8 @@
     "foundation/docs/workflows/export-to-ralph/steps/step-03-transform.md",
     "foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
     "foundation/docs/workflows/export-to-ralph/workflow.md",
-    "foundation/scripts/RALPH.sh",
+    "foundation/ralph.config.yaml",
     "foundation/scripts/synthetic-quotas.sh",
-    "foundation/scripts/validate_template.py",
-    "foundation/scripts/visualize_plan.py",
     "python_lane_python_version.txt",
     "root_gitignore.txt"
   ]

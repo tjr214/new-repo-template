@@ -1017,12 +1017,7 @@ def write_foundation_governance_assets(*, output_root: Path) -> None:
             encoding="utf-8",
         )
 
-    for executable_relative in (
-        "scripts/RALPH.sh",
-        "scripts/synthetic-quotas.sh",
-        "scripts/validate_template.py",
-        "scripts/visualize_plan.py",
-    ):
+    for executable_relative in ("scripts/synthetic-quotas.sh",):
         (output_root / executable_relative).chmod(0o755)
 
 

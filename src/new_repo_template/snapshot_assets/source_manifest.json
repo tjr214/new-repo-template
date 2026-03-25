@@ -93,8 +93,8 @@
 			}
 		},
 		{
-			"source": "scripts/RALPH.sh",
-			"destination": "templates/foundation/scripts/RALPH.sh",
+			"source": "ralph.config.yaml",
+			"destination": "templates/foundation/ralph.config.yaml",
 			"management": {
 				"scaffold": true,
 				"sync": false
@@ -103,22 +103,6 @@
 		{
 			"source": "scripts/synthetic-quotas.sh",
 			"destination": "templates/foundation/scripts/synthetic-quotas.sh",
-			"management": {
-				"scaffold": true,
-				"sync": false
-			}
-		},
-		{
-			"source": "scripts/validate_template.py",
-			"destination": "templates/foundation/scripts/validate_template.py",
-			"management": {
-				"scaffold": true,
-				"sync": false
-			}
-		},
-		{
-			"source": "scripts/visualize_plan.py",
-			"destination": "templates/foundation/scripts/visualize_plan.py",
 			"management": {
 				"scaffold": true,
 				"sync": false

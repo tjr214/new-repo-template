@@ -36,10 +36,10 @@
   - [x] The end result is that the `nurt upgrade` command updates the installed `nurt` tool through the supported `uv` workflow
     - [x] Keep this separate from feature `5.0`; `nurt sync template-assets` assumes the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
   - [x] Once aligned, implemented the new `nurt upgrade` process.
-- [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
+- [x] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
   - [x] Convert `scripts/configure-repo-protections.sh` into a native `nurt secure-repo` feature with interactive required-approvals prompting (default `0`) and immediate shell-script removal
-  - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
-  - [ ] We need to first discuss how this will all work.
+  - [x] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
+  - [x] We need to first discuss how this will all work.
 - [ ] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO
   - [ ] The `btca.config.jsonc` file in the root of every nurt-generated monorepo should be customized to match the project types in the monorepo
   - [ ] Example: if we have a python TUI, a typescript backend with convex and clerk, and a TV app, then the `btca.config.jsonc` file should be customized to be pre-loaded with all the libraries and documentation those projects will require.

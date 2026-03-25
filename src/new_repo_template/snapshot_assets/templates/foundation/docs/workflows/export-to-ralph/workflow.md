@@ -44,7 +44,7 @@ Set up the workflow context:
 
 ```yaml
 Paths:
-  - task_schema: "{project-root}/.template_scripts/task-template-schema.json"
+  - task_schema: "{project-root}/docs/tasks/task-template-schema.json"
   - task_template: "{project-root}/docs/tasks/task-template.yaml"
   - task_example: "{project-root}/docs/tasks/task-template-example.yaml"
   - output_directory: "{project-root}/docs/tasks/"
@@ -80,7 +80,7 @@ Step 2: Extract Data & Analyze Codebase
 
 Step 3: Transform to YAML & Validate
 ↓ Convert to YAML format
-↓ Validate using .template_scripts/validate_template.py
+↓ Validate using `nurt ralph validate`
 ↓ Show preview to user
 
 Step 4: Write Task File & Preserve BMAD Artifacts
@@ -97,8 +97,9 @@ The generated YAML file MUST:
 
 ### Schema Compliance
 
-- ✅ Validate using .template_scripts/validate_template.py docs/tasks/{task-name}.yaml
+- ✅ Validate using `nurt ralph validate docs/tasks/{task-name}.yaml`
 - ✅ Include all required fields: metadata, task, phases, steps, instructions
+- ✅ Include `metadata.framework: bmad` because this workflow exports BMAD-backed tasks
 - ✅ Use correct status values: pending, active, blocked, done
 - ✅ Follow ID patterns (phase-N, step-N.M, instr-N.M.P)
 

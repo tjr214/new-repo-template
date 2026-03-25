@@ -57,6 +57,7 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
         "AGENTS.md",
         "PLAN.md",
         "README.md",
+        "ralph.config.yaml",
         "PROGRESS.md",
         ".nurt/repo.json",
         "docs/ARCHITECTURE.md",
@@ -183,6 +184,7 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         ),
         (repo_root / "README.BMAD-GUIDE.md", output_dir / "README.BMAD-GUIDE.md"),
         (repo_root / "README.RALPH.md", output_dir / "README.RALPH.md"),
+        (repo_root / "ralph.config.yaml", output_dir / "ralph.config.yaml"),
         (
             repo_root / "docs" / "markdown-templates" / "PROGRESS.template.md",
             output_dir / "PROGRESS.md",

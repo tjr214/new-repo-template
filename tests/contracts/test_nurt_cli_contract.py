@@ -746,6 +746,120 @@ def test_handle_upgrade_reports_missing_uv(monkeypatch, capsys) -> None:
     assert "uv is required to upgrade nurt" in captured.err
 
 
+def test_nurt_ralph_command_routes_to_tui_when_no_subcommand(monkeypatch) -> None:
+    """`nurt ralph` should open the fullscreen TUI entrypoint."""
+
+    called: dict[str, bool] = {"tui": False}
+
+    def fake_run_ralph_tui(*, project_root: Path) -> int:
+        called["tui"] = True
+        assert project_root == Path.cwd().resolve()
+        return 0
+
+    monkeypatch.setattr(nurt_cli, "run_ralph_tui", fake_run_ralph_tui)
+    monkeypatch.setattr(nurt_cli, "perform_startup_update_check", lambda: None)
+
+    exit_code = nurt_cli.main(["ralph"])
+
+    assert exit_code == 0
+    assert called["tui"] is True
+
+
+def test_nurt_ralph_run_dry_run_reports_framework_agent_and_limits(
+    tmp_path: Path,
+) -> None:
+    """The native Ralph run command should expose the resolved execution plan."""
+
+    repo_root = tmp_path / "repo"
+    docs_tasks = repo_root / "docs" / "tasks"
+    docs_tasks.mkdir(parents=True)
+
+    source_schema = (
+        Path(__file__).resolve().parents[2]
+        / "docs"
+        / "tasks"
+        / "task-template-schema.json"
+    )
+    (docs_tasks / "task-template-schema.json").write_text(
+        source_schema.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    (repo_root / "ralph.config.yaml").write_text(
+        """default_model: openai/gpt-5.4\nmax_loops: 12\nmodels:\n  - id: openai/gpt-5.4\n    label: GPT-5.4\n""",
+        encoding="utf-8",
+    )
+    task_path = docs_tasks / "standalone.yaml"
+    task_path.write_text(
+        """metadata:\n  version: \"1.1.0\"\n  created_date: \"2026-03-24\"\n  last_updated: \"2026-03-24\"\n  author: \"test\"\n  license: null\n  framework: \"standalone\"\ntask:\n  name: \"Standalone Task\"\n  description: \"Demo\"\n  status: \"pending\"\n  phases:\n    - id: \"phase-1\"\n      name: \"Phase\"\n      description: \"Demo\"\n      status: \"pending\"\n      steps:\n        - id: \"step-1.1\"\n          name: \"Step\"\n          description: \"Demo\"\n          status: \"pending\"\n          instructions:\n            - id: \"instr-1.1.1\"\n              content: \"Demo\"\n              status: \"pending\"\n""",
+        encoding="utf-8",
+    )
+
+    result = run_nurt_command(
+        cwd=repo_root,
+        args=["ralph", "run", str(task_path), "--dry-run", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt ralph run --dry-run to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    assert "RALPH execution plan" in combined_output
+    assert "Framework: standalone" in combined_output
+    assert "Agent: build" in combined_output
+    assert "BMAD Closeout: disabled" in combined_output
+    assert "Max Loops: 12" in combined_output
+
+
+def test_nurt_ralph_validate_and_visualize_use_native_commands(tmp_path: Path) -> None:
+    """The native Ralph utility commands should replace the legacy scripts."""
+
+    repo_root = tmp_path / "repo"
+    docs_tasks = repo_root / "docs" / "tasks"
+    docs_tasks.mkdir(parents=True)
+
+    source_schema = (
+        Path(__file__).resolve().parents[2]
+        / "docs"
+        / "tasks"
+        / "task-template-schema.json"
+    )
+    (docs_tasks / "task-template-schema.json").write_text(
+        source_schema.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    task_path = docs_tasks / "bmad.yaml"
+    task_path.write_text(
+        """metadata:\n  version: \"1.1.0\"\n  created_date: \"2026-03-24\"\n  last_updated: \"2026-03-24\"\n  author: \"test\"\n  license: null\n  framework: \"bmad\"\ntask:\n  name: \"BMAD Task\"\n  description: \"Demo\"\n  status: \"pending\"\n  phases:\n    - id: \"phase-1\"\n      name: \"Phase\"\n      description: \"Demo\"\n      status: \"pending\"\n      steps:\n        - id: \"step-1.1\"\n          name: \"Step\"\n          description: \"Demo\"\n          status: \"pending\"\n          instructions:\n            - id: \"instr-1.1.1\"\n              content: \"Demo\"\n              status: \"pending\"\n""",
+        encoding="utf-8",
+    )
+
+    validate_result = run_nurt_command(
+        cwd=repo_root,
+        args=["ralph", "validate", str(task_path)],
+    )
+    assert validate_result.returncode == 0, (
+        "Expected nurt ralph validate to succeed.\n"
+        f"stdout:\n{validate_result.stdout}\n"
+        f"stderr:\n{validate_result.stderr}"
+    )
+    assert "Template is VALID!" in _combined_output(validate_result)
+
+    visualize_result = run_nurt_command(
+        cwd=repo_root,
+        args=["ralph", "visualize", str(task_path)],
+    )
+    assert visualize_result.returncode == 0, (
+        "Expected nurt ralph visualize to succeed.\n"
+        f"stdout:\n{visualize_result.stdout}\n"
+        f"stderr:\n{visualize_result.stderr}"
+    )
+    combined_visualize = _combined_output(visualize_result)
+    assert "TASK IMPLEMENTATION PLAN - STATUS SUMMARY" in combined_visualize
+    assert "BMAD Task" in combined_visualize
+
+
 def test_nurt_template_assets_sync_dry_run_reports_action(tmp_path: Path) -> None:
     """RED: sync template-assets dry-run should report non-destructive action plan."""
 

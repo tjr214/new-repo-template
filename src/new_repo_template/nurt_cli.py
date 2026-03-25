@@ -15,6 +15,15 @@ from new_repo_template.post_create import (
     render_post_create_plan,
     run_post_create_pipeline,
 )
+from new_repo_template.ralph_config import load_ralph_config
+from new_repo_template.ralph_runner import render_ralph_dry_run_summary, run_ralph_loop
+from new_repo_template.ralph_tasks import (
+    load_ralph_task_plan,
+    resolve_execution_settings,
+    validate_ralph_task_file,
+    visualize_ralph_task_file,
+)
+from new_repo_template.ralph_tui import run_ralph_tui
 from new_repo_template import scaffold
 from new_repo_template.interactive_ui import (
     InteractiveUIConfig,
@@ -87,6 +96,16 @@ INTERACTIVE_REQUIRED_APPROVALS_REMEDIATION = (
 
 def resolve_project_name(raw_project_name: str) -> str:
     return normalize_project_name(raw_project_name)
+
+
+def parse_positive_int(raw_value: str) -> int:
+    try:
+        parsed = int(raw_value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a positive integer") from exc
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
 
 
 def prompt_project_name(*, ui_config: InteractiveUIConfig) -> str:
@@ -469,6 +488,33 @@ def build_parser() -> argparse.ArgumentParser:
     add_parser.add_argument("--no-interactive", action="store_true")
     add_parser.add_argument("--dry-run", action="store_true")
     add_parser.set_defaults(handler=handle_add)
+
+    ralph_parser = subparsers.add_parser("ralph", help="Run the Ralph loop")
+    ralph_subparsers = ralph_parser.add_subparsers(dest="ralph_command")
+    ralph_parser.set_defaults(handler=handle_ralph)
+
+    ralph_run_parser = ralph_subparsers.add_parser(
+        "run", help="Run a Ralph task file directly"
+    )
+    ralph_run_parser.add_argument("task_file", type=Path)
+    ralph_run_parser.add_argument("--model")
+    ralph_run_parser.add_argument("--max-loops", type=parse_positive_int)
+    ralph_run_parser.add_argument("--dry-run", action="store_true")
+    ralph_run_parser.add_argument("--no-interactive", action="store_true")
+    ralph_run_parser.set_defaults(handler=handle_ralph_run)
+
+    ralph_validate_parser = ralph_subparsers.add_parser(
+        "validate", help="Validate a Ralph task file"
+    )
+    ralph_validate_parser.add_argument("task_file", type=Path)
+    ralph_validate_parser.add_argument("--schema", type=Path)
+    ralph_validate_parser.set_defaults(handler=handle_ralph_validate)
+
+    ralph_visualize_parser = ralph_subparsers.add_parser(
+        "visualize", help="Visualize a Ralph task file"
+    )
+    ralph_visualize_parser.add_argument("task_file", type=Path)
+    ralph_visualize_parser.set_defaults(handler=handle_ralph_visualize)
 
     secure_repo_parser = subparsers.add_parser(
         "secure-repo", help="Apply baseline GitHub repository protections"
@@ -988,6 +1034,79 @@ def handle_secure_repo(args: argparse.Namespace) -> int:
     except (RuntimeError, SecureRepoError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
+
+
+def handle_ralph(args: argparse.Namespace) -> int:
+    try:
+        return run_ralph_tui(project_root=Path.cwd().resolve())
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
+def handle_ralph_run(args: argparse.Namespace) -> int:
+    cwd = Path.cwd().resolve()
+    task_file = args.task_file.resolve()
+
+    try:
+        config = load_ralph_config(cwd=cwd)
+        plan = load_ralph_task_plan(task_file)
+        settings = resolve_execution_settings(plan)
+        selected_model = args.model or config.default_model
+        if selected_model not in {model.id for model in config.models}:
+            raise ValueError(
+                f"model '{selected_model}' is not present in the resolved Ralph config"
+            )
+        max_loops = args.max_loops or config.max_loops
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    if args.dry_run:
+        print(
+            render_ralph_dry_run_summary(
+                plan=plan,
+                settings=settings,
+                model=selected_model,
+                max_loops=max_loops,
+            ),
+            end="",
+        )
+        return 0
+
+    try:
+        summary = run_ralph_loop(
+            task_file=task_file,
+            model=selected_model,
+            max_loops=max_loops,
+            cwd=cwd,
+            on_log=lambda line: print(line),
+            no_interactive=bool(args.no_interactive),
+        )
+    except RuntimeError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    return 0 if summary.succeeded else 1
+
+
+def handle_ralph_validate(args: argparse.Namespace) -> int:
+    result = validate_ralph_task_file(
+        args.task_file.resolve(),
+        cwd=Path.cwd().resolve(),
+        schema_path=args.schema.resolve() if args.schema is not None else None,
+    )
+    print(result.output, end="")
+    return 0 if result.is_valid else 1
+
+
+def handle_ralph_visualize(args: argparse.Namespace) -> int:
+    try:
+        print(visualize_ralph_task_file(args.task_file.resolve()), end="")
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    return 0
 
 
 def handle_tools_sync(args: argparse.Namespace) -> int:

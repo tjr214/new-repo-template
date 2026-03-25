@@ -10,11 +10,12 @@
 # - BLUE: Refactor and clean up
 
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   created_date: "2026-02-03"
   last_updated: "2026-02-03"
   author: "A Supreme Badass"
   license: null # Set to license identifier if LICENSE.md exists (e.g., "MIT", "Apache-2.0")
+  framework: "standalone"
 
 task:
   name: "Build REST API Rate Limiter Middleware"

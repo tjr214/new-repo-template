@@ -7,11 +7,12 @@
 #   BLUE: Refactor and clean up
 
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   created_date: "YYYY-MM-DD"  # Use ISO 8601 format
   last_updated: "YYYY-MM-DD"
   author: "Your Name or System"
   license: null  # Set to SPDX identifier if LICENSE.md exists (e.g., "MIT", "Apache-2.0")
+  framework: "standalone"  # Options: bmad, standalone
 
 task:
   name: "Your Task Name Here"
