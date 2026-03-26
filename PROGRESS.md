@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-24 07:31:28 PM
-**Current Phase:** The first feature `8.0` slice is complete: `nurt secure-repo` now replaces the legacy branch-protection shell script, and next up is the YELLOW discussion/planning pass for the remaining `nurt ralph` work.
+**Last Updated:** 2026-03-25 08:23:05 PM
+**Current Phase:** Feature `9.0` YELLOW discussion/planning is complete: the BTCA customization design is now locked around a pure `btca.config.jsonc` plus a separate `.nurt/btca-managed-resources.json` sidecar, and next up is RED coverage plus implementation.
 
 ## Previous Cycle Archives
 
@@ -192,7 +192,12 @@
 - [x] Hardened the Ralph TUI lifecycle so agent execution no longer auto-starts from mount state, the log pane wraps long `opencode` output, model/task/max-loop controls lock while a run is active, and both the new `Terminate` action plus app shutdown now force-kill the live `opencode` process group instead of leaving it running in the background.
 - [x] Redesigned the Ralph TUI visualization widget into a dashboard/detail system: the default pane now shows a compact live dashboard (`Overview`, `Active Now`, `Blocked`, `Up Next`, `Recent Completions`), the full tree report moved behind a toggleable detail mode, both views use vertical scrolling, and horizontal overflow now wraps instead of relying on side-scrolling or clipped text.
 - [x] Added dashboard/detail regression coverage for the Ralph TUI, fixed an unrelated foundation workspace contract to assert scaffolded files from the source manifest rather than every ad hoc repo file under `docs/tasks/`, and revalidated the full repository suite at 233 passing tests.
+- [x] Ran the feature `9.0` YELLOW pass by rereading `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, `docs/session-summaries/SESSION_121_SUMMARY.md`, `btca.config.jsonc`, `docs/BTCA_RESOURCES.md`, the current scaffold/add/CLI/foundation/snapshot/repo-identity code paths, the foundation `btca.config.jsonc` snapshot template, and the root-workspace contract coverage before editing any planning docs.
+- [x] Revalidated BTCA/tool-governance context for feature `9.0` with `btca status` plus `btca ask` queries about config extensibility and config-ownership boundaries, then locked the safer repo rule: even if extra fields may appear tolerated in practice, `nurt` must not depend on undocumented BTCA-schema flexibility for metadata it does not own.
+- [x] Locked the feature `9.0` ownership and merge design with the user: keep `btca.config.jsonc` pure BTCA, track `nurt`-managed BTCA resources in `.nurt/btca-managed-resources.json`, seed and patch resources additively by stable name during `nurt new` and `nurt add`, preserve user-added BTCA entries, and warn instead of overwriting drifted managed entries.
+- [x] Recorded the additional YELLOW finding that the scaffold baseline currently ships a static `btca.config.jsonc` but does not yet scaffold `docs/BTCA_RESOURCES.md` despite the generated governance guidance referencing it; feature `9.0` planning now treats that docs file as part of the same implementation slice.
+- [x] Synced the feature `9.0` discussion outcome across `TODO-FEATURES.md`, `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
 
 ## Next Up
 
-- [ ] Run the YELLOW discussion/planning pass for feature `9.0`: customize `btca.config.jsonc` per generated monorepo composition and define the safe patching behavior for `nurt add`.
+- [ ] Begin feature `9.0` RED/GREEN work: add failing coverage for composition-aware BTCA config generation, `.nurt/btca-managed-resources.json` sidecar tracking, additive `nurt add` patching, drift-preserving warnings, and generated `docs/BTCA_RESOURCES.md` sync before implementing the BTCA resource planner.

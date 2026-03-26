@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0`, `6.0`, and `7.0` are complete, the first feature `8.0` slice (`nurt secure-repo`) is now implemented, and the next open planning front is the remaining `nurt ralph` conversion work.
+The template implementation remains intact, features `5.0` through `8.0` are complete, the feature `9.0` YELLOW discussion is now locked, and the next open execution front is RED/GREEN implementation for composition-aware BTCA configuration.
 
-- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-19_04-33-30_PM.md`.
-- Root `PLAN.md` now carries the comprehensive feature `7.0` implementation record, while root `PROGRESS.md` remains the active cumulative tracker.
+- Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
+- Root `PLAN.md` now carries the comprehensive feature `9.0` restart-safe implementation record, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -42,6 +42,9 @@ The template implementation remains intact, features `5.0`, `6.0`, and `7.0` are
 - Feature `7.0` is now complete: `nurt upgrade` is the only supported self-update command, `nurt update` has been removed instead of preserved as an alias, and v1 support is intentionally limited to `uv`-managed installs.
 - The self-update implementation now targets the installed uv distribution name `nurt-ai` even though the exposed executable remains `nurt`, which keeps the operator-facing command stable while matching uv's installed-tool identity rules.
 - Startup update notices now use `uv tool list --outdated` as the non-mutating detection surface, and successful `nurt upgrade` runs keep template-asset refresh as a separate suggested step via `nurt sync template-assets` rather than auto-running sync.
+- Feature `9.0` planning is now locked: generated repos will keep `btca.config.jsonc` pure BTCA and will track `nurt` ownership/drift metadata for managed BTCA resources in a separate `.nurt/btca-managed-resources.json` sidecar.
+- The planned BTCA merge model is additive-only: `nurt new` will seed managed resources from the selected project mix, `nurt add` will patch only those tracked managed entries by stable resource name, user-added BTCA resources will be preserved, and drifted managed entries will warn instead of being overwritten silently.
+- The same planning pass also surfaced a current governance gap: generated guidance already references `docs/BTCA_RESOURCES.md`, but the scaffold baseline does not yet write that file. Feature `9.0` is expected to close that gap by generating the doc from the final project-level BTCA config.
 
 ## Active Implementation Rules
 
@@ -81,6 +84,9 @@ The template implementation remains intact, features `5.0`, `6.0`, and `7.0` are
 - Template-asset sync scope: exact manifest-declared file paths only; no broad directory syncs or delete/prune behavior
 - Template-asset sync manifest model: one `source_manifest.json` with per-entry `management` metadata for scaffold/sync responsibilities
 - Self-update workflow: `nurt upgrade` is the only supported command, it targets the uv-installed package `nurt-ai`, and startup notices use `uv tool list --outdated`
+- BTCA ownership model: keep `btca.config.jsonc` BTCA-native only and store `nurt` BTCA ownership/drift metadata in `.nurt/btca-managed-resources.json`
+- BTCA merge model: `nurt new` seeds managed BTCA resources from the selected project mix, while `nurt add` upserts only tracked managed resources by stable name and preserves user-added entries
+- BTCA docs-sync rule: `docs/BTCA_RESOURCES.md` should be rendered from the final project-level `btca.config.jsonc`, not from the sidecar metadata file
 
 ## Known Constraints
 
@@ -95,6 +101,8 @@ The template implementation remains intact, features `5.0`, `6.0`, and `7.0` are
 - Root JS workspaces now cover both support packages and nested generated projects with `apps/*`, `packages/*`, `apps/*/*`, and `packages/*/*`.
 - `nurt add` only operates from the repo root of an explicit nurt-generated repo, never searches parent directories for a marker, and never runs the new-repo git/BMAD/core-tools post-create lifecycle.
 - Self-update v1 is intentionally narrow: only `uv`-managed installs are supported, and non-uv/manual channels fall back to explicit reinstall guidance instead of best-effort auto-detection.
+- Feature `9.0` must not rely on undocumented BTCA-schema extensibility; `nurt` does not own `btca.config.jsonc`, so its bookkeeping must live in a separate sidecar file.
+- Feature `9.0` additive patching must preserve user-added BTCA resources and avoid automatic deletion of either user-managed entries or drifted `nurt`-managed entries.
 
 ## Implementation Notes (M0-M1)
 

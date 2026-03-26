@@ -45,7 +45,12 @@
   - [ ] Example: if we have a python TUI, a typescript backend with convex and clerk, and a TV app, then the `btca.config.jsonc` file should be customized to be pre-loaded with all the libraries and documentation those projects will require.
   - [ ] This should be set up initially by `nurt new` but we need to be able to intelligently patch the btca.config.jsonc file whenever we do `nurt add`, as well.
   - [ ] The end user may have already added libraries and documentation to their nurt-enabled projects (and, thus, the `btca.config.jsonc` file) so we do NOT want to delete those. Just add in (or update) the ones for our new project types.
-  - [ ] I am not sure how we should go about this, so let us first discuss.
+  - [x] Discussed and locked the ownership/merge model before implementation.
+    - [x] Keep `btca.config.jsonc` pure BTCA; do not add `nurt` metadata inline because we do not own the BTCA schema.
+    - [x] Track `nurt`-managed BTCA resources in `.nurt/btca-managed-resources.json`.
+    - [x] `nurt new` should seed the managed BTCA resource set from the selected project mix, and `nurt add` should patch only those managed entries additively by stable resource name.
+    - [x] Preserve user-added BTCA resources and warn instead of overwriting drifted managed entries.
+    - [x] Generate `docs/BTCA_RESOURCES.md` from the final project-level `btca.config.jsonc` so the docs reflect real BTCA state.
 - [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 7.0, 8.0, 9.0)
   - [ ] Thoroughly test all project types (manual step)
   - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
