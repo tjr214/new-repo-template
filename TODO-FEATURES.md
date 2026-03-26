@@ -40,11 +40,11 @@
   - [x] Convert `scripts/configure-repo-protections.sh` into a native `nurt secure-repo` feature with interactive required-approvals prompting (default `0`) and immediate shell-script removal
   - [x] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
   - [x] We need to first discuss how this will all work.
-- [ ] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO
-  - [ ] The `btca.config.jsonc` file in the root of every nurt-generated monorepo should be customized to match the project types in the monorepo
-  - [ ] Example: if we have a python TUI, a typescript backend with convex and clerk, and a TV app, then the `btca.config.jsonc` file should be customized to be pre-loaded with all the libraries and documentation those projects will require.
-  - [ ] This should be set up initially by `nurt new` but we need to be able to intelligently patch the btca.config.jsonc file whenever we do `nurt add`, as well.
-  - [ ] The end user may have already added libraries and documentation to their nurt-enabled projects (and, thus, the `btca.config.jsonc` file) so we do NOT want to delete those. Just add in (or update) the ones for our new project types.
+- [x] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO
+  - [x] The `btca.config.jsonc` file in the root of every nurt-generated monorepo should be customized to match the project types in the monorepo
+  - [x] Example: if we have a python TUI, a typescript backend with convex and clerk, and a TV app, then the `btca.config.jsonc` file should be customized to be pre-loaded with all the libraries and documentation those projects will require.
+  - [x] This should be set up initially by `nurt new` but we need to be able to intelligently patch the btca.config.jsonc file whenever we do `nurt add`, as well.
+  - [x] The end user may have already added libraries and documentation to their nurt-enabled projects (and, thus, the `btca.config.jsonc` file) so we do NOT want to delete those. Just add in (or update) the ones for our new project types.
   - [x] Discussed and locked the ownership/merge model before implementation.
     - [x] Keep `btca.config.jsonc` pure BTCA; do not add `nurt` metadata inline because we do not own the BTCA schema.
     - [x] Track `nurt`-managed BTCA resources in `.nurt/btca-managed-resources.json`.
@@ -55,7 +55,7 @@
     - [x] If a scaffolded target materially uses a framework, library, or tool, that dependency context should be represented in the target's BTCA configuration.
     - [x] Desktop explicitly needs Electron Forge BTCA coverage.
     - [x] The same mismatch audit should be applied across all other project types before implementation mapping is finalized.
-- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 7.0, 8.0, 9.0)
+- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
   - [ ] Thoroughly test all project types (manual step)
   - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
   - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly

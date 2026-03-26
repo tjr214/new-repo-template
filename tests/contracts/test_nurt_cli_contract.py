@@ -572,6 +572,10 @@ def test_nurt_add_dry_run_routes_through_add_planning(tmp_path: Path) -> None:
     assert "- repo root:" in combined_output
     assert "- requested additions:" in combined_output
     assert "desktop:desktop" in combined_output
+    assert "update btca.config.jsonc" in combined_output
+    assert "update .nurt/btca-managed-resources.json" in combined_output
+    assert "update docs/BTCA_RESOURCES.md" in combined_output
+    assert "- BTCA warnings:" in combined_output
     assert "Lockfile regeneration summary:" not in combined_output
 
 

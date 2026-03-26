@@ -1,16 +1,27 @@
 # Feature 9 Plan
 
-**Last Updated:** 2026-03-25 08:36:07 PM
-**Status:** YELLOW complete / ready for RED
+**Last Updated:** 2026-03-25 09:03:13 PM
+**Status:** Complete / feature `10.0` planning next
 **Roadmap Item:** `TODO-FEATURES.md` feature `9.0`
-**Latest Session Summary:** `docs/session-summaries/SESSION_123_SUMMARY.md`
+**Latest Session Summary:** `docs/session-summaries/SESSION_124_SUMMARY.md`
 **Previous Cycle Archive:** `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`
 
 ---
 
 ## Goal
 
-Implement feature `9.0`: generate a monorepo-composition-aware `btca.config.jsonc` during `nurt new`, patch it safely during `nurt add`, and keep BTCA ownership tracking separate from the BTCA config schema that `nurt` does not own.
+Completed feature `9.0`: generated repos now receive monorepo-composition-aware BTCA config during `nurt new`, `nurt add` patches BTCA state safely and additively, and `nurt` ownership tracking stays separate from the BTCA config schema that `nurt` does not own.
+
+---
+
+## Outcome
+
+- Added `src/new_repo_template/btca_config_manager.py` to own target-to-resource mapping, BTCA config rendering, sidecar rendering/parsing, additive merge behavior, drift detection, and `docs/BTCA_RESOURCES.md` rendering.
+- Updated `src/new_repo_template/scaffold.py` so scaffolded repos generate `btca.config.jsonc`, `.nurt/btca-managed-resources.json`, and `docs/BTCA_RESOURCES.md` dynamically from the resolved project mix.
+- Updated `src/new_repo_template/add_mode.py` so add mode merges managed BTCA resources, preserves user-added resources, preserves drifted managed resources with warnings, and refreshes the generated BTCA docs file.
+- Expanded project BTCA resources in the template repo to include direct dependency docs/resources for React, React Native, Vite, Electron Forge, Electron, TypeScript, pytest, Ruff, and mypy.
+- Retired the old static foundation BTCA snapshot by removing it from `src/new_repo_template/snapshot_assets/source_manifest.json`, deleting the stale bundled template file, and regenerating packaged snapshot metadata/manifests.
+- Closed the feature with targeted contracts, `ruff`, `template-assets validate`, and the full suite (`239` passing tests).
 
 ---
 

@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-25 08:36:07 PM
-**Current Phase:** Feature `9.0` planning is refined: the pure-BTCA-config plus sidecar design remains locked, and the target-resource mapping rule is now stricter too - every materially used framework/library/tool in a scaffolded project must be represented in that project's BTCA configuration, with desktop explicitly requiring Electron Forge coverage.
+**Last Updated:** 2026-03-25 09:03:13 PM
+**Current Phase:** Feature `9.0` is complete: generated repos now receive composition-aware BTCA config, sidecar-managed BTCA ownership tracking, additive add-mode BTCA patching, and generated `docs/BTCA_RESOURCES.md`; next up is the YELLOW discussion/planning pass for feature `10.0` release-candidate testing.
 
 ## Previous Cycle Archives
 
@@ -199,7 +199,13 @@
 - [x] Synced the feature `9.0` discussion outcome across `TODO-FEATURES.md`, `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
 - [x] Refined the feature `9.0` mapping rule with the user: every materially used framework, library, and tool in a generated project should be represented in that target's BTCA configuration; desktop specifically needs Electron Forge coverage, and the same mismatch audit now applies to all other targets.
 - [x] Synced the stricter feature `9.0` BTCA-coverage rule into `TODO-FEATURES.md`, `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a follow-up session summary.
+- [x] Ran the implementation YELLOW pass for feature `9.0` by rereading the active plan/docs/session summary, the scaffold/add-mode/contracts, the updated target manifests, and current BTCA state via `btca status` / `btca resources`, then confirmed the direct-tool-coverage rule with `btca ask` before coding.
+- [x] Added the approved project BTCA resources for direct target dependencies: `react-docs`, `react-native-docs`, `vite`, `electron-forge`, `electron`, `typescript-docs`, `pytest`, `ruff`, and `mypy`, then synced the root project BTCA resource inventory.
+- [x] Added RED coverage in `tests/contracts/test_btca_config_contract.py`, expanded `tests/contracts/test_root_workspace_contract.py`, `tests/contracts/test_nurt_add_contract.py`, and `tests/contracts/test_nurt_cli_contract.py`, and locked foundation-only BTCA generation, per-target dependency coverage, sidecar ownership tracking, add-mode preservation/warning behavior, and generated docs sync.
+- [x] Implemented feature `9.0` in `src/new_repo_template/btca_config_manager.py`, `src/new_repo_template/scaffold.py`, and `src/new_repo_template/add_mode.py`: scaffold now writes dynamic `btca.config.jsonc`, `.nurt/btca-managed-resources.json`, and `docs/BTCA_RESOURCES.md`; add mode now merges managed BTCA resources additively, preserves user-added resources, and warns on drifted managed entries.
+- [x] Removed the old static foundation BTCA snapshot entry from `src/new_repo_template/snapshot_assets/source_manifest.json`, deleted the stale bundled `src/new_repo_template/snapshot_assets/templates/foundation/btca.config.jsonc`, and regenerated packaged snapshot metadata/manifests with `nurt template-assets validate`.
+- [x] Revalidated feature `9.0` with `uv run pytest tests/contracts/test_btca_config_contract.py tests/contracts/test_root_workspace_contract.py tests/contracts/test_nurt_add_contract.py tests/contracts/test_nurt_cli_contract.py` (53 passed), `uv run ruff check src/new_repo_template tests/contracts`, `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, and `uv run pytest` (239 passed).
 
 ## Next Up
 
-- [ ] Begin feature `9.0` RED/GREEN work: add failing coverage for composition-aware BTCA config generation, `.nurt/btca-managed-resources.json` sidecar tracking, additive `nurt add` patching, drift-preserving warnings, and generated `docs/BTCA_RESOURCES.md` sync before implementing the BTCA resource planner.
+- [ ] Run the YELLOW discussion/planning pass for feature `10.0`: final tests before release candidate 1, including manual validation strategy for web/backend/desktop/mobile/TV runtime behavior and local-dev orchestration expectations.

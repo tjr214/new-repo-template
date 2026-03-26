@@ -85,14 +85,6 @@
 			}
 		},
 		{
-			"source": "btca.config.jsonc",
-			"destination": "templates/foundation/btca.config.jsonc",
-			"management": {
-				"scaffold": true,
-				"sync": false
-			}
-		},
-		{
 			"source": "ralph.config.yaml",
 			"destination": "templates/foundation/ralph.config.yaml",
 			"management": {

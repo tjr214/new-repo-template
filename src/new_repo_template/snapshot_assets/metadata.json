@@ -1,5 +1,5 @@
 {
-  "file_count": 42,
+  "file_count": 41,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -102,10 +102,6 @@
       "sha256": "5bf6475593b80988fbc08e8612a958e5ee50feb0c0351dbe1fb394fe76ababad"
     },
     {
-      "destination": "templates/foundation/btca.config.jsonc",
-      "sha256": "52c8ac11924105ce6e5b5b94cf2ab2546195fa8fff1d166e53886d0f82499a20"
-    },
-    {
       "destination": "templates/foundation/docs/ARCHITECTURE.md",
       "sha256": "07d278fc57b8b54cc51bde063b75c801267c71fa58802e75b13c692f64edb65a"
     },
@@ -170,7 +166,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-25T01:11:15.771887+00:00",
+  "generated_at": "2026-03-26T01:06:34.011506+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "28df981991555308a86b5fd1d75a680e98b6349f"
+  "source_commit": "7928c775559ddf92539299a931f957c8b97ca5d5"
 }

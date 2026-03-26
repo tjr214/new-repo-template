@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `8.0` are complete, the feature `9.0` YELLOW discussion is now locked, and the next open execution front is RED/GREEN implementation for composition-aware BTCA configuration.
+The template implementation remains intact, features `5.0` through `9.0` are complete, and the next open execution front is the feature `10.0` YELLOW discussion for release-candidate testing and manual runtime validation.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
 - Root `PLAN.md` now carries the comprehensive feature `9.0` restart-safe implementation record, while root `PROGRESS.md` remains the active cumulative tracker.
@@ -47,6 +47,9 @@ The template implementation remains intact, features `5.0` through `8.0` are com
 - The same planning pass also surfaced a current governance gap: generated guidance already references `docs/BTCA_RESOURCES.md`, but the scaffold baseline does not yet write that file. Feature `9.0` is expected to close that gap by generating the doc from the final project-level BTCA config.
 - Feature `9.0` planning is now stricter on coverage too: if a generated target materially uses a framework, library, or tool, that dependency context should be represented in the generated BTCA setup for that target rather than omitted from the mapping.
 - Desktop is the first confirmed mismatch under that rule because the scaffolded desktop lane is Electron Forge-based but the current project BTCA resource set does not yet include an Electron/Electron Forge resource; the same audit now needs to be applied across the other targets as RED begins.
+- Feature `9.0` is now implemented: scaffold output generates `btca.config.jsonc`, `.nurt/btca-managed-resources.json`, and `docs/BTCA_RESOURCES.md` dynamically from the resolved project mix instead of copying a static foundation BTCA config.
+- `nurt add` now updates BTCA state as part of normal in-place repo mutation: it merges only `nurt`-managed resources, preserves user-added resources, preserves drifted managed resources with warnings, and keeps `docs/BTCA_RESOURCES.md` aligned to the final config.
+- The template repo's own project BTCA inventory now also includes direct dependency resources for React, React Native, Vite, Electron Forge, Electron, TypeScript, pytest, Ruff, and mypy so feature `9.0` mappings can cover actual scaffolded toolchains rather than only the earlier subset.
 
 ## Active Implementation Rules
 
@@ -107,10 +110,11 @@ The template implementation remains intact, features `5.0` through `8.0` are com
 - Feature `9.0` must not rely on undocumented BTCA-schema extensibility; `nurt` does not own `btca.config.jsonc`, so its bookkeeping must live in a separate sidecar file.
 - Feature `9.0` additive patching must preserve user-added BTCA resources and avoid automatic deletion of either user-managed entries or drifted `nurt`-managed entries.
 - Any missing project BTCA resources needed to satisfy the new coverage rule must still be proposed explicitly and confirmed before they are added to this template repository's project BTCA config.
+- The static foundation BTCA snapshot file is retired; BTCA scaffold output is now generated code/data rather than manifest-mirrored content.
 
 ## Implementation Notes (M0-M1)
 
-- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`, `textual`, `rich-docs`, `pytest-textual-snapshot`, and `uv`.
+- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`, `textual`, `rich-docs`, `pytest-textual-snapshot`, `uv`, `react-docs`, `react-native-docs`, `vite`, `electron-forge`, `electron`, `typescript-docs`, `pytest`, `ruff`, and `mypy`.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.

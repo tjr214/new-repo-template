@@ -7,6 +7,13 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from new_repo_template.btca_config_manager import (
+    BTCA_CONFIG_RELATIVE_PATH,
+    BTCA_DOCS_RELATIVE_PATH,
+    BTCA_SIDECAR_RELATIVE_PATH,
+    merge_add_mode_btca_files,
+    project_contexts_from_projects,
+)
 from new_repo_template import scaffold
 from new_repo_template.project_naming import normalize_project_name
 from new_repo_template.snapshot_assets_loader import load_template_text
@@ -79,6 +86,10 @@ class AddPlan:
     root_python_workspace_content: str | None
     retrofit_python_apps: tuple[scaffold.ProjectSpec, ...]
     retrofit_desktops: tuple[scaffold.ProjectSpec, ...]
+    btca_config_content: str
+    btca_sidecar_content: str
+    btca_docs_content: str
+    btca_warnings: tuple[str, ...]
     retrofits: tuple[str, ...]
     lockfiles: tuple[str, ...]
 
@@ -88,6 +99,7 @@ class AddExecutionSummary:
     added_projects: tuple[str, ...]
     retrofits: tuple[str, ...]
     lockfiles: tuple[str, ...]
+    btca_warnings: tuple[str, ...]
 
 
 def _parse_project_token(token: str) -> scaffold.ProjectSpec:
@@ -487,6 +499,38 @@ def build_add_plan(
                 f"patch {scaffold.project_relative_root(desktop_project)} for shared desktop wiring"
             )
 
+    btca_config_path = repo_root / BTCA_CONFIG_RELATIVE_PATH
+    current_btca_config = _read_text_or_none(btca_config_path)
+    if current_btca_config is None:
+        raise ValueError(
+            f"missing {BTCA_CONFIG_RELATIVE_PATH}; automatic BTCA add-mode updates require a nurt-generated repo root"
+        )
+
+    btca_sidecar_path = repo_root / BTCA_SIDECAR_RELATIVE_PATH
+    current_btca_sidecar = _read_text_or_none(btca_sidecar_path)
+    if current_btca_sidecar is None:
+        raise ValueError(
+            f"missing {BTCA_SIDECAR_RELATIVE_PATH}; automatic BTCA add-mode updates require a feature 9.0 repo"
+        )
+
+    btca_merge_result = merge_add_mode_btca_files(
+        existing_config_text=current_btca_config,
+        existing_sidecar_text=current_btca_sidecar,
+        projects=project_contexts_from_projects(tuple(combined_projects)),
+    )
+
+    current_btca_docs = _read_text_or_none(repo_root / BTCA_DOCS_RELATIVE_PATH)
+    if current_btca_config != btca_merge_result.config_text:
+        retrofits.append(
+            "update btca.config.jsonc for the merged project BTCA resources"
+        )
+    if current_btca_sidecar != btca_merge_result.sidecar_text:
+        retrofits.append(
+            "update .nurt/btca-managed-resources.json for managed BTCA tracking"
+        )
+    if current_btca_docs != btca_merge_result.docs_text:
+        retrofits.append("update docs/BTCA_RESOURCES.md to reflect final BTCA state")
+
     lockfiles = ["bun.lock"]
     if _supports_python_workspace(combined_projects):
         lockfiles.append("uv.lock")
@@ -501,6 +545,10 @@ def build_add_plan(
         root_python_workspace_content=root_python_workspace_content,
         retrofit_python_apps=tuple(retrofit_python_apps),
         retrofit_desktops=tuple(retrofit_desktops),
+        btca_config_content=btca_merge_result.config_text,
+        btca_sidecar_content=btca_merge_result.sidecar_text,
+        btca_docs_content=btca_merge_result.docs_text,
+        btca_warnings=btca_merge_result.warnings,
         retrofits=tuple(retrofits),
         lockfiles=tuple(lockfiles),
     )
@@ -533,6 +581,11 @@ def render_add_plan(plan: AddPlan) -> str:
 
     lines.append("- lockfiles:")
     lines.extend(f"  - {lockfile}" for lockfile in plan.lockfiles)
+    lines.append("- BTCA warnings:")
+    if plan.btca_warnings:
+        lines.extend(f"  - {warning}" for warning in plan.btca_warnings)
+    else:
+        lines.append("  - none")
     return "\n".join(lines)
 
 
@@ -842,6 +895,18 @@ def execute_add(plan: AddPlan) -> AddExecutionSummary:
                 desktop_project=desktop_project,
                 transaction=transaction,
             )
+
+        btca_config_path = plan.repo_root / BTCA_CONFIG_RELATIVE_PATH
+        if _read_text_or_none(btca_config_path) != plan.btca_config_content:
+            transaction.write_text(btca_config_path, plan.btca_config_content)
+
+        btca_sidecar_path = plan.repo_root / BTCA_SIDECAR_RELATIVE_PATH
+        if _read_text_or_none(btca_sidecar_path) != plan.btca_sidecar_content:
+            transaction.write_text(btca_sidecar_path, plan.btca_sidecar_content)
+
+        btca_docs_path = plan.repo_root / BTCA_DOCS_RELATIVE_PATH
+        if _read_text_or_none(btca_docs_path) != plan.btca_docs_content:
+            transaction.write_text(btca_docs_path, plan.btca_docs_content)
     except Exception:
         transaction.rollback()
         raise
@@ -858,6 +923,7 @@ def execute_add(plan: AddPlan) -> AddExecutionSummary:
         ),
         retrofits=plan.retrofits,
         lockfiles=plan.lockfiles,
+        btca_warnings=plan.btca_warnings,
     )
 
 
@@ -875,4 +941,9 @@ def render_add_completion(*, repo_root: Path, summary: AddExecutionSummary) -> s
         lines.append("  - none")
     lines.append("- lockfiles:")
     lines.extend(f"  - {lockfile}" for lockfile in summary.lockfiles)
+    lines.append("- BTCA warnings:")
+    if summary.btca_warnings:
+        lines.extend(f"  - {warning}" for warning in summary.btca_warnings)
+    else:
+        lines.append("  - none")
     return "\n".join(lines)
