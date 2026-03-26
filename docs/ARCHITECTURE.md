@@ -38,6 +38,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Global UX direction: distribute and run as `nurt` global CLI installed via `uv tool install git+...`; user entrypoint is `nurt new <project-name>`
 - BTCA ownership boundary: generated repos keep `btca.config.jsonc` BTCA-native only, while `nurt` stores ownership/drift metadata for managed BTCA resources in `.nurt/btca-managed-resources.json`
 - BTCA merge policy: composition-aware BTCA updates are additive by stable resource name; `nurt add` only patches tracked managed resources and preserves user-authored BTCA entries
+- BTCA coverage policy: every materially used scaffolded framework/library/tool should be represented in the generated repo's BTCA resource set for the relevant target composition
 
 ## Planned Topology
 
@@ -206,6 +207,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - The Ralph TUI visualization column now uses `ContentSwitcher` plus `VerticalScroll` containers in `src/new_repo_template/ralph_tui.py`, which keeps the default dashboard compact, allows switching to the full-plan detail pane, and enforces vertical scrolling with wrapped content rather than horizontal scrolling.
 - Feature `9.0` planning is now explicit: the current foundation scaffold still mirrors a static root `btca.config.jsonc` and does not yet write `docs/BTCA_RESOURCES.md`, but the next implementation slice will replace that static behavior with composition-aware BTCA config generation plus sidecar-backed add-mode patching.
 - The locked feature `9.0` design keeps BTCA config ownership clean: `btca.config.jsonc` remains a pure BTCA file, `.nurt/btca-managed-resources.json` becomes the `nurt`-owned source of truth for managed-resource ownership and drift detection, and generated `docs/BTCA_RESOURCES.md` content will be rendered from the resulting BTCA config rather than mirrored from sidecar metadata.
+- The feature `9.0` planning follow-up also tightened target mapping requirements: desktop now explicitly needs Electron Forge BTCA coverage, and the remaining targets must be audited so all materially used frameworks/libraries/tools are represented rather than only the currently convenient subset.
 
 ## Validation Model
 

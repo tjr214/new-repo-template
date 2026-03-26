@@ -51,6 +51,10 @@
     - [x] `nurt new` should seed the managed BTCA resource set from the selected project mix, and `nurt add` should patch only those managed entries additively by stable resource name.
     - [x] Preserve user-added BTCA resources and warn instead of overwriting drifted managed entries.
     - [x] Generate `docs/BTCA_RESOURCES.md` from the final project-level `btca.config.jsonc` so the docs reflect real BTCA state.
+  - [x] Locked the BTCA coverage rule.
+    - [x] If a scaffolded target materially uses a framework, library, or tool, that dependency context should be represented in the target's BTCA configuration.
+    - [x] Desktop explicitly needs Electron Forge BTCA coverage.
+    - [x] The same mismatch audit should be applied across all other project types before implementation mapping is finalized.
 - [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 7.0, 8.0, 9.0)
   - [ ] Thoroughly test all project types (manual step)
   - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)

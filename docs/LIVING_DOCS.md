@@ -45,6 +45,8 @@ The template implementation remains intact, features `5.0` through `8.0` are com
 - Feature `9.0` planning is now locked: generated repos will keep `btca.config.jsonc` pure BTCA and will track `nurt` ownership/drift metadata for managed BTCA resources in a separate `.nurt/btca-managed-resources.json` sidecar.
 - The planned BTCA merge model is additive-only: `nurt new` will seed managed resources from the selected project mix, `nurt add` will patch only those tracked managed entries by stable resource name, user-added BTCA resources will be preserved, and drifted managed entries will warn instead of being overwritten silently.
 - The same planning pass also surfaced a current governance gap: generated guidance already references `docs/BTCA_RESOURCES.md`, but the scaffold baseline does not yet write that file. Feature `9.0` is expected to close that gap by generating the doc from the final project-level BTCA config.
+- Feature `9.0` planning is now stricter on coverage too: if a generated target materially uses a framework, library, or tool, that dependency context should be represented in the generated BTCA setup for that target rather than omitted from the mapping.
+- Desktop is the first confirmed mismatch under that rule because the scaffolded desktop lane is Electron Forge-based but the current project BTCA resource set does not yet include an Electron/Electron Forge resource; the same audit now needs to be applied across the other targets as RED begins.
 
 ## Active Implementation Rules
 
@@ -87,6 +89,7 @@ The template implementation remains intact, features `5.0` through `8.0` are com
 - BTCA ownership model: keep `btca.config.jsonc` BTCA-native only and store `nurt` BTCA ownership/drift metadata in `.nurt/btca-managed-resources.json`
 - BTCA merge model: `nurt new` seeds managed BTCA resources from the selected project mix, while `nurt add` upserts only tracked managed resources by stable name and preserves user-added entries
 - BTCA docs-sync rule: `docs/BTCA_RESOURCES.md` should be rendered from the final project-level `btca.config.jsonc`, not from the sidecar metadata file
+- BTCA coverage rule: every materially used scaffolded framework/library/tool should have corresponding BTCA resource coverage in the generated repo configuration
 
 ## Known Constraints
 
@@ -103,6 +106,7 @@ The template implementation remains intact, features `5.0` through `8.0` are com
 - Self-update v1 is intentionally narrow: only `uv`-managed installs are supported, and non-uv/manual channels fall back to explicit reinstall guidance instead of best-effort auto-detection.
 - Feature `9.0` must not rely on undocumented BTCA-schema extensibility; `nurt` does not own `btca.config.jsonc`, so its bookkeeping must live in a separate sidecar file.
 - Feature `9.0` additive patching must preserve user-added BTCA resources and avoid automatic deletion of either user-managed entries or drifted `nurt`-managed entries.
+- Any missing project BTCA resources needed to satisfy the new coverage rule must still be proposed explicitly and confirmed before they are added to this template repository's project BTCA config.
 
 ## Implementation Notes (M0-M1)
 

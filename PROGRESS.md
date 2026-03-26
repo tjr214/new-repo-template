@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-25 08:23:05 PM
-**Current Phase:** Feature `9.0` YELLOW discussion/planning is complete: the BTCA customization design is now locked around a pure `btca.config.jsonc` plus a separate `.nurt/btca-managed-resources.json` sidecar, and next up is RED coverage plus implementation.
+**Last Updated:** 2026-03-25 08:36:07 PM
+**Current Phase:** Feature `9.0` planning is refined: the pure-BTCA-config plus sidecar design remains locked, and the target-resource mapping rule is now stricter too - every materially used framework/library/tool in a scaffolded project must be represented in that project's BTCA configuration, with desktop explicitly requiring Electron Forge coverage.
 
 ## Previous Cycle Archives
 
@@ -197,6 +197,8 @@
 - [x] Locked the feature `9.0` ownership and merge design with the user: keep `btca.config.jsonc` pure BTCA, track `nurt`-managed BTCA resources in `.nurt/btca-managed-resources.json`, seed and patch resources additively by stable name during `nurt new` and `nurt add`, preserve user-added BTCA entries, and warn instead of overwriting drifted managed entries.
 - [x] Recorded the additional YELLOW finding that the scaffold baseline currently ships a static `btca.config.jsonc` but does not yet scaffold `docs/BTCA_RESOURCES.md` despite the generated governance guidance referencing it; feature `9.0` planning now treats that docs file as part of the same implementation slice.
 - [x] Synced the feature `9.0` discussion outcome across `TODO-FEATURES.md`, `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a new session summary.
+- [x] Refined the feature `9.0` mapping rule with the user: every materially used framework, library, and tool in a generated project should be represented in that target's BTCA configuration; desktop specifically needs Electron Forge coverage, and the same mismatch audit now applies to all other targets.
+- [x] Synced the stricter feature `9.0` BTCA-coverage rule into `TODO-FEATURES.md`, `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and a follow-up session summary.
 
 ## Next Up
 

@@ -1,9 +1,9 @@
 # Feature 9 Plan
 
-**Last Updated:** 2026-03-25 08:23:05 PM
+**Last Updated:** 2026-03-25 08:36:07 PM
 **Status:** YELLOW complete / ready for RED
 **Roadmap Item:** `TODO-FEATURES.md` feature `9.0`
-**Latest Session Summary:** `docs/session-summaries/SESSION_122_SUMMARY.md`
+**Latest Session Summary:** `docs/session-summaries/SESSION_123_SUMMARY.md`
 **Previous Cycle Archive:** `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`
 
 ---
@@ -24,6 +24,8 @@ Implement feature `9.0`: generate a monorepo-composition-aware `btca.config.json
 - Drifted managed BTCA resources must be preserved and warned about rather than overwritten silently.
 - `docs/BTCA_RESOURCES.md` must be generated from the final project-level `btca.config.jsonc`, not from the sidecar file.
 - The current planning pass exposed a scaffold gap: generated governance guidance already references `docs/BTCA_RESOURCES.md`, but the foundation scaffold does not currently write that file. Feature `9.0` must close that gap.
+- Every materially used scaffolded framework/library/tool should have BTCA coverage in the generated configuration for that target composition.
+- Desktop explicitly needs Electron Forge BTCA coverage under that rule.
 
 ---
 
@@ -126,6 +128,8 @@ Expected effects:
 
 Before writing the RED tests, confirm the resource mapping table for each target using only already-approved project BTCA resources, and flag any missing resource decisions for user confirmation.
 
+The mapping rule is now strict: do not treat BTCA coverage as optional convenience context. If a target materially uses a framework, library, or tool, include it in the target mapping or explicitly document why it is out of scope.
+
 Current likely mapping direction:
 
 - `foundation`
@@ -155,9 +159,9 @@ Current likely mapping direction:
   - `react-native-tvos`
   - `expo-tv-config`
 - `desktop`
-  - no confirmed project BTCA resource yet; if desktop-specific docs are required for the final mapping table, propose the missing BTCA resource(s) to the user before implementation
+  - Electron Forge resource coverage is required; propose the missing project BTCA resource(s) to the user before implementation because they are not currently present in the template's BTCA config
 
-Also decide during RED whether `pytest-textual-snapshot` belongs in generated Python-app BTCA defaults. Current recommendation: no, unless an explicit generated testing workflow depends on it.
+Also audit the other targets against the same rule during RED so the final mapping is comprehensive rather than desktop-only. Decide then whether `pytest-textual-snapshot` belongs in generated Python-app BTCA defaults. Current recommendation: no, unless an explicit generated testing workflow depends on it.
 
 ---
 
@@ -277,7 +281,7 @@ If context is cleared before implementation, do this exact restart sequence firs
 - `docs/LIVING_DOCS.md`
 - `docs/ARCHITECTURE.md`
 - `TODO-FEATURES.md`
-- `docs/session-summaries/SESSION_122_SUMMARY.md`
+- `docs/session-summaries/SESSION_123_SUMMARY.md`
 - `btca.config.jsonc`
 - `docs/BTCA_RESOURCES.md`
 - `src/new_repo_template/scaffold.py`
@@ -305,6 +309,7 @@ btca ask -q "Should a tool keep user metadata in a separate file instead of exte
 ### Resume Execution Order
 
 1. Confirm the project-kind-to-BTCA-resource mapping table and identify any missing project BTCA resources that would require user confirmation before implementation.
+   - This now includes Electron Forge for desktop and the same mismatch audit for all other targets.
 2. Write RED tests/contracts for dynamic BTCA config generation, sidecar tracking, additive add-mode patching, drift warnings, and `docs/BTCA_RESOURCES.md` generation.
 3. Implement the BTCA planner/manager module and scaffold/add integration.
 4. Run targeted validation, then BLUE refactor/hardening, then full validation.
