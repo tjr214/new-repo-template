@@ -136,3 +136,18 @@ def test_merge_add_mode_btca_files_preserves_drifted_managed_resource_and_warns(
         "https://example.com/custom-bun-docs"
     )
     assert any("bun" in warning for warning in merged.warnings)
+
+
+def test_generate_scaffold_btca_files_includes_better_auth_resources() -> None:
+    generated = btca_config_manager.generate_scaffold_btca_files(
+        (btca_config_manager.ProjectContext(kind="backend", auth="better-auth"),)
+    )
+
+    assert _resource_names(generated.config_text) == [
+        "turborepo",
+        "bun",
+        "convex-better-auth",
+        "better-auth-core",
+        "convex-docs",
+        "typescript-docs",
+    ]

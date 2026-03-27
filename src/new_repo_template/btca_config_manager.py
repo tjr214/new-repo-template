@@ -15,6 +15,8 @@ BTCA_SIDECAR_RELATIVE_PATH = ".nurt/btca-managed-resources.json"
 BTCA_DOCS_RELATIVE_PATH = "docs/BTCA_RESOURCES.md"
 BTCA_CONFIG_RELATIVE_PATH = "btca.config.jsonc"
 BTCA_SIDECAR_SCHEMA_VERSION = 1
+BETTER_AUTH_CORE_RESOURCE_NAME = "better-auth-core"
+CONVEX_BETTER_AUTH_RESOURCE_NAME = "convex-better-auth"
 
 
 @dataclass(frozen=True)
@@ -86,7 +88,7 @@ RESOURCE_DEFINITIONS: tuple[ResourceDefinition, ...] = (
         branch="main",
     ),
     ResourceDefinition(
-        name="convex-better-auth",
+        name=CONVEX_BETTER_AUTH_RESOURCE_NAME,
         url="https://github.com/get-convex/better-auth",
         branch="main",
     ),
@@ -112,7 +114,7 @@ RESOURCE_DEFINITIONS: tuple[ResourceDefinition, ...] = (
         branch="main",
     ),
     ResourceDefinition(
-        name="better-auth-core",
+        name=BETTER_AUTH_CORE_RESOURCE_NAME,
         url="https://github.com/better-auth/better-auth",
         branch="main",
     ),
@@ -232,7 +234,10 @@ TARGET_RESOURCE_NAMES: dict[str, tuple[str, ...]] = {
 
 BACKEND_AUTH_RESOURCE_NAMES: dict[str, tuple[str, ...]] = {
     "clerk": ("clerk-docs",),
-    "better-auth": ("better-auth-core", "convex-better-auth"),
+    "better-auth": (
+        BETTER_AUTH_CORE_RESOURCE_NAME,
+        CONVEX_BETTER_AUTH_RESOURCE_NAME,
+    ),
     "none": (),
 }
 
