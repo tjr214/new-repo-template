@@ -24,7 +24,8 @@ The current implementation lives in the template repo release workflow and provi
   - when `true`, the workflow creates or updates a draft GitHub release for template artifacts using `release_tag`
 - Release tag input: `release_tag`
   - default: `v0.1.0-template`
-- Unsigned artifact lane: `Unsigned Release Readiness` builds template distributables and uploads a release bundle via `actions/upload-artifact@v4`.
+- Unsigned artifact lane: `Unsigned Release Readiness` builds template distributables and uploads a release bundle via `actions/upload-artifact@v6`.
+- The release workflow now opts into `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` and uses Node 24-ready action majors so GitHub-hosted runs stay ahead of the June 2026 runtime default switch.
 - Optional signing-prep lanes:
   - `Desktop Signing Prep`
   - `Android Signing Prep`

@@ -1,6 +1,6 @@
 # Development Progress
 
-**Last Updated:** 2026-03-25 09:03:13 PM
+**Last Updated:** 2026-03-26 08:51:51 PM
 **Current Phase:** Feature `9.0` is complete: generated repos now receive composition-aware BTCA config, sidecar-managed BTCA ownership tracking, additive add-mode BTCA patching, and generated `docs/BTCA_RESOURCES.md`; next up is the YELLOW discussion/planning pass for feature `10.0` release-candidate testing.
 
 ## Previous Cycle Archives
@@ -205,6 +205,8 @@
 - [x] Implemented feature `9.0` in `src/new_repo_template/btca_config_manager.py`, `src/new_repo_template/scaffold.py`, and `src/new_repo_template/add_mode.py`: scaffold now writes dynamic `btca.config.jsonc`, `.nurt/btca-managed-resources.json`, and `docs/BTCA_RESOURCES.md`; add mode now merges managed BTCA resources additively, preserves user-added resources, and warns on drifted managed entries.
 - [x] Removed the old static foundation BTCA snapshot entry from `src/new_repo_template/snapshot_assets/source_manifest.json`, deleted the stale bundled `src/new_repo_template/snapshot_assets/templates/foundation/btca.config.jsonc`, and regenerated packaged snapshot metadata/manifests with `nurt template-assets validate`.
 - [x] Revalidated feature `9.0` with `uv run pytest tests/contracts/test_btca_config_contract.py tests/contracts/test_root_workspace_contract.py tests/contracts/test_nurt_add_contract.py tests/contracts/test_nurt_cli_contract.py` (53 passed), `uv run ruff check src/new_repo_template tests/contracts`, `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, and `uv run pytest` (239 passed).
+- [x] Audited the GitHub Actions Node 20 deprecation warning, confirmed the Node 24-ready upstream action lines from the official action release notes/changelog, and updated both the live workflows plus mirrored foundation workflow templates to `actions/checkout@v6`, `actions/setup-python@v6`, `actions/cache@v5`, `actions/upload-artifact@v6`, `actions/download-artifact@v7`, and `actions/setup-java@v5`.
+- [x] Opted the live CI/release workflows and mirrored foundation templates into `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, updated workflow contracts/docs for the new action majors, regenerated snapshot metadata with `nurt template-assets validate`, and revalidated the workflow-maintenance slice with targeted workflow/snapshot contracts (14 passed).
 
 ## Next Up
 

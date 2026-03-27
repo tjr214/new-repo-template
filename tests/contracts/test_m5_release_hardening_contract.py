@@ -40,7 +40,7 @@ def test_optional_signing_design_is_documented_and_has_disabled_default_workflow
     assert "disabled by default" in signing_text
     assert "template repo" in signing_text.lower()
     assert "downstream generated app repos" in signing_text.lower()
-    assert "actions/upload-artifact@v4" in signing_text
+    assert "actions/upload-artifact@v6" in signing_text
     assert "Desktop Signing Prep" in signing_text
     assert "Android Signing Prep" in signing_text
     assert "iOS Packaging Preview" in signing_text
@@ -61,6 +61,7 @@ def test_optional_signing_design_is_documented_and_has_disabled_default_workflow
 
     release_workflow_text = release_workflow_path.read_text(encoding="utf-8")
     assert "workflow_dispatch" in release_workflow_text
+    assert 'FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"' in release_workflow_text
     assert "enable_signing" in release_workflow_text
     assert 'default: "false"' in release_workflow_text
     assert "if: ${{ inputs.enable_signing == 'true' }}" in release_workflow_text
@@ -69,8 +70,10 @@ def test_optional_signing_design_is_documented_and_has_disabled_default_workflow
     assert "Android Signing Prep" in release_workflow_text
     assert "iOS Packaging Preview" in release_workflow_text
     assert "Publish Template Release" in release_workflow_text
-    assert "actions/upload-artifact@v4" in release_workflow_text
-    assert "actions/download-artifact@v5" in release_workflow_text
+    assert "actions/checkout@v6" in release_workflow_text
+    assert "actions/setup-python@v6" in release_workflow_text
+    assert "actions/upload-artifact@v6" in release_workflow_text
+    assert "actions/download-artifact@v7" in release_workflow_text
     assert "publish_release" in release_workflow_text
     assert "release_tag" in release_workflow_text
     assert "gh release create" in release_workflow_text
@@ -81,7 +84,7 @@ def test_optional_signing_design_is_documented_and_has_disabled_default_workflow
     )
     assert "EXPO_TOKEN" in release_workflow_text
     assert "macos-latest" in release_workflow_text
-    assert "actions/setup-java@v4" in release_workflow_text
+    assert "actions/setup-java@v5" in release_workflow_text
     assert "security import" in release_workflow_text
     assert "keytool -list" in release_workflow_text
 

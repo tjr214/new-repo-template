@@ -20,8 +20,11 @@ def test_ci_workflow_runs_versions_guardrail_cross_platform_smokes_cache_and_adv
     assert "macos-latest" in workflow_text
     assert "ubuntu-latest" in workflow_text
     assert "concurrency:" in workflow_text
+    assert 'FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"' in workflow_text
     assert "oven-sh/setup-bun@v2" in workflow_text
-    assert "actions/cache@v4" in workflow_text
+    assert "actions/checkout@v6" in workflow_text
+    assert "actions/setup-python@v6" in workflow_text
+    assert "actions/cache@v5" in workflow_text
     assert "~/.cache/uv" in workflow_text
     assert "~/.bun/install/cache" in workflow_text
     assert "Run cross-platform command smoke contracts (non-Windows)" in workflow_text
