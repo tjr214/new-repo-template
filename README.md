@@ -11,6 +11,13 @@ For end users generating a new project from this template, the canonical flow is
 2. Generate a project:
    - `nurt new <project-name>`
 
+## Staying Current
+
+- Upgrade the globally installed tool when a new version is available:
+  - `nurt upgrade`
+- If you want to refresh bundled managed template files inside a generated repo after upgrading, run this separately from that repo root:
+  - `nurt sync template-assets`
+
 ## Adding OpenCode commands and agents
 
 Add new commands and agents directly to the appropriate place in `templates-content-store-symlink/foundation/.opencode/`.

@@ -8,6 +8,13 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from new_repo_template.btca_config_manager import (
+    BTCA_CONFIG_RELATIVE_PATH,
+    BTCA_DOCS_RELATIVE_PATH,
+    BTCA_SIDECAR_RELATIVE_PATH,
+    generate_scaffold_btca_files,
+    project_contexts_from_projects,
+)
 from new_repo_template.foundation_manifest import (
     get_foundation_empty_directories,
     get_foundation_scaffold_paths,
@@ -87,6 +94,12 @@ FOUNDATION_GOVERNANCE_EMPTY_DIRS: tuple[str, ...] = get_foundation_empty_directo
 
 FOUNDATION_GOVERNANCE_TEMPLATE_FILES: tuple[tuple[str, str], ...] = (
     get_foundation_template_file_pairs()
+)
+
+GENERATED_BTCA_PATHS: tuple[str, ...] = (
+    BTCA_CONFIG_RELATIVE_PATH,
+    BTCA_SIDECAR_RELATIVE_PATH,
+    BTCA_DOCS_RELATIVE_PATH,
 )
 
 SHARED_INFRA_PACKAGE_PATHS: tuple[str, ...] = (
@@ -810,6 +823,7 @@ def validate_args(
 
 def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
     paths: list[str] = list(FOUNDATION_PATHS)
+    paths.extend(GENERATED_BTCA_PATHS)
     paths.extend(SHARED_INFRA_PACKAGE_PATHS)
 
     has_python_workspace = any(
@@ -1017,17 +1031,35 @@ def write_foundation_governance_assets(*, output_root: Path) -> None:
             encoding="utf-8",
         )
 
-    for executable_relative in (
-        "scripts/RALPH.sh",
-        "scripts/configure-repo-protections.sh",
-        "scripts/synthetic-quotas.sh",
-        "scripts/validate_template.py",
-        "scripts/visualize_plan.py",
-    ):
+    for executable_relative in ("scripts/synthetic-quotas.sh",):
         (output_root / executable_relative).chmod(0o755)
 
 
-def scaffold_foundation_core(*, output_root: Path) -> None:
+def write_generated_btca_assets(
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
+) -> None:
+    generated_files = generate_scaffold_btca_files(
+        project_contexts_from_projects(projects)
+    )
+
+    (output_root / BTCA_CONFIG_RELATIVE_PATH).write_text(
+        generated_files.config_text,
+        encoding="utf-8",
+    )
+    sidecar_path = output_root / BTCA_SIDECAR_RELATIVE_PATH
+    sidecar_path.parent.mkdir(parents=True, exist_ok=True)
+    sidecar_path.write_text(
+        generated_files.sidecar_text,
+        encoding="utf-8",
+    )
+    docs_path = output_root / BTCA_DOCS_RELATIVE_PATH
+    docs_path.parent.mkdir(parents=True, exist_ok=True)
+    docs_path.write_text(generated_files.docs_text, encoding="utf-8")
+
+
+def scaffold_foundation_core(
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
+) -> None:
     output_root.mkdir(parents=True, exist_ok=False)
     (output_root / "apps").mkdir()
     (output_root / "packages").mkdir()
@@ -1036,6 +1068,7 @@ def scaffold_foundation_core(*, output_root: Path) -> None:
     write_root_package_json(output_root=output_root)
     write_root_turbo_json(output_root=output_root)
     write_foundation_governance_assets(output_root=output_root)
+    write_generated_btca_assets(output_root=output_root, projects=projects)
 
 
 def scaffold_python_workspace_root(
@@ -1570,7 +1603,7 @@ def scaffold_web_backend_auth_wiring(
 
 
 def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
-    scaffold_foundation_core(output_root=plan.output)
+    scaffold_foundation_core(output_root=plan.output, projects=plan.projects)
     scaffold_shared_infra_packages(output_root=plan.output)
     scaffold_python_workspace_root(output_root=plan.output, projects=plan.projects)
     scaffold_shared_workspace_package(output_root=plan.output, projects=plan.projects)

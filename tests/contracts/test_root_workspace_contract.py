@@ -54,13 +54,16 @@ def test_foundation_dry_run_reports_workspace_root_config_files(tmp_path: Path) 
     expected_markers = [
         "package.json",
         "turbo.json",
+        "btca.config.jsonc",
+        ".nurt/btca-managed-resources.json",
         "AGENTS.md",
         "PLAN.md",
         "README.md",
+        "ralph.config.yaml",
         "PROGRESS.md",
         ".nurt/repo.json",
-        "scripts/configure-repo-protections.sh",
         "docs/ARCHITECTURE.md",
+        "docs/BTCA_RESOURCES.md",
         "docs/LIVING_DOCS.md",
         "docs/markdown-templates/",
         "docs/workflows/",
@@ -172,7 +175,6 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
     )
 
     root_mirrors = (
-        (repo_root / "btca.config.jsonc", output_dir / "btca.config.jsonc"),
         (repo_root / "AGENTS.md", output_dir / "AGENTS.md"),
         (
             repo_root / "docs" / "markdown-templates" / "PLAN.template.md",
@@ -184,6 +186,7 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
         ),
         (repo_root / "README.BMAD-GUIDE.md", output_dir / "README.BMAD-GUIDE.md"),
         (repo_root / "README.RALPH.md", output_dir / "README.RALPH.md"),
+        (repo_root / "ralph.config.yaml", output_dir / "ralph.config.yaml"),
         (
             repo_root / "docs" / "markdown-templates" / "PROGRESS.template.md",
             output_dir / "PROGRESS.md",
@@ -210,27 +213,61 @@ def test_foundation_scaffold_writes_governance_and_agent_assets(tmp_path: Path) 
             encoding="utf-8"
         )
 
-    mirrored_directories = (
-        repo_root / "scripts",
-        repo_root / "docs" / "markdown-templates",
-        repo_root / "docs" / "tasks",
-        repo_root / "docs" / "workflows",
-        repo_root / ".github" / "workflows",
-        repo_root / ".agent" / "rules",
-        repo_root / ".agent" / "workflows" / "project",
-        repo_root / ".opencode" / "command",
-    )
+    btca_config_path = output_dir / "btca.config.jsonc"
+    btca_sidecar_path = output_dir / ".nurt" / "btca-managed-resources.json"
+    btca_docs_path = output_dir / "docs" / "BTCA_RESOURCES.md"
 
-    for source_root in mirrored_directories:
-        for relative in _iter_relative_files(source_root):
-            source_path = source_root / relative
-            destination_path = output_dir / source_path.relative_to(repo_root)
-            assert destination_path.exists(), (
-                f"Expected mirrored file at {destination_path}"
-            )
-            assert destination_path.read_text(
-                encoding="utf-8"
-            ) == source_path.read_text(encoding="utf-8")
+    assert btca_config_path.exists(), "Expected generated btca.config.jsonc"
+    assert btca_sidecar_path.exists(), (
+        "Expected generated .nurt/btca-managed-resources.json"
+    )
+    assert btca_docs_path.exists(), "Expected generated docs/BTCA_RESOURCES.md"
+
+    btca_config = json.loads(btca_config_path.read_text(encoding="utf-8"))
+    assert btca_config["model"] == "gpt-5.4"
+    assert btca_config["provider"] == "openai"
+    assert [resource["name"] for resource in btca_config["resources"]] == [
+        "turborepo",
+        "bun",
+    ]
+
+    btca_sidecar = json.loads(btca_sidecar_path.read_text(encoding="utf-8"))
+    assert btca_sidecar["schema_version"] == 1
+    assert [record["name"] for record in btca_sidecar["managed_resources"]] == [
+        "turborepo",
+        "bun",
+    ]
+
+    btca_docs = btca_docs_path.read_text(encoding="utf-8")
+    assert "<name>turborepo</name>" in btca_docs
+    assert "<name>bun</name>" in btca_docs
+    assert "<name>textual</name>" not in btca_docs
+
+    entries = source_manifest.get("entries")
+    assert isinstance(entries, list)
+
+    for entry in entries:
+        assert isinstance(entry, dict)
+        source = entry.get("source")
+        destination = entry.get("destination")
+        management = entry.get("management")
+        if not isinstance(source, str) or not isinstance(destination, str):
+            continue
+        if not isinstance(management, dict) or not management.get("scaffold"):
+            continue
+        if not destination.startswith("templates/foundation/"):
+            continue
+
+        source_path = repo_root / source
+        destination_path = output_dir / destination.removeprefix(
+            "templates/foundation/"
+        )
+        assert destination_path.exists(), (
+            f"Expected mirrored file at {destination_path}"
+        )
+        assert destination_path.read_text(encoding="utf-8") == source_path.read_text(
+            encoding="utf-8"
+        )
 
     empty_directories = source_manifest.get("empty_directories")
     assert isinstance(empty_directories, list)

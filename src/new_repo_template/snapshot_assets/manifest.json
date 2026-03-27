@@ -26,7 +26,6 @@
     "foundation/README.BMAD-GUIDE.md",
     "foundation/README.RALPH.md",
     "foundation/README.md",
-    "foundation/btca.config.jsonc",
     "foundation/docs/ARCHITECTURE.md",
     "foundation/docs/LIVING_DOCS.md",
     "foundation/docs/markdown-templates/PLAN.template.md",
@@ -39,11 +38,8 @@
     "foundation/docs/workflows/export-to-ralph/steps/step-03-transform.md",
     "foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
     "foundation/docs/workflows/export-to-ralph/workflow.md",
-    "foundation/scripts/RALPH.sh",
-    "foundation/scripts/configure-repo-protections.sh",
+    "foundation/ralph.config.yaml",
     "foundation/scripts/synthetic-quotas.sh",
-    "foundation/scripts/validate_template.py",
-    "foundation/scripts/visualize_plan.py",
     "python_lane_python_version.txt",
     "root_gitignore.txt"
   ]
