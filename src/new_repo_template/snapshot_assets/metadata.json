@@ -1,5 +1,5 @@
 {
-  "file_count": 45,
+  "file_count": 41,
   "files": [
     {
       "destination": "templates/foundation/.agent/rules/general-rules.md",
@@ -23,7 +23,7 @@
     },
     {
       "destination": "templates/foundation/.opencode/command/project-archive-plan.md",
-      "sha256": "b935a6c86f3243a5a1ee7eee032a685ff85cb721157451bc54a63b56008cc7bc"
+      "sha256": "a4f7307b518a139ae2cc137dd18e4fff569b187e0a11567f5c5f3e6388ee0a9d"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-export-bmad-to-ralph.md",
@@ -95,15 +95,11 @@
     },
     {
       "destination": "templates/foundation/README.RALPH.md",
-      "sha256": "c28afbcf7e5ca55f75b6944ae2ad429b8c49ad3d8079ba8f219020d01b0152b2"
+      "sha256": "a04d113abba49a26574f0b516bf7a58e68d53d0e68202d04844bb2eae1d14b72"
     },
     {
       "destination": "templates/foundation/README.md",
       "sha256": "5bf6475593b80988fbc08e8612a958e5ee50feb0c0351dbe1fb394fe76ababad"
-    },
-    {
-      "destination": "templates/foundation/btca.config.jsonc",
-      "sha256": "52c8ac11924105ce6e5b5b94cf2ab2546195fa8fff1d166e53886d0f82499a20"
     },
     {
       "destination": "templates/foundation/docs/ARCHITECTURE.md",
@@ -123,15 +119,15 @@
     },
     {
       "destination": "templates/foundation/docs/tasks/task-template-example.yaml",
-      "sha256": "68fabeb0d0b01812f48d9e8d2ccce229835c473b51da7ca801a8d3484dc3ac03"
+      "sha256": "ceb01e726c6fcfd7801ffd03e6292880d5a097776fc48e34652e0427f03d1f30"
     },
     {
       "destination": "templates/foundation/docs/tasks/task-template-schema.json",
-      "sha256": "4009f44ca89b5299ea168bba8c18e6af0f3f6cbe6d9281e370872fa6c4ea0320"
+      "sha256": "9cf6e629fb4ac9f46a0d642ba9c29d0a374e16ee5456e9493526bbd27cb2fbaa"
     },
     {
       "destination": "templates/foundation/docs/tasks/task-template.yaml",
-      "sha256": "112029fd9440b8a92c0b02b354e4e6f37171e50c8b7b7016f264931aecbf954f"
+      "sha256": "fa0ced310166b0b9bd80318be1fcbbebdbda2fa785c7080f32a27d39e854b703"
     },
     {
       "destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-01-detect-context.md",
@@ -143,35 +139,23 @@
     },
     {
       "destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-03-transform.md",
-      "sha256": "a160b3a29d25acca21c898a38e5e22ef40a6ed310acb8031871ae9c699755add"
+      "sha256": "abf21c6e5efc952e1b329552d620ff6b2a08150033d3de26943381967b502f10"
     },
     {
       "destination": "templates/foundation/docs/workflows/export-to-ralph/steps/step-04-write-file.md",
-      "sha256": "ed4c3c5a76dd6ce8a9b12378fc1d0609787140f74b088649430da72e65f67da5"
+      "sha256": "4d6e3c2e78048ca7794eedcbc816e8770bd3c152960234f5f1aa31c5f6138050"
     },
     {
       "destination": "templates/foundation/docs/workflows/export-to-ralph/workflow.md",
-      "sha256": "86edc1329acbc3eefb48c7fe1ce216ab4bd959fbd252380d74e42f4d31c4d094"
+      "sha256": "6d8f7942b3aa8385957170a10480013213104bed0d7519064b1ea4183645ab36"
     },
     {
-      "destination": "templates/foundation/scripts/RALPH.sh",
-      "sha256": "36deac7097d2a8174bd9dd848daf28ce79ffb9c02f1522d54549cd3d1b3f4359"
-    },
-    {
-      "destination": "templates/foundation/scripts/configure-repo-protections.sh",
-      "sha256": "bc8274599cf1686d16487439675554a8aa307e83e49309e3c9bd2feb155803e2"
+      "destination": "templates/foundation/ralph.config.yaml",
+      "sha256": "41f186cc75a9501c87daf13937c7521089cd068a0110954025054eaa93457aa1"
     },
     {
       "destination": "templates/foundation/scripts/synthetic-quotas.sh",
       "sha256": "f538db2f18af1b04709fbe18369b8b3923eb75085eb2f4aaa34575f02b21ff92"
-    },
-    {
-      "destination": "templates/foundation/scripts/validate_template.py",
-      "sha256": "75696fc984c3baaaee5fc2903eeca7cbfd7f86cb86b122103ed3795ae5866115"
-    },
-    {
-      "destination": "templates/foundation/scripts/visualize_plan.py",
-      "sha256": "0dc7625c49f8f96ec7222b9fd7b1b26ad811f71871612654a2513f9e94f7a2b6"
     },
     {
       "destination": "templates/python_lane_python_version.txt",
@@ -182,7 +166,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-20T04:06:29.423272+00:00",
+  "generated_at": "2026-03-26T01:06:34.011506+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "dcdb7f9ed5c0c0b79c364e322af94416f3030fc9"
+  "source_commit": "7928c775559ddf92539299a931f957c8b97ca5d5"
 }

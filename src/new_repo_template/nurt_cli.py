@@ -15,6 +15,15 @@ from new_repo_template.post_create import (
     render_post_create_plan,
     run_post_create_pipeline,
 )
+from new_repo_template.ralph_config import load_ralph_config
+from new_repo_template.ralph_runner import render_ralph_dry_run_summary, run_ralph_loop
+from new_repo_template.ralph_tasks import (
+    load_ralph_task_plan,
+    resolve_execution_settings,
+    validate_ralph_task_file,
+    visualize_ralph_task_file,
+)
+from new_repo_template.ralph_tui import run_ralph_tui
 from new_repo_template import scaffold
 from new_repo_template.interactive_ui import (
     InteractiveUIConfig,
@@ -30,6 +39,13 @@ from new_repo_template.interactive_tui import (
     run_interactive_wizard,
 )
 from new_repo_template.project_naming import normalize_project_name
+from new_repo_template.repo_security import (
+    DEFAULT_BRANCH_NAME,
+    DEFAULT_WORKFLOW_NAME,
+    SecureRepoError,
+    parse_non_negative_int,
+    run_secure_repo,
+)
 from new_repo_template.repo_identity import validate_nurt_repo_root
 from new_repo_template.snapshot_builder import build_snapshot_assets
 from new_repo_template.sync_ops import run_template_assets_sync, run_tools_sync
@@ -40,6 +56,10 @@ from new_repo_template.version_baseline import (
 
 
 AUTH_CHOICES: tuple[str, str, str] = ("clerk", "better-auth", "none")
+
+SELF_UPDATE_PACKAGE_NAME = "nurt-ai"
+SELF_UPDATE_COMMAND_NAME = "nurt"
+SELF_UPDATE_INSTALL_SPEC = "git+https://github.com/tjr214/new-repo-template.git"
 
 INTERACTIVE_WIZARD_CANCELLED = "Interactive wizzard cancelled. Maybe next time!"
 
@@ -68,9 +88,24 @@ INTERACTIVE_BMAD_REMEDIATION = (
     "--no-interactive and provide --install-bmad or --no-install-bmad"
 )
 
+INTERACTIVE_REQUIRED_APPROVALS_REMEDIATION = (
+    "interactive input unavailable while selecting required approvals; rerun with "
+    "--no-interactive or provide --required-approvals <n>"
+)
+
 
 def resolve_project_name(raw_project_name: str) -> str:
     return normalize_project_name(raw_project_name)
+
+
+def parse_positive_int(raw_value: str) -> int:
+    try:
+        parsed = int(raw_value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a positive integer") from exc
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
 
 
 def prompt_project_name(*, ui_config: InteractiveUIConfig) -> str:
@@ -98,14 +133,14 @@ def perform_startup_update_check() -> None:
         normalized = simulated_version.strip().lower()
         if normalized not in {"", "none", "0", "false", "no"}:
             print(
-                f"Update available for nurt: {simulated_version}. Run `nurt update`.",
+                f"Update available for nurt: {simulated_version}. Run `nurt upgrade`.",
                 file=sys.stderr,
             )
         return
 
     try:
         check_result = subprocess.run(
-            ["uv", "tool", "upgrade", "--dry-run", "nurt"],
+            ["uv", "tool", "list", "--outdated"],
             capture_output=True,
             text=True,
             check=False,
@@ -114,14 +149,23 @@ def perform_startup_update_check() -> None:
     except FileNotFoundError, subprocess.TimeoutExpired:
         return
 
-    combined_output = f"{check_result.stdout}\n{check_result.stderr}".lower()
-    if (
-        check_result.returncode == 0
-        and "upgrade" in combined_output
-        and "nurt" in combined_output
-        and "would" in combined_output
-    ):
-        print("Update available for nurt. Run `nurt update`.", file=sys.stderr)
+    if check_result.returncode != 0:
+        return
+
+    if _outdated_tools_include_nurt(check_result.stdout):
+        print("Update available for nurt. Run `nurt upgrade`.", file=sys.stderr)
+
+
+def _outdated_tools_include_nurt(output: str) -> bool:
+    package_names = {SELF_UPDATE_PACKAGE_NAME, SELF_UPDATE_COMMAND_NAME}
+    for raw_line in output.splitlines():
+        line = raw_line.strip().lower()
+        if line == "" or line.startswith("-"):
+            continue
+        package_name = line.split(maxsplit=1)[0]
+        if package_name in package_names:
+            return True
+    return False
 
 
 def prompt_targets(*, ui_config: InteractiveUIConfig) -> list[str]:
@@ -381,6 +425,31 @@ def prompt_install_bmad(*, ui_config: InteractiveUIConfig) -> bool:
     )
 
 
+def prompt_required_approvals(*, ui_config: InteractiveUIConfig) -> int:
+    if not ui_config.use_rich:
+        print("Repository approval policy")
+        print("How many approving reviews should be required before merge?")
+    else:
+        console = Console()
+        console.rule("[bold cyan]nurt secure-repo")
+        console.print("How many approving reviews should be required before merge?")
+
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt="Required approvals [0]: ",
+                default="0",
+            )
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_REQUIRED_APPROVALS_REMEDIATION) from exc
+
+        try:
+            return parse_non_negative_int(user_input or "0")
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nurt")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -420,9 +489,52 @@ def build_parser() -> argparse.ArgumentParser:
     add_parser.add_argument("--dry-run", action="store_true")
     add_parser.set_defaults(handler=handle_add)
 
-    update_parser = subparsers.add_parser("update", help="Upgrade nurt")
-    update_parser.add_argument("--dry-run", action="store_true")
-    update_parser.set_defaults(handler=handle_update)
+    ralph_parser = subparsers.add_parser("ralph", help="Run the Ralph loop")
+    ralph_subparsers = ralph_parser.add_subparsers(dest="ralph_command")
+    ralph_parser.set_defaults(handler=handle_ralph)
+
+    ralph_run_parser = ralph_subparsers.add_parser(
+        "run", help="Run a Ralph task file directly"
+    )
+    ralph_run_parser.add_argument("task_file", type=Path)
+    ralph_run_parser.add_argument("--model")
+    ralph_run_parser.add_argument("--max-loops", type=parse_positive_int)
+    ralph_run_parser.add_argument("--dry-run", action="store_true")
+    ralph_run_parser.add_argument("--no-interactive", action="store_true")
+    ralph_run_parser.set_defaults(handler=handle_ralph_run)
+
+    ralph_validate_parser = ralph_subparsers.add_parser(
+        "validate", help="Validate a Ralph task file"
+    )
+    ralph_validate_parser.add_argument("task_file", type=Path)
+    ralph_validate_parser.add_argument("--schema", type=Path)
+    ralph_validate_parser.set_defaults(handler=handle_ralph_validate)
+
+    ralph_visualize_parser = ralph_subparsers.add_parser(
+        "visualize", help="Visualize a Ralph task file"
+    )
+    ralph_visualize_parser.add_argument("task_file", type=Path)
+    ralph_visualize_parser.set_defaults(handler=handle_ralph_visualize)
+
+    secure_repo_parser = subparsers.add_parser(
+        "secure-repo", help="Apply baseline GitHub repository protections"
+    )
+    secure_repo_parser.add_argument("--repo")
+    secure_repo_parser.add_argument("--branch", default=DEFAULT_BRANCH_NAME)
+    secure_repo_parser.add_argument("--required-check", action="append")
+    secure_repo_parser.add_argument("--workflow", default=DEFAULT_WORKFLOW_NAME)
+    secure_repo_parser.add_argument(
+        "--required-approvals", type=parse_non_negative_int, default=None
+    )
+    secure_repo_parser.add_argument("--no-auto-detect-checks", action="store_true")
+    secure_repo_parser.add_argument("--exclude-admins", action="store_true")
+    secure_repo_parser.add_argument("--no-interactive", action="store_true")
+    secure_repo_parser.add_argument("--dry-run", action="store_true")
+    secure_repo_parser.set_defaults(handler=handle_secure_repo)
+
+    upgrade_parser = subparsers.add_parser("upgrade", help="Upgrade nurt")
+    upgrade_parser.add_argument("--dry-run", action="store_true")
+    upgrade_parser.set_defaults(handler=handle_upgrade)
 
     sync_parser = subparsers.add_parser("sync", help="Sync managed resources")
     sync_subparsers = sync_parser.add_subparsers(dest="sync_command", required=True)
@@ -856,19 +968,145 @@ def handle_add(args: argparse.Namespace) -> int:
     return 0
 
 
-def handle_update(args: argparse.Namespace) -> int:
-    command = ["uv", "tool", "upgrade", "nurt"]
+def handle_upgrade(args: argparse.Namespace) -> int:
+    command = ["uv", "tool", "upgrade", SELF_UPDATE_PACKAGE_NAME]
     if args.dry_run:
-        print("DRY RUN: would execute `uv tool upgrade nurt`")
+        print(
+            "DRY RUN: would execute "
+            f"`uv tool upgrade {SELF_UPDATE_PACKAGE_NAME}` "
+            f"to refresh the installed `{SELF_UPDATE_COMMAND_NAME}` tool"
+        )
         return 0
 
     try:
-        result = subprocess.run(command, check=False)
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
     except FileNotFoundError:
-        print("Error: uv is required to update nurt.", file=sys.stderr)
+        print(
+            "Error: uv is required to upgrade nurt. Install uv and rerun `nurt upgrade`.",
+            file=sys.stderr,
+        )
         return 1
 
-    return result.returncode
+    if result.stdout:
+        print(result.stdout, end="")
+    if result.stderr:
+        print(result.stderr, end="", file=sys.stderr)
+
+    if result.returncode != 0:
+        print(
+            "Error: `uv tool upgrade nurt-ai` failed. "
+            "If the current install is no longer upgradeable through uv, reinstall with "
+            f"`uv tool install {SELF_UPDATE_INSTALL_SPEC}`.",
+            file=sys.stderr,
+        )
+        return result.returncode
+
+    print(
+        "If you want to refresh bundled managed files in a generated repo, "
+        "run `nurt sync template-assets` separately."
+    )
+    return 0
+
+
+def handle_secure_repo(args: argparse.Namespace) -> int:
+    ui_config = resolve_ui_config()
+    if ui_config.warning is not None:
+        print(f"Warning: {ui_config.warning}", file=sys.stderr)
+
+    if args.required_approvals is None:
+        required_approvals = (
+            0 if args.no_interactive else prompt_required_approvals(ui_config=ui_config)
+        )
+    else:
+        required_approvals = args.required_approvals
+
+    try:
+        return run_secure_repo(
+            repo=args.repo,
+            branch=args.branch,
+            required_checks=tuple(args.required_check or ()),
+            workflow_name=args.workflow,
+            required_approvals=required_approvals,
+            auto_detect_checks=not args.no_auto_detect_checks,
+            include_admins=not args.exclude_admins,
+            dry_run=args.dry_run,
+        )
+    except (RuntimeError, SecureRepoError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
+def handle_ralph(args: argparse.Namespace) -> int:
+    try:
+        return run_ralph_tui(project_root=Path.cwd().resolve())
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
+def handle_ralph_run(args: argparse.Namespace) -> int:
+    cwd = Path.cwd().resolve()
+    task_file = args.task_file.resolve()
+
+    try:
+        config = load_ralph_config(cwd=cwd)
+        plan = load_ralph_task_plan(task_file)
+        settings = resolve_execution_settings(plan)
+        selected_model = args.model or config.default_model
+        if selected_model not in {model.id for model in config.models}:
+            raise ValueError(
+                f"model '{selected_model}' is not present in the resolved Ralph config"
+            )
+        max_loops = args.max_loops or config.max_loops
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    if args.dry_run:
+        print(
+            render_ralph_dry_run_summary(
+                plan=plan,
+                settings=settings,
+                model=selected_model,
+                max_loops=max_loops,
+            ),
+            end="",
+        )
+        return 0
+
+    try:
+        summary = run_ralph_loop(
+            task_file=task_file,
+            model=selected_model,
+            max_loops=max_loops,
+            cwd=cwd,
+            on_log=lambda line: print(line),
+            no_interactive=bool(args.no_interactive),
+        )
+    except RuntimeError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    return 0 if summary.succeeded else 1
+
+
+def handle_ralph_validate(args: argparse.Namespace) -> int:
+    result = validate_ralph_task_file(
+        args.task_file.resolve(),
+        cwd=Path.cwd().resolve(),
+        schema_path=args.schema.resolve() if args.schema is not None else None,
+    )
+    print(result.output, end="")
+    return 0 if result.is_valid else 1
+
+
+def handle_ralph_visualize(args: argparse.Namespace) -> int:
+    try:
+        print(visualize_ralph_task_file(args.task_file.resolve()), end="")
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    return 0
 
 
 def handle_tools_sync(args: argparse.Namespace) -> int:

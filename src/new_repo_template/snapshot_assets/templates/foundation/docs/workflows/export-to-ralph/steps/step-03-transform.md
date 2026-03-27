@@ -41,13 +41,11 @@ Transform the extracted data into properly formatted YAML that validates against
 
 Read the schema to ensure compliance:
 
-```bash
-# Read the schema
-cat .template_scripts/task-template-schema.json
-```
+Read `docs/tasks/task-template-schema.json`.
 
 **Key validation points:**
-- ✅ Required fields: metadata.version, metadata.created_date, metadata.last_updated, metadata.author
+- ✅ Required fields: metadata.version, metadata.created_date, metadata.last_updated, metadata.author, metadata.framework
+- ✅ metadata.framework must be `bmad` for this workflow
 - ✅ Task status must be: pending, active, blocked, or done
 - ✅ Phase IDs must match pattern: ^phase-[0-9]+((-sub)?-[0-9]+)*$
 - ✅ Step IDs must match pattern: ^step-[0-9]+((-sub)?-[0-9]+)*\\.[0-9]+$
@@ -73,6 +71,7 @@ metadata:
   last_updated: "{last_updated}"
   author: "{author}"
   license: {license_or_null}
+  framework: "bmad"
 
 task:
   name: "{task_name}"
@@ -144,9 +143,10 @@ EOF
 
 Run the validation script:
 
+Run:
+
 ```bash
-# Run validation script (shell script invokes correct Python interpreter)
-.template_scripts/validate_template.py "$TEMP_YAML"
+nurt ralph validate "$TEMP_YAML"
 ```
 
 **The script will check:**

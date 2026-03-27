@@ -200,6 +200,22 @@ def test_source_manifest_derives_exact_foundation_sync_allowlist() -> None:
     assert "docs/markdown-templates/PLAN.template.md" in sync_destinations
     assert "docs/markdown-templates/PROGRESS.template.md" in sync_destinations
     assert "docs/tasks/task-template.yaml" in sync_destinations
+    assert "ralph.config.yaml" not in sync_destinations
     assert "README.md" not in sync_destinations
     assert "PLAN.md" not in sync_destinations
     assert "PROGRESS.md" not in sync_destinations
+
+
+def test_snapshot_manifest_includes_ralph_config_and_excludes_legacy_ralph_scripts() -> (
+    None
+):
+    """Feature 8.0 should ship config-driven Ralph assets without the old script wrappers."""
+
+    snapshot_manifest = load_snapshot_manifest()
+    templates = snapshot_manifest.get("templates")
+    assert isinstance(templates, list)
+
+    assert "foundation/ralph.config.yaml" in templates
+    assert "foundation/scripts/RALPH.sh" not in templates
+    assert "foundation/scripts/validate_template.py" not in templates
+    assert "foundation/scripts/visualize_plan.py" not in templates

@@ -93,6 +93,60 @@
       "branch": "main",
       "searchPath": "docs",
       "specialNotes": "Official uv docs and repo for project management and command behavior guidance."
+    },
+    {
+      "type": "git",
+      "name": "react-docs",
+      "url": "https://github.com/reactjs/react.dev",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "react-native-docs",
+      "url": "https://github.com/facebook/react-native-website",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "vite",
+      "url": "https://github.com/vitejs/vite",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "electron-forge",
+      "url": "https://github.com/electron/forge",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "electron",
+      "url": "https://github.com/electron/electron",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "typescript-docs",
+      "url": "https://github.com/microsoft/TypeScript-Website",
+      "branch": "v2"
+    },
+    {
+      "type": "git",
+      "name": "pytest",
+      "url": "https://github.com/pytest-dev/pytest",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "ruff",
+      "url": "https://github.com/astral-sh/ruff",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "mypy",
+      "url": "https://github.com/python/mypy",
+      "branch": "master"
     }
   ],
   "model": "gpt-5.4",

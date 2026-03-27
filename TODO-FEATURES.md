@@ -31,20 +31,36 @@
     - [x] Keep runtime Python package data inside `src/<module>/...` and load it as package resources
   - [x] And, then, do the migration from `hatchling` to `uv build`
   - [x] First, let's discuss everything through.
-- [ ] 7.0 NURT TOOL SELF-UPDATE FEATURE
-  - [ ] I am not even sure how this feature should work so we need to discuss this, at length
-  - [ ] The end result is that the `nurt upgrade` command should update the `nurt` tool itself via github or uv or by some mechanism that we will discuss
-    - [ ] Keep this separate from feature `5.0`; `nurt sync template-assets` should assume the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
-  - [ ] Once aligned, implement our new `nurt upgrade` process.
-- [ ] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
-  - [ ] Convert `scripts/configure-repo-protections.sh` into a `nurt` feature (maybe call it `nurt secure-repo` or something)
-  - [ ] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
-  - [ ] We need to first discuss how this will all work.
-- [ ] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO
-  - [ ] The `btca.config.jsonc` file in the root of every nurt-generated monorepo should be customized to match the project types in the monorepo
-  - [ ] Example: if we have a python TUI, a typescript backend with convex and clerk, and a TV app, then the `btca.config.jsonc` file should be customized to be pre-loaded with all the libraries and documentation those projects will require.
-  - [ ] This should be set up initially by `nurt new` but we need to be able to intelligently patch the btca.config.jsonc file whenever we do `nurt add`, as well.
-  - [ ] The end user may have already added libraries and documentation to their nurt-enabled projects (and, thus, the `btca.config.jsonc` file) so we do NOT want to delete those. Just add in (or update) the ones for our new project types.
-  - [ ] I am not sure how we should go about this, so let us first discuss.
-- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1 (Blocked by 7.0, 8.0, 9.0)
+- [x] 7.0 NURT TOOL SELF-UPDATE FEATURE
+  - [x] Discussed and locked the supported v1 scope: `nurt upgrade` is the only self-update command, it supports `uv`-managed installs, and there is no `nurt update` alias
+  - [x] The end result is that the `nurt upgrade` command updates the installed `nurt` tool through the supported `uv` workflow
+    - [x] Keep this separate from feature `5.0`; `nurt sync template-assets` assumes the operator upgrades `nurt` first and then syncs the bundled version-aligned assets
+  - [x] Once aligned, implemented the new `nurt upgrade` process.
+- [x] 8.0 CONVERT OLD SCRIPTS TO NURT COMMANDS
+  - [x] Convert `scripts/configure-repo-protections.sh` into a native `nurt secure-repo` feature with interactive required-approvals prompting (default `0`) and immediate shell-script removal
+  - [x] Turn RALPH.sh and the accompanying validate_template.py and visualize_plan.py scripts into `nurt ralph` features
+  - [x] We need to first discuss how this will all work.
+- [x] 9.0 CUSTOM PRE-BUILD BTCA.CONFIG DEPENDING ON WHAT IS IN MONOREPO
+  - [x] The `btca.config.jsonc` file in the root of every nurt-generated monorepo should be customized to match the project types in the monorepo
+  - [x] Example: if we have a python TUI, a typescript backend with convex and clerk, and a TV app, then the `btca.config.jsonc` file should be customized to be pre-loaded with all the libraries and documentation those projects will require.
+  - [x] This should be set up initially by `nurt new` but we need to be able to intelligently patch the btca.config.jsonc file whenever we do `nurt add`, as well.
+  - [x] The end user may have already added libraries and documentation to their nurt-enabled projects (and, thus, the `btca.config.jsonc` file) so we do NOT want to delete those. Just add in (or update) the ones for our new project types.
+  - [x] Discussed and locked the ownership/merge model before implementation.
+    - [x] Keep `btca.config.jsonc` pure BTCA; do not add `nurt` metadata inline because we do not own the BTCA schema.
+    - [x] Track `nurt`-managed BTCA resources in `.nurt/btca-managed-resources.json`.
+    - [x] `nurt new` should seed the managed BTCA resource set from the selected project mix, and `nurt add` should patch only those managed entries additively by stable resource name.
+    - [x] Preserve user-added BTCA resources and warn instead of overwriting drifted managed entries.
+    - [x] Generate `docs/BTCA_RESOURCES.md` from the final project-level `btca.config.jsonc` so the docs reflect real BTCA state.
+  - [x] Locked the BTCA coverage rule.
+    - [x] If a scaffolded target materially uses a framework, library, or tool, that dependency context should be represented in the target's BTCA configuration.
+    - [x] Desktop explicitly needs Electron Forge BTCA coverage.
+    - [x] The same mismatch audit should be applied across all other project types before implementation mapping is finalized.
+- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
   - [ ] Thoroughly test all project types (manual step)
+  - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
+  - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly
+  - [ ] Test to see if the desktop app package is correctly initializing Electron. Once again, test that Electron can RUN
+  - [ ] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)
+  - [ ] Test to see if the TV app package is working (and can load the app onto an nVidia Shield Pro)
+  - [ ] We also need to be able to run local dev versions of the backend and web frontend packages. Since we use Convex, we probably need to use a docker compose file to bring up local services for the local dev mode.
+  - [ ] We are going to need to thoroughly discuss ALL of these things before acting upon them.

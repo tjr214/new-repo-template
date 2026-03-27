@@ -113,6 +113,51 @@ def test_nurt_add_supports_repeated_same_type_projects(tmp_path: Path) -> None:
     assert (repo_dir / "apps" / "desktop" / "kiosk").is_dir()
 
 
+def test_nurt_add_updates_btca_files_for_new_target(tmp_path: Path) -> None:
+    """Adding a new target should update BTCA config, sidecar tracking, and docs."""
+
+    repo_dir = scaffold_generated_repo(
+        tmp_path=tmp_path, args=["--target", "foundation"]
+    )
+
+    result = run_nurt_command(
+        cwd=repo_dir,
+        args=["add", "--target", "desktop", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected desktop add to update BTCA files successfully.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    btca_config = json.loads(
+        (repo_dir / "btca.config.jsonc").read_text(encoding="utf-8")
+    )
+    btca_sidecar = json.loads(
+        (repo_dir / ".nurt" / "btca-managed-resources.json").read_text(encoding="utf-8")
+    )
+    btca_docs = (repo_dir / "docs" / "BTCA_RESOURCES.md").read_text(encoding="utf-8")
+
+    assert [resource["name"] for resource in btca_config["resources"]] == [
+        "turborepo",
+        "bun",
+        "electron-forge",
+        "electron",
+        "typescript-docs",
+    ]
+    assert [record["name"] for record in btca_sidecar["managed_resources"]] == [
+        "turborepo",
+        "bun",
+        "electron-forge",
+        "electron",
+        "typescript-docs",
+    ]
+    assert "<name>electron-forge</name>" in btca_docs
+    assert "<name>electron</name>" in btca_docs
+    assert "<name>typescript-docs</name>" in btca_docs
+
+
 def test_nurt_add_rejects_existing_project_path_collisions(tmp_path: Path) -> None:
     """nurt add should refuse to overwrite an existing project instance."""
 
@@ -125,6 +170,64 @@ def test_nurt_add_rejects_existing_project_path_collisions(tmp_path: Path) -> No
 
     assert result.returncode == 1
     assert "already exists" in f"{result.stdout}\n{result.stderr}"
+
+
+def test_nurt_add_preserves_user_btca_entries_and_drifted_managed_resources(
+    tmp_path: Path,
+) -> None:
+    """Add-mode BTCA merging should be additive and warn on drifted managed entries."""
+
+    repo_dir = scaffold_generated_repo(
+        tmp_path=tmp_path, args=["--target", "foundation"]
+    )
+
+    btca_config_path = repo_dir / "btca.config.jsonc"
+    btca_payload = json.loads(btca_config_path.read_text(encoding="utf-8"))
+    btca_payload["resources"][1]["url"] = "https://example.com/custom-bun-docs"
+    btca_payload["resources"].append(
+        {
+            "type": "git",
+            "name": "custom-docs",
+            "url": "https://example.com/custom-docs",
+            "branch": "main",
+        }
+    )
+    btca_config_path.write_text(
+        json.dumps(btca_payload, indent=2) + "\n", encoding="utf-8"
+    )
+
+    result = run_nurt_command(
+        cwd=repo_dir,
+        args=["add", "--target", "desktop", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected add-mode BTCA merge to preserve user and drifted resources.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    merged_btca_payload = json.loads(btca_config_path.read_text(encoding="utf-8"))
+    resource_names = [resource["name"] for resource in merged_btca_payload["resources"]]
+    assert resource_names == [
+        "turborepo",
+        "bun",
+        "custom-docs",
+        "electron-forge",
+        "electron",
+        "typescript-docs",
+    ]
+    assert (
+        merged_btca_payload["resources"][1]["url"]
+        == "https://example.com/custom-bun-docs"
+    )
+    assert any(
+        resource["name"] == "custom-docs"
+        for resource in merged_btca_payload["resources"]
+    )
+    assert "preserved customized nurt-managed BTCA resource 'bun'" in (
+        f"{result.stdout}\n{result.stderr}"
+    )
 
 
 def test_nurt_add_fails_from_nested_subdirectory(tmp_path: Path) -> None:
