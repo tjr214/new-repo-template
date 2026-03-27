@@ -328,6 +328,10 @@ def run_tools_sync(
     summary = run_tool_sync(dry_run=False, cwd=cwd)
     for result in summary.results:
         print(f"- {result.tool}: {result.status} ({result.detail})")
+    if summary.baseline_diffs:
+        print("Updated version baseline metadata from sync tools:")
+        for diff in summary.baseline_diffs:
+            print(f"- {diff.tool}: {diff.current} -> {diff.latest}")
     return 0 if summary.succeeded else 1
 
 

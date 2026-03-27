@@ -246,4 +246,8 @@ def run_tool_sync_tui(*, cwd: Path | None = None) -> int:
     app.run()
     if app.final_summary is None:
         return 1
+    if app.final_summary.baseline_diffs:
+        print("Updated version baseline metadata from sync tools:")
+        for diff in app.final_summary.baseline_diffs:
+            print(f"- {diff.tool}: {diff.current} -> {diff.latest}")
     return 0 if app.final_summary.succeeded else 1

@@ -213,6 +213,53 @@ def _collect_diffs(
     return diffs
 
 
+def _apply_tool_versions_to_loaded_baseline(
+    *, baseline: dict[str, object], tool_versions: dict[str, str]
+) -> tuple[VersionDiff, ...]:
+    managed_tools = baseline["managed_tools"]
+    assert isinstance(managed_tools, dict)
+
+    current_versions = _baseline_versions(baseline)
+    diffs: list[VersionDiff] = []
+    for tool, version in tool_versions.items():
+        if tool not in MANAGED_TOOL_ORDER:
+            raise ValueError(f"unsupported managed tool for baseline update: {tool}")
+        if not _is_valid_version(version):
+            raise ValueError(
+                f"managed tool version must be major.minor.patch for {tool}: {version}"
+            )
+
+        current_version = current_versions[tool]
+        if current_version == version:
+            continue
+
+        tool_data = managed_tools[tool]
+        assert isinstance(tool_data, dict)
+        tool_data["version"] = version
+        diffs.append(VersionDiff(tool=tool, current=current_version, latest=version))
+
+    return tuple(diffs)
+
+
+def apply_tool_versions_to_baseline(
+    *, baseline_path: Path, tool_versions: dict[str, str]
+) -> tuple[VersionDiff, ...]:
+    if not tool_versions:
+        return ()
+
+    baseline = load_baseline(baseline_path)
+    diffs = _apply_tool_versions_to_loaded_baseline(
+        baseline=baseline,
+        tool_versions=tool_versions,
+    )
+    if not diffs:
+        return ()
+
+    baseline["generated_at"] = _now_iso()
+    _write_baseline(baseline_path, baseline)
+    return diffs
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
@@ -478,13 +525,10 @@ def run_versions_update(
         print(f"- {diff.tool}: {diff.current} -> {diff.latest}")
 
     if not dry_run and diffs:
-        managed_tools = baseline["managed_tools"]
-        assert isinstance(managed_tools, dict)
-        for tool in MANAGED_TOOL_ORDER:
-            tool_data = managed_tools[tool]
-            assert isinstance(tool_data, dict)
-            tool_data["version"] = latest_versions[tool]
-
+        _apply_tool_versions_to_loaded_baseline(
+            baseline=baseline,
+            tool_versions=latest_versions,
+        )
         baseline["generated_at"] = _now_iso()
         _write_baseline(baseline_path, baseline)
 

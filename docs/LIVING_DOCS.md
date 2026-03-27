@@ -51,6 +51,7 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - `nurt add` now updates BTCA state as part of normal in-place repo mutation: it merges only `nurt`-managed resources, preserves user-added resources, preserves drifted managed resources with warnings, and keeps `docs/BTCA_RESOURCES.md` aligned to the final config.
 - The template repo's own project BTCA inventory now also includes direct dependency resources for React, React Native, Vite, Electron Forge, Electron, TypeScript, pytest, Ruff, and mypy so feature `9.0` mappings can cover actual scaffolded toolchains rather than only the earlier subset.
 - GitHub Actions workflow maintenance now includes explicit Node 24 readiness: the live CI/release workflows and mirrored foundation workflow templates pin Node 24-ready action majors (`checkout@v6`, `setup-python@v6`, `cache@v5`, `upload-artifact@v6`, `download-artifact@v7`, `setup-java@v5`) and opt into `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` so GitHub's Node 20 deprecation warning no longer blocks future workflow maintenance.
+- `nurt sync tools` now also keeps the repo's version-governance metadata in step with real maintainer tool upgrades: when a non-dry-run sync actually installs or updates Bun and/or Turbo from the repo root, the command refreshes the matching `version-baseline.json` entries and records the diff in the sync output.
 
 ## Active Implementation Rules
 

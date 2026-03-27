@@ -36,6 +36,7 @@ This policy defines how template dependency versions are maintained during M5 ha
   - `uv run nurt versions update`
 - Preview version/lockfile changes without mutation:
   - `uv run nurt versions update --dry-run`
+- When `nurt sync tools` upgrades Bun and/or Turbo from the repo root, it also refreshes the matching `version-baseline.json` entries so maintainer tool updates and checked-in baseline metadata stay aligned.
 
 ## PR Expectations
 

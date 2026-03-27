@@ -9,6 +9,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from platform import system
 
+from new_repo_template.version_baseline import (
+    VersionDiff,
+    apply_tool_versions_to_baseline,
+)
+
 
 SIMULATE_TOOLS_SYNC_FAILURE_ENV = "NURT_TOOLS_SYNC_SIMULATE_FAILURE"
 
@@ -54,6 +59,7 @@ class ToolSyncTask:
 @dataclass(frozen=True)
 class ToolSyncSummary:
     results: tuple[ToolSyncResult, ...]
+    baseline_diffs: tuple[VersionDiff, ...] = ()
 
     @property
     def succeeded(self) -> bool:
@@ -66,6 +72,10 @@ class ToolSyncSummary:
 class _StreamedCommandResult:
     returncode: int
     output: str
+
+
+SYNC_TOOLS_BASELINE_FILENAME = "version-baseline.json"
+SYNC_TOOLS_BASELINE_MANAGED_TOOLS: tuple[str, ...] = ("bun", "turbo")
 
 
 def _style(text: str, *styles: str) -> str:
@@ -323,6 +333,66 @@ def _run_streamed_shell(
 
 def _failed(tool: str, detail: str) -> ToolSyncResult:
     return ToolSyncResult(tool=tool, status="FAILED", detail=detail)
+
+
+def _extract_updated_tool_versions(
+    *, results: tuple[ToolSyncResult, ...], tools: tuple[str, ...]
+) -> dict[str, str]:
+    extracted: dict[str, str] = {}
+    for result in results:
+        if result.tool not in tools:
+            continue
+        if result.status == "INSTALLED":
+            version = result.detail.strip()
+        elif result.status == "UPDATED":
+            _, separator, after = result.detail.partition(" -> ")
+            version = after.strip() if separator else ""
+        else:
+            continue
+
+        if version:
+            extracted[result.tool] = version
+    return extracted
+
+
+def _refresh_version_baseline_from_results(
+    *, results: tuple[ToolSyncResult, ...], cwd: Path | None, log: LogCallback
+) -> tuple[VersionDiff, ...]:
+    project_root = cwd.resolve() if cwd is not None else Path.cwd().resolve()
+    baseline_path = project_root / SYNC_TOOLS_BASELINE_FILENAME
+    if not baseline_path.exists() or not baseline_path.is_file():
+        return ()
+
+    tool_versions = _extract_updated_tool_versions(
+        results=results,
+        tools=SYNC_TOOLS_BASELINE_MANAGED_TOOLS,
+    )
+    if not tool_versions:
+        return ()
+
+    try:
+        diffs = apply_tool_versions_to_baseline(
+            baseline_path=baseline_path,
+            tool_versions=tool_versions,
+        )
+    except ValueError as exc:
+        log("")
+        _log_warning(log, f"Unable to refresh version baseline metadata: {exc}")
+        return ()
+
+    if diffs:
+        log("")
+        log(
+            _style(
+                "Updated version baseline metadata from sync tools:",
+                ANSI_CYAN,
+                ANSI_BOLD,
+            )
+        )
+        for diff in diffs:
+            log(f"- {diff.tool}: {diff.current} -> {diff.latest}")
+
+    return diffs
 
 
 def _sync_uv(*, cwd: Path | None) -> TaskRunner:
@@ -789,7 +859,16 @@ def run_tool_sync(
             )
         )
 
-    summary = ToolSyncSummary(results=tuple(results))
+    result_tuple = tuple(results)
+    baseline_diffs = _refresh_version_baseline_from_results(
+        results=result_tuple,
+        cwd=cwd,
+        log=emit_log,
+    )
+    summary = ToolSyncSummary(
+        results=result_tuple,
+        baseline_diffs=baseline_diffs,
+    )
     emit_log("")
     if summary.succeeded:
         emit_log(_style("Done.", ANSI_GREEN))
