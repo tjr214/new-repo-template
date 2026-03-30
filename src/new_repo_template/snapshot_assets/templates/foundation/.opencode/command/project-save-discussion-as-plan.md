@@ -25,6 +25,6 @@ IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the c
    - the PLAN file must be extensive and complete enough that it can get us right back to this point, ready to execute and build, and
    - the PLAN file must have a fresh-context restart section that tells us exactly which files to read and study before resuming work, including `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md` (if applicable), and the new most recent file in `docs/session-summaries/`, and
    - the PLAN file must include the locked decisions, explicit non-goals, the exact next execution steps, and any commands or validations needed to restart safely from a blank context window.
-   - the PLAN must be saved in Markdown task list format, meaning that each executable part of the plan have a [ ] checkbox that can be updated.
+   - the PLAN must be saved in Markdown task list format, meaning that each actionable step of the plan has a [ ] checkbox that can be updated.
 7. Give a detailed report when complete.
 </steps>
