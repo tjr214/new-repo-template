@@ -137,9 +137,18 @@
     - [x] The old finding was resolved: the generated web lane is no longer plain Vite + TanStack Router; it now scaffolds a real minimal TanStack Start app with `@tanstack/react-start`, `tanstackStart()`, `src/client.tsx`, `getRouter()`, a Start document root route, and a valid generated route-tree baseline.
     - [x] The locked implementation direction was carried through as designed: `nurt` mirrors the required TanStack Start scaffold files directly instead of shelling out to the official TanStack creator at runtime.
   - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly
-  - [ ] Test to see if the desktop app package is correctly initializing Electron. Once again, test that Electron can RUN
+    - [x] The three supported local/prod auth combinations now complete root install/build flows, bring up the self-hosted Convex local stack, and serve the baseline app content successfully.
+    - [ ] Full interactive auth flows are still not exercised end-to-end in the browser, so this item stays open for deeper auth-behavior validation rather than startup/serve confidence only.
+  - [x] Test to see if the desktop app package is correctly initializing Electron. Once again, test that Electron can RUN
+    - [x] A fresh generated desktop repo now completes `desktop:package` successfully.
+    - [x] A bounded `desktop:start` run reaches `Launched Electron app` in the log.
   - [ ] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)
+    - [x] Expo prebuild and CocoaPods installation succeed on a fresh generated repo.
+    - [ ] The simulator build is currently blocked by the host missing the `iOS 26.2` platform component required by `xcodebuild`.
   - [ ] Test to see if the TV app package is working (and can load the app onto an nVidia Shield Pro)
+    - [x] Expo prebuild, Android project generation, wrapper patching, and emulator launch succeed on a fresh generated repo.
+    - [ ] The actual Gradle build is currently blocked by the host shell missing a Java runtime.
+    - [ ] Physical NVIDIA Shield validation still remains outstanding.
   - [x] We also need to be able to run local dev versions of the backend and web frontend packages. Since we use Convex, we probably need to use a docker compose file to bring up local services for the local dev mode.
-  - [ ] Explicitly verify the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical validation before calling that combination RC1-ready.
+  - [x] Explicitly verify the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical validation before calling that combination RC1-ready.
   - [ ] We are going to need to thoroughly discuss ALL of these things before acting upon them.

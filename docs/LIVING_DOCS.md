@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `10.0` are now complete, the first feature `11.0` shared-react slice is implemented, and the repository now ships the owned web component foundation plus the first desktop React renderer that the previous plan had only locked at the planning level.
+The template implementation remains intact, features `5.0` through `10.0` are now complete, the first feature `11.0` shared-react slice is implemented, and the follow-up runtime-testing pass has now turned several of the remaining roadmap unknowns into either concrete green evidence or explicit host-tooling blockers.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
 - Root `PLAN.md` is now a comprehensive restart-safe implementation plan for the next React-foundation/component-ownership cycle, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries capture the most recent planning closeout context.
@@ -82,6 +82,12 @@ The template implementation remains intact, features `5.0` through `10.0` are no
 - The first feature `11.0` slice is now implemented too: `packages/design-tokens` is the first concrete shared React-foundation package, `packages/shared` now carries shared frontend copy/route intent for desktop as well as web/backend, and generated desktop apps now use Electron Forge + Vite + React + `@tanstack/react-router` with `createHashHistory()`.
 - The desktop renderer is now a real React route surface instead of the earlier plain DOM placeholder, but it intentionally stays minimal: one hello-world route, shared copy/token consumption, and no early `Welcome To Nurt` demo overbuild yet.
 - Add-mode now understands the new frontend support-package boundary as well: when a repo newly needs them, `nurt add` can create missing `packages/shared`, `packages/design-tokens`, and `packages/ui` scaffolding without requiring a fresh `nurt new` run.
+- The supported `web+backend` auth matrix is now empirically validated on the corrected Start-based scaffold: `better-auth/better-auth`, `better-auth/clerk`, and `clerk/clerk` all install cleanly, complete real web builds, bring up the self-hosted Convex local stack, and serve the owned frontend foundation content over HTTP.
+- The explicit `local=clerk` plus self-hosted Convex follow-up is now closed for RC1 tracker purposes: docs-backed research indicates the Clerk issuer/domain style does not change with Convex hosting mode, and the generated `clerk/clerk` stack boots successfully against self-hosted Convex in practice.
+- The testing pass also surfaced and fixed two real follow-up runtime regressions in the new shared frontend work: web `build:app` now succeeds because the shared UI CSS import uses a filesystem-relative path that Vite/PostCSS can resolve, and desktop Forge packaging now succeeds because the standalone desktop workspace carries the real package/config shape required by Forge and the current Bun install behavior.
+- Desktop runtime validation now includes real evidence beyond the earlier smoke/help path: a fresh generated desktop repo now completes `desktop:package`, and a bounded `desktop:start` run reaches `Launched Electron app` successfully.
+- Mobile iOS validation is partially green and currently blocked by host tooling rather than by the generated app shape: Expo prebuild and CocoaPods install succeed, app smoke commands pass, and the remaining failure is the missing `iOS 26.2` platform component for the current Xcode simulator destination.
+- Android TV validation is also partially green and currently blocked by host tooling rather than by the generated app shape: Expo prebuild, native Android project generation, Gradle-wrapper patching, emulator launch, and app smoke commands all succeed, while the actual Gradle build is currently blocked by a missing Java runtime in the shell environment.
 
 ## Active Implementation Rules
 
@@ -137,7 +143,7 @@ The template implementation remains intact, features `5.0` through `10.0` are no
 - Fullstack auth choice has no default and must be explicitly selected in non-interactive runs.
 - Mixed presets with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed variant).
 - Offline local development is only guaranteed when the local auth provider is Better Auth; local Clerk mode remains internet-connected even when Convex itself is self-hosted.
-- The `local=clerk` plus self-hosted Convex path is a supported RC1 target, but it still requires explicit technical verification because the current BTCA Convex docs resource cannot yet confirm the self-hosted auth behavior.
+- The `local=clerk` plus self-hosted Convex path is now docs-backed and empirically validated enough for the current RC1 tracker state, even though the current BTCA Convex docs resource still does not provide strong self-hosted authority by itself.
 - The generated web lane is now a real minimal TanStack Start implementation rather than the old Vite + TanStack Router placeholder baseline.
 - `nurt` should not shell out to the official TanStack Start creator during end-user scaffold runs; the web lane must remain an owned, testable, package-version-pinned template.
 - Generator failures must not leave partially scaffolded repos behind.
@@ -253,7 +259,7 @@ The template implementation remains intact, features `5.0` through `10.0` are no
 - Desktop Electron Forge baseline scaffold is now concrete for `desktop` target: generated output includes `apps/desktop/README.md`, `forge.config.ts`, `tsconfig.json`, `index.html`, and `src/{main,preload,renderer}.ts`.
 - Desktop workspace package manifest now includes Forge-oriented local commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:*:smoke`) with root task scripts mapped to non-GUI smoke behavior for deterministic CI compatibility.
 - Unsigned desktop artifact guidance is now scaffolded into generated desktop README docs for internal distribution expectations during pre-hardening milestones.
-- Desktop runtime smoke coverage is now active in `tests/contracts/test_desktop_runtime_smoke_contract.py`: generated `desktop` scaffold is install-validated with Bun, executes Forge start/package smoke commands, and verifies deterministic unsigned output path wiring (`out/unsigned/*`, `out/unsigned-smoke/*`).
+- Desktop runtime smoke coverage is now active in `tests/contracts/test_desktop_runtime_smoke_contract.py`: generated `desktop` scaffold is install-validated with Bun, executes Forge start/package smoke commands, and verifies the supported config-driven unsigned output model through `forge.config.ts`.
 - CI native matrix smoke step now includes desktop runtime smoke contracts in `.github/workflows/ci.yml`, extending Linux/macOS/Windows confidence for desktop script wiring.
 - Advisory secret scanning is now enabled in CI via a dedicated non-blocking `secret-scan-advisory` job using `gitleaks/gitleaks-action@v2` (`continue-on-error: true`) to surface potential leaks without gating baseline delivery.
 - Desktop runtime smoke coverage now also executes `desktop:make:smoke` in contract tests, completing the dev/build/package baseline gate for M3.

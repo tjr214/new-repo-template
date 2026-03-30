@@ -1,10 +1,11 @@
-import type { ButtonHTMLAttributes, CSSProperties } from "react"
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react"
 
 import { nurtDesignTokens } from "@generated/design-tokens"
 
 import { cn } from "../lib/utils"
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: ReactNode
   tone?: "primary" | "secondary"
 }
 

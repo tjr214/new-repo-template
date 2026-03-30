@@ -79,7 +79,7 @@
     },
     {
       "destination": "templates/foundation/AGENTS.md",
-      "sha256": "4fe8218eddb12787a8e4c89b68ea66a4e05c2ced56a00cd82f8d64469d2a28a4"
+      "sha256": "e8b61af3107ee57883ead909d1b71f5a91f3f78156c9c067761a0f3810200773"
     },
     {
       "destination": "templates/foundation/PLAN.md",
@@ -166,7 +166,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-30T05:33:19.542787+00:00",
+  "generated_at": "2026-03-30T22:24:25.642784+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "cfe58f6c485aabbb2d621209277962b3310a6d56"
+  "source_commit": "1f171c6ab617b6d5fbf09fa411927e7370fb1380"
 }

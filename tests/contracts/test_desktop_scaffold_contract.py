@@ -92,12 +92,18 @@ def test_desktop_only_scaffolds_electron_forge_baseline(tmp_path: Path) -> None:
     assert "electron" in dev_dependencies
     assert "@electron-forge/cli" in dev_dependencies
     assert "@electron-forge/plugin-vite" in dev_dependencies
+    assert desktop_manifest.get("main") == ".vite/build/main.js"
 
     dependencies = desktop_manifest.get("dependencies")
     assert isinstance(dependencies, dict)
     assert dependencies.get("@generated/shared") == "workspace:*"
     assert dependencies.get("@generated/design-tokens") == "workspace:*"
+    assert "@tanstack/history" in dependencies
+    assert "@tanstack/router-core" in dependencies
+    assert "@tanstack/react-store" in dependencies
     assert "@tanstack/react-router" in dependencies
+    assert "@tanstack/store" in dependencies
+    assert "use-sync-external-store" in dependencies
 
     main_text = (desktop_root / "src" / "main.ts").read_text(encoding="utf-8")
     assert "BrowserWindow" in main_text

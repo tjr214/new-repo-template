@@ -1,6 +1,7 @@
 import { VitePlugin } from "@electron-forge/plugin-vite"
 
 const config = {
+  outDir: "out/unsigned",
   packagerConfig: {},
   rebuildConfig: {},
   makers: [],

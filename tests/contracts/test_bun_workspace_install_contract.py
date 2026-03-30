@@ -148,6 +148,20 @@ def test_generated_web_backend_workspace_supports_bun_install(tmp_path: Path) ->
         f"stderr:\n{frozen_result.stderr}"
     )
 
+    web_build_result = subprocess.run(
+        [bun_binary, "run", "build:app"],
+        cwd=output_dir / "apps" / "web" / "web",
+        capture_output=True,
+        text=True,
+        env=os.environ.copy(),
+        check=False,
+    )
+    assert web_build_result.returncode == 0, (
+        "Expected generated web workspace `build:app` to succeed after install.\n"
+        f"stdout:\n{web_build_result.stdout}\n"
+        f"stderr:\n{web_build_result.stderr}"
+    )
+
 
 def test_generated_web_desktop_workspace_supports_bun_install(tmp_path: Path) -> None:
     """Web+desktop workspace should install cleanly with shared package wiring."""

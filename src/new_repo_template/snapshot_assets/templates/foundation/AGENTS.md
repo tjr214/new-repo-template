@@ -54,7 +54,7 @@
 @docs/BTCA_RESOURCES.md
 
 - **CRITICAL: BE CAREFUL HOW YOU EXECUTE BTCA!!**
-- The following command will not execute correctly due to the usage of ` and escaped quotes in the command:
+- 1. The following command will not execute correctly due to the usage of ` and escaped quotes in the command:
 
   btca ask -r react-native-tvos -r expo-tv-config -q "For Expo TV package.json, what exact dependency syntax should be used so `react-native` aliases to react-native-tvos? Should it be `\"react-native\": \"npm:react-native-tvos@^0.81.4-1\"`?" --sub-agent
 
@@ -63,7 +63,21 @@
   zsh:1: command not found: react-native
   zsh:1: command not found: react-native:
 
-- Keep this in mind and ensure all btca query strings are plain and simple.
+- 2. You can only execute btca requests in parallel if there are no overlapping resources being used. For example, here are two parallel requests for the `expo-docs` rescource:
+
+  $ btca ask -r expo-docs -q "For an Expo iOS app on macOS, what is the normal minimal local validation path before a full device or EAS build" --sub-agent
+
+  loading resources...
+  creating collection...
+
+  $ btca ask -r expo-docs -r react-native-tvos -q "For Expo Android TV, what is the normal local validation path before testing on a physical Shield device" --sub-agent
+
+  loading resources...
+  Error: Failed to load resource "expo-docs": git fetch failed (sometimes: 'Failed to update local repository', instead)
+
+- NOTE how the 2nd btca request FAILS with "Error: Failed to load resource "expo-docs": git fetch failed". This is because the parallel request for the same resource caused btca to execute a `git pull` on the SAME resource at the SAME time. Thus, the failure. THINK and PLAN your parallel btca requests so we use it efficiently without causing failures.
+
+- Keep these things in mind and ensure all btca query strings are plain and simple.
 
 #### 1.3.1 When Agents Should Use BTCA
 

@@ -1,8 +1,8 @@
 # React Foundations And Component Ownership Plan
 
-**Last Updated:** 2026-03-30 01:36:16 AM
+**Last Updated:** 2026-03-30 06:20:42 PM
 **Status:** Completed
-**Most Recent Session Summary:** `docs/session-summaries/SESSION_137_SUMMARY.md`
+**Most Recent Session Summary:** `docs/session-summaries/SESSION_138_SUMMARY.md`
 
 ## Goal
 
@@ -14,6 +14,12 @@ The immediate execution target is:
 - feature `11.0`: implement the first shared React-foundation slice plus the first desktop React hello-world renderer
 
 This plan is intentionally restart-safe and assumes the next agent may begin from a blank context window.
+
+## Post-Completion Testing Notes
+
+- The supported `web+backend` auth matrix now has real runtime evidence for `better-auth/better-auth`, `better-auth/clerk`, and `clerk/clerk`.
+- The desktop lane now has real package/start evidence after the follow-up Forge/TanStack dependency fixes.
+- Mobile iOS and Android TV validation both advanced past scaffold/install sanity and into native toolchain execution, but each still has one host-environment blocker left on this machine (`iOS 26.2` platform component for Xcode and a missing Java runtime for Gradle, respectively).
 
 ## Locked Decisions
 

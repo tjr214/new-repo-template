@@ -88,24 +88,20 @@ def test_desktop_runtime_smoke_commands_and_unsigned_output_paths(
     desktop_dependencies = desktop_manifest.get("dependencies", {})
 
     assert desktop_scripts.get("desktop:start") == "electron-forge start"
-    assert desktop_scripts.get("desktop:package") == (
-        "electron-forge package --outDir out/unsigned/package"
-    )
-    assert desktop_scripts.get("desktop:make") == (
-        "electron-forge make --outDir out/unsigned/make"
-    )
+    assert desktop_scripts.get("desktop:package") == "electron-forge package"
+    assert desktop_scripts.get("desktop:make") == "electron-forge make"
     assert desktop_scripts.get("desktop:start:smoke") == "electron-forge start --help"
-    assert desktop_scripts.get("desktop:package:smoke") == (
-        "electron-forge package --help --outDir out/unsigned-smoke/package"
+    assert (
+        desktop_scripts.get("desktop:package:smoke") == "electron-forge package --help"
     )
-    assert desktop_scripts.get("desktop:make:smoke") == (
-        "electron-forge make --help --outDir out/unsigned-smoke/make"
-    )
+    assert desktop_scripts.get("desktop:make:smoke") == "electron-forge make --help"
     assert desktop_dependencies.get("@generated/shared") == "workspace:*"
     assert desktop_dependencies.get("@generated/design-tokens") == "workspace:*"
     assert "@tanstack/react-router" in desktop_dependencies
 
     desktop_dir = output_dir / "apps" / "desktop" / "desktop"
+    forge_config_text = (desktop_dir / "forge.config.ts").read_text(encoding="utf-8")
+    assert 'outDir: "out/unsigned"' in forge_config_text
     start_smoke_result = run_bun_command(
         bun_binary=bun_binary,
         cwd=desktop_dir,
@@ -137,6 +133,17 @@ def test_desktop_runtime_smoke_commands_and_unsigned_output_paths(
         "Expected desktop make smoke command to succeed.\n"
         f"stdout:\n{make_smoke_result.stdout}\n"
         f"stderr:\n{make_smoke_result.stderr}"
+    )
+
+    package_result = run_bun_command(
+        bun_binary=bun_binary,
+        cwd=output_dir,
+        args=["run", "--cwd", "apps/desktop/desktop", "desktop:package"],
+    )
+    assert package_result.returncode == 0, (
+        "Expected real desktop package command to succeed from the root-installed workspace.\n"
+        f"stdout:\n{package_result.stdout}\n"
+        f"stderr:\n{package_result.stderr}"
     )
 
     root_dev_result = run_bun_command(

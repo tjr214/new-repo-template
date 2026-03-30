@@ -3,12 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": ".vite/build/main.js",
   "dependencies": {
     "@generated/design-tokens": "workspace:*",
     "@generated/shared": "workspace:*",
+    "@tanstack/history": "^1.161.6",
+    "@tanstack/router-core": "^1.168.8",
+    "@tanstack/react-store": "^0.9.3",
     "@tanstack/react-router": "^1.168.8",
+    "@tanstack/store": "^0.9.3",
+    "cookie-es": "^2.0.0",
+    "isbot": "^5.1.22",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "scheduler": "^0.27.0",
+    "seroval": "^1.4.2",
+    "seroval-plugins": "^1.4.2",
+    "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
     "@generated/typescript-config": "workspace:*",
@@ -28,11 +39,11 @@
     "lint": "bun --version",
     "typecheck": "bun run typecheck:smoke",
     "desktop:start": "electron-forge start",
-    "desktop:package": "electron-forge package --outDir out/unsigned/package",
-    "desktop:make": "electron-forge make --outDir out/unsigned/make",
+    "desktop:package": "electron-forge package",
+    "desktop:make": "electron-forge make",
     "desktop:start:smoke": "electron-forge start --help",
-    "desktop:package:smoke": "electron-forge package --help --outDir out/unsigned-smoke/package",
-    "desktop:make:smoke": "electron-forge make --help --outDir out/unsigned-smoke/make",
+    "desktop:package:smoke": "electron-forge package --help",
+    "desktop:make:smoke": "electron-forge make --help",
     "typecheck:smoke": "tsc --help"
   }
 }
