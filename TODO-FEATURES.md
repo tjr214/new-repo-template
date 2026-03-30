@@ -68,6 +68,10 @@
   - [ ] Define how brand-new nurt-specific components should be created on top of the `shadcn/ui` web foundation and shared token system.
   - [ ] Define the long-term component expansion and maintenance model across supported React-based project types.
 - [ ] 11.0 PROPERLY SET UP AND TEST SHARED REACT PROJECT CAPABILITIES
+  - [x] Discussed and locked the desktop React architecture direction.
+    - [x] Desktop should use `Electron Forge + Vite + React` for the renderer architecture.
+    - [x] Desktop should use `@tanstack/react-router` for default client-side routing.
+    - [x] Desktop should not use `TanStack Start` as the default renderer framework.
   - [ ] Discuss and lock which code, configuration, utilities, styles, and patterns should be shared across React-based projects.
   - [ ] Upgrade the desktop scaffold to a React renderer so it can participate in the shared React foundations.
   - [ ] Implement the appropriate shared foundations for web, mobile, desktop, and TV React targets where applicable.
