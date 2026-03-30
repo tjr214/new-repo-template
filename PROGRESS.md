@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-26 09:21:21 PM
-**Current Phase:** Feature `9.0` is complete: generated repos now receive composition-aware BTCA config, sidecar-managed BTCA ownership tracking, additive add-mode BTCA patching, and generated `docs/BTCA_RESOURCES.md`; next up is the YELLOW discussion/planning pass for feature `10.0` release-candidate testing.
+**Last Updated:** 2026-03-29 08:08:46 PM
+**Current Phase:** Feature `10.0` planning is now locked: the next implementation slice is `web + backend` local-dev/auth validation, with deployment-baseline compose files, a local self-hosted Convex override, a provider-neutral app auth boundary, and the supported RC1 auth matrix documented before build work begins.
 
 ## Previous Cycle Archives
 
@@ -208,7 +208,14 @@
 - [x] Audited the GitHub Actions Node 20 deprecation warning, confirmed the Node 24-ready upstream action lines from the official action release notes/changelog, and updated both the live workflows plus mirrored foundation workflow templates to `actions/checkout@v6`, `actions/setup-python@v6`, `actions/cache@v5`, `actions/upload-artifact@v6`, `actions/download-artifact@v7`, and `actions/setup-java@v5`.
 - [x] Opted the live CI/release workflows and mirrored foundation templates into `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, updated workflow contracts/docs for the new action majors, regenerated snapshot metadata with `nurt template-assets validate`, and revalidated the workflow-maintenance slice with targeted workflow/snapshot contracts (14 passed).
 - [x] Wired `nurt sync tools` so successful Bun/Turbo installs or upgrades now refresh the matching entries in `version-baseline.json`, with the baseline diff surfaced in the sync summary/logs and covered by updated tool-sync contracts.
+- [x] Completed the feature `10.0` discussion/planning YELLOW pass by rereading `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, `docs/session-summaries/SESSION_126_SUMMARY.md`, and the current fullstack scaffold/auth templates in `src/new_repo_template/` before editing any docs.
+- [x] Revalidated current BTCA context for the planning slice with `btca status` and `btca ask`, confirming that Clerk development and production instances keep user sets separate while also surfacing that the current `convex-docs` BTCA resource is an archived stub and cannot currently ground the self-hosted Convex auth path by itself.
+- [x] Locked the feature `10.0` web/backend local-dev architecture with the user: Convex is mandatory in all environments, local dev always uses self-hosted Convex via the official Docker image in a local compose override, production always uses Convex Cloud, auth is always integrated through Convex, and the deployment model is base `compose.yaml` plus a local override.
+- [x] Locked the RC1 auth-provider direction with the user: generated apps should expose a provider-neutral auth boundary instead of depending on Clerk widgets, default to `local=better-auth` and `prod=clerk`, and officially support only these three local/prod combinations: `better-auth/clerk`, `better-auth/better-auth`, and `clerk/clerk`.
+- [x] Synced the feature `10.0` planning outcome across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
 
 ## Next Up
 
-- [ ] Run the YELLOW discussion/planning pass for feature `10.0`: final tests before release candidate 1, including manual validation strategy for web/backend/desktop/mobile/TV runtime behavior and local-dev orchestration expectations.
+- [ ] Start the implementation YELLOW pass for feature `10.0` slice 1 by rereading the new root `PLAN.md`, the updated trackers/docs, the latest session summary, the current fullstack scaffold/auth templates, and the relevant contract suites.
+- [ ] Resolve the remaining self-hosted Convex research gap for the `local=clerk` path using authoritative docs before promising RC1 readiness for that combination.
+- [ ] Begin RED for the `web + backend` slice: add contract coverage for per-environment auth selection, compose-baseline/local-override generation, provider-neutral auth scaffolding, and updated backend/web local-dev documentation.

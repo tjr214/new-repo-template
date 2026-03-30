@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `9.0` are complete, and the next open execution front is the feature `10.0` YELLOW discussion for release-candidate testing and manual runtime validation.
+The template implementation remains intact, features `5.0` through `9.0` are complete, and feature `10.0` now has a locked pre-build plan: the next open execution front is the `web + backend` local-dev/auth slice that will establish the release-candidate local runtime model before the broader manual platform validation pass.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
-- Root `PLAN.md` now carries the comprehensive feature `9.0` restart-safe implementation record, while root `PROGRESS.md` remains the active cumulative tracker.
+- Root `PLAN.md` now carries the comprehensive restart-safe feature `10.0` pre-build plan for web/backend local-dev, auth-provider selection, and release-candidate validation order, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -52,6 +52,14 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - The template repo's own project BTCA inventory now also includes direct dependency resources for React, React Native, Vite, Electron Forge, Electron, TypeScript, pytest, Ruff, and mypy so feature `9.0` mappings can cover actual scaffolded toolchains rather than only the earlier subset.
 - GitHub Actions workflow maintenance now includes explicit Node 24 readiness: the live CI/release workflows and mirrored foundation workflow templates pin Node 24-ready action majors (`checkout@v6`, `setup-python@v6`, `cache@v5`, `upload-artifact@v6`, `download-artifact@v7`, `setup-java@v5`) and opt into `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` so GitHub's Node 20 deprecation warning no longer blocks future workflow maintenance.
 - `nurt sync tools` now also keeps the repo's version-governance metadata in step with real maintainer tool upgrades: when a non-dry-run sync actually installs or updates Bun and/or Turbo from the repo root, the command refreshes the matching `version-baseline.json` entries and records the diff in the sync output.
+- Feature `10.0` planning is now locked for the first RC1 execution slice: the initial implementation focus is `web + backend` local-dev/auth validation rather than starting with desktop/mobile/TV runtime work.
+- The local/prod Convex topology is now fixed for that slice: Convex remains mandatory in all environments, local development always uses self-hosted Convex via the official Docker image in a local compose override, and production always uses Convex Cloud.
+- Compose strategy is now fixed too: the base `compose.yaml` represents the deployment baseline, while a local override file adds self-hosted/local-only services so a fresh repo clone can start local development from the root.
+- The auth direction for this slice is now provider-neutral at the app boundary: generated apps should not depend directly on Clerk widgets, and auth should be consumed through a shared app contract layered over the Convex-integrated provider path.
+- The supported RC1 auth matrix is intentionally limited to three combinations: `local=better-auth` with `prod=clerk`, `local=better-auth` with `prod=better-auth`, and `local=clerk` with `prod=clerk`; `local=clerk` with `prod=better-auth` is intentionally out of scope.
+- Default generated-repo auth posture for the upcoming slice is now locked as `local=better-auth` and `prod=clerk`.
+- The research pass also locked two important auth findings for planning: Clerk development and production instances keep users separate by default, and Better Auth remains the practical path for truly offline local auth when paired with self-hosted Convex.
+- One BTCA governance caveat remains open for the next YELLOW pass: the current project `convex-docs` resource is only an archived stub, so authoritative self-hosted Convex auth guidance is not yet available from the present BTCA project resource set.
 
 ## Active Implementation Rules
 
@@ -64,9 +72,11 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 
 - Monorepo always-on: yes
 - Turbo + Bun: yes
-- Convex: cloud-first default
-- Auth mode: explicit choice required (`clerk` or `better-auth`)
-- Auth rule scope: any preset containing both `web` and `backend` must explicitly choose auth
+- Convex runtime direction: always Convex; local development uses self-hosted Convex via Docker override and production uses Convex Cloud
+- Auth direction for feature `10.0`: provider-neutral app boundary with explicit local/prod provider choices
+- Supported RC1 auth matrix: `better-auth/clerk`, `better-auth/better-auth`, and `clerk/clerk`
+- Default auth posture for the next slice: `local=better-auth`, `prod=clerk`
+- Local-dev UX target: one root command, with base deployment compose plus local override
 - Desktop frontend: dedicated Electron app (Forge)
 - Mobile: dedicated Expo mobile app (`apps/mobile`)
 - TV: dedicated Expo AndroidTV app (`apps/tv`), separate from mobile
@@ -104,6 +114,8 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - AndroidTV app is always a separate scaffold target, not a mobile profile toggle.
 - Fullstack auth choice has no default and must be explicitly selected in non-interactive runs.
 - Mixed presets with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed variant).
+- Offline local development is only guaranteed when the local auth provider is Better Auth; local Clerk mode remains internet-connected even when Convex itself is self-hosted.
+- The `local=clerk` plus self-hosted Convex path is a supported RC1 target, but it still requires explicit technical verification because the current BTCA Convex docs resource cannot yet confirm the self-hosted auth behavior.
 - Generator failures must not leave partially scaffolded repos behind.
 - Foundation and JS-only outputs stay free of Python-only metadata files, while Python-enabled outputs scaffold a root uv workspace (`pyproject.toml`, `uv.lock`) plus app-local interpreter pinning at `apps/python/.python-version`.
 - Root JS workspaces now cover both support packages and nested generated projects with `apps/*`, `packages/*`, `apps/*/*`, and `packages/*/*`.

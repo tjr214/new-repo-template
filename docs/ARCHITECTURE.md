@@ -16,10 +16,11 @@ The target architecture is an always-on monorepo template that can scaffold:
 
 - Monorepo orchestration: Turborepo (`turbo`)
 - JS/TS package manager and workspaces: Bun
-- Auth integration mode for backend-capable scaffolds: explicit prompt (`clerk`, `better-auth`, or `none`)
-- Auth selection rule: any scaffold selecting `backend` must explicitly choose auth, even when `web` is absent
+- Auth integration mode for backend-capable scaffolds: the current implementation prompts for a single backend auth provider (`clerk`, `better-auth`, or `none`), while feature `10.0` planning now locks the next evolution as a provider-neutral local/prod auth matrix at the app boundary
+- Auth selection rule: backend-capable scaffolds currently require an explicit auth choice, and the next slice will extend that rule to explicit local/prod provider selection for the supported RC1 combinations
 - Desktop packaging tool: Electron Forge
-- Convex workflow: cloud-first
+- Convex workflow: Convex is mandatory in all environments; local development uses self-hosted Convex via a Docker override and production uses Convex Cloud
+- Compose workflow direction: base `compose.yaml` represents the deployment baseline, and local development adds self-hosted/local-only services via an override file so a fresh repo clone can start from the root
 - CI platform: GitHub Actions
 - Platform support policy: native macOS + Linux + Windows (WSL optional supplemental only)
 - Version policy: latest known-good baseline in template, deterministic lockfile state in generated repos
@@ -49,7 +50,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 ## Current Implementation Status
 
 - Milestones M0-M5 are complete in tracker state; M4 hardware validation now includes durable emulator evidence plus a physical NVIDIA Shield pass, and the remaining keyboard-only fallback gap was explicitly closed by user direction rather than a direct keyboard hardware run. M5 hardening is complete with required PR checks now green and includes CI matrix/cache strategy expansion, branch-protection guidance, dedicated preset-regression CI coverage, dependency upgrade/versioning policy documentation, optional signing/release checklist design, CI env-template asset reliability hardening, Windows installer-script contract shell-resolution hardening, updater tooling support for GitHub CLI (`gh`), focused Windows-critical CI lane tuning, and advisory secret-scan stability hardening (pinned `gitleaks/gitleaks-action@v2.3.9`, comment/artifact upload API calls disabled, and full-history checkout enabled for commit-range scanning).
-- Planning history now includes the archived root plans at `docs/archive/plans/PLAN_2026-03-19_04-33-30_PM.md` and `docs/archive/plans/PLAN_2026-03-19_12-45-13_PM.md`; features `4.0` through `9.0` are complete, the active root `PLAN.md` now serves as the closeout record for feature `9.0`, and the older paired `PLAN.md` / `PROGRESS.md` archive remains at `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` and `docs/archive/plans/PROGRESS_2026-03-08_07-49-04_PM.md`.
+- Planning history now includes the archived root plans at `docs/archive/plans/PLAN_2026-03-19_04-33-30_PM.md` and `docs/archive/plans/PLAN_2026-03-19_12-45-13_PM.md`; features `4.0` through `9.0` are complete, the active root `PLAN.md` now serves as the restart-safe feature `10.0` pre-build plan, and the older paired `PLAN.md` / `PROGRESS.md` archive remains at `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` and `docs/archive/plans/PROGRESS_2026-03-08_07-49-04_PM.md`.
 - Project BTCA resource layer is now configured for the locked dependency set captured in `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md`.
 - A reusable architecture markdown template now exists at `docs/markdown-templates/ARCHITECTURE.template.md`, mirroring this live document's section structure with placeholders for scope, decisions, topology, implementation status, and validation coverage.
 - A reusable living-doc markdown template now exists at `docs/markdown-templates/LIVING_DOCS.template.md`, mirroring the live living-doc section structure with placeholders for current state, active rules, decisions, constraints, and implementation notes.
@@ -59,6 +60,12 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Feature `7.0` closeout also locked the uv-specific implementation details: startup notices now use `uv tool list --outdated`, the real upgrade command targets the installed uv distribution name `nurt-ai`, and non-uv/manual install paths fall back to explicit reinstall guidance rather than best-effort channel inference.
 - Feature `8.0` secure-repo slice is now complete: `nurt secure-repo` replaces the legacy protections shell script, preserves repo/check auto-detection plus dry-run planning parity, prompts interactive users for required approvals with default `0`, defaults to `0` automatically under `--no-interactive`, and verifies the applied GitHub state after real runs.
 - The full repository suite is green at `uv run pytest` (239 passed).
+- Feature `10.0` planning is now locked for the first release-candidate slice: start with `web + backend` local-dev/auth validation before platform-specific runtime passes, and treat that slice as the foundation for the later desktop/mobile/TV manual checks.
+- The feature `10.0` planning pass also fixed the target runtime/auth topology: Convex remains mandatory everywhere, local development always uses self-hosted Convex via Docker, production always uses Convex Cloud, auth always integrates through Convex, and the generated app layer should stay provider-neutral instead of coupling itself directly to Clerk widgets.
+- The supported RC1 auth matrix is now limited to three combinations: `local=better-auth` with `prod=clerk`, `local=better-auth` with `prod=better-auth`, and `local=clerk` with `prod=clerk`; the reverse mixed mode `local=clerk` with `prod=better-auth` is intentionally unsupported.
+- Default scaffold direction for the upcoming slice is `local=better-auth` and `prod=clerk`, which preserves a managed production auth posture while still enabling a truly offline local path.
+- Planning also confirmed one important operational auth property from the Clerk docs: Clerk development and production instances keep user sets separate by default, so local/dev user activity does not have to share a production user table.
+- The main unresolved architecture risk for the next YELLOW pass is documentation authority around self-hosted Convex auth: the current project `convex-docs` BTCA resource is an archived stub, so self-hosted Convex plus Clerk needs direct validation before it can be treated as release-candidate ready.
 - Feature `6.0` closeout also corrected the sync-governance implementation so `src/new_repo_template/snapshot_assets/source_manifest.json` is again the sole source of truth for foundation sync scope; the helper layer no longer rejects user-approved `management.sync = true` entries via a second hardcoded allowlist.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -221,7 +228,7 @@ Implementation follows a strict YELLOW-RED-GREEN-BLUE loop:
 
 DoD is enforced by contract tests under `tests/` plus CI matrix checks across Linux/macOS/Windows.
 
-Baseline CI is credentialless for cloud-first Convex wiring checks; credential-dependent deployment tests are optional and separately gated.
+Baseline CI is credentialless for the current cloud-first Convex wiring checks; the next feature `10.0` slice will need to expand that model for the new local self-hosted Convex + compose workflow while keeping credential-dependent deployment tests separately gated.
 
 Current contract coverage:
 

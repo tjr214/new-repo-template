@@ -56,6 +56,15 @@
     - [x] Desktop explicitly needs Electron Forge BTCA coverage.
     - [x] The same mismatch audit should be applied across all other project types before implementation mapping is finalized.
 - [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
+  - [x] Discussed and locked the first RC1 execution slice before building.
+    - [x] Start with `web + backend` local-dev/auth validation before broader desktop/mobile/TV runtime testing.
+    - [x] Convex remains mandatory in all environments.
+    - [x] Local development always uses self-hosted Convex via the official Docker image in a local compose override.
+    - [x] Production always uses Convex Cloud.
+    - [x] Base `compose.yaml` is the deployment baseline, and local dev layers on an override file.
+    - [x] Generated apps should expose a provider-neutral auth boundary rather than hard-coding Clerk widgets.
+    - [x] Supported RC1 auth combinations are `better-auth/clerk`, `better-auth/better-auth`, and `clerk/clerk`.
+    - [x] Default auth posture for the next slice is `local=better-auth`, `prod=clerk`.
   - [ ] Thoroughly test all project types (manual step)
   - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
   - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly
@@ -63,4 +72,5 @@
   - [ ] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)
   - [ ] Test to see if the TV app package is working (and can load the app onto an nVidia Shield Pro)
   - [ ] We also need to be able to run local dev versions of the backend and web frontend packages. Since we use Convex, we probably need to use a docker compose file to bring up local services for the local dev mode.
+  - [ ] Explicitly verify the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical validation before calling that combination RC1-ready.
   - [ ] We are going to need to thoroughly discuss ALL of these things before acting upon them.
