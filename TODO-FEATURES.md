@@ -71,8 +71,14 @@
     - [x] Generated backend scaffolds now emit runtime-aware auth config that switches by `NURT_RUNTIME_ENV`.
     - [x] Generated `web+backend` repos now include `compose.yaml` and `compose.override.yaml` for the local self-hosted Convex path.
     - [x] Generated backend/web env examples and backend README docs now describe the local self-hosted Convex workflow and auth matrix.
+  - [x] Fixed the first runtime blockers uncovered by the manual RC1 pass.
+    - [x] Moved local-only source mounts and Linux-native Bun dependency installation into `compose.override.yaml`, while keeping base `compose.yaml` deployment-oriented.
+    - [x] Added Docker-managed `bun-install` and `convex-data` volumes for local web dependencies and self-hosted Convex persistence.
+    - [x] Fixed the generated web route baseline so it no longer crashes with duplicate `__root__` routes.
+    - [x] Confirmed the first manual runtime case (`local=better-auth`, `prod=clerk`) now renders the baseline web page in the browser.
   - [ ] Thoroughly test all project types (manual step)
   - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
+    - [ ] Current finding: the generated web lane is still plain Vite + TanStack Router, not a real TanStack Start app, so this roadmap item remains a live implementation gap.
   - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly
   - [ ] Test to see if the desktop app package is correctly initializing Electron. Once again, test that Electron can RUN
   - [ ] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)

@@ -23,9 +23,12 @@ Keep `apps/web/.env.example` and `apps/backend/.env.example` aligned to the same
 2. Review the generated compose files:
    - `compose.yaml`
    - `compose.override.yaml`
+   - the base file is the deployment-oriented baseline; the override carries local source mounts, local dependency installation, and self-hosted Convex persistence
 3. Update `apps/backend/.env.example` and `apps/web/.env.example` with the generated local values you need.
 4. Start the local stack from the repo root:
    - `docker compose up`
+   - the web service installs Linux-native Bun dependencies into a Docker-managed volume on first startup
+   - self-hosted Convex persists its local data in a named Docker volume
 5. Run Convex codegen as needed from `apps/backend`:
    - `bun run convex:codegen`
 

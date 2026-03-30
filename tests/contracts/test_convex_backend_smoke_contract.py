@@ -102,6 +102,9 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
     )
     backend_readme = backend_readme_path.read_text(encoding="utf-8")
     assert "docker compose up" in backend_readme
+    assert "Docker-managed volume" in backend_readme
+    assert "deployment-oriented baseline" in backend_readme
+    assert "named Docker volume" in backend_readme
     assert "AUTH_PROVIDER_LOCAL" in backend_readme or "local:" in backend_readme
     assert "Convex Cloud" in backend_readme
     assert "better auth" in backend_readme.lower()

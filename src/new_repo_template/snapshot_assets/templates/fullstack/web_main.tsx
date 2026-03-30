@@ -8,7 +8,7 @@ import "./styles.css"
 const rootElement = document.getElementById("app")
 
 if (rootElement === null) {
-  throw new Error("Missing #app mount node for TanStack Start app")
+  throw new Error("Missing #app mount node for web app")
 }
 
 createRoot(rootElement).render(

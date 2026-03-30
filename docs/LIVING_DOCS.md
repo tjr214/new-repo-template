@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `9.0` are complete, and feature `10.0` slice 1 is now implemented: generated `web + backend` repos now scaffold the locked local/prod auth matrix and Docker local-dev assets, and the next open execution front is manual/runtime validation of those outputs before the broader RC1 platform pass.
+The template implementation remains intact, features `5.0` through `9.0` are complete, and feature `10.0` runtime validation is now underway: the first generated `web + backend` case has been manually booted and repaired, but the larger web-stack gap uncovered during that validation means RC1 still needs additional implementation work before the full runtime matrix can close.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
-- Root `PLAN.md` now carries the restart-safe feature `10.0` implementation closeout and next-step plan, while root `PROGRESS.md` remains the active cumulative tracker.
+- Root `PLAN.md` has already been reset to the next-cycle stub, while root `PROGRESS.md` remains the active cumulative tracker and the session summaries now carry the most recent runtime-validation closeout context.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -69,6 +69,11 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - The generated backend README now documents the Docker local-dev startup path (`docker compose up`) and the split between local self-hosted Convex and production Convex Cloud.
 - The template repo's own BTCA generation now includes backend auth resources from both sides of the selected local/prod matrix so mixed Better Auth + Clerk setups still receive the relevant dependency context.
 - The implementation slice is fully revalidated: targeted auth/runtime contracts are green, `uv run ruff check src/new_repo_template tests/contracts` is green, snapshot metadata was refreshed via `nurt template-assets validate`, and the full repository suite now passes at 245 tests.
+- Manual/runtime validation has now started against real generated repos rather than only against contracts: all three supported auth combinations can scaffold, install, run their built-in smoke commands, and expose the expected Docker service endpoints.
+- The first manual browser pass (`local=better-auth`, `prod=clerk`) uncovered a real container/runtime bug in the generated compose files: the web service was incorrectly reusing host-installed Bun dependencies inside Linux Docker. That bug is now fixed by moving source mounts and container-side dependency installation into `compose.override.yaml` and by keeping the base `compose.yaml` deployment-oriented.
+- Local Docker behavior is now cleaner too: the web service uses a Docker-managed `bun-install` volume for Linux-native Bun dependencies, and self-hosted Convex persists local data in a named `convex-data` volume.
+- The same first manual browser pass uncovered a second runtime issue in the generated web scaffold: the route setup produced duplicate `__root__` routes and a blank page. That route bug is now fixed, and the first manual case renders the baseline welcome content successfully.
+- The runtime pass also produced an important roadmap finding: despite the project language in docs and prompts, the current generated web app is still plain Vite + TanStack Router and not a real TanStack Start app. The feature `10.0` TanStack Start validation item therefore remains open as a confirmed implementation gap.
 
 ## Active Implementation Rules
 
@@ -125,6 +130,7 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - Mixed presets with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed variant).
 - Offline local development is only guaranteed when the local auth provider is Better Auth; local Clerk mode remains internet-connected even when Convex itself is self-hosted.
 - The `local=clerk` plus self-hosted Convex path is a supported RC1 target, but it still requires explicit technical verification because the current BTCA Convex docs resource cannot yet confirm the self-hosted auth behavior.
+- The current generated web lane is not yet a true TanStack Start implementation; it remains a Vite + TanStack Router baseline until the next slice replaces it.
 - Generator failures must not leave partially scaffolded repos behind.
 - Foundation and JS-only outputs stay free of Python-only metadata files, while Python-enabled outputs scaffold a root uv workspace (`pyproject.toml`, `uv.lock`) plus app-local interpreter pinning at `apps/python/.python-version`.
 - Root JS workspaces now cover both support packages and nested generated projects with `apps/*`, `packages/*`, `apps/*/*`, and `packages/*/*`.

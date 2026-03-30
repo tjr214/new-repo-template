@@ -164,8 +164,10 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
     ):
         assert path.exists(), f"Expected scaffolded file: {path}"
 
-    assert "createFileRoute" in web_index_route.read_text(encoding="utf-8")
-    assert "@generated/shared" in web_index_route.read_text(encoding="utf-8")
+    web_index_text = web_index_route.read_text(encoding="utf-8")
+    assert "createRoute" in web_index_text
+    assert "getParentRoute" in web_index_text
+    assert "@generated/shared" in web_index_text
     assert "getAuthConfigProvider" in backend_auth.read_text(encoding="utf-8")
     assert "SITE_URL" in web_auth.read_text(encoding="utf-8")
     assert "better auth" in web_auth.read_text(encoding="utf-8").lower()

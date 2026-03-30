@@ -626,14 +626,21 @@ def test_web_backend_mixed_auth_scaffolds_provider_neutral_boundary_and_compose_
 
     backend_text = backend_wiring.read_text(encoding="utf-8")
     shared_text = shared_auth.read_text(encoding="utf-8")
-    compose_text = compose_override.read_text(encoding="utf-8")
+    compose_text = compose_yaml.read_text(encoding="utf-8")
+    compose_override_text = compose_override.read_text(encoding="utf-8")
 
     assert 'local: "better-auth"' in backend_text
     assert 'prod: "clerk"' in backend_text
     assert 'provider: "better-auth"' in shared_text
     assert 'provider: "clerk"' in shared_text
-    assert "convex-backend" in compose_text
-    assert "convex-dashboard" in compose_text
+    assert "bun install --frozen-lockfile" not in compose_text
+    assert ".:/workspace" not in compose_text
+    assert "bun run --cwd apps/web/web dev:app" in compose_text
+    assert "bun install --frozen-lockfile" in compose_override_text
+    assert "bun-install:/workspace/node_modules" in compose_override_text
+    assert "convex-data:/convex/data" in compose_override_text
+    assert "convex-backend" in compose_override_text
+    assert "convex-dashboard" in compose_override_text
 
 
 def test_project_flag_supports_multiple_same_type_projects_in_dry_run(

@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-29 08:20:28 PM
-**Current Phase:** Feature `10.0` slice 1 is now implemented: generated `web + backend` repos support the locked local/prod auth matrix, scaffold provider-neutral web auth boundary files, emit deployment-baseline `compose.yaml` plus local `compose.override.yaml`, and document the self-hosted Convex local-dev path; next up is runtime/manual validation of those generated outputs and the remaining RC1 platform checks.
+**Last Updated:** 2026-03-29 10:13:28 PM
+**Current Phase:** Feature `10.0` runtime validation is in progress: the first generated `web + backend` case (`local=better-auth`, `prod=clerk`) now boots and renders after fixing two RC1 blockers in the scaffolded output, while the remaining auth combinations and the larger TanStack Start gap are still open for the next slice.
 
 ## Previous Cycle Archives
 
@@ -219,9 +219,15 @@
 - [x] Updated generated backend/web `.env.example` files and `apps/backend/README.md` so the local self-hosted Convex path, local/prod auth matrix, and Docker-based local-dev startup are reflected directly in scaffold output.
 - [x] Updated BTCA generation so backend auth resources are derived from the union of the selected local/prod providers rather than from only a single legacy auth field.
 - [x] Completed BLUE hardening for the slice, refreshed bundled snapshot metadata with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, revalidated targeted auth/runtime contracts (82 passed), reran `uv run ruff check src/new_repo_template tests/contracts`, and revalidated the full repository suite with `uv run pytest` (245 passed).
+- [x] Began feature `10.0` manual/runtime validation by generating fresh repos for all three supported auth combinations, running `bun install --frozen-lockfile` plus the built-in web/backend smoke commands for each case, and confirming all three generated Docker stacks could at least expose the expected service ports/endpoints.
+- [x] Found and fixed the first real RC1 runtime blocker in the generated compose setup: the scaffolded web service was bind-mounting host-installed Bun dependencies into the Linux container, which crashed Vite/rollup at startup. The fix moved local-only source mounts and Linux-native `bun install --frozen-lockfile` into `compose.override.yaml`, left the base `compose.yaml` as the deployment-oriented baseline, and added Docker-managed `bun-install` plus `convex-data` volumes for local dev.
+- [x] Found and fixed the second real RC1 runtime blocker in the generated web scaffold: the route setup produced duplicate `__root__` routes and a blank page at runtime. The fix switched the index route template from the broken `createFileRoute("/")` combination to an explicit child route attached to `__root__`, and the first manual runtime case now renders `nurt.ai fullstack scaffold baseline` successfully in the browser.
+- [x] Cleaned up the temporary runtime-validation repos and Docker resources after the first manual case, including clearing the Docker-created ACL issue left on the generated `node_modules` directory before removing the final temp repo.
+- [x] Recorded the larger feature `10.0` product finding from manual validation: the current web scaffold is still plain Vite + TanStack Router rather than a real TanStack Start app, so the roadmap item for proper TanStack Start initialization remains open and now has concrete runtime evidence behind it.
 
 ## Next Up
 
-- [ ] Perform manual/runtime validation for the three supported generated auth combinations: `better-auth/clerk`, `better-auth/better-auth`, and `clerk/clerk`.
+- [ ] Re-run runtime/manual validation for the remaining supported auth combinations using the corrected compose and router templates: `better-auth/better-auth` and `clerk/clerk`.
 - [ ] Explicitly validate the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical runtime checks before calling that combination RC1-ready.
-- [ ] Continue feature `10.0` with the remaining RC1 runtime matrix: TanStack frontend boot, backend plugin behavior, Electron runtime, iOS mobile flow, and TV launch/runtime validation.
+- [ ] Replace the current web scaffold with a real TanStack Start implementation; the current Vite + TanStack Router placeholder is now a confirmed roadmap gap, not just a planning concern.
+- [ ] Continue feature `10.0` with the remaining RC1 runtime matrix after the web-stack gap is addressed: backend plugin behavior, Electron runtime, iOS mobile flow, and TV launch/runtime validation.
