@@ -71,21 +71,30 @@
   - [x] Discussed and locked the desktop React architecture direction.
     - [x] Desktop should use `Electron Forge + Vite + React` for the renderer architecture.
     - [x] Desktop should use `@tanstack/react-router` for default client-side routing.
+    - [x] Desktop should default to `createHashHistory()` for router history.
     - [x] Desktop should not use `TanStack Start` as the default renderer framework.
-  - [ ] Discuss and lock which code, configuration, utilities, styles, and patterns should be shared across React-based projects.
+  - [x] Discussed and locked the initial shared-foundation scope.
+    - [x] Shared foundations should include the things required to reproduce the same core style and feel across frontend targets.
+    - [x] Shared foundations should stay flexible enough to let end-developers take advantage of platform-specific capabilities.
+    - [x] Platform-specific rendering, interaction patterns, and native affordances should stay platform-specific where they should be.
+    - [x] The result should still clearly feel like the same app regardless of device type.
   - [ ] Upgrade the desktop scaffold to a React renderer so it can participate in the shared React foundations.
+    - [ ] The first desktop React scaffold only needs to be a simple hello-world baseline.
   - [ ] Implement the appropriate shared foundations for web, mobile, desktop, and TV React targets where applicable.
   - [ ] Test that the shared pieces actually work correctly across the supported React-based project types.
   - [ ] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
-- [ ] 12.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" LANDING PAGE APP
+- [ ] 12.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" DEMO APP ACROSS FRONTEND TYPES
+  - [x] Discussed and locked the initial outcome for this item.
+    - [x] The `Welcome To Nurt` work should become a cross-frontend demo app, not just a web-only landing page.
+    - [x] Once the desktop React renderer exists, the desktop package should adopt this `Welcome To Nurt` baseline.
   - [ ] Discuss and lock the purpose, scope, tone, and baseline user journey before building.
-  - [ ] Design a minimal but distinct nurt-specific landing experience instead of a generic starter page.
-  - [ ] Implement the baseline landing page for the generated web app experience.
-  - [ ] Ensure the landing page feels analogous in purpose to the default framework welcome pages while still being clearly branded as nurt.
+  - [ ] Design a minimal but distinct nurt-specific welcome experience instead of a generic starter page.
+  - [ ] Implement the baseline `Welcome To Nurt` demo across the generated frontend experiences.
+  - [ ] Ensure the demo feels analogous in purpose to default framework welcome pages while still being clearly branded as nurt.
 - [ ] 13.0 UPDATE THE "WELCOME TO NURT" APP TO USE THE CHOSEN COMPONENT APPROACH
-  - [ ] Apply the component-library decision from `10.0` and the shared-foundation decisions from `11.0` to the landing page implementation.
-  - [ ] Update the landing page so it uses the real nurt component strategy rather than ad hoc markup.
-  - [ ] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt web experience.
+  - [ ] Apply the component-library decision from `10.0` and the shared-foundation decisions from `11.0` to the `Welcome To Nurt` implementation.
+  - [ ] Update the demo so it uses the real nurt component strategy rather than ad hoc markup.
+  - [ ] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt frontend experience.
 - [ ] 14.0 TV AUTH DEVICE-LINKING FLOW FOR ANDROID TV
   - [ ] Discuss and lock the full TV auth experience before building.
   - [ ] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
@@ -96,8 +105,8 @@
   - [ ] RC1 is blocked on the planning, implementation, and validation work captured in `10.0` through `14.0`.
     - [ ] `10.0` must lock the component-library ownership and expansion model.
     - [ ] `11.0` must establish and validate the correct shared React foundations.
-    - [ ] `12.0` must establish the baseline nurt landing experience.
-    - [ ] `13.0` must align the landing experience with the chosen component approach.
+    - [ ] `12.0` must establish the baseline `Welcome To Nurt` experience across frontend targets.
+    - [ ] `13.0` must align the `Welcome To Nurt` experience with the chosen component approach.
     - [ ] `14.0` must deliver a working Android TV device-link auth flow.
   - [x] Discussed and locked the first RC1 execution slice before building.
     - [x] Start with `web + backend` local-dev/auth validation before broader desktop/mobile/TV runtime testing.
