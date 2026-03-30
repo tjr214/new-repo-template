@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-29 08:08:46 PM
-**Current Phase:** Feature `10.0` planning is now locked: the next implementation slice is `web + backend` local-dev/auth validation, with deployment-baseline compose files, a local self-hosted Convex override, a provider-neutral app auth boundary, and the supported RC1 auth matrix documented before build work begins.
+**Last Updated:** 2026-03-29 08:20:28 PM
+**Current Phase:** Feature `10.0` slice 1 is now implemented: generated `web + backend` repos support the locked local/prod auth matrix, scaffold provider-neutral web auth boundary files, emit deployment-baseline `compose.yaml` plus local `compose.override.yaml`, and document the self-hosted Convex local-dev path; next up is runtime/manual validation of those generated outputs and the remaining RC1 platform checks.
 
 ## Previous Cycle Archives
 
@@ -213,9 +213,15 @@
 - [x] Locked the feature `10.0` web/backend local-dev architecture with the user: Convex is mandatory in all environments, local dev always uses self-hosted Convex via the official Docker image in a local compose override, production always uses Convex Cloud, auth is always integrated through Convex, and the deployment model is base `compose.yaml` plus a local override.
 - [x] Locked the RC1 auth-provider direction with the user: generated apps should expose a provider-neutral auth boundary instead of depending on Clerk widgets, default to `local=better-auth` and `prod=clerk`, and officially support only these three local/prod combinations: `better-auth/clerk`, `better-auth/better-auth`, and `clerk/clerk`.
 - [x] Synced the feature `10.0` planning outcome across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
+- [x] Ran the feature `10.0` implementation YELLOW pass by rereading the new plan/docs/session summary, the current scaffold/CLI/auth templates, the relevant contract suites, rerunning `btca status`, using `btca ask` for Better Auth auth-config/runtime details plus Clerk custom-UI support, and falling back to official Convex web docs for the Clerk integration because the current `convex-docs` BTCA resource remains an archived stub.
+- [x] Completed RED for feature `10.0` slice 1 by expanding the auth/runtime contract coverage: the suite now covers split local/prod auth validation, unsupported auth-matrix rejection, provider-neutral web auth boundary files, mixed-provider fullstack scaffolds, compose file generation, and updated local-dev env/doc expectations.
+- [x] Completed GREEN for feature `10.0` slice 1 in the scaffold/CLI/template layer: `new-repo-template` and `nurt new` now accept split auth configuration (`--local-auth`, `--prod-auth`, backend-scoped variants, plus legacy shorthand `--auth` / `--backend-auth`), generated backend auth config switches on `NURT_RUNTIME_ENV`, web scaffolds now emit provider-neutral auth boundary files (`app-auth.ts`, `auth-runtime.ts`) alongside provider-specific placeholders, and `web+backend` outputs now scaffold `compose.yaml` plus `compose.override.yaml` for local self-hosted Convex.
+- [x] Updated generated backend/web `.env.example` files and `apps/backend/README.md` so the local self-hosted Convex path, local/prod auth matrix, and Docker-based local-dev startup are reflected directly in scaffold output.
+- [x] Updated BTCA generation so backend auth resources are derived from the union of the selected local/prod providers rather than from only a single legacy auth field.
+- [x] Completed BLUE hardening for the slice, refreshed bundled snapshot metadata with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, revalidated targeted auth/runtime contracts (82 passed), reran `uv run ruff check src/new_repo_template tests/contracts`, and revalidated the full repository suite with `uv run pytest` (245 passed).
 
 ## Next Up
 
-- [ ] Start the implementation YELLOW pass for feature `10.0` slice 1 by rereading the new root `PLAN.md`, the updated trackers/docs, the latest session summary, the current fullstack scaffold/auth templates, and the relevant contract suites.
-- [ ] Resolve the remaining self-hosted Convex research gap for the `local=clerk` path using authoritative docs before promising RC1 readiness for that combination.
-- [ ] Begin RED for the `web + backend` slice: add contract coverage for per-environment auth selection, compose-baseline/local-override generation, provider-neutral auth scaffolding, and updated backend/web local-dev documentation.
+- [ ] Perform manual/runtime validation for the three supported generated auth combinations: `better-auth/clerk`, `better-auth/better-auth`, and `clerk/clerk`.
+- [ ] Explicitly validate the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical runtime checks before calling that combination RC1-ready.
+- [ ] Continue feature `10.0` with the remaining RC1 runtime matrix: TanStack frontend boot, backend plugin behavior, Electron runtime, iOS mobile flow, and TV launch/runtime validation.

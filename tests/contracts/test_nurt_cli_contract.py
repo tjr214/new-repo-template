@@ -111,6 +111,43 @@ def test_nurt_new_dry_run_generates_scaffold_plan_without_writing(
     assert not output_dir.exists(), "dry-run should not create project directory"
 
 
+def test_nurt_new_dry_run_supports_split_local_prod_auth_flags(tmp_path: Path) -> None:
+    output_dir = tmp_path / "demo-split-auth"
+    result = run_nurt_command(
+        cwd=tmp_path,
+        args=[
+            "new",
+            output_dir.name,
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--local-auth",
+            "better-auth",
+            "--prod-auth",
+            "clerk",
+            "--dry-run",
+            "--no-interactive",
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected nurt new --dry-run with split auth flags to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    combined_output = _combined_output(result)
+    _assert_scaffold_plan(
+        combined_output,
+        targets=("web", "backend"),
+        auth="better-auth/clerk",
+        output_path=output_dir,
+    )
+    assert "local_auth=better-auth" in combined_output
+    assert "prod_auth=clerk" in combined_output
+    assert not output_dir.exists(), "dry-run should not create project directory"
+
+
 def test_nurt_new_defaults_to_foundation_when_targets_omitted(tmp_path: Path) -> None:
     """RED: nurt new should default to foundation in non-interactive mode."""
 
@@ -268,7 +305,7 @@ def test_nurt_new_interactive_wizard_resolves_web_backend_with_prompted_auth(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n\n\n2\n\n\n",
+        input_text="3,4\n\n\n2\n\n\n\n",
     )
 
     assert result.returncode == 0, (
@@ -333,7 +370,7 @@ def test_nurt_new_interactive_rich_mode_falls_back_when_unavailable(
     result = run_nurt_command(
         cwd=tmp_path,
         args=["new", output_dir.name, "--dry-run"],
-        input_text="3,4\n\n\n2\n\n\n",
+        input_text="3,4\n\n\n2\n\n\n\n",
         env={
             "NURT_UI_MODE": "rich",
             "NURT_SIMULATE_RICH_UNAVAILABLE": "1",

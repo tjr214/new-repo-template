@@ -1,22 +1,31 @@
-export type AuthProvider = "clerk" | "better-auth"
+import type { AuthConfig } from "convex/server"
+import { getAuthConfigProvider } from "@convex-dev/better-auth/auth-config"
 
-interface AuthConfig {
-  provider: AuthProvider
-  issuerEnvVar: "CLERK_FRONTEND_API_URL" | "SITE_URL"
-  tokenAudienceEnvVar: "CONVEX_DEPLOYMENT"
+type RuntimeEnvironment = "local" | "prod"
+type AuthProvider = "clerk" | "better-auth"
+
+const runtimeEnvironment: RuntimeEnvironment =
+  process.env.NURT_RUNTIME_ENV === "prod" ? "prod" : "local"
+
+const authMatrix: Record<RuntimeEnvironment, AuthProvider> = {
+  local: "{{LOCAL_AUTH_PROVIDER}}",
+  prod: "{{PROD_AUTH_PROVIDER}}",
 }
 
-const defaultsByProvider: Record<AuthProvider, AuthConfig> = {
-  clerk: {
-    provider: "clerk",
-    issuerEnvVar: "CLERK_FRONTEND_API_URL",
-    tokenAudienceEnvVar: "CONVEX_DEPLOYMENT",
-  },
-  "better-auth": {
-    provider: "better-auth",
-    issuerEnvVar: "SITE_URL",
-    tokenAudienceEnvVar: "CONVEX_DEPLOYMENT",
-  },
+const clerkIssuerDomainByRuntime: Record<RuntimeEnvironment, string | undefined> = {
+  local: process.env.CLERK_JWT_ISSUER_DOMAIN_LOCAL,
+  prod: process.env.CLERK_JWT_ISSUER_DOMAIN_PROD,
 }
 
-export const authConfig = defaultsByProvider["{{AUTH_PROVIDER}}"]
+const selectedProvider = authMatrix[runtimeEnvironment]
+
+export default {
+  providers: [
+    selectedProvider === "better-auth"
+      ? getAuthConfigProvider()
+      : {
+          domain: clerkIssuerDomainByRuntime[runtimeEnvironment]!,
+          applicationID: "convex",
+        },
+  ],
+} satisfies AuthConfig

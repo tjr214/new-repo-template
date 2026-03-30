@@ -65,6 +65,12 @@
     - [x] Generated apps should expose a provider-neutral auth boundary rather than hard-coding Clerk widgets.
     - [x] Supported RC1 auth combinations are `better-auth/clerk`, `better-auth/better-auth`, and `clerk/clerk`.
     - [x] Default auth posture for the next slice is `local=better-auth`, `prod=clerk`.
+  - [x] Implemented the first RC1 scaffolding slice for `web + backend`.
+    - [x] `nurt new` and the underlying scaffold now support explicit local/prod auth configuration for backend-capable repos, while keeping same-provider shorthand.
+    - [x] Generated web scaffolds now include a provider-neutral auth boundary plus provider-specific placeholder modules only for the providers used by the selected auth matrix.
+    - [x] Generated backend scaffolds now emit runtime-aware auth config that switches by `NURT_RUNTIME_ENV`.
+    - [x] Generated `web+backend` repos now include `compose.yaml` and `compose.override.yaml` for the local self-hosted Convex path.
+    - [x] Generated backend/web env examples and backend README docs now describe the local self-hosted Convex workflow and auth matrix.
   - [ ] Thoroughly test all project types (manual step)
   - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
   - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly

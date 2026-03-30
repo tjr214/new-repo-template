@@ -30,6 +30,34 @@ class ProjectSpec:
     name: str
     auth: str | None = None
     backend_binding: str | None = None
+    local_auth: str | None = None
+    prod_auth: str | None = None
+
+    @property
+    def local_auth_provider(self) -> str | None:
+        if self.local_auth is not None:
+            return self.local_auth
+        return self.auth
+
+    @property
+    def prod_auth_provider(self) -> str | None:
+        if self.prod_auth is not None:
+            return self.prod_auth
+        return self.auth
+
+    @property
+    def auth_matrix_enabled(self) -> bool:
+        return (
+            self.local_auth_provider is not None or self.prod_auth_provider is not None
+        )
+
+    @property
+    def uses_clerk_auth(self) -> bool:
+        return "clerk" in {self.local_auth_provider, self.prod_auth_provider}
+
+    @property
+    def uses_better_auth(self) -> bool:
+        return "better-auth" in {self.local_auth_provider, self.prod_auth_provider}
 
 
 @dataclass(frozen=True)
@@ -328,6 +356,14 @@ TARGET_ENV_TEMPLATE_FILES: dict[str, str] = {
     "typescript-cli": "env/typescript-cli.env",
 }
 
+AUTH_PROVIDER_CHOICES: tuple[str, str, str] = ("clerk", "better-auth", "none")
+SUPPORTED_AUTH_MATRIX: tuple[tuple[str | None, str | None], ...] = (
+    (None, None),
+    ("better-auth", "clerk"),
+    ("better-auth", "better-auth"),
+    ("clerk", "clerk"),
+)
+
 AUTH_ENV_TEMPLATE_FILES: dict[str, dict[str, str]] = {
     "clerk": {
         "web": "auth_env/web_clerk.env",
@@ -340,6 +376,8 @@ AUTH_ENV_TEMPLATE_FILES: dict[str, dict[str, str]] = {
 }
 
 BACKEND_AUTH_CONFIG_TEMPLATE = load_template_text("wiring/backend_auth_config.ts")
+WEB_APP_AUTH_TEMPLATE = load_template_text("wiring/web_app_auth.ts")
+WEB_AUTH_RUNTIME_TEMPLATE = load_template_text("wiring/web_auth_runtime.ts")
 WEB_AUTH_PROVIDER_CLERK_TEMPLATE = load_template_text(
     "wiring/web_auth_provider_clerk.ts"
 )
@@ -359,6 +397,8 @@ WEB_STYLES_TEMPLATE = load_template_text("fullstack/web_styles.css")
 BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
 BACKEND_SCHEMA_TEMPLATE = load_template_text("fullstack/backend_schema.ts")
 BACKEND_README_TEMPLATE = load_template_text("fullstack/backend_readme.md")
+COMPOSE_TEMPLATE = load_template_text("fullstack/compose.yaml")
+COMPOSE_OVERRIDE_TEMPLATE = load_template_text("fullstack/compose.override.yaml")
 DESKTOP_MAIN_TEMPLATE = load_template_text("desktop/desktop_main.ts")
 DESKTOP_PRELOAD_TEMPLATE = load_template_text("desktop/desktop_preload.ts")
 DESKTOP_RENDERER_TEMPLATE = load_template_text("desktop/desktop_renderer.ts")
@@ -454,9 +494,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--project", action="append")
     parser.add_argument("--backend-auth", action="append")
+    parser.add_argument("--backend-local-auth", action="append")
+    parser.add_argument("--backend-prod-auth", action="append")
     parser.add_argument("--web-backend", action="append")
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--auth", choices=("clerk", "better-auth", "none"))
+    parser.add_argument("--auth", choices=AUTH_PROVIDER_CHOICES)
+    parser.add_argument("--local-auth", choices=AUTH_PROVIDER_CHOICES)
+    parser.add_argument("--prod-auth", choices=AUTH_PROVIDER_CHOICES)
     parser.add_argument("--no-interactive", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     return parser
@@ -576,6 +620,172 @@ def _parse_mapping_option(
     return name, value
 
 
+def _normalize_auth_choice(raw_value: str | None) -> str | None:
+    if raw_value in {None, "none"}:
+        return None
+    return raw_value
+
+
+def _auth_matrix_is_supported(*, local_auth: str | None, prod_auth: str | None) -> bool:
+    return (local_auth, prod_auth) in SUPPORTED_AUTH_MATRIX
+
+
+def _format_supported_auth_matrix() -> str:
+    return ", ".join(
+        f"{local or 'none'}/{prod or 'none'}" for local, prod in SUPPORTED_AUTH_MATRIX
+    )
+
+
+def _build_backend_auth_matrix(
+    *,
+    parser: argparse.ArgumentParser,
+    args: argparse.Namespace,
+    backend_names: set[str],
+) -> dict[str, tuple[str | None, str | None]]:
+    has_backend = bool(backend_names)
+    if args.auth is not None and (
+        args.local_auth is not None or args.prod_auth is not None
+    ):
+        parser.error("--auth cannot be combined with --local-auth or --prod-auth")
+    if list(args.backend_auth or []) and (
+        list(args.backend_local_auth or []) or list(args.backend_prod_auth or [])
+    ):
+        parser.error(
+            "--backend-auth cannot be combined with --backend-local-auth or --backend-prod-auth"
+        )
+
+    if (
+        args.auth is not None
+        or args.local_auth is not None
+        or args.prod_auth is not None
+        or list(args.backend_auth or [])
+        or list(args.backend_local_auth or [])
+        or list(args.backend_prod_auth or [])
+    ) and not has_backend:
+        parser.error("auth option is only valid when backend target is selected")
+
+    default_local_auth = _normalize_auth_choice(args.auth)
+    default_prod_auth = _normalize_auth_choice(args.auth)
+    if args.local_auth is not None or args.prod_auth is not None:
+        default_local_auth = _normalize_auth_choice(args.local_auth)
+        default_prod_auth = _normalize_auth_choice(args.prod_auth)
+
+    legacy_backend_auth_map: dict[str, str | None] = {}
+    for token in list(args.backend_auth or []):
+        try:
+            backend_name, backend_auth = _parse_mapping_option(
+                token=token,
+                option_name="--backend-auth",
+                allowed_values=AUTH_PROVIDER_CHOICES,
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
+        if backend_name not in backend_names:
+            parser.error(
+                f"--backend-auth references unknown backend project: {backend_name}"
+            )
+        legacy_backend_auth_map[backend_name] = _normalize_auth_choice(backend_auth)
+
+    backend_local_auth_map: dict[str, str | None] = {}
+    for token in list(args.backend_local_auth or []):
+        try:
+            backend_name, backend_auth = _parse_mapping_option(
+                token=token,
+                option_name="--backend-local-auth",
+                allowed_values=AUTH_PROVIDER_CHOICES,
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
+        if backend_name not in backend_names:
+            parser.error(
+                f"--backend-local-auth references unknown backend project: {backend_name}"
+            )
+        backend_local_auth_map[backend_name] = _normalize_auth_choice(backend_auth)
+
+    backend_prod_auth_map: dict[str, str | None] = {}
+    for token in list(args.backend_prod_auth or []):
+        try:
+            backend_name, backend_auth = _parse_mapping_option(
+                token=token,
+                option_name="--backend-prod-auth",
+                allowed_values=AUTH_PROVIDER_CHOICES,
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
+        if backend_name not in backend_names:
+            parser.error(
+                f"--backend-prod-auth references unknown backend project: {backend_name}"
+            )
+        backend_prod_auth_map[backend_name] = _normalize_auth_choice(backend_auth)
+
+    resolved: dict[str, tuple[str | None, str | None]] = {}
+    for backend_name in sorted(backend_names):
+        local_auth = backend_local_auth_map.get(backend_name)
+        prod_auth = backend_prod_auth_map.get(backend_name)
+        legacy_auth = legacy_backend_auth_map.get(backend_name)
+
+        if local_auth is None and backend_name not in backend_local_auth_map:
+            if legacy_auth is not None or backend_name in legacy_backend_auth_map:
+                local_auth = legacy_auth
+            else:
+                local_auth = default_local_auth
+        if prod_auth is None and backend_name not in backend_prod_auth_map:
+            if legacy_auth is not None or backend_name in legacy_backend_auth_map:
+                prod_auth = legacy_auth
+            else:
+                prod_auth = default_prod_auth
+
+        has_explicit_split = (
+            backend_name in backend_local_auth_map
+            or backend_name in backend_prod_auth_map
+            or args.local_auth is not None
+            or args.prod_auth is not None
+        )
+        if has_explicit_split and (
+            (local_auth is None) != (prod_auth is None)
+            or (
+                backend_name not in backend_local_auth_map
+                and backend_name not in backend_prod_auth_map
+                and args.local_auth is not None
+                and args.prod_auth is None
+            )
+            or (
+                backend_name not in backend_local_auth_map
+                and backend_name not in backend_prod_auth_map
+                and args.local_auth is None
+                and args.prod_auth is not None
+            )
+        ):
+            parser.error(
+                "both local and prod auth providers must be set when using split auth configuration"
+            )
+
+        if (
+            local_auth is None
+            and prod_auth is None
+            and args.auth is None
+            and args.local_auth is None
+            and args.prod_auth is None
+            and backend_name not in legacy_backend_auth_map
+            and backend_name not in backend_local_auth_map
+            and backend_name not in backend_prod_auth_map
+        ):
+            parser.error(
+                "auth option is required when backend target is selected; use --auth or the local/prod auth options"
+            )
+
+        if not _auth_matrix_is_supported(local_auth=local_auth, prod_auth=prod_auth):
+            parser.error(
+                "unsupported backend auth combination "
+                f"for '{backend_name}': {local_auth or 'none'}/{prod_auth or 'none'}; "
+                f"supported combinations: {_format_supported_auth_matrix()}"
+            )
+
+        resolved[backend_name] = (local_auth, prod_auth)
+
+    return resolved
+
+
 def _rebase_paths(
     paths: tuple[str, ...], *, old_prefix: str, new_prefix: str
 ) -> tuple[str, ...]:
@@ -676,7 +886,7 @@ def _dedupe_preserve_order(paths: list[str]) -> tuple[str, ...]:
 
 def validate_args(
     parser: argparse.ArgumentParser, args: argparse.Namespace
-) -> tuple[tuple[ProjectSpec, ...], str | None]:
+) -> tuple[tuple[ProjectSpec, ...], tuple[str | None, str | None] | None]:
     raw_targets = list(args.target or [])
     raw_projects = list(args.project or [])
 
@@ -727,41 +937,23 @@ def validate_args(
         )
 
     backend_names = {project.name for project in projects if project.kind == "backend"}
-    has_backend = bool(backend_names)
-    if args.auth is not None and not has_backend:
-        parser.error("auth option is only valid when backend target is selected")
-
-    backend_auth_map: dict[str, str | None] = {}
-    for token in list(args.backend_auth or []):
-        try:
-            backend_name, backend_auth = _parse_mapping_option(
-                token=token,
-                option_name="--backend-auth",
-                allowed_values=("clerk", "better-auth", "none"),
-            )
-        except ValueError as exc:
-            parser.error(str(exc))
-        if backend_name not in backend_names:
-            parser.error(
-                f"--backend-auth references unknown backend project: {backend_name}"
-            )
-        backend_auth_map[backend_name] = (
-            None if backend_auth == "none" else backend_auth
-        )
-
-    default_backend_auth = None if args.auth in {None, "none"} else str(args.auth)
+    backend_auth_matrix = _build_backend_auth_matrix(
+        parser=parser, args=args, backend_names=backend_names
+    )
     resolved_projects: list[ProjectSpec] = []
     for project in projects:
         if project.kind != "backend":
             resolved_projects.append(project)
             continue
-        auth = backend_auth_map.get(project.name, default_backend_auth)
-        if auth is None and args.auth is None and project.name not in backend_auth_map:
-            parser.error(
-                "auth option is required when backend target is selected; use clerk, better-auth, or none"
-            )
+        local_auth, prod_auth = backend_auth_matrix[project.name]
         resolved_projects.append(
-            ProjectSpec(kind=project.kind, name=project.name, auth=auth)
+            ProjectSpec(
+                kind=project.kind,
+                name=project.name,
+                auth=prod_auth if local_auth == prod_auth else None,
+                local_auth=local_auth,
+                prod_auth=prod_auth,
+            )
         )
 
     backend_projects = tuple(
@@ -818,7 +1010,18 @@ def validate_args(
             continue
         final_projects.append(project)
 
-    return tuple(final_projects), default_backend_auth
+    default_auth_summary: tuple[str | None, str | None] | None = None
+    if backend_projects:
+        local_auth_values = {
+            project.local_auth_provider for project in backend_projects
+        }
+        prod_auth_values = {project.prod_auth_provider for project in backend_projects}
+        if len(local_auth_values) == 1 and len(prod_auth_values) == 1:
+            default_auth_summary = (
+                next(iter(local_auth_values)),
+                next(iter(prod_auth_values)),
+            )
+    return tuple(final_projects), default_auth_summary
 
 
 def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
@@ -847,17 +1050,24 @@ def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
         project.name: project for project in projects if project.kind == "backend"
     }
     for backend in backend_by_name.values():
-        if backend.auth is not None:
+        if backend.auth_matrix_enabled:
             paths.append(f"{project_relative_root(backend)}/convex/auth.config.ts")
 
     for web_project in (project for project in projects if project.kind == "web"):
         backend = backend_by_name.get(web_project.backend_binding or "")
-        if backend is None or backend.auth is None:
+        if backend is None or not backend.auth_matrix_enabled:
             continue
-        wiring_name = (
-            "auth-provider.ts" if backend.auth == "clerk" else "auth-client.ts"
-        )
-        paths.append(f"{project_relative_root(web_project)}/src/{wiring_name}")
+        web_src_root = f"{project_relative_root(web_project)}/src"
+        paths.append(f"{web_src_root}/app-auth.ts")
+        paths.append(f"{web_src_root}/auth-runtime.ts")
+        if backend.uses_clerk_auth:
+            paths.append(f"{web_src_root}/auth-provider.ts")
+        if backend.uses_better_auth:
+            paths.append(f"{web_src_root}/auth-client.ts")
+
+    if backend_by_name and any(project.kind == "web" for project in projects):
+        paths.append("compose.yaml")
+        paths.append("compose.override.yaml")
 
     return _dedupe_preserve_order(paths)
 
@@ -871,7 +1081,9 @@ def resolve_plan(*, projects: tuple[ProjectSpec, ...], output: Path) -> Scaffold
 def render_plan(plan: ScaffoldPlan) -> str:
     project_types = ", ".join(project.kind for project in plan.projects)
     backend_auth_values = {
-        project.auth if project.auth is not None else "none"
+        (
+            f"{project.local_auth_provider or 'none'}/{project.prod_auth_provider or 'none'}"
+        )
         for project in plan.projects
         if project.kind == "backend"
     }
@@ -895,7 +1107,12 @@ def render_plan(plan: ScaffoldPlan) -> str:
         details = [f"{project.kind}:{project.name}"]
         if project.kind == "backend":
             details.append(
-                f"auth={project.auth if project.auth is not None else 'none'}"
+                "local_auth="
+                f"{project.local_auth_provider if project.local_auth_provider is not None else 'none'}"
+            )
+            details.append(
+                "prod_auth="
+                f"{project.prod_auth_provider if project.prod_auth_provider is not None else 'none'}"
             )
         if project.kind == "web" and project.backend_binding is not None:
             details.append(f"backend={project.backend_binding}")
@@ -1240,8 +1457,108 @@ def render_typescript_lib_readme(project: ProjectSpec) -> str:
     )
 
 
+def _format_auth_provider(value: str | None) -> str:
+    return value if value is not None else "none"
+
+
+def render_backend_readme(project: ProjectSpec) -> str:
+    readme = BACKEND_README_TEMPLATE
+    readme = readme.replace(
+        "{{LOCAL_AUTH_PROVIDER}}", _format_auth_provider(project.local_auth_provider)
+    )
+    readme = readme.replace(
+        "{{PROD_AUTH_PROVIDER}}", _format_auth_provider(project.prod_auth_provider)
+    )
+    return readme.replace("apps/backend", project_relative_root(project))
+
+
+def render_backend_auth_config(project: ProjectSpec) -> str:
+    return BACKEND_AUTH_CONFIG_TEMPLATE.replace(
+        "{{LOCAL_AUTH_PROVIDER}}", _format_auth_provider(project.local_auth_provider)
+    ).replace(
+        "{{PROD_AUTH_PROVIDER}}", _format_auth_provider(project.prod_auth_provider)
+    )
+
+
+def render_web_app_auth(project: ProjectSpec) -> str:
+    return WEB_APP_AUTH_TEMPLATE.replace(
+        "{{LOCAL_AUTH_PROVIDER}}", _format_auth_provider(project.local_auth_provider)
+    ).replace(
+        "{{PROD_AUTH_PROVIDER}}", _format_auth_provider(project.prod_auth_provider)
+    )
+
+
+def render_web_auth_runtime(project: ProjectSpec) -> str:
+    return WEB_AUTH_RUNTIME_TEMPLATE.replace(
+        "{{DEFAULT_RUNTIME}}",
+        "local" if project.local_auth_provider is not None else "prod",
+    )
+
+
+def render_web_env_example(*, backend_project: ProjectSpec) -> str:
+    lines = [
+        "# Web app environment",
+        "VITE_APP_ENV=development",
+        "NURT_RUNTIME_ENV=local",
+        f"AUTH_PROVIDER_LOCAL={_format_auth_provider(backend_project.local_auth_provider)}",
+        f"AUTH_PROVIDER_PROD={_format_auth_provider(backend_project.prod_auth_provider)}",
+        "VITE_CONVEX_URL=http://127.0.0.1:3210",
+    ]
+    if backend_project.uses_better_auth:
+        lines.extend(
+            [
+                "VITE_CONVEX_SITE_URL=http://127.0.0.1:3211",
+                "VITE_SITE_URL=http://localhost:3000",
+            ]
+        )
+    if backend_project.uses_clerk_auth:
+        lines.extend(
+            [
+                "VITE_CLERK_PUBLISHABLE_KEY_LOCAL=",
+                "VITE_CLERK_PUBLISHABLE_KEY_PROD=",
+            ]
+        )
+    return "\n".join(lines) + "\n"
+
+
+def render_backend_env_example(project: ProjectSpec) -> str:
+    lines = [
+        "# Backend environment",
+        "BACKEND_APP_ENV=development",
+        "NURT_RUNTIME_ENV=local",
+        f"AUTH_PROVIDER_LOCAL={_format_auth_provider(project.local_auth_provider)}",
+        f"AUTH_PROVIDER_PROD={_format_auth_provider(project.prod_auth_provider)}",
+        "CONVEX_SELF_HOSTED_URL=http://127.0.0.1:3210",
+        "CONVEX_SELF_HOSTED_ADMIN_KEY=",
+        "CONVEX_SELF_HOSTED_SITE_URL=http://127.0.0.1:3211",
+        "CONVEX_DEPLOYMENT=",
+    ]
+    if project.uses_better_auth:
+        lines.append("SITE_URL=http://localhost:3000")
+    if project.uses_clerk_auth:
+        lines.extend(
+            [
+                "CLERK_JWT_ISSUER_DOMAIN_LOCAL=",
+                "CLERK_JWT_ISSUER_DOMAIN_PROD=",
+            ]
+        )
+    return "\n".join(lines) + "\n"
+
+
 def render_target_env_example(project: ProjectSpec) -> str:
+    if project.kind == "backend":
+        return render_backend_env_example(project)
     return load_template_text(TARGET_ENV_TEMPLATE_FILES[project.kind])
+
+
+def render_compose_yaml(*, web_project: ProjectSpec) -> str:
+    return COMPOSE_TEMPLATE.replace("{{WEB_ROOT}}", project_relative_root(web_project))
+
+
+def render_compose_override_yaml(*, web_project: ProjectSpec) -> str:
+    return COMPOSE_OVERRIDE_TEMPLATE.replace(
+        "{{WEB_ROOT}}", project_relative_root(web_project)
+    )
 
 
 def scaffold_python_lane(
@@ -1427,13 +1744,15 @@ def scaffold_backend_project(*, output_root: Path, project: ProjectSpec) -> None
     (backend_root / "tsconfig.json").write_text(
         BACKEND_TSCONFIG_TEMPLATE, encoding="utf-8"
     )
-    (backend_root / "README.md").write_text(BACKEND_README_TEMPLATE, encoding="utf-8")
+    (backend_root / "README.md").write_text(
+        render_backend_readme(project), encoding="utf-8"
+    )
     (backend_root / ".env.example").write_text(
         render_target_env_example(project), encoding="utf-8"
     )
-    if project.auth is not None:
+    if project.auth_matrix_enabled:
         (convex_dir / "auth.config.ts").write_text(
-            BACKEND_AUTH_CONFIG_TEMPLATE.replace("{{AUTH_PROVIDER}}", project.auth),
+            render_backend_auth_config(project),
             encoding="utf-8",
         )
 
@@ -1561,19 +1880,18 @@ def scaffold_web_backend_env_examples(
     }
     for web_project in (project for project in projects if project.kind == "web"):
         backend = backend_by_name.get(web_project.backend_binding or "")
-        if backend is None or backend.auth is None:
+        if backend is None or not backend.auth_matrix_enabled:
             continue
-        auth_templates = AUTH_ENV_TEMPLATE_FILES[backend.auth]
         (
             output_root / Path(project_relative_root(web_project)) / ".env.example"
         ).write_text(
-            load_template_text(auth_templates["web"]),
+            render_web_env_example(backend_project=backend),
             encoding="utf-8",
         )
         (
             output_root / Path(project_relative_root(backend)) / ".env.example"
         ).write_text(
-            load_template_text(auth_templates["backend"]),
+            render_backend_env_example(backend),
             encoding="utf-8",
         )
 
@@ -1586,20 +1904,44 @@ def scaffold_web_backend_auth_wiring(
     }
     for web_project in (project for project in projects if project.kind == "web"):
         backend = backend_by_name.get(web_project.backend_binding or "")
-        if backend is None or backend.auth is None:
+        if backend is None or not backend.auth_matrix_enabled:
             continue
         web_src_dir = output_root / Path(project_relative_root(web_project)) / "src"
         web_src_dir.mkdir(parents=True, exist_ok=True)
-        if backend.auth == "clerk":
+        (web_src_dir / "app-auth.ts").write_text(
+            render_web_app_auth(backend), encoding="utf-8"
+        )
+        (web_src_dir / "auth-runtime.ts").write_text(
+            render_web_auth_runtime(backend), encoding="utf-8"
+        )
+        if backend.uses_clerk_auth:
             (web_src_dir / "auth-provider.ts").write_text(
                 WEB_AUTH_PROVIDER_CLERK_TEMPLATE,
                 encoding="utf-8",
             )
-        elif backend.auth == "better-auth":
+        if backend.uses_better_auth:
             (web_src_dir / "auth-client.ts").write_text(
                 WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE,
                 encoding="utf-8",
             )
+
+
+def scaffold_fullstack_compose_assets(
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
+) -> None:
+    web_projects = tuple(project for project in projects if project.kind == "web")
+    backend_projects = tuple(
+        project for project in projects if project.kind == "backend"
+    )
+    if not web_projects or not backend_projects:
+        return
+    primary_web = web_projects[0]
+    (output_root / "compose.yaml").write_text(
+        render_compose_yaml(web_project=primary_web), encoding="utf-8"
+    )
+    (output_root / "compose.override.yaml").write_text(
+        render_compose_override_yaml(web_project=primary_web), encoding="utf-8"
+    )
 
 
 def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
@@ -1644,6 +1986,7 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
 
     scaffold_web_backend_env_examples(output_root=plan.output, projects=plan.projects)
     scaffold_web_backend_auth_wiring(output_root=plan.output, projects=plan.projects)
+    scaffold_fullstack_compose_assets(output_root=plan.output, projects=plan.projects)
 
 
 def execute_scaffold(plan: ScaffoldPlan) -> None:

@@ -343,6 +343,78 @@ def prompt_backend_auth_for_project(
         )
 
 
+def _normalize_auth_choice(value: str) -> str | None:
+    return None if value == "none" else value
+
+
+def _format_auth_choice(value: str | None) -> str:
+    return value if value is not None else "none"
+
+
+def _supported_prod_auth_choices(local_auth: str) -> tuple[str, ...]:
+    if local_auth == "clerk":
+        return ("clerk",)
+    if local_auth == "better-auth":
+        return ("better-auth", "clerk")
+    return ("none",)
+
+
+def prompt_backend_auth_matrix_for_project(
+    *, ui_config: InteractiveUIConfig, backend_name: str
+) -> tuple[str | None, str | None]:
+    render_auth_menu(config=ui_config)
+    while True:
+        try:
+            local_auth = ask_user_input(
+                config=ui_config,
+                prompt=f"Local auth for backend '{backend_name}' [none]: ",
+                default="none",
+            ).lower()
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_AUTH_REMEDIATION) from exc
+        if local_auth in {"1", "clerk"}:
+            local_auth = "clerk"
+            break
+        if local_auth in {"2", "better-auth"}:
+            local_auth = "better-auth"
+            break
+        if local_auth in {"", "3", "none"}:
+            local_auth = "none"
+            break
+        print(
+            "Invalid auth choice. Use 1, 2, 3, clerk, better-auth, or none.",
+            file=sys.stderr,
+        )
+
+    allowed_prod = _supported_prod_auth_choices(local_auth)
+    if allowed_prod == ("none",):
+        return None, None
+    if len(allowed_prod) == 1:
+        return _normalize_auth_choice(local_auth), _normalize_auth_choice(
+            allowed_prod[0]
+        )
+
+    while True:
+        try:
+            user_input = ask_user_input(
+                config=ui_config,
+                prompt=(
+                    f"Prod auth for backend '{backend_name}' "
+                    f"[{allowed_prod[0]}] ({', '.join(allowed_prod)}): "
+                ),
+                default=allowed_prod[0],
+            ).lower()
+        except EOFError as exc:
+            raise RuntimeError(INTERACTIVE_AUTH_REMEDIATION) from exc
+        candidate = user_input or allowed_prod[0]
+        if candidate in allowed_prod:
+            return _normalize_auth_choice(local_auth), _normalize_auth_choice(candidate)
+        print(
+            "Invalid prod auth choice. Use one of: " + ", ".join(allowed_prod),
+            file=sys.stderr,
+        )
+
+
 def prompt_web_backend_binding(
     *, ui_config: InteractiveUIConfig, web_name: str, backend_names: tuple[str, ...]
 ) -> str:
@@ -461,8 +533,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     new_parser.add_argument("--project", action="append")
     new_parser.add_argument("--backend-auth", action="append")
+    new_parser.add_argument("--backend-local-auth", action="append")
+    new_parser.add_argument("--backend-prod-auth", action="append")
     new_parser.add_argument("--web-backend", action="append")
     new_parser.add_argument("--auth", choices=AUTH_CHOICES)
+    new_parser.add_argument("--local-auth", choices=AUTH_CHOICES)
+    new_parser.add_argument("--prod-auth", choices=AUTH_CHOICES)
     new_parser.add_argument(
         "--install-core-tools",
         action=argparse.BooleanOptionalAction,
@@ -630,8 +706,16 @@ def handle_new(args: argparse.Namespace) -> int:
     selected_targets: list[str]
     selected_projects: list[str] = list(getattr(args, "project", None) or [])
     selected_backend_auths: list[str] = list(getattr(args, "backend_auth", None) or [])
+    selected_backend_local_auths: list[str] = list(
+        getattr(args, "backend_local_auth", None) or []
+    )
+    selected_backend_prod_auths: list[str] = list(
+        getattr(args, "backend_prod_auth", None) or []
+    )
     selected_web_backends: list[str] = list(getattr(args, "web_backend", None) or [])
     selected_auth = args.auth
+    selected_local_auth = getattr(args, "local_auth", None)
+    selected_prod_auth = getattr(args, "prod_auth", None)
     install_core_tools = args.install_core_tools
     install_bmad = args.install_bmad
     try:
@@ -715,18 +799,44 @@ def handle_new(args: argparse.Namespace) -> int:
             if project.split(":", 1)[0] == "web"
         )
 
-        if backend_names and not selected_backend_auths:
+        if backend_names and not any(
+            (
+                selected_backend_auths,
+                selected_backend_local_auths,
+                selected_backend_prod_auths,
+            )
+        ):
             if selected_auth is not None:
                 selected_backend_auths.extend(
                     f"{backend_name}:{selected_auth}" for backend_name in backend_names
                 )
+            elif selected_local_auth is not None or selected_prod_auth is not None:
+                if selected_local_auth is None or selected_prod_auth is None:
+                    print(
+                        "Error: both --local-auth and --prod-auth are required when using split auth configuration.",
+                        file=sys.stderr,
+                    )
+                    return 1
+                selected_backend_local_auths.extend(
+                    f"{backend_name}:{selected_local_auth}"
+                    for backend_name in backend_names
+                )
+                selected_backend_prod_auths.extend(
+                    f"{backend_name}:{selected_prod_auth}"
+                    for backend_name in backend_names
+                )
             elif not args.no_interactive:
                 for backend_name in backend_names:
-                    backend_auth = prompt_backend_auth_for_project(
+                    local_auth, prod_auth = prompt_backend_auth_matrix_for_project(
                         ui_config=ui_config,
                         backend_name=backend_name,
                     )
-                    selected_backend_auths.append(f"{backend_name}:{backend_auth}")
+                    selected_backend_local_auths.append(
+                        f"{backend_name}:{_format_auth_choice(local_auth)}"
+                    )
+                    selected_backend_prod_auths.append(
+                        f"{backend_name}:{_format_auth_choice(prod_auth)}"
+                    )
 
         if web_names and len(backend_names) == 1 and not selected_web_backends:
             selected_web_backends.extend(
@@ -773,8 +883,16 @@ def handle_new(args: argparse.Namespace) -> int:
 
     if selected_auth is not None:
         scaffold_args.extend(["--auth", selected_auth])
+    if selected_local_auth is not None:
+        scaffold_args.extend(["--local-auth", selected_local_auth])
+    if selected_prod_auth is not None:
+        scaffold_args.extend(["--prod-auth", selected_prod_auth])
     for backend_auth in selected_backend_auths:
         scaffold_args.extend(["--backend-auth", backend_auth])
+    for backend_local_auth in selected_backend_local_auths:
+        scaffold_args.extend(["--backend-local-auth", backend_local_auth])
+    for backend_prod_auth in selected_backend_prod_auths:
+        scaffold_args.extend(["--backend-prod-auth", backend_prod_auth])
     for web_backend in selected_web_backends:
         scaffold_args.extend(["--web-backend", web_backend])
 
@@ -814,7 +932,15 @@ def handle_new(args: argparse.Namespace) -> int:
         render_completion_overview(
             project_root=output_path,
             targets=tuple(selected_targets),
-            auth=selected_auth,
+            auth=(
+                selected_auth
+                or (
+                    f"{selected_local_auth}/{selected_prod_auth}"
+                    if selected_local_auth is not None
+                    and selected_prod_auth is not None
+                    else None
+                )
+            ),
             install_bmad=bool(install_bmad),
             install_core_tools=bool(install_core_tools),
         )

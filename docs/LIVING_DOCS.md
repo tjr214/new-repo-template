@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `9.0` are complete, and feature `10.0` now has a locked pre-build plan: the next open execution front is the `web + backend` local-dev/auth slice that will establish the release-candidate local runtime model before the broader manual platform validation pass.
+The template implementation remains intact, features `5.0` through `9.0` are complete, and feature `10.0` slice 1 is now implemented: generated `web + backend` repos now scaffold the locked local/prod auth matrix and Docker local-dev assets, and the next open execution front is manual/runtime validation of those outputs before the broader RC1 platform pass.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
-- Root `PLAN.md` now carries the comprehensive restart-safe feature `10.0` pre-build plan for web/backend local-dev, auth-provider selection, and release-candidate validation order, while root `PROGRESS.md` remains the active cumulative tracker.
+- Root `PLAN.md` now carries the restart-safe feature `10.0` implementation closeout and next-step plan, while root `PROGRESS.md` remains the active cumulative tracker.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -60,6 +60,15 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - Default generated-repo auth posture for the upcoming slice is now locked as `local=better-auth` and `prod=clerk`.
 - The research pass also locked two important auth findings for planning: Clerk development and production instances keep users separate by default, and Better Auth remains the practical path for truly offline local auth when paired with self-hosted Convex.
 - One BTCA governance caveat remains open for the next YELLOW pass: the current project `convex-docs` resource is only an archived stub, so authoritative self-hosted Convex auth guidance is not yet available from the present BTCA project resource set.
+- Feature `10.0` slice 1 is now implemented in the scaffold/CLI layer: generated fullstack repos accept split local/prod auth configuration, keep legacy single-auth shorthands for same-provider cases, and validate the supported RC1 auth matrix while rejecting unsupported combinations like `local=clerk` plus `prod=better-auth`.
+- `nurt new` and the underlying scaffold now support explicit local/prod auth selection through `--local-auth`, `--prod-auth`, `--backend-local-auth`, and `--backend-prod-auth`, while `--auth` and `--backend-auth` continue to act as shorthand for same-provider local/prod selections.
+- Generated web scaffolds now include a provider-neutral auth boundary at `src/app-auth.ts` and `src/auth-runtime.ts`, while provider-specific placeholder files are emitted only for the provider(s) actually used by the selected auth matrix.
+- Generated backend scaffolds now emit a runtime-aware `convex/auth.config.ts` that switches by `NURT_RUNTIME_ENV` between Clerk and Better Auth wiring instead of assuming a single provider for every environment.
+- Generated `web+backend` outputs now scaffold root `compose.yaml` plus `compose.override.yaml`, with the override file carrying the self-hosted Convex backend and dashboard services based on the official Convex Better Auth example image/port layout.
+- Generated backend and web `.env.example` files now describe the local/prod auth matrix directly (`AUTH_PROVIDER_LOCAL`, `AUTH_PROVIDER_PROD`) and include the local self-hosted Convex URL placeholders needed for the Docker-driven local-dev path.
+- The generated backend README now documents the Docker local-dev startup path (`docker compose up`) and the split between local self-hosted Convex and production Convex Cloud.
+- The template repo's own BTCA generation now includes backend auth resources from both sides of the selected local/prod matrix so mixed Better Auth + Clerk setups still receive the relevant dependency context.
+- The implementation slice is fully revalidated: targeted auth/runtime contracts are green, `uv run ruff check src/new_repo_template tests/contracts` is green, snapshot metadata was refreshed via `nurt template-assets validate`, and the full repository suite now passes at 245 tests.
 
 ## Active Implementation Rules
 

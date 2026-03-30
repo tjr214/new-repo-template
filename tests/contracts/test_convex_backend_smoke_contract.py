@@ -101,10 +101,10 @@ def test_generated_backend_supports_credentialless_convex_cli_help_smokes(
         "Backend README should define local cloud-dev flow"
     )
     backend_readme = backend_readme_path.read_text(encoding="utf-8")
-    assert "bun run convex:dev" in backend_readme
-    assert "AUTH_PROVIDER" in backend_readme
-    assert "Clerk" in backend_readme
-    assert "Better Auth" in backend_readme
+    assert "docker compose up" in backend_readme
+    assert "AUTH_PROVIDER_LOCAL" in backend_readme or "local:" in backend_readme
+    assert "Convex Cloud" in backend_readme
+    assert "better auth" in backend_readme.lower()
 
     codegen_help_result = run_bun_command(
         bun_binary=bun_binary,

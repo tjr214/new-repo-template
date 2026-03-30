@@ -65,6 +65,8 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
     backend_schema = backend_root / "convex" / "schema.ts"
     backend_auth = backend_root / "convex" / "auth.config.ts"
     web_auth = web_root / "src" / "auth-provider.ts"
+    web_app_auth = web_root / "src" / "app-auth.ts"
+    web_auth_runtime = web_root / "src" / "auth-runtime.ts"
     shared_package = output_dir / "packages" / "shared" / "package.json"
     shared_index = output_dir / "packages" / "shared" / "src" / "index.ts"
 
@@ -81,6 +83,8 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
         backend_schema,
         backend_auth,
         web_auth,
+        web_app_auth,
+        web_auth_runtime,
         shared_package,
         shared_index,
     ):
@@ -92,9 +96,11 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
     assert "name" in web_app_config.read_text(encoding="utf-8")
     assert "defineConfig" in web_vite_config.read_text(encoding="utf-8")
     assert "createRootRoute" in web_root_route.read_text(encoding="utf-8")
-    assert 'provider: "clerk"' in backend_auth.read_text(encoding="utf-8")
-    assert "CLERK_FRONTEND_API_URL" in backend_auth.read_text(encoding="utf-8")
-    assert "VITE_CLERK_PUBLISHABLE_KEY" in web_auth.read_text(encoding="utf-8")
+    assert 'local: "clerk"' in backend_auth.read_text(encoding="utf-8")
+    assert 'prod: "clerk"' in backend_auth.read_text(encoding="utf-8")
+    assert "CLERK_JWT_ISSUER_DOMAIN_LOCAL" in backend_auth.read_text(encoding="utf-8")
+    assert "VITE_CLERK_PUBLISHABLE_KEY_LOCAL" in web_auth.read_text(encoding="utf-8")
+    assert 'provider: "clerk"' in web_app_auth.read_text(encoding="utf-8")
 
     web_package_data = json.loads(
         (web_root / "package.json").read_text(encoding="utf-8")
@@ -143,16 +149,27 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
         output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
     )
     web_auth = output_dir / "apps" / "web" / "web" / "src" / "auth-client.ts"
+    web_app_auth = output_dir / "apps" / "web" / "web" / "src" / "app-auth.ts"
+    web_auth_runtime = output_dir / "apps" / "web" / "web" / "src" / "auth-runtime.ts"
     shared_package = output_dir / "packages" / "shared" / "package.json"
 
-    for path in (web_index_route, backend_http, backend_auth, web_auth, shared_package):
+    for path in (
+        web_index_route,
+        backend_http,
+        backend_auth,
+        web_auth,
+        web_app_auth,
+        web_auth_runtime,
+        shared_package,
+    ):
         assert path.exists(), f"Expected scaffolded file: {path}"
 
     assert "createFileRoute" in web_index_route.read_text(encoding="utf-8")
     assert "@generated/shared" in web_index_route.read_text(encoding="utf-8")
-    assert 'provider: "better-auth"' in backend_auth.read_text(encoding="utf-8")
-    assert "SITE_URL" in backend_auth.read_text(encoding="utf-8")
+    assert "getAuthConfigProvider" in backend_auth.read_text(encoding="utf-8")
+    assert "SITE_URL" in web_auth.read_text(encoding="utf-8")
     assert "better auth" in web_auth.read_text(encoding="utf-8").lower()
+    assert 'provider: "better-auth"' in web_app_auth.read_text(encoding="utf-8")
 
 
 def test_web_backend_dry_run_lists_concrete_framework_wiring_paths(

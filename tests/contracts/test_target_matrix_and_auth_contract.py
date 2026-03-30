@@ -73,6 +73,53 @@ def test_backend_desktop_requires_explicit_auth_in_non_interactive_mode(
     assert "auth option is required when backend target is selected" in result.stderr
 
 
+def test_split_auth_requires_both_local_and_prod_values(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "backend-missing-prod-auth"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "backend",
+            "--local-auth",
+            "better-auth",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert "both local and prod auth providers must be set" in result.stderr
+
+
+def test_unsupported_split_auth_combo_fails_with_clear_guidance(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "backend-unsupported-auth-combo"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "backend",
+            "--local-auth",
+            "clerk",
+            "--prod-auth",
+            "better-auth",
+            "--no-interactive",
+            "--dry-run",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 2
+    assert "unsupported backend auth combination" in result.stderr
+    assert "clerk/better-auth" in result.stderr
+
+
 def test_backend_with_none_auth_succeeds_and_is_dry_run_only(tmp_path: Path) -> None:
     """RED: backend-only preset should accept an explicit no-auth choice."""
 
@@ -369,10 +416,16 @@ def test_web_backend_clerk_env_examples_include_required_placeholders(
         output_dir / "apps" / "backend" / "backend" / ".env.example"
     ).read_text(encoding="utf-8")
 
-    assert "VITE_CONVEX_URL=" in web_env
-    assert "VITE_CLERK_PUBLISHABLE_KEY=" in web_env
-    assert "CONVEX_DEPLOYMENT=" in backend_env
-    assert "CLERK_FRONTEND_API_URL=" in backend_env
+    assert "AUTH_PROVIDER_LOCAL=clerk" in web_env
+    assert "AUTH_PROVIDER_PROD=clerk" in web_env
+    assert "VITE_CONVEX_URL=http://127.0.0.1:3210" in web_env
+    assert "VITE_CLERK_PUBLISHABLE_KEY_LOCAL=" in web_env
+    assert "VITE_CLERK_PUBLISHABLE_KEY_PROD=" in web_env
+    assert "AUTH_PROVIDER_LOCAL=clerk" in backend_env
+    assert "AUTH_PROVIDER_PROD=clerk" in backend_env
+    assert "CONVEX_SELF_HOSTED_URL=http://127.0.0.1:3210" in backend_env
+    assert "CLERK_JWT_ISSUER_DOMAIN_LOCAL=" in backend_env
+    assert "CLERK_JWT_ISSUER_DOMAIN_PROD=" in backend_env
 
 
 def test_web_backend_better_auth_env_examples_include_required_placeholders(
@@ -411,11 +464,15 @@ def test_web_backend_better_auth_env_examples_include_required_placeholders(
         output_dir / "apps" / "backend" / "backend" / ".env.example"
     ).read_text(encoding="utf-8")
 
-    assert "VITE_CONVEX_URL=" in web_env
-    assert "VITE_CONVEX_SITE_URL=" in web_env
-    assert "VITE_SITE_URL=" in web_env
-    assert "CONVEX_DEPLOYMENT=" in backend_env
-    assert "SITE_URL=" in backend_env
+    assert "AUTH_PROVIDER_LOCAL=better-auth" in web_env
+    assert "AUTH_PROVIDER_PROD=better-auth" in web_env
+    assert "VITE_CONVEX_URL=http://127.0.0.1:3210" in web_env
+    assert "VITE_CONVEX_SITE_URL=http://127.0.0.1:3211" in web_env
+    assert "VITE_SITE_URL=http://localhost:3000" in web_env
+    assert "AUTH_PROVIDER_LOCAL=better-auth" in backend_env
+    assert "AUTH_PROVIDER_PROD=better-auth" in backend_env
+    assert "CONVEX_SELF_HOSTED_URL=http://127.0.0.1:3210" in backend_env
+    assert "SITE_URL=http://localhost:3000" in backend_env
 
 
 def test_web_backend_clerk_scaffolds_auth_wiring_placeholders(tmp_path: Path) -> None:
@@ -449,15 +506,22 @@ def test_web_backend_clerk_scaffolds_auth_wiring_placeholders(tmp_path: Path) ->
         output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
     )
     frontend_wiring = output_dir / "apps" / "web" / "web" / "src" / "auth-provider.ts"
+    shared_auth = output_dir / "apps" / "web" / "web" / "src" / "app-auth.ts"
+    auth_runtime = output_dir / "apps" / "web" / "web" / "src" / "auth-runtime.ts"
 
     assert backend_wiring.exists()
     assert frontend_wiring.exists()
+    assert shared_auth.exists()
+    assert auth_runtime.exists()
 
     backend_text = backend_wiring.read_text(encoding="utf-8")
     frontend_text = frontend_wiring.read_text(encoding="utf-8")
+    shared_text = shared_auth.read_text(encoding="utf-8")
 
-    assert 'provider: "clerk"' in backend_text
+    assert 'local: "clerk"' in backend_text
+    assert 'prod: "clerk"' in backend_text
     assert "clerk" in frontend_text.lower()
+    assert 'provider: "clerk"' in shared_text
 
 
 def test_web_backend_better_auth_scaffolds_auth_wiring_placeholders(
@@ -493,15 +557,83 @@ def test_web_backend_better_auth_scaffolds_auth_wiring_placeholders(
         output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
     )
     frontend_wiring = output_dir / "apps" / "web" / "web" / "src" / "auth-client.ts"
+    shared_auth = output_dir / "apps" / "web" / "web" / "src" / "app-auth.ts"
+    auth_runtime = output_dir / "apps" / "web" / "web" / "src" / "auth-runtime.ts"
 
     assert backend_wiring.exists()
     assert frontend_wiring.exists()
+    assert shared_auth.exists()
+    assert auth_runtime.exists()
 
     backend_text = backend_wiring.read_text(encoding="utf-8")
     frontend_text = frontend_wiring.read_text(encoding="utf-8")
+    shared_text = shared_auth.read_text(encoding="utf-8")
 
-    assert 'provider: "better-auth"' in backend_text
+    assert "getAuthConfigProvider" in backend_text
     assert "better auth" in frontend_text.lower()
+    assert 'provider: "better-auth"' in shared_text
+
+
+def test_web_backend_mixed_auth_scaffolds_provider_neutral_boundary_and_compose_files(
+    tmp_path: Path,
+) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "web-backend-mixed-auth"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--local-auth",
+            "better-auth",
+            "--prod-auth",
+            "clerk",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected mixed local/prod auth scaffold command to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    backend_wiring = (
+        output_dir / "apps" / "backend" / "backend" / "convex" / "auth.config.ts"
+    )
+    auth_provider = output_dir / "apps" / "web" / "web" / "src" / "auth-provider.ts"
+    auth_client = output_dir / "apps" / "web" / "web" / "src" / "auth-client.ts"
+    shared_auth = output_dir / "apps" / "web" / "web" / "src" / "app-auth.ts"
+    auth_runtime = output_dir / "apps" / "web" / "web" / "src" / "auth-runtime.ts"
+    compose_yaml = output_dir / "compose.yaml"
+    compose_override = output_dir / "compose.override.yaml"
+
+    for path in (
+        backend_wiring,
+        auth_provider,
+        auth_client,
+        shared_auth,
+        auth_runtime,
+        compose_yaml,
+        compose_override,
+    ):
+        assert path.exists(), f"Expected scaffolded file: {path}"
+
+    backend_text = backend_wiring.read_text(encoding="utf-8")
+    shared_text = shared_auth.read_text(encoding="utf-8")
+    compose_text = compose_override.read_text(encoding="utf-8")
+
+    assert 'local: "better-auth"' in backend_text
+    assert 'prod: "clerk"' in backend_text
+    assert 'provider: "better-auth"' in shared_text
+    assert 'provider: "clerk"' in shared_text
+    assert "convex-backend" in compose_text
+    assert "convex-dashboard" in compose_text
 
 
 def test_project_flag_supports_multiple_same_type_projects_in_dry_run(

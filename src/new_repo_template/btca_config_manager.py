@@ -23,6 +23,8 @@ CONVEX_BETTER_AUTH_RESOURCE_NAME = "convex-better-auth"
 class ProjectContext:
     kind: str
     auth: str | None = None
+    local_auth: str | None = None
+    prod_auth: str | None = None
 
 
 @dataclass(frozen=True)
@@ -251,11 +253,24 @@ def project_contexts_from_projects(
     for project in projects:
         kind = getattr(project, "kind")
         auth = getattr(project, "auth", None)
+        local_auth = getattr(project, "local_auth", None)
+        prod_auth = getattr(project, "prod_auth", None)
         if not isinstance(kind, str):
             raise ValueError("project kind must be a string")
         if auth is not None and not isinstance(auth, str):
             raise ValueError("project auth must be a string or None")
-        contexts.append(ProjectContext(kind=kind, auth=auth))
+        if local_auth is not None and not isinstance(local_auth, str):
+            raise ValueError("project local_auth must be a string or None")
+        if prod_auth is not None and not isinstance(prod_auth, str):
+            raise ValueError("project prod_auth must be a string or None")
+        contexts.append(
+            ProjectContext(
+                kind=kind,
+                auth=auth,
+                local_auth=local_auth,
+                prod_auth=prod_auth,
+            )
+        )
     return tuple(contexts)
 
 
@@ -290,13 +305,20 @@ def resolve_managed_resource_names(
                 reason=project.kind,
             )
         if project.kind == "backend":
-            auth_key = project.auth if project.auth is not None else "none"
-            for resource_name in BACKEND_AUTH_RESOURCE_NAMES.get(auth_key, ()):
-                _append_reason(
-                    reasons_by_name,
-                    resource_name=resource_name,
-                    reason=f"backend:{auth_key}",
-                )
+            auth_keys = sorted(
+                {
+                    project.auth if project.auth is not None else "none",
+                    project.local_auth if project.local_auth is not None else "none",
+                    project.prod_auth if project.prod_auth is not None else "none",
+                }
+            )
+            for auth_key in auth_keys:
+                for resource_name in BACKEND_AUTH_RESOURCE_NAMES.get(auth_key, ()):
+                    _append_reason(
+                        reasons_by_name,
+                        resource_name=resource_name,
+                        reason=f"backend:{auth_key}",
+                    )
 
     ordered_names = tuple(
         resource.name
@@ -565,14 +587,14 @@ def merge_add_mode_btca_files(
             fingerprint=fingerprint_resource(desired_resource),
         )
 
+    final_record_names_list: list[str] = []
+    for resource in final_resources:
+        resource_name = resource.get("name")
+        if isinstance(resource_name, str) and resource_name in updated_records:
+            final_record_names_list.append(resource_name)
+    final_record_names = tuple(final_record_names_list)
     final_records = tuple(
-        updated_records[resource_name]
-        for resource_name in [
-            resource.get("name")
-            for resource in final_resources
-            if isinstance(resource.get("name"), str)
-            and resource.get("name") in updated_records
-        ]
+        updated_records[resource_name] for resource_name in final_record_names
     )
 
     return MergeBtcaFilesResult(
