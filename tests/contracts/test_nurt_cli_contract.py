@@ -943,6 +943,7 @@ def test_nurt_tools_sync_dry_run_reports_action(tmp_path: Path) -> None:
     assert "turbo" in combined_output
     assert "opencode" in combined_output
     assert "btca" in combined_output
+    assert "shadcn" in combined_output
     assert "gh" in combined_output
     assert "ripgrep" in combined_output
     assert ".template_scripts" not in combined_output

@@ -60,6 +60,7 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
     web_route_tree = web_root / "src" / "routeTree.gen.ts"
     web_vite_config = web_root / "vite.config.ts"
     web_tsconfig = web_root / "tsconfig.json"
+    web_components = web_root / "components.json"
     backend_http = backend_root / "convex" / "http.ts"
     backend_schema = backend_root / "convex" / "schema.ts"
     backend_auth = backend_root / "convex" / "auth.config.ts"
@@ -68,6 +69,10 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
     web_auth_runtime = web_root / "src" / "auth-runtime.ts"
     shared_package = output_dir / "packages" / "shared" / "package.json"
     shared_index = output_dir / "packages" / "shared" / "src" / "index.ts"
+    design_tokens_package = output_dir / "packages" / "design-tokens" / "package.json"
+    design_tokens_index = output_dir / "packages" / "design-tokens" / "src" / "index.ts"
+    ui_package = output_dir / "packages" / "ui" / "package.json"
+    ui_button = output_dir / "packages" / "ui" / "src" / "components" / "button.tsx"
 
     for path in (
         web_client,
@@ -77,6 +82,7 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
         web_route_tree,
         web_vite_config,
         web_tsconfig,
+        web_components,
         backend_http,
         backend_schema,
         backend_auth,
@@ -85,6 +91,10 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
         web_auth_runtime,
         shared_package,
         shared_index,
+        design_tokens_package,
+        design_tokens_index,
+        ui_package,
+        ui_button,
     ):
         assert path.exists(), f"Expected scaffolded file: {path}"
 
@@ -107,6 +117,11 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
     assert "HeadContent" in web_root_route.read_text(encoding="utf-8")
     assert "Scripts" in web_root_route.read_text(encoding="utf-8")
     assert 'createFileRoute("/")' in web_index_route.read_text(encoding="utf-8")
+    assert "@generated/ui/components/button" in web_index_route.read_text(
+        encoding="utf-8"
+    )
+    assert "nurtDesignTokens" in web_index_route.read_text(encoding="utf-8")
+    assert "@generated/ui/components" in web_components.read_text(encoding="utf-8")
     assert 'local: "clerk"' in backend_auth.read_text(encoding="utf-8")
     assert 'prod: "clerk"' in backend_auth.read_text(encoding="utf-8")
     assert "CLERK_JWT_ISSUER_DOMAIN_LOCAL" in backend_auth.read_text(encoding="utf-8")
@@ -119,7 +134,9 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
     backend_package_data = json.loads(
         (backend_root / "package.json").read_text(encoding="utf-8")
     )
+    assert web_package_data["dependencies"]["@generated/design-tokens"] == "workspace:*"
     assert web_package_data["dependencies"]["@generated/shared"] == "workspace:*"
+    assert web_package_data["dependencies"]["@generated/ui"] == "workspace:*"
     assert "@tanstack/react-start" in web_package_data["dependencies"]
     assert backend_package_data["dependencies"]["@generated/shared"] == "workspace:*"
 
@@ -164,6 +181,8 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
     web_app_auth = output_dir / "apps" / "web" / "web" / "src" / "app-auth.ts"
     web_auth_runtime = output_dir / "apps" / "web" / "web" / "src" / "auth-runtime.ts"
     shared_package = output_dir / "packages" / "shared" / "package.json"
+    design_tokens_package = output_dir / "packages" / "design-tokens" / "package.json"
+    ui_package = output_dir / "packages" / "ui" / "package.json"
     web_client = output_dir / "apps" / "web" / "web" / "src" / "client.tsx"
     web_router = output_dir / "apps" / "web" / "web" / "src" / "router.tsx"
     web_root_route = (
@@ -183,12 +202,15 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
         web_app_auth,
         web_auth_runtime,
         shared_package,
+        design_tokens_package,
+        ui_package,
     ):
         assert path.exists(), f"Expected scaffolded file: {path}"
 
     web_index_text = web_index_route.read_text(encoding="utf-8")
     assert 'createFileRoute("/")' in web_index_text
     assert "@generated/shared" in web_index_text
+    assert "@generated/ui/components/button" in web_index_text
     assert "StartClient" in web_client.read_text(encoding="utf-8")
     assert "export function getRouter()" in web_router.read_text(encoding="utf-8")
     assert "HeadContent" in web_root_route.read_text(encoding="utf-8")
@@ -238,9 +260,12 @@ def test_web_backend_dry_run_lists_real_start_framework_wiring_paths(
     assert "apps/web/web/src/routeTree.gen.ts" in combined_output
     assert "apps/web/web/vite.config.ts" in combined_output
     assert "apps/web/web/tsconfig.json" in combined_output
+    assert "apps/web/web/components.json" in combined_output
     assert "apps/backend/backend/convex/http.ts" in combined_output
     assert "apps/backend/backend/convex/schema.ts" in combined_output
     assert "packages/shared/package.json" in combined_output
+    assert "packages/design-tokens/package.json" in combined_output
+    assert "packages/ui/package.json" in combined_output
     assert "apps/web/web/src/main.tsx" not in combined_output
     assert "apps/web/web/app.config.ts" not in combined_output
     assert "apps/web/web/index.html" not in combined_output

@@ -55,19 +55,19 @@
     - [x] If a scaffolded target materially uses a framework, library, or tool, that dependency context should be represented in the target's BTCA configuration.
     - [x] Desktop explicitly needs Electron Forge BTCA coverage.
     - [x] The same mismatch audit should be applied across all other project types before implementation mapping is finalized.
-- [ ] 10.0 DECIDE HOW COMPONENT LIBRARIES SHOULD WORK IN NURT REACT PROJECTS
+- [x] 10.0 DECIDE HOW COMPONENT LIBRARIES SHOULD WORK IN NURT REACT PROJECTS
   - [x] Discussed and locked the component-foundation direction.
     - [x] `shadcn/ui` is the default web component foundation.
     - [x] Shared design tokens are the real cross-target visual foundation.
     - [x] Mobile and TV should keep native presentation layers while consuming shared tokens/utilities where appropriate.
     - [x] Desktop should participate in the shared React model and therefore needs a React renderer upgrade.
     - [x] `nurt` should keep deterministic ownership of scaffolded component files rather than shelling out to the `shadcn` CLI during normal `nurt new` runs.
-  - [ ] Define how `nurt` will scaffold, own, extend, and update `shadcn/ui` components for web projects.
-  - [ ] Add maintainer support for the `shadcn` CLI.
-    - [ ] Define and document the global install path for the `shadcn` CLI.
-    - [ ] Update `nurt sync tools` so it can install or upgrade the `shadcn` CLI.
-  - [ ] Define how brand-new nurt-specific components should be created on top of the `shadcn/ui` web foundation and shared token system.
-  - [ ] Define the long-term component expansion and maintenance model across supported React-based project types.
+  - [x] Define how `nurt` will scaffold, own, extend, and update `shadcn/ui` components for web projects.
+  - [x] Add maintainer support for the `shadcn` CLI.
+    - [x] Define and document the global install path for the `shadcn` CLI.
+    - [x] Update `nurt sync tools` so it can install or upgrade the `shadcn` CLI.
+  - [x] Define how brand-new nurt-specific components should be created on top of the `shadcn/ui` web foundation and shared token system.
+  - [x] Define the long-term component expansion and maintenance model across supported React-based project types.
 - [ ] 11.0 PROPERLY SET UP AND TEST SHARED REACT PROJECT CAPABILITIES
   - [x] Discussed and locked the desktop React architecture direction.
     - [x] Desktop should use `Electron Forge + Vite + React` for the renderer architecture.
@@ -82,9 +82,9 @@
   - [x] Discussed and locked the first shared-vs-platform-specific content boundaries.
     - [x] Shared foundations should include design tokens, theme contracts, branding assets, shared copy/demo content, route intent, domain types/schemas, API/auth contracts, and shared hooks/utilities.
     - [x] Platform-specific layers should include rendered component implementations, layout mechanics, platform input/navigation behavior, motion details, storage/notification integrations, and native bridge/device APIs.
-  - [ ] Upgrade the desktop scaffold to a React renderer so it can participate in the shared React foundations.
-    - [ ] The first desktop React scaffold only needs to be a simple hello-world baseline.
-  - [ ] Implement the appropriate shared foundations for web, mobile, desktop, and TV React targets where applicable.
+  - [x] Upgrade the desktop scaffold to a React renderer so it can participate in the shared React foundations.
+    - [x] The first desktop React scaffold only needs to be a simple hello-world baseline.
+  - [x] Implement the first appropriate shared foundations for the currently wired React targets (`web` and `desktop`) while keeping the package boundaries ready for later mobile/TV adoption.
   - [ ] Test that the shared pieces actually work correctly across the supported React-based project types.
   - [ ] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
 - [ ] 12.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" DEMO APP ACROSS FRONTEND TYPES
@@ -107,7 +107,7 @@
   - [ ] Complete this work before RC1.
 - [ ] 15.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
   - [ ] RC1 is blocked on the planning, implementation, and validation work captured in `10.0` through `14.0`.
-    - [ ] `10.0` must lock the component-library ownership and expansion model.
+    - [x] `10.0` must lock the component-library ownership and expansion model.
     - [ ] `11.0` must establish and validate the correct shared React foundations.
     - [ ] `12.0` must establish the baseline `Welcome To Nurt` experience across frontend targets.
     - [ ] `13.0` must align the `Welcome To Nurt` experience with the chosen component approach.

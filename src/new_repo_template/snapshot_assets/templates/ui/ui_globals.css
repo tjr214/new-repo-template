@@ -1,0 +1,58 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.nurt-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.nurt-panel {
+  width: min(40rem, 100%);
+  display: grid;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.nurt-eyebrow {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nurt-copy {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.nurt-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.nurt-button {
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.nurt-button:hover {
+  transform: translateY(-1px);
+}
+
+.nurt-button:active {
+  transform: translateY(0);
+}

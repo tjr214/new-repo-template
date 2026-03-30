@@ -47,6 +47,8 @@ class ExistingRepoState:
     repo_root: Path
     projects: tuple[scaffold.ProjectSpec, ...]
     has_shared_package: bool
+    has_design_tokens_package: bool
+    has_ui_package: bool
 
     @property
     def backend_projects(self) -> tuple[scaffold.ProjectSpec, ...]:
@@ -82,6 +84,8 @@ class AddPlan:
     requested_projects: tuple[scaffold.ProjectSpec, ...]
     combined_projects: tuple[scaffold.ProjectSpec, ...]
     create_shared_package: bool
+    create_design_tokens_package: bool
+    create_ui_package: bool
     write_root_python_workspace: bool
     root_python_workspace_content: str | None
     retrofit_python_apps: tuple[scaffold.ProjectSpec, ...]
@@ -178,6 +182,10 @@ def inventory_existing_repo(*, repo_root: Path) -> ExistingRepoState:
         has_shared_package=(
             repo_root / "packages" / "shared" / "package.json"
         ).exists(),
+        has_design_tokens_package=(
+            repo_root / "packages" / "design-tokens" / "package.json"
+        ).exists(),
+        has_ui_package=(repo_root / "packages" / "ui" / "package.json").exists(),
     )
 
 
@@ -440,13 +448,34 @@ def build_add_plan(
 
     create_shared_package = False
     if (
-        any(project.kind in {"web", "backend"} for project in combined_projects)
+        any(
+            project.kind in {"web", "backend", "desktop"}
+            for project in combined_projects
+        )
         and not existing_state.has_shared_package
     ):
         create_shared_package = True
         retrofits.append(
-            "create packages/shared for the supported web/backend workspace combo"
+            "create packages/shared for the shared frontend/backend copy layer"
         )
+
+    create_design_tokens_package = False
+    if (
+        any(project.kind in {"web", "desktop"} for project in combined_projects)
+        and not existing_state.has_design_tokens_package
+    ):
+        create_design_tokens_package = True
+        retrofits.append(
+            "create packages/design-tokens for the shared frontend theme contract"
+        )
+
+    create_ui_package = False
+    if (
+        any(project.kind == "web" for project in combined_projects)
+        and not existing_state.has_ui_package
+    ):
+        create_ui_package = True
+        retrofits.append("create packages/ui for the owned web component foundation")
 
     retrofit_python_apps: list[scaffold.ProjectSpec] = []
     if any(project.kind == "python-lib" for project in requested_projects):
@@ -541,6 +570,8 @@ def build_add_plan(
         requested_projects=requested_projects,
         combined_projects=tuple(combined_projects),
         create_shared_package=create_shared_package,
+        create_design_tokens_package=create_design_tokens_package,
+        create_ui_package=create_ui_package,
         write_root_python_workspace=write_root_python_workspace,
         root_python_workspace_content=root_python_workspace_content,
         retrofit_python_apps=tuple(retrofit_python_apps),
@@ -713,6 +744,18 @@ def _stage_scaffold_content(plan: AddPlan) -> Path:
             projects=plan.combined_projects,
         )
 
+    if plan.create_design_tokens_package:
+        scaffold.scaffold_design_tokens_workspace_package(
+            output_root=stage_root,
+            projects=plan.combined_projects,
+        )
+
+    if plan.create_ui_package:
+        scaffold.scaffold_ui_workspace_package(
+            output_root=stage_root,
+            projects=plan.combined_projects,
+        )
+
     if plan.write_root_python_workspace:
         assert plan.root_python_workspace_content is not None
         (stage_root / "pyproject.toml").write_text(
@@ -855,6 +898,7 @@ def _patch_desktop_for_shared(
         dependencies = {}
         package_data["dependencies"] = dependencies
     dependencies.setdefault("@generated/shared", "workspace:*")
+    dependencies.setdefault("@generated/design-tokens", "workspace:*")
     package_text = json.dumps(package_data, indent=2) + "\n"
     transaction.write_text(package_json_path, package_text)
 

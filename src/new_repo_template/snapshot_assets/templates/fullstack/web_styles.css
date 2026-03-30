@@ -1,7 +1,4 @@
-:root {
-  color-scheme: light;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-}
+@import "@generated/ui/styles/globals.css";
 
 body {
   margin: 0;

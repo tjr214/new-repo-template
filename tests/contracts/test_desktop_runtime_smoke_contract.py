@@ -85,6 +85,7 @@ def test_desktop_runtime_smoke_commands_and_unsigned_output_paths(
         )
     )
     desktop_scripts = desktop_manifest.get("scripts", {})
+    desktop_dependencies = desktop_manifest.get("dependencies", {})
 
     assert desktop_scripts.get("desktop:start") == "electron-forge start"
     assert desktop_scripts.get("desktop:package") == (
@@ -100,6 +101,9 @@ def test_desktop_runtime_smoke_commands_and_unsigned_output_paths(
     assert desktop_scripts.get("desktop:make:smoke") == (
         "electron-forge make --help --outDir out/unsigned-smoke/make"
     )
+    assert desktop_dependencies.get("@generated/shared") == "workspace:*"
+    assert desktop_dependencies.get("@generated/design-tokens") == "workspace:*"
+    assert "@tanstack/react-router" in desktop_dependencies
 
     desktop_dir = output_dir / "apps" / "desktop" / "desktop"
     start_smoke_result = run_bun_command(

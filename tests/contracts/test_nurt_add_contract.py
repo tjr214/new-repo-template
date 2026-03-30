@@ -400,5 +400,7 @@ def test_nurt_add_web_retrofits_existing_desktop_for_shared_wiring(
     ).read_text(encoding="utf-8")
 
     assert desktop_manifest["dependencies"]["@generated/shared"] == "workspace:*"
-    assert "@generated/shared" in renderer_text
-    assert "NURT_WELCOME_MESSAGE" in renderer_text
+    assert desktop_manifest["dependencies"]["@generated/design-tokens"] == "workspace:*"
+    assert (repo_dir / "packages" / "design-tokens" / "package.json").exists()
+    assert (repo_dir / "packages" / "ui" / "package.json").exists()
+    assert "RouterProvider" in renderer_text

@@ -185,6 +185,7 @@ LIBRARY_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
 WEB_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/web/vite.config.ts",
     "apps/web/tsconfig.json",
+    "apps/web/components.json",
     "apps/web/src/",
     "apps/web/src/client.tsx",
     "apps/web/src/router.tsx",
@@ -207,10 +208,15 @@ DESKTOP_FRAMEWORK_PATHS: tuple[str, ...] = (
     "apps/desktop/README.md",
     "apps/desktop/forge.config.ts",
     "apps/desktop/tsconfig.json",
+    "apps/desktop/vite.main.config.ts",
+    "apps/desktop/vite.preload.config.ts",
+    "apps/desktop/vite.renderer.config.ts",
     "apps/desktop/index.html",
     "apps/desktop/src/",
+    "apps/desktop/src/app.ts",
     "apps/desktop/src/main.ts",
     "apps/desktop/src/preload.ts",
+    "apps/desktop/src/router.ts",
     "apps/desktop/src/renderer.ts",
 )
 
@@ -254,6 +260,26 @@ SHARED_WORKSPACE_PATHS: tuple[str, ...] = (
     "packages/shared/package.json",
     "packages/shared/src/",
     "packages/shared/src/index.ts",
+)
+
+DESIGN_TOKENS_WORKSPACE_PATHS: tuple[str, ...] = (
+    "packages/design-tokens/",
+    "packages/design-tokens/package.json",
+    "packages/design-tokens/src/",
+    "packages/design-tokens/src/index.ts",
+)
+
+UI_WORKSPACE_PATHS: tuple[str, ...] = (
+    "packages/ui/",
+    "packages/ui/package.json",
+    "packages/ui/src/",
+    "packages/ui/src/index.ts",
+    "packages/ui/src/components/",
+    "packages/ui/src/components/button.tsx",
+    "packages/ui/src/lib/",
+    "packages/ui/src/lib/utils.ts",
+    "packages/ui/src/styles/",
+    "packages/ui/src/styles/globals.css",
 )
 
 PYTHON_PATHS: tuple[str, ...] = (
@@ -389,21 +415,33 @@ WEB_INDEX_ROUTE_TEMPLATE = load_template_text("fullstack/web_index_route.tsx")
 WEB_ROUTE_TREE_TEMPLATE = load_template_text("fullstack/web_route_tree.gen.ts")
 WEB_VITE_CONFIG_TEMPLATE = load_template_text("fullstack/web_vite.config.ts")
 WEB_TSCONFIG_TEMPLATE = load_template_text("fullstack/web_tsconfig.json")
+WEB_COMPONENTS_JSON_TEMPLATE = load_template_text("fullstack/web_components.json")
 WEB_STYLES_TEMPLATE = load_template_text("fullstack/web_styles.css")
 BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
 BACKEND_SCHEMA_TEMPLATE = load_template_text("fullstack/backend_schema.ts")
 BACKEND_README_TEMPLATE = load_template_text("fullstack/backend_readme.md")
 COMPOSE_TEMPLATE = load_template_text("fullstack/compose.yaml")
 COMPOSE_OVERRIDE_TEMPLATE = load_template_text("fullstack/compose.override.yaml")
+DESKTOP_APP_TEMPLATE = load_template_text("desktop/desktop_app.ts")
 DESKTOP_MAIN_TEMPLATE = load_template_text("desktop/desktop_main.ts")
 DESKTOP_PRELOAD_TEMPLATE = load_template_text("desktop/desktop_preload.ts")
 DESKTOP_RENDERER_TEMPLATE = load_template_text("desktop/desktop_renderer.ts")
 DESKTOP_RENDERER_WITH_SHARED_TEMPLATE = load_template_text(
     "desktop/desktop_renderer_with_shared.ts"
 )
+DESKTOP_ROUTER_TEMPLATE = load_template_text("desktop/desktop_router.ts")
 DESKTOP_INDEX_HTML_TEMPLATE = load_template_text("desktop/desktop_index.html")
 DESKTOP_TSCONFIG_TEMPLATE = load_template_text("desktop/desktop_tsconfig.json")
 DESKTOP_FORGE_CONFIG_TEMPLATE = load_template_text("desktop/desktop_forge.config.ts")
+DESKTOP_VITE_MAIN_CONFIG_TEMPLATE = load_template_text(
+    "desktop/desktop_vite.main.config.ts"
+)
+DESKTOP_VITE_PRELOAD_CONFIG_TEMPLATE = load_template_text(
+    "desktop/desktop_vite.preload.config.ts"
+)
+DESKTOP_VITE_RENDERER_CONFIG_TEMPLATE = load_template_text(
+    "desktop/desktop_vite.renderer.config.ts"
+)
 DESKTOP_README_TEMPLATE = load_template_text("desktop/desktop_readme.md")
 MOBILE_APP_JSON_TEMPLATE = load_template_text("mobile/mobile_app.json")
 MOBILE_EAS_JSON_TEMPLATE = load_template_text("mobile/mobile_eas.json")
@@ -452,10 +490,21 @@ TYPESCRIPT_LIBRARY_TEST_TEMPLATE = load_template_text(
     "typescript_lib/typescript_lib_test.ts"
 )
 SHARED_PACKAGE_TEMPLATE = load_template_text("workspace_packages/shared_package.json")
+DESIGN_TOKENS_PACKAGE_TEMPLATE = load_template_text(
+    "workspace_packages/design_tokens_package.json"
+)
+UI_PACKAGE_TEMPLATE = load_template_text("workspace_packages/ui_package.json")
 DESKTOP_PACKAGE_WITH_SHARED_TEMPLATE = load_template_text(
     "workspace_packages/desktop_package_with_shared.json"
 )
+DESIGN_TOKENS_INDEX_TEMPLATE = load_template_text(
+    "design_tokens/design_tokens_index.ts"
+)
 SHARED_INDEX_TEMPLATE = load_template_text("shared/shared_index.ts")
+UI_INDEX_TEMPLATE = load_template_text("ui/ui_index.ts")
+UI_BUTTON_TEMPLATE = load_template_text("ui/ui_button.tsx")
+UI_UTILS_TEMPLATE = load_template_text("ui/ui_utils.ts")
+UI_GLOBALS_TEMPLATE = load_template_text("ui/ui_globals.css")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
 PYTHON_LANE_PYTHON_VERSION = load_template_text(
     "python_lane_python_version.txt"
@@ -1037,10 +1086,20 @@ def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
             paths.append(f"{project_relative_root(project)}/.env.example")
 
     has_shared_workspace = any(
-        project.kind in {"web", "backend"} for project in projects
+        project.kind in {"web", "backend", "desktop"} for project in projects
     )
     if has_shared_workspace:
         paths.extend(SHARED_WORKSPACE_PATHS)
+
+    has_design_tokens_workspace = any(
+        project.kind in {"web", "desktop"} for project in projects
+    )
+    if has_design_tokens_workspace:
+        paths.extend(DESIGN_TOKENS_WORKSPACE_PATHS)
+
+    has_ui_workspace = any(project.kind == "web" for project in projects)
+    if has_ui_workspace:
+        paths.extend(UI_WORKSPACE_PATHS)
 
     backend_by_name = {
         project.name: project for project in projects if project.kind == "backend"
@@ -1710,6 +1769,9 @@ def scaffold_web_project(*, output_root: Path, project: ProjectSpec) -> None:
     )
     (web_root / "vite.config.ts").write_text(WEB_VITE_CONFIG_TEMPLATE, encoding="utf-8")
     (web_root / "tsconfig.json").write_text(WEB_TSCONFIG_TEMPLATE, encoding="utf-8")
+    (web_root / "components.json").write_text(
+        WEB_COMPONENTS_JSON_TEMPLATE, encoding="utf-8"
+    )
     (web_src / "client.tsx").write_text(WEB_CLIENT_TEMPLATE, encoding="utf-8")
     (web_src / "router.tsx").write_text(WEB_ROUTER_TEMPLATE, encoding="utf-8")
     (web_src / "routeTree.gen.ts").write_text(WEB_ROUTE_TREE_TEMPLATE, encoding="utf-8")
@@ -1774,11 +1836,25 @@ def scaffold_desktop_project(
     (desktop_root / "tsconfig.json").write_text(
         DESKTOP_TSCONFIG_TEMPLATE, encoding="utf-8"
     )
+    (desktop_root / "vite.main.config.ts").write_text(
+        DESKTOP_VITE_MAIN_CONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
+    (desktop_root / "vite.preload.config.ts").write_text(
+        DESKTOP_VITE_PRELOAD_CONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
+    (desktop_root / "vite.renderer.config.ts").write_text(
+        DESKTOP_VITE_RENDERER_CONFIG_TEMPLATE,
+        encoding="utf-8",
+    )
     (desktop_root / "index.html").write_text(
         DESKTOP_INDEX_HTML_TEMPLATE, encoding="utf-8"
     )
+    (desktop_src / "app.ts").write_text(DESKTOP_APP_TEMPLATE, encoding="utf-8")
     (desktop_src / "main.ts").write_text(DESKTOP_MAIN_TEMPLATE, encoding="utf-8")
     (desktop_src / "preload.ts").write_text(DESKTOP_PRELOAD_TEMPLATE, encoding="utf-8")
+    (desktop_src / "router.ts").write_text(DESKTOP_ROUTER_TEMPLATE, encoding="utf-8")
     (desktop_src / "renderer.ts").write_text(
         DESKTOP_RENDERER_WITH_SHARED_TEMPLATE if has_web else DESKTOP_RENDERER_TEMPLATE,
         encoding="utf-8",
@@ -1791,7 +1867,7 @@ def scaffold_desktop_project(
 def scaffold_shared_workspace_package(
     *, output_root: Path, projects: tuple[ProjectSpec, ...]
 ) -> None:
-    if not any(project.kind in {"web", "backend"} for project in projects):
+    if not any(project.kind in {"web", "backend", "desktop"} for project in projects):
         return
     shared_src_dir = output_root / "packages" / "shared" / "src"
     shared_src_dir.mkdir(parents=True, exist_ok=True)
@@ -1800,6 +1876,42 @@ def scaffold_shared_workspace_package(
         encoding="utf-8",
     )
     (shared_src_dir / "index.ts").write_text(SHARED_INDEX_TEMPLATE, encoding="utf-8")
+
+
+def scaffold_design_tokens_workspace_package(
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
+) -> None:
+    if not any(project.kind in {"web", "desktop"} for project in projects):
+        return
+    tokens_src_dir = output_root / "packages" / "design-tokens" / "src"
+    tokens_src_dir.mkdir(parents=True, exist_ok=True)
+    (output_root / "packages" / "design-tokens" / "package.json").write_text(
+        DESIGN_TOKENS_PACKAGE_TEMPLATE,
+        encoding="utf-8",
+    )
+    (tokens_src_dir / "index.ts").write_text(
+        DESIGN_TOKENS_INDEX_TEMPLATE,
+        encoding="utf-8",
+    )
+
+
+def scaffold_ui_workspace_package(
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
+) -> None:
+    if not any(project.kind == "web" for project in projects):
+        return
+    ui_root = output_root / "packages" / "ui"
+    ui_components_dir = ui_root / "src" / "components"
+    ui_lib_dir = ui_root / "src" / "lib"
+    ui_styles_dir = ui_root / "src" / "styles"
+    ui_components_dir.mkdir(parents=True, exist_ok=True)
+    ui_lib_dir.mkdir(parents=True, exist_ok=True)
+    ui_styles_dir.mkdir(parents=True, exist_ok=True)
+    (ui_root / "package.json").write_text(UI_PACKAGE_TEMPLATE, encoding="utf-8")
+    (ui_root / "src" / "index.ts").write_text(UI_INDEX_TEMPLATE, encoding="utf-8")
+    (ui_components_dir / "button.tsx").write_text(UI_BUTTON_TEMPLATE, encoding="utf-8")
+    (ui_lib_dir / "utils.ts").write_text(UI_UTILS_TEMPLATE, encoding="utf-8")
+    (ui_styles_dir / "globals.css").write_text(UI_GLOBALS_TEMPLATE, encoding="utf-8")
 
 
 def scaffold_mobile_project(*, output_root: Path, project: ProjectSpec) -> None:
@@ -1943,6 +2055,10 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_shared_infra_packages(output_root=plan.output)
     scaffold_python_workspace_root(output_root=plan.output, projects=plan.projects)
     scaffold_shared_workspace_package(output_root=plan.output, projects=plan.projects)
+    scaffold_design_tokens_workspace_package(
+        output_root=plan.output, projects=plan.projects
+    )
+    scaffold_ui_workspace_package(output_root=plan.output, projects=plan.projects)
 
     has_web = any(project.kind == "web" for project in plan.projects)
     python_libraries = [

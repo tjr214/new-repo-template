@@ -576,6 +576,42 @@ def _sync_btca(*, cwd: Path | None) -> TaskRunner:
     return runner
 
 
+def _sync_shadcn(*, cwd: Path | None) -> TaskRunner:
+    def runner(log: LogCallback) -> ToolSyncResult:
+        tool_name = "shadcn"
+        bun_executable = _resolve_bun_executable()
+        if bun_executable is None:
+            _log_error(log, "bun is required to install or update shadcn")
+            return _failed(tool_name, "bun is required")
+
+        before = (
+            _capture_version([tool_name, "--version"])
+            if _command_exists(tool_name)
+            else None
+        )
+
+        if before is None:
+            _log_not_found(log, tool_name)
+        else:
+            _log_installed_version(log, tool_name, before)
+            _log_updating(log, tool_name)
+
+        result = _run_streamed_command(
+            [bun_executable, "add", "--global", "shadcn"],
+            log=log,
+            cwd=cwd,
+        )
+        if result.returncode != 0:
+            _log_error(log, "shadcn install/update failed")
+            return _failed(tool_name, result.output or "install/update failed")
+
+        after = _capture_version([tool_name, "--version"]) or before
+        _log_result(log, tool_name=tool_name, before=before, after=after)
+        return _result_from_versions(tool=tool_name, before=before, after=after)
+
+    return runner
+
+
 def _sync_gh(*, cwd: Path | None) -> TaskRunner:
     def runner(log: LogCallback) -> ToolSyncResult:
         tool_name = "gh"
@@ -774,6 +810,12 @@ def default_tool_tasks(*, cwd: Path | None = None) -> tuple[ToolSyncTask, ...]:
             label="btca",
             dry_run_detail="would install/update via bun add --global btca",
             runner=_sync_btca(cwd=cwd),
+        ),
+        ToolSyncTask(
+            tool="shadcn",
+            label="shadcn",
+            dry_run_detail="would install/update via bun add --global shadcn",
+            runner=_sync_shadcn(cwd=cwd),
         ),
         ToolSyncTask(
             tool="gh",

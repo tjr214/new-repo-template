@@ -22,6 +22,7 @@ def test_run_tool_sync_dry_run_reports_all_managed_tools() -> None:
         "turbo",
         "opencode",
         "btca",
+        "shadcn",
         "gh",
         "ripgrep",
     ]
