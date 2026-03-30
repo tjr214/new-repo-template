@@ -2,10 +2,10 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `9.0` are complete, and the feature `10.0` TanStack Start replacement slice is now implemented: the web lane has been corrected to a real minimal TanStack Start scaffold, the first regenerated runtime case passes on that baseline, and the remaining RC1 runtime matrix can continue on the corrected stack instead of the old placeholder web lane.
+The template implementation remains intact, features `5.0` through `9.0` are complete, the feature `10.0` TanStack Start replacement slice is implemented, and the next planning state is now substantially locked: the web component direction, shared React-foundation boundaries, and desktop React architecture are defined well enough to begin the next implementation plan from a fresh context.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
-- Root `PLAN.md` has already been reset to the next-cycle stub, while root `PROGRESS.md` remains the active cumulative tracker and the session summaries now carry the most recent runtime-validation closeout context.
+- Root `PLAN.md` is now a comprehensive restart-safe implementation plan for the next React-foundation/component-ownership cycle, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries capture the most recent planning closeout context.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -153,6 +153,9 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - Shared React-foundation scope is now clarified at the product level: the shared layer should carry the core style-and-feel identity across frontend targets while still leaving room for platform-specific rendering, interaction, and native affordances where they belong.
 - The first desktop React renderer target is intentionally minimal: a simple hello-world baseline now, with the richer cross-frontend `Welcome To Nurt` demo deferred to the later roadmap item dedicated to that shared experience.
 - The `Welcome To Nurt` roadmap item is now explicitly cross-frontend rather than web-only; once the desktop React renderer exists, desktop should adopt that shared welcome/demo baseline too.
+- Shared React boundaries are now more concrete for the next implementation slice: the common layer should carry design tokens, theme contracts, branding assets, shared copy/demo content, route intent, domain types/schemas, API/auth contracts, and shared hooks/utilities, while rendered components, layout mechanics, platform input/navigation behavior, motion details, storage/notification integrations, and native bridge/device APIs remain platform-specific.
+- `shadcn/ui` is locked as the default web component foundation, but `nurt` should still own deterministic scaffold output for that layer rather than invoking the `shadcn` CLI during normal end-user `nurt new` runs; the CLI is currently a maintainer tool concern, not a runtime scaffold dependency.
+- `Effect` has been evaluated at the planning level and is intentionally not part of the default RC1 baseline for shared/frontend work; if it is revisited later, the most plausible first adoption points are complex backend, CLI, or device-link orchestration rather than the default generated app surface.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.

@@ -61,6 +61,7 @@
     - [x] Shared design tokens are the real cross-target visual foundation.
     - [x] Mobile and TV should keep native presentation layers while consuming shared tokens/utilities where appropriate.
     - [x] Desktop should participate in the shared React model and therefore needs a React renderer upgrade.
+    - [x] `nurt` should keep deterministic ownership of scaffolded component files rather than shelling out to the `shadcn` CLI during normal `nurt new` runs.
   - [ ] Define how `nurt` will scaffold, own, extend, and update `shadcn/ui` components for web projects.
   - [ ] Add maintainer support for the `shadcn` CLI.
     - [ ] Define and document the global install path for the `shadcn` CLI.
@@ -78,6 +79,9 @@
     - [x] Shared foundations should stay flexible enough to let end-developers take advantage of platform-specific capabilities.
     - [x] Platform-specific rendering, interaction patterns, and native affordances should stay platform-specific where they should be.
     - [x] The result should still clearly feel like the same app regardless of device type.
+  - [x] Discussed and locked the first shared-vs-platform-specific content boundaries.
+    - [x] Shared foundations should include design tokens, theme contracts, branding assets, shared copy/demo content, route intent, domain types/schemas, API/auth contracts, and shared hooks/utilities.
+    - [x] Platform-specific layers should include rendered component implementations, layout mechanics, platform input/navigation behavior, motion details, storage/notification integrations, and native bridge/device APIs.
   - [ ] Upgrade the desktop scaffold to a React renderer so it can participate in the shared React foundations.
     - [ ] The first desktop React scaffold only needs to be a simple hello-world baseline.
   - [ ] Implement the appropriate shared foundations for web, mobile, desktop, and TV React targets where applicable.

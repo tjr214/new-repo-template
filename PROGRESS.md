@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-29 11:01:17 PM
-**Current Phase:** Feature `10.0` now has a real minimal TanStack Start web scaffold in place, the first regenerated runtime case has been revalidated successfully against that corrected baseline, and the next work can resume the remaining RC1 runtime/auth matrix instead of continuing on the old fake Vite-only web lane.
+**Last Updated:** 2026-03-30 12:58:05 AM
+**Current Phase:** Feature `10.0` and `11.0` planning is now materially locked: the web component direction, shared-foundation boundaries, and desktop React architecture are defined well enough to begin implementation planning for the `shadcn` ownership/tooling slice and the first desktop React hello-world/shared-foundation slice.
 
 ## Previous Cycle Archives
 
@@ -230,6 +230,10 @@
 - [x] Locked the default Electron router history mode with the user: the desktop React renderer should use `createHashHistory()` as the default `@tanstack/react-router` history strategy.
 - [x] Locked the initial `11.0` shared-foundation scope with the user: shared React work should centralize the core style-and-feel identity across frontend targets while still preserving platform-specific rendering, interaction, and native affordances where appropriate.
 - [x] Clarified the early desktop deliverable and downstream demo plan: the first desktop React renderer only needs a simple hello-world baseline, and the later `Welcome To Nurt` roadmap item should become a cross-frontend demo that desktop adopts once the React renderer exists.
+- [x] Expanded the shared-foundation planning detail with the user: the common layer should cover design tokens, theme contracts, branding assets, shared copy/demo content, route intent, domain types/schemas, API/auth contracts, and shared hooks/utilities, while rendered components, layout mechanics, platform input/navigation behavior, motion details, storage/notification integrations, and native bridge/device APIs should remain platform-specific.
+- [x] Locked the `shadcn/ui` ownership/tooling direction more tightly for the upcoming implementation plan: `nurt` should keep deterministic ownership of scaffolded web component files instead of shelling out to the `shadcn` CLI during normal `nurt new` runs, while maintainer tooling still needs explicit global install/update support.
+- [x] Evaluated `Effect` as part of the frontend/shared-foundation discussion and intentionally did not adopt it as a default baseline for RC1; it remains a possible future fit for backend, CLI, or device-link workflow complexity, but not part of the current implementation plan.
+- [x] Replaced the old root `PLAN.md` stub with a comprehensive restart-safe implementation plan covering feature `10.0` and the first feature `11.0` slice, including fresh-context read lists, locked decisions, explicit non-goals, exact execution order, and validation commands.
 - [x] Revalidated project context for the replacement slice with `btca status` and `btca ask`, confirming the real TanStack Start baseline requires `@tanstack/react-start`, the Start Vite plugin, a `getRouter()` export, a root document route with `HeadContent`/`Scripts`, and a Start client entrypoint, while the official guidance still supports cloning/building from known-good examples rather than requiring a runtime creator shell-out.
 - [x] Locked the TanStack Start replacement strategy with the user: `nurt` should continue to own deterministic scaffold templates and should mirror the required TanStack Start files directly; the official TanStack creator/CLI should be treated as maintainer reference material, not as a runtime dependency of `nurt new`.
 - [x] Synced the new planning direction across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, a new session summary, and a comprehensive restart-safe root `PLAN.md`.
