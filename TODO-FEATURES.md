@@ -55,7 +55,38 @@
     - [x] If a scaffolded target materially uses a framework, library, or tool, that dependency context should be represented in the target's BTCA configuration.
     - [x] Desktop explicitly needs Electron Forge BTCA coverage.
     - [x] The same mismatch audit should be applied across all other project types before implementation mapping is finalized.
-- [ ] 10.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
+- [ ] 10.0 DECIDE HOW COMPONENT LIBRARIES SHOULD WORK IN NURT REACT PROJECTS
+  - [ ] Discuss and lock whether `shadcn/ui` is the base component system for nurt React projects.
+  - [ ] If `shadcn/ui` is used, define how nurt will scaffold, own, extend, and update those components.
+  - [ ] Define how brand-new nurt-specific components should be created when they do not come from the base component system.
+  - [ ] Define the long-term component expansion and maintenance model across supported React-based project types.
+- [ ] 11.0 PROPERLY SET UP AND TEST SHARED REACT PROJECT CAPABILITIES
+  - [ ] Discuss and lock which code, configuration, utilities, styles, and patterns should be shared across React-based projects.
+  - [ ] Implement the appropriate shared foundations for web, mobile, desktop, and TV React targets where applicable.
+  - [ ] Test that the shared pieces actually work correctly across the supported React-based project types.
+  - [ ] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
+- [ ] 12.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" LANDING PAGE APP
+  - [ ] Discuss and lock the purpose, scope, tone, and baseline user journey before building.
+  - [ ] Design a minimal but distinct nurt-specific landing experience instead of a generic starter page.
+  - [ ] Implement the baseline landing page for the generated web app experience.
+  - [ ] Ensure the landing page feels analogous in purpose to the default framework welcome pages while still being clearly branded as nurt.
+- [ ] 13.0 UPDATE THE "WELCOME TO NURT" APP TO USE THE CHOSEN COMPONENT APPROACH
+  - [ ] Apply the component-library decision from `10.0` and the shared-foundation decisions from `11.0` to the landing page implementation.
+  - [ ] Update the landing page so it uses the real nurt component strategy rather than ad hoc markup.
+  - [ ] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt web experience.
+- [ ] 14.0 TV AUTH DEVICE-LINKING FLOW FOR ANDROID TV
+  - [ ] Discuss and lock the full TV auth experience before building.
+  - [ ] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
+  - [ ] Implement the backend, web, and TV app pieces required for the device-code linking flow.
+  - [ ] Validate that the Android TV app can complete the full account-linking flow successfully.
+  - [ ] Complete this work before RC1.
+- [ ] 15.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
+  - [ ] RC1 is blocked on the planning, implementation, and validation work captured in `10.0` through `14.0`.
+    - [ ] `10.0` must lock the component-library ownership and expansion model.
+    - [ ] `11.0` must establish and validate the correct shared React foundations.
+    - [ ] `12.0` must establish the baseline nurt landing experience.
+    - [ ] `13.0` must align the landing experience with the chosen component approach.
+    - [ ] `14.0` must deliver a working Android TV device-link auth flow.
   - [x] Discussed and locked the first RC1 execution slice before building.
     - [x] Start with `web + backend` local-dev/auth validation before broader desktop/mobile/TV runtime testing.
     - [x] Convex remains mandatory in all environments.
@@ -87,28 +118,3 @@
   - [x] We also need to be able to run local dev versions of the backend and web frontend packages. Since we use Convex, we probably need to use a docker compose file to bring up local services for the local dev mode.
   - [ ] Explicitly verify the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical validation before calling that combination RC1-ready.
   - [ ] We are going to need to thoroughly discuss ALL of these things before acting upon them.
-- [ ] 11.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" LANDING PAGE APP
-  - [ ] Discuss and lock the purpose, scope, tone, and baseline user journey before building.
-  - [ ] Design a minimal but distinct nurt-specific landing experience instead of a generic starter page.
-  - [ ] Implement the baseline landing page for the generated web app experience.
-  - [ ] Ensure the landing page feels analogous in purpose to the default framework welcome pages while still being clearly branded as nurt.
-- [ ] 12.0 DECIDE HOW COMPONENT LIBRARIES SHOULD WORK IN NURT REACT PROJECTS
-  - [ ] Discuss and lock whether `shadcn/ui` is the base component system for nurt React projects.
-  - [ ] If `shadcn/ui` is used, define how nurt will scaffold, own, extend, and update those components.
-  - [ ] Define how brand-new nurt-specific components should be created when they do not come from the base component system.
-  - [ ] Define the long-term component expansion and maintenance model across supported React-based project types.
-- [ ] 13.0 UPDATE THE "WELCOME TO NURT" APP TO USE THE CHOSEN COMPONENT APPROACH
-  - [ ] Apply the component-library decision from `12.0` to the landing page implementation.
-  - [ ] Update the landing page so it uses the real nurt component strategy rather than ad hoc markup.
-  - [ ] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt web experience.
-- [ ] 14.0 PROPERLY SET UP AND TEST SHARED REACT PROJECT CAPABILITIES
-  - [ ] Discuss and lock which code, configuration, utilities, styles, and patterns should be shared across React-based projects.
-  - [ ] Implement the appropriate shared foundations for web, mobile, desktop, and TV React targets where applicable.
-  - [ ] Test that the shared pieces actually work correctly across the supported React-based project types.
-  - [ ] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
-- [ ] 15.0 TV AUTH DEVICE-LINKING FLOW FOR ANDROID TV
-  - [ ] Discuss and lock the full TV auth experience before building.
-  - [ ] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
-  - [ ] Implement the backend, web, and TV app pieces required for the device-code linking flow.
-  - [ ] Validate that the Android TV app can complete the full account-linking flow successfully.
-  - [ ] Complete this work before RC1.
