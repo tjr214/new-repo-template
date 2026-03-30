@@ -169,4 +169,12 @@
 <branch>master</branch>
 </configured_resource>
 
+<configured_resource>
+<name>shadcn-ui</name>
+<type>git</type>
+<url>https://github.com/shadcn-ui/ui</url>
+<branch>main</branch>
+<special_notes>Official shadcn/ui docs, CLI, and templates. Use apps/v4/content/docs for docs, packages/shadcn for CLI behavior, and templates/start-monorepo for TanStack Start examples.</special_notes>
+</configured_resource>
+
 </current_btca_resources>

@@ -147,6 +147,13 @@
       "name": "mypy",
       "url": "https://github.com/python/mypy",
       "branch": "master"
+    },
+    {
+      "type": "git",
+      "name": "shadcn-ui",
+      "url": "https://github.com/shadcn-ui/ui",
+      "branch": "main",
+      "specialNotes": "Official shadcn/ui docs, CLI, and templates. Use apps/v4/content/docs for docs, packages/shadcn for CLI behavior, and templates/start-monorepo for TanStack Start examples."
     }
   ],
   "model": "gpt-5.4",

@@ -147,7 +147,8 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 
 ## Implementation Notes (M0-M1)
 
-- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`, `textual`, `rich-docs`, `pytest-textual-snapshot`, `uv`, `react-docs`, `react-native-docs`, `vite`, `electron-forge`, `electron`, `typescript-docs`, `pytest`, `ruff`, and `mypy`.
+- BTCA resources added: `turborepo`, `bun`, `tanstack-router-start`, `convex-docs`, `convex-better-auth`, `clerk-docs`, `expo-docs`, `react-native-tvos`, `expo-tv-config`, `better-auth-core`, `textual`, `rich-docs`, `pytest-textual-snapshot`, `uv`, `react-docs`, `react-native-docs`, `vite`, `electron-forge`, `electron`, `typescript-docs`, `pytest`, `ruff`, `mypy`, and `shadcn-ui`.
+- Component-system direction is now locked for the next React work: `shadcn/ui` is the default web component foundation, shared design tokens are the cross-target visual base, mobile/TV remain native presentation surfaces, and desktop now needs a React renderer upgrade so it can participate in the shared React model.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.
 - First RED result was expected and confirmed: `ModuleNotFoundError: No module named 'new_repo_template'`.

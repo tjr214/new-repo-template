@@ -56,12 +56,20 @@
     - [x] Desktop explicitly needs Electron Forge BTCA coverage.
     - [x] The same mismatch audit should be applied across all other project types before implementation mapping is finalized.
 - [ ] 10.0 DECIDE HOW COMPONENT LIBRARIES SHOULD WORK IN NURT REACT PROJECTS
-  - [ ] Discuss and lock whether `shadcn/ui` is the base component system for nurt React projects.
-  - [ ] If `shadcn/ui` is used, define how nurt will scaffold, own, extend, and update those components.
-  - [ ] Define how brand-new nurt-specific components should be created when they do not come from the base component system.
+  - [x] Discussed and locked the component-foundation direction.
+    - [x] `shadcn/ui` is the default web component foundation.
+    - [x] Shared design tokens are the real cross-target visual foundation.
+    - [x] Mobile and TV should keep native presentation layers while consuming shared tokens/utilities where appropriate.
+    - [x] Desktop should participate in the shared React model and therefore needs a React renderer upgrade.
+  - [ ] Define how `nurt` will scaffold, own, extend, and update `shadcn/ui` components for web projects.
+  - [ ] Add maintainer support for the `shadcn` CLI.
+    - [ ] Define and document the global install path for the `shadcn` CLI.
+    - [ ] Update `nurt sync tools` so it can install or upgrade the `shadcn` CLI.
+  - [ ] Define how brand-new nurt-specific components should be created on top of the `shadcn/ui` web foundation and shared token system.
   - [ ] Define the long-term component expansion and maintenance model across supported React-based project types.
 - [ ] 11.0 PROPERLY SET UP AND TEST SHARED REACT PROJECT CAPABILITIES
   - [ ] Discuss and lock which code, configuration, utilities, styles, and patterns should be shared across React-based projects.
+  - [ ] Upgrade the desktop scaffold to a React renderer so it can participate in the shared React foundations.
   - [ ] Implement the appropriate shared foundations for web, mobile, desktop, and TV React targets where applicable.
   - [ ] Test that the shared pieces actually work correctly across the supported React-based project types.
   - [ ] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
