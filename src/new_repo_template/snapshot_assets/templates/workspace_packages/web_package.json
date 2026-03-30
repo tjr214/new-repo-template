@@ -5,15 +5,18 @@
   "type": "module",
   "dependencies": {
     "@generated/shared": "workspace:*",
-    "@tanstack/react-router": "^1.163.3",
+    "@tanstack/react-router": "^1.168.8",
+    "@tanstack/react-start": "^1.167.13",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@generated/typescript-config": "workspace:*",
-    "@tanstack/router-cli": "^1.164.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3"
   },
   "scripts": {
     "dev": "bun run dev:smoke",
@@ -21,10 +24,10 @@
     "test": "bun --version",
     "lint": "bun --version",
     "typecheck": "bun run typecheck:smoke",
-    "dev:app": "vite",
-    "build:app": "vite build",
-    "router:generate": "tsr generate",
-    "router:watch": "tsr watch",
+    "dev:app": "vite dev",
+    "build:app": "vite build && tsc --noEmit",
+    "preview:app": "vite preview",
+    "typecheck:app": "tsc --noEmit",
     "dev:smoke": "vite --help",
     "build:smoke": "vite build --help",
     "typecheck:smoke": "tsc --help"

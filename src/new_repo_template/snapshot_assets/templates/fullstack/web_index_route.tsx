@@ -1,12 +1,8 @@
-import { createRoute } from "@tanstack/react-router"
-
-import { Route as rootRoute } from "./__root"
+import { createFileRoute } from "@tanstack/react-router"
 
 import { NURT_WELCOME_MESSAGE } from "@generated/shared"
 
-export const Route = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
+export const Route = createFileRoute("/")({
   component: HomePage,
 })
 

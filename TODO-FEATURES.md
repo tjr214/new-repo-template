@@ -77,13 +77,13 @@
     - [x] Fixed the generated web route baseline so it no longer crashes with duplicate `__root__` routes.
     - [x] Confirmed the first manual runtime case (`local=better-auth`, `prod=clerk`) now renders the baseline web page in the browser.
   - [ ] Thoroughly test all project types (manual step)
-  - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
-    - [ ] Current finding: the generated web lane is still plain Vite + TanStack Router, not a real TanStack Start app, so this roadmap item remains a live implementation gap.
-    - [ ] Locked implementation direction: `nurt` should mirror the required TanStack Start scaffold files directly instead of shelling out to the official TanStack creator at runtime.
+  - [x] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
+    - [x] The old finding was resolved: the generated web lane is no longer plain Vite + TanStack Router; it now scaffolds a real minimal TanStack Start app with `@tanstack/react-start`, `tanstackStart()`, `src/client.tsx`, `getRouter()`, a Start document root route, and a valid generated route-tree baseline.
+    - [x] The locked implementation direction was carried through as designed: `nurt` mirrors the required TanStack Start scaffold files directly instead of shelling out to the official TanStack creator at runtime.
   - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly
   - [ ] Test to see if the desktop app package is correctly initializing Electron. Once again, test that Electron can RUN
   - [ ] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)
   - [ ] Test to see if the TV app package is working (and can load the app onto an nVidia Shield Pro)
-  - [ ] We also need to be able to run local dev versions of the backend and web frontend packages. Since we use Convex, we probably need to use a docker compose file to bring up local services for the local dev mode.
+  - [x] We also need to be able to run local dev versions of the backend and web frontend packages. Since we use Convex, we probably need to use a docker compose file to bring up local services for the local dev mode.
   - [ ] Explicitly verify the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical validation before calling that combination RC1-ready.
   - [ ] We are going to need to thoroughly discuss ALL of these things before acting upon them.

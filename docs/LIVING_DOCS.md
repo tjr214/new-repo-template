@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `9.0` are complete, and feature `10.0` planning is now centered on a real TanStack Start replacement: the runtime pass proved that the current Vite + TanStack Router web lane is only a placeholder, so the next meaningful implementation slice is to replace that owned template correctly before the remaining RC1 runtime matrix continues.
+The template implementation remains intact, features `5.0` through `9.0` are complete, and the feature `10.0` TanStack Start replacement slice is now implemented: the web lane has been corrected to a real minimal TanStack Start scaffold, the first regenerated runtime case passes on that baseline, and the remaining RC1 runtime matrix can continue on the corrected stack instead of the old placeholder web lane.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
 - Root `PLAN.md` has already been reset to the next-cycle stub, while root `PROGRESS.md` remains the active cumulative tracker and the session summaries now carry the most recent runtime-validation closeout context.
@@ -73,10 +73,10 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - The first manual browser pass (`local=better-auth`, `prod=clerk`) uncovered a real container/runtime bug in the generated compose files: the web service was incorrectly reusing host-installed Bun dependencies inside Linux Docker. That bug is now fixed by moving source mounts and container-side dependency installation into `compose.override.yaml` and by keeping the base `compose.yaml` deployment-oriented.
 - Local Docker behavior is now cleaner too: the web service uses a Docker-managed `bun-install` volume for Linux-native Bun dependencies, and self-hosted Convex persists local data in a named `convex-data` volume.
 - The same first manual browser pass uncovered a second runtime issue in the generated web scaffold: the route setup produced duplicate `__root__` routes and a blank page. That route bug is now fixed, and the first manual case renders the baseline welcome content successfully.
-- The runtime pass also produced an important roadmap finding: despite the project language in docs and prompts, the current generated web app is still plain Vite + TanStack Router and not a real TanStack Start app. The feature `10.0` TanStack Start validation item therefore remains open as a confirmed implementation gap.
-- The TanStack Start planning discussion is now resolved on strategy too: `nurt` should keep owning deterministic scaffold templates for the web lane rather than shelling out to the official TanStack creator at user runtime.
-- The official TanStack Start creator/CLI remains useful, but only as maintainer reference material for deriving and refreshing the scaffold templates; it is not the right runtime dependency for `nurt new` because this repo needs deterministic monorepo-aware output.
-- The next web-lane replacement target is now concrete from the YELLOW research: real Start scaffolds need `@tanstack/react-start`, the Start Vite plugin, a `getRouter()` export, a root document route with `HeadContent`/`Scripts`, and a Start client entrypoint rather than the current hand-rolled `main.tsx` + plain Vite pattern.
+- The TanStack Start replacement slice is now complete: generated web apps use `@tanstack/react-start`, the Start Vite plugin, an explicit `src/client.tsx` with `StartClient`, a `getRouter()` export, a root document route with `HeadContent` and `Scripts`, and a real file-route index baseline under `src/routes/`.
+- The replacement stayed aligned to the locked strategy: `nurt` still owns deterministic scaffold templates for the web lane rather than shelling out to the official TanStack creator at user runtime.
+- The official TanStack Start creator/CLI remains maintainer reference material only; the runtime scaffold still mirrors the required Start files directly.
+- The first regenerated runtime case on the corrected Start-based scaffold (`local=better-auth`, `prod=clerk`) now passes again after the replacement: `bun install` succeeds, the real web app build succeeds, Docker Compose brings up the stack, and `http://127.0.0.1:3000` serves the baseline app content from the Start-based lane.
 
 ## Active Implementation Rules
 
@@ -133,7 +133,7 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - Mixed presets with `web` + `backend` are auth-parameterized only (no auth-agnostic mixed variant).
 - Offline local development is only guaranteed when the local auth provider is Better Auth; local Clerk mode remains internet-connected even when Convex itself is self-hosted.
 - The `local=clerk` plus self-hosted Convex path is a supported RC1 target, but it still requires explicit technical verification because the current BTCA Convex docs resource cannot yet confirm the self-hosted auth behavior.
-- The current generated web lane is not yet a true TanStack Start implementation; it remains a Vite + TanStack Router baseline until the next slice replaces it.
+- The generated web lane is now a real minimal TanStack Start implementation rather than the old Vite + TanStack Router placeholder baseline.
 - `nurt` should not shell out to the official TanStack Start creator during end-user scaffold runs; the web lane must remain an owned, testable, package-version-pinned template.
 - Generator failures must not leave partially scaffolded repos behind.
 - Foundation and JS-only outputs stay free of Python-only metadata files, while Python-enabled outputs scaffold a root uv workspace (`pyproject.toml`, `uv.lock`) plus app-local interpreter pinning at `apps/python/.python-version`.
@@ -228,14 +228,14 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - User-facing bootstrap guidance in `README.md` now explicitly documents global `nurt` flow and labels `install.sh` as legacy/maintainer-only path.
 - Workflow documentation is now separated by concern: `README.md` is reserved for `nurt` bootstrap guidance, `README.BMAD-GUIDE.md` covers BMAD planning lanes, and `README.RALPH.md` covers the RALPH execution loop.
 - Fullstack auth-variant contract coverage is now concrete: `tests/contracts/test_fullstack_auth_wiring_contract.py` validates TanStack-style web files and Convex-style backend files for both Clerk and Better Auth outputs, plus dry-run path visibility.
-- Scaffolded `web+backend` outputs now include concrete framework baseline files (`apps/web/src/main.tsx`, `router.tsx`, route files; `apps/backend/convex/http.ts`, `schema.ts`) instead of auth-only placeholder wiring.
+- Scaffolded `web+backend` outputs now include concrete framework baseline files (`apps/web/src/client.tsx`, `router.tsx`, `routeTree.gen.ts`, route files; `apps/backend/convex/http.ts`, `schema.ts`) instead of auth-only placeholder wiring.
 - Convex backend command-smoke coverage is now active in `tests/contracts/test_convex_backend_smoke_contract.py`: generated backend workspaces expose `convex:codegen` and `convex:dev` scripts that run credentialless CLI help commands for CI-safe smoke validation.
 - Cross-platform CI smoke contract step now includes Convex backend smoke checks, preserving baseline secret-free validation while increasing fullstack wiring confidence.
 - Backend local-dev flow guidance is now scaffolded into generated outputs at `apps/backend/README.md`, covering cloud-first Convex steps, auth decision alignment (`AUTH_PROVIDER`), and separation between credentialed local commands and CI-safe smoke commands.
 - Fullstack setup/auth decision documentation is now centralized in `docs/FULLSTACK_SETUP.md` and linked from `README.md`.
 - Backend workspace scripts now distinguish credentialed local commands (`convex:dev`, `convex:codegen`) from CI-safe wrappers (`convex:dev:smoke`, `convex:codegen:smoke`), while `dev`/`test` remain smoke-safe for cross-platform CI.
 - M0 governance baseline is now fully closed in the archived delivery record: `docs/archive/plans/PLAN_2026-03-08_07-49-04_PM.md` remains the canonical source-of-truth for that completed cycle.
-- M2 web scaffold now includes a fuller TanStack Start-style baseline beyond route stubs: `app.config.ts`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/routeTree.gen.ts`, and base styles in `apps/web/src/styles.css`.
+- M2 web scaffold now includes the corrected minimal TanStack Start baseline beyond route stubs: `vite.config.ts`, `tsconfig.json`, `src/client.tsx`, `src/router.tsx`, `src/routeTree.gen.ts`, `src/routes/{__root,index}.tsx`, and base styles in `apps/web/src/styles.css`, while the old fake `app.config.ts`, `index.html`, and `src/main.tsx` pattern is retired from scaffold output.
 - Fullstack shared workspace integration is now active for `web+backend` presets via `packages/shared` (`@generated/shared`), with both web and backend manifests wired through `workspace:*` dependencies and baseline web route consumption.
 - Desktop Electron Forge baseline scaffold is now concrete for `desktop` target: generated output includes `apps/desktop/README.md`, `forge.config.ts`, `tsconfig.json`, `index.html`, and `src/{main,preload,renderer}.ts`.
 - Desktop workspace package manifest now includes Forge-oriented local commands (`desktop:start`, `desktop:package`, `desktop:make`) and CI-safe smoke wrappers (`desktop:*:smoke`) with root task scripts mapped to non-GUI smoke behavior for deterministic CI compatibility.

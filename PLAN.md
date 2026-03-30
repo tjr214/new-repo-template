@@ -1,9 +1,9 @@
 # Feature 10.0 TanStack Start Replacement Plan
 
-**Last Updated:** 2026-03-29 10:28:47 PM
-**Status:** Planning locked / ready for implementation YELLOW
-**Previous Session Summary:** `docs/session-summaries/SESSION_129_SUMMARY.md`
-**Current Planning Summary:** `docs/session-summaries/SESSION_130_SUMMARY.md`
+**Last Updated:** 2026-03-29 11:01:17 PM
+**Status:** Completed / ready for remaining RC1 runtime matrix
+**Previous Session Summary:** `docs/session-summaries/SESSION_130_SUMMARY.md`
+**Current Planning Summary:** `docs/session-summaries/SESSION_131_SUMMARY.md`
 
 ---
 
@@ -25,27 +25,27 @@ This plan exists so a fresh-context restart can resume directly into implementat
 
 ## YELLOW
 
-- [ ] Read `PLAN.md`.
-- [ ] Read `PROGRESS.md`.
-- [ ] Read `docs/LIVING_DOCS.md`.
-- [ ] Read `docs/ARCHITECTURE.md`.
-- [ ] Read `TODO-FEATURES.md`.
-- [ ] Read `docs/session-summaries/SESSION_129_SUMMARY.md`.
-- [ ] Read `src/new_repo_template/scaffold.py`.
-- [ ] Read `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`.
-- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_main.tsx`.
-- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx`.
-- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx`.
-- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx`.
-- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_app.config.ts`.
-- [ ] Read `tests/contracts/test_fullstack_auth_wiring_contract.py`.
-- [ ] Read `tests/contracts/test_target_matrix_and_auth_contract.py`.
-- [ ] Run `date "+%Y-%m-%d %I:%M:%S %p"`.
-- [ ] Run `btca status`.
-- [ ] Use `btca ask -r tanstack-router-start -q "What Vite config and plugins does TanStack Start require in a React app" --sub-agent`.
-- [ ] Use `btca ask -r tanstack-router-start -q "What files does a minimal TanStack Start app use for root document router and index route" --sub-agent`.
-- [ ] Use `btca ask -r tanstack-router-start -q "What is the minimal TanStack Start entrypoint and how is the router exported in a React app" --sub-agent`.
-- [ ] Use `btca ask -r tanstack-router-start -q "Should a custom monorepo scaffold shell out to the official TanStack Start creator at runtime or mirror the required Start files directly" --sub-agent`.
+- [x] Read `PLAN.md`.
+- [x] Read `PROGRESS.md`.
+- [x] Read `docs/LIVING_DOCS.md`.
+- [x] Read `docs/ARCHITECTURE.md`.
+- [x] Read `TODO-FEATURES.md`.
+- [x] Read `docs/session-summaries/SESSION_129_SUMMARY.md`.
+- [x] Read `src/new_repo_template/scaffold.py`.
+- [x] Read `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`.
+- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_main.tsx`.
+- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx`.
+- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx`.
+- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx`.
+- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_app.config.ts`.
+- [x] Read `tests/contracts/test_fullstack_auth_wiring_contract.py`.
+- [x] Read `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- [x] Run `date "+%Y-%m-%d %I:%M:%S %p"`.
+- [x] Run `btca status`.
+- [x] Use `btca ask -r tanstack-router-start -q "What Vite config and plugins does TanStack Start require in a React app" --sub-agent`.
+- [x] Use `btca ask -r tanstack-router-start -q "What files does a minimal TanStack Start app use for root document router and index route" --sub-agent`.
+- [x] Use `btca ask -r tanstack-router-start -q "What is the minimal TanStack Start entrypoint and how is the router exported in a React app" --sub-agent`.
+- [x] Use `btca ask -r tanstack-router-start -q "Should a custom monorepo scaffold shell out to the official TanStack Start creator at runtime or mirror the required Start files directly" --sub-agent`.
 
 ---
 
@@ -85,106 +85,106 @@ This plan exists so a fresh-context restart can resume directly into implementat
 
 ## Replacement Target
 
-- [ ] Add `@tanstack/react-start` to the web package dependencies.
-- [ ] Add the Start Vite plugin to the web Vite config.
-- [ ] Replace the current client-only entry with a Start client entrypoint.
-- [ ] Replace singleton router export with `getRouter()`.
-- [ ] Replace the root route with a real Start document shell.
-- [ ] Replace the current route/file assumptions with a real minimal file-based Start route baseline.
-- [ ] Update web scripts/package wiring to match the real Start stack.
-- [ ] Update the contract suite so it asserts real Start signals instead of the current placeholder signals.
+- [x] Add `@tanstack/react-start` to the web package dependencies.
+- [x] Add the Start Vite plugin to the web Vite config.
+- [x] Replace the current client-only entry with a Start client entrypoint.
+- [x] Replace singleton router export with `getRouter()`.
+- [x] Replace the root route with a real Start document shell.
+- [x] Replace the current route/file assumptions with a real minimal file-based Start route baseline.
+- [x] Update web scripts/package wiring to match the real Start stack.
+- [x] Update the contract suite so it asserts real Start signals instead of the current placeholder signals.
 
 ---
 
 ## Expected Minimal File Set After Replacement
 
-- [ ] `apps/web/web/package.json` should include `@tanstack/react-start`.
-- [ ] `apps/web/web/vite.config.ts` should include `tanstackStart()` and `viteReact()`.
-- [ ] `apps/web/web/src/client.tsx` should hydrate `StartClient`.
-- [ ] `apps/web/web/src/router.tsx` should export `getRouter()`.
-- [ ] `apps/web/web/src/routes/__root.tsx` should render a real document shell with `HeadContent`, `Outlet`, and `Scripts`.
-- [ ] `apps/web/web/src/routes/index.tsx` should use `createFileRoute("/")`.
-- [ ] `apps/web/web/src/routeTree.gen.ts` should remain part of the generated structure and be valid for the Start route setup.
+- [x] `apps/web/web/package.json` should include `@tanstack/react-start`.
+- [x] `apps/web/web/vite.config.ts` should include `tanstackStart()` and `viteReact()`.
+- [x] `apps/web/web/src/client.tsx` should hydrate `StartClient`.
+- [x] `apps/web/web/src/router.tsx` should export `getRouter()`.
+- [x] `apps/web/web/src/routes/__root.tsx` should render a real document shell with `HeadContent`, `Outlet`, and `Scripts`.
+- [x] `apps/web/web/src/routes/index.tsx` should use `createFileRoute("/")`.
+- [x] `apps/web/web/src/routeTree.gen.ts` should remain part of the generated structure and be valid for the Start route setup.
 
 ---
 
 ## RED
 
-- [ ] Update `tests/contracts/test_fullstack_auth_wiring_contract.py` so the web assertions require real Start signals:
-- [ ] Assert `@tanstack/react-start` is present in the web package manifest.
-- [ ] Assert `@tanstack/react-start/plugin/vite` is present in `vite.config.ts`.
-- [ ] Assert `src/client.tsx` exists and references `StartClient`.
-- [ ] Assert `src/router.tsx` exports `getRouter()`.
-- [ ] Assert `src/routes/__root.tsx` uses `HeadContent` and `Scripts`.
-- [ ] Assert `src/routes/index.tsx` uses `createFileRoute("/")`.
-- [ ] Update any dry-run path expectations so they reference the real Start file set.
-- [ ] Update any older tests that still treat `app.config.ts` or `main.tsx` as Start proof.
+- [x] Update `tests/contracts/test_fullstack_auth_wiring_contract.py` so the web assertions require real Start signals:
+- [x] Assert `@tanstack/react-start` is present in the web package manifest.
+- [x] Assert `@tanstack/react-start/plugin/vite` is present in `vite.config.ts`.
+- [x] Assert `src/client.tsx` exists and references `StartClient`.
+- [x] Assert `src/router.tsx` exports `getRouter()`.
+- [x] Assert `src/routes/__root.tsx` uses `HeadContent` and `Scripts`.
+- [x] Assert `src/routes/index.tsx` uses `createFileRoute("/")`.
+- [x] Update any dry-run path expectations so they reference the real Start file set.
+- [x] Update any older tests that still treat `app.config.ts` or `main.tsx` as Start proof.
 
 ---
 
 ## GREEN
 
-- [ ] Update `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json` to use real Start dependencies and scripts.
-- [ ] Replace `src/new_repo_template/snapshot_assets/templates/fullstack/web_main.tsx` with a real Start client entry template or rename it to the correct Start file.
-- [ ] Update `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx` to export `getRouter()`.
-- [ ] Replace `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx` with a real Start document shell.
-- [ ] Replace `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx` with a real Start file route baseline.
-- [ ] Update `src/new_repo_template/snapshot_assets/templates/fullstack/web_vite.config.ts` to use `tanstackStart()` and `viteReact()`.
-- [ ] Remove or replace the fake `web_app.config.ts` template if it is not part of the real Start baseline.
-- [ ] Update `src/new_repo_template/scaffold.py` so the web path list and file writers match the new Start file set.
-- [ ] Keep the current auth-boundary files (`app-auth.ts`, `auth-runtime.ts`, provider-specific placeholders) wired into the corrected Start-based web app layout.
+- [x] Update `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json` to use real Start dependencies and scripts.
+- [x] Replace `src/new_repo_template/snapshot_assets/templates/fullstack/web_main.tsx` with a real Start client entry template or rename it to the correct Start file.
+- [x] Update `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx` to export `getRouter()`.
+- [x] Replace `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx` with a real Start document shell.
+- [x] Replace `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx` with a real Start file route baseline.
+- [x] Update `src/new_repo_template/snapshot_assets/templates/fullstack/web_vite.config.ts` to use `tanstackStart()` and `viteReact()`.
+- [x] Remove or replace the fake `web_app.config.ts` template if it is not part of the real Start baseline.
+- [x] Update `src/new_repo_template/scaffold.py` so the web path list and file writers match the new Start file set.
+- [x] Keep the current auth-boundary files (`app-auth.ts`, `auth-runtime.ts`, provider-specific placeholders) wired into the corrected Start-based web app layout.
 
 ---
 
 ## BLUE
 
-- [ ] Re-check the minimal Start baseline against the BTCA-backed guidance before closeout.
-- [ ] Keep the replacement as small as possible; avoid copying unnecessary demo/example files.
-- [ ] Re-run targeted contracts.
-- [ ] Re-run `uv run ruff check src/new_repo_template tests/contracts`.
-- [ ] Refresh snapshot metadata with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`.
-- [ ] Re-run `uv run pytest`.
+- [x] Re-check the minimal Start baseline against the BTCA-backed guidance before closeout.
+- [x] Keep the replacement as small as possible; avoid copying unnecessary demo/example files.
+- [x] Re-run targeted contracts.
+- [x] Re-run `uv run ruff check src/new_repo_template tests/contracts`.
+- [x] Refresh snapshot metadata with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`.
+- [x] Re-run `uv run pytest`.
 
 ---
 
 ## Runtime Revalidation After Implementation
 
-- [ ] Regenerate `local=better-auth`, `prod=clerk` from the updated scaffold.
-- [ ] Run `bun install --frozen-lockfile` in the generated repo.
-- [ ] Run the built-in smoke commands again.
-- [ ] Run `docker compose up` for the regenerated repo.
-- [ ] Verify `http://127.0.0.1:3000` renders real app content under the Start-based scaffold.
-- [ ] Only after that revalidation passes, continue the remaining auth combinations.
+- [x] Regenerate `local=better-auth`, `prod=clerk` from the updated scaffold.
+- [x] Run `bun install --frozen-lockfile` in the generated repo.
+- [x] Run the built-in smoke commands again.
+- [x] Run `docker compose up` for the regenerated repo.
+- [x] Verify `http://127.0.0.1:3000` renders real app content under the Start-based scaffold.
+- [x] Only after that revalidation passes, continue the remaining auth combinations.
 
 ---
 
 ## Fresh-Context Restart Checklist
 
-- [ ] Read `PLAN.md`.
-- [ ] Read `PROGRESS.md`.
-- [ ] Read `docs/LIVING_DOCS.md`.
-- [ ] Read `docs/ARCHITECTURE.md`.
-- [ ] Read `TODO-FEATURES.md`.
-- [ ] Read `docs/session-summaries/SESSION_130_SUMMARY.md`.
-- [ ] Re-read `src/new_repo_template/scaffold.py`.
-- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`.
-- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_main.tsx` or its replacement file.
-- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx`.
-- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx`.
-- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx`.
-- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_vite.config.ts`.
-- [ ] Re-read `tests/contracts/test_fullstack_auth_wiring_contract.py`.
-- [ ] Re-read `tests/contracts/test_target_matrix_and_auth_contract.py`.
-- [ ] Run `date "+%Y-%m-%d %I:%M:%S %p"`.
-- [ ] Run `btca status`.
-- [ ] Re-run the TanStack Start BTCA guidance queries before changing the templates.
-- [ ] Start RED only after the above is complete.
+- [x] Read `PLAN.md`.
+- [x] Read `PROGRESS.md`.
+- [x] Read `docs/LIVING_DOCS.md`.
+- [x] Read `docs/ARCHITECTURE.md`.
+- [x] Read `TODO-FEATURES.md`.
+- [x] Read `docs/session-summaries/SESSION_130_SUMMARY.md`.
+- [x] Re-read `src/new_repo_template/scaffold.py`.
+- [x] Re-read `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`.
+- [x] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_client.tsx`.
+- [x] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx`.
+- [x] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx`.
+- [x] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx`.
+- [x] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/web_vite.config.ts`.
+- [x] Re-read `tests/contracts/test_fullstack_auth_wiring_contract.py`.
+- [x] Re-read `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- [x] Run `date "+%Y-%m-%d %I:%M:%S %p"`.
+- [x] Run `btca status`.
+- [x] Re-run the TanStack Start BTCA guidance queries before changing the templates.
+- [x] Start RED only after the above is complete.
 
 ---
 
 ## Notes For The Next Session
 
-- [ ] Mention explicitly that the YELLOW pass included file reads, `btca status`, and `btca ask` usage.
-- [ ] Keep the TanStack Start replacement small and deterministic.
-- [ ] Use the official creator/examples as maintainer references, not runtime scaffold dependencies.
-- [ ] Do not overwrite `docs/session-summaries/SESSION_130_SUMMARY.md`; create a newer session summary when implementation begins.
+- [x] Mention explicitly that the YELLOW pass included file reads, `btca status`, and `btca ask` usage.
+- [x] Keep the TanStack Start replacement small and deterministic.
+- [x] Use the official creator/examples as maintainer references, not runtime scaffold dependencies.
+- [x] Do not overwrite `docs/session-summaries/SESSION_130_SUMMARY.md`; create a newer session summary when implementation begins.

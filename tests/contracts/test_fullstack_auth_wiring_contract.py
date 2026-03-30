@@ -22,10 +22,10 @@ def run_scaffold_command(
     )
 
 
-def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
+def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
     tmp_path: Path,
 ) -> None:
-    """Clerk fullstack scaffold should include concrete web/backend framework files."""
+    """Clerk fullstack scaffold should include real Start and Convex files."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "fullstack-clerk"
@@ -53,14 +53,13 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
 
     web_root = output_dir / "apps" / "web" / "web"
     backend_root = output_dir / "apps" / "backend" / "backend"
-    web_main = web_root / "src" / "main.tsx"
+    web_client = web_root / "src" / "client.tsx"
     web_router = web_root / "src" / "router.tsx"
     web_root_route = web_root / "src" / "routes" / "__root.tsx"
+    web_index_route = web_root / "src" / "routes" / "index.tsx"
     web_route_tree = web_root / "src" / "routeTree.gen.ts"
-    web_app_config = web_root / "app.config.ts"
     web_vite_config = web_root / "vite.config.ts"
     web_tsconfig = web_root / "tsconfig.json"
-    web_index_html = web_root / "index.html"
     backend_http = backend_root / "convex" / "http.ts"
     backend_schema = backend_root / "convex" / "schema.ts"
     backend_auth = backend_root / "convex" / "auth.config.ts"
@@ -71,14 +70,13 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
     shared_index = output_dir / "packages" / "shared" / "src" / "index.ts"
 
     for path in (
-        web_main,
+        web_client,
         web_router,
         web_root_route,
+        web_index_route,
         web_route_tree,
-        web_app_config,
         web_vite_config,
         web_tsconfig,
-        web_index_html,
         backend_http,
         backend_schema,
         backend_auth,
@@ -90,12 +88,25 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
     ):
         assert path.exists(), f"Expected scaffolded file: {path}"
 
-    assert "RouterProvider" in web_main.read_text(encoding="utf-8")
+    assert not (web_root / "src" / "main.tsx").exists()
+    assert not (web_root / "app.config.ts").exists()
+    assert not (web_root / "index.html").exists()
+
+    assert "StartClient" in web_client.read_text(encoding="utf-8")
+    assert "hydrateRoot" in web_client.read_text(encoding="utf-8")
     assert "createRouter" in web_router.read_text(encoding="utf-8")
+    assert "export function getRouter()" in web_router.read_text(encoding="utf-8")
     assert "routeTree" in web_route_tree.read_text(encoding="utf-8")
-    assert "name" in web_app_config.read_text(encoding="utf-8")
-    assert "defineConfig" in web_vite_config.read_text(encoding="utf-8")
+    assert "@tanstack/react-start" in web_route_tree.read_text(encoding="utf-8")
+    assert "@tanstack/react-start/plugin/vite" in web_vite_config.read_text(
+        encoding="utf-8"
+    )
+    assert "tanstackStart()" in web_vite_config.read_text(encoding="utf-8")
+    assert "viteReact()" in web_vite_config.read_text(encoding="utf-8")
     assert "createRootRoute" in web_root_route.read_text(encoding="utf-8")
+    assert "HeadContent" in web_root_route.read_text(encoding="utf-8")
+    assert "Scripts" in web_root_route.read_text(encoding="utf-8")
+    assert 'createFileRoute("/")' in web_index_route.read_text(encoding="utf-8")
     assert 'local: "clerk"' in backend_auth.read_text(encoding="utf-8")
     assert 'prod: "clerk"' in backend_auth.read_text(encoding="utf-8")
     assert "CLERK_JWT_ISSUER_DOMAIN_LOCAL" in backend_auth.read_text(encoding="utf-8")
@@ -109,6 +120,7 @@ def test_web_backend_clerk_scaffolds_concrete_tanstack_and_convex_wiring(
         (backend_root / "package.json").read_text(encoding="utf-8")
     )
     assert web_package_data["dependencies"]["@generated/shared"] == "workspace:*"
+    assert "@tanstack/react-start" in web_package_data["dependencies"]
     assert backend_package_data["dependencies"]["@generated/shared"] == "workspace:*"
 
 
@@ -152,9 +164,19 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
     web_app_auth = output_dir / "apps" / "web" / "web" / "src" / "app-auth.ts"
     web_auth_runtime = output_dir / "apps" / "web" / "web" / "src" / "auth-runtime.ts"
     shared_package = output_dir / "packages" / "shared" / "package.json"
+    web_client = output_dir / "apps" / "web" / "web" / "src" / "client.tsx"
+    web_router = output_dir / "apps" / "web" / "web" / "src" / "router.tsx"
+    web_root_route = (
+        output_dir / "apps" / "web" / "web" / "src" / "routes" / "__root.tsx"
+    )
+    web_vite_config = output_dir / "apps" / "web" / "web" / "vite.config.ts"
 
     for path in (
         web_index_route,
+        web_client,
+        web_router,
+        web_root_route,
+        web_vite_config,
         backend_http,
         backend_auth,
         web_auth,
@@ -165,19 +187,23 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
         assert path.exists(), f"Expected scaffolded file: {path}"
 
     web_index_text = web_index_route.read_text(encoding="utf-8")
-    assert "createRoute" in web_index_text
-    assert "getParentRoute" in web_index_text
+    assert 'createFileRoute("/")' in web_index_text
     assert "@generated/shared" in web_index_text
+    assert "StartClient" in web_client.read_text(encoding="utf-8")
+    assert "export function getRouter()" in web_router.read_text(encoding="utf-8")
+    assert "HeadContent" in web_root_route.read_text(encoding="utf-8")
+    assert "Scripts" in web_root_route.read_text(encoding="utf-8")
+    assert "tanstackStart()" in web_vite_config.read_text(encoding="utf-8")
     assert "getAuthConfigProvider" in backend_auth.read_text(encoding="utf-8")
     assert "SITE_URL" in web_auth.read_text(encoding="utf-8")
     assert "better auth" in web_auth.read_text(encoding="utf-8").lower()
     assert 'provider: "better-auth"' in web_app_auth.read_text(encoding="utf-8")
 
 
-def test_web_backend_dry_run_lists_concrete_framework_wiring_paths(
+def test_web_backend_dry_run_lists_real_start_framework_wiring_paths(
     tmp_path: Path,
 ) -> None:
-    """Dry-run plan should include concrete TanStack and Convex wiring files."""
+    """Dry-run plan should include real Start and Convex wiring files."""
 
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "fullstack-dry-run"
@@ -205,14 +231,16 @@ def test_web_backend_dry_run_lists_concrete_framework_wiring_paths(
     )
 
     combined_output = f"{result.stdout}\n{result.stderr}"
-    assert "apps/web/web/src/main.tsx" in combined_output
+    assert "apps/web/web/src/client.tsx" in combined_output
     assert "apps/web/web/src/router.tsx" in combined_output
     assert "apps/web/web/src/routes/__root.tsx" in combined_output
+    assert "apps/web/web/src/routes/index.tsx" in combined_output
     assert "apps/web/web/src/routeTree.gen.ts" in combined_output
-    assert "apps/web/web/app.config.ts" in combined_output
     assert "apps/web/web/vite.config.ts" in combined_output
     assert "apps/web/web/tsconfig.json" in combined_output
-    assert "apps/web/web/index.html" in combined_output
     assert "apps/backend/backend/convex/http.ts" in combined_output
     assert "apps/backend/backend/convex/schema.ts" in combined_output
     assert "packages/shared/package.json" in combined_output
+    assert "apps/web/web/src/main.tsx" not in combined_output
+    assert "apps/web/web/app.config.ts" not in combined_output
+    assert "apps/web/web/index.html" not in combined_output

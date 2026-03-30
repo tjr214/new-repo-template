@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-29 10:28:47 PM
-**Current Phase:** Feature `10.0` planning is now focused on replacing the current fake web lane with a real TanStack Start scaffold: the runtime pass proved the current Vite + TanStack Router baseline is insufficient, and the next implementation slice is now locked as an owned TanStack Start template replacement rather than a runtime shell-out to the official creator.
+**Last Updated:** 2026-03-29 11:01:17 PM
+**Current Phase:** Feature `10.0` now has a real minimal TanStack Start web scaffold in place, the first regenerated runtime case has been revalidated successfully against that corrected baseline, and the next work can resume the remaining RC1 runtime/auth matrix instead of continuing on the old fake Vite-only web lane.
 
 ## Previous Cycle Archives
 
@@ -228,10 +228,14 @@
 - [x] Revalidated project context for the replacement slice with `btca status` and `btca ask`, confirming the real TanStack Start baseline requires `@tanstack/react-start`, the Start Vite plugin, a `getRouter()` export, a root document route with `HeadContent`/`Scripts`, and a Start client entrypoint, while the official guidance still supports cloning/building from known-good examples rather than requiring a runtime creator shell-out.
 - [x] Locked the TanStack Start replacement strategy with the user: `nurt` should continue to own deterministic scaffold templates and should mirror the required TanStack Start files directly; the official TanStack creator/CLI should be treated as maintainer reference material, not as a runtime dependency of `nurt new`.
 - [x] Synced the new planning direction across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, a new session summary, and a comprehensive restart-safe root `PLAN.md`.
+- [x] Re-ran the TanStack Start replacement YELLOW pass for implementation by rereading the tracked plan/progress/docs/session-summary files, rereading the current web scaffold templates and contracts, running `date`, rerunning `btca status`, and using `btca ask` for Start Vite/plugin requirements, minimal route/router file structure, `StartClient` client-entry expectations, route-tree shape, and the maintainer-vs-runtime creator strategy.
+- [x] Completed RED for the TanStack Start replacement slice by updating `tests/contracts/test_fullstack_auth_wiring_contract.py` so the web scaffold now must emit real Start signals (`@tanstack/react-start`, Start Vite plugin wiring, `src/client.tsx`, `getRouter()`, `HeadContent`, `Scripts`, `createFileRoute("/")`) and must no longer scaffold `src/main.tsx`, `app.config.ts`, or `index.html` as proof of Start support.
+- [x] Completed GREEN for the TanStack Start replacement slice in `src/new_repo_template/scaffold.py` and the fullstack web template set: the web lane now scaffolds `src/client.tsx` with `StartClient`, exports `getRouter()`, uses a real root document route plus file route baseline, includes `@tanstack/react-start` and `@vitejs/plugin-react`, upgrades the web Vite baseline to the real Start plugin wiring, and removes the old fake `main.tsx` / `app.config.ts` / `index.html` pattern from scaffold output.
+- [x] Completed BLUE for the replacement slice by rerunning the targeted TanStack Start contracts (24 passed across the fullstack-auth and target-matrix suites), rerunning `uv run ruff check src/new_repo_template tests/contracts`, refreshing bundled snapshot metadata with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, and revalidating the full repository suite with `uv run pytest` (245 passed).
+- [x] Revalidated the first real runtime case on the corrected Start-based scaffold by regenerating `local=better-auth`, `prod=clerk`, running `bun install --frozen-lockfile`, running the generated root smoke commands plus the real web `build:app`, bringing up `docker compose`, and verifying `http://127.0.0.1:3000` now serves the baseline app content from the Start-based web lane before cleaning up the temporary runtime repo and containers.
 
 ## Next Up
 
-- [ ] Start RED for the TanStack Start replacement slice: expand the fullstack web contracts so they assert real Start package/config/file signals instead of the current Vite + TanStack Router placeholders.
-- [ ] Implement the owned TanStack Start scaffold replacement in the web package templates, Vite config, routing files, and script/package wiring.
-- [ ] Re-run targeted and full validation, then regenerate and manually re-test the first runtime case before continuing to the remaining auth combinations.
-- [ ] Continue feature `10.0` with the remaining RC1 runtime matrix only after the real TanStack Start replacement is in place.
+- [ ] Continue feature `10.0` with the remaining RC1 runtime matrix now that the real TanStack Start replacement and first regenerated runtime case are both complete.
+- [ ] Re-run the remaining supported auth combinations on the corrected Start-based scaffold instead of the old placeholder web lane.
+- [ ] Explicitly verify the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical validation before treating that combination as RC1-ready.

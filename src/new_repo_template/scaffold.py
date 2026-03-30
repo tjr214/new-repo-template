@@ -183,12 +183,10 @@ LIBRARY_TARGET_PACKAGE_TEMPLATE_FILES: dict[str, str] = {
 }
 
 WEB_FRAMEWORK_PATHS: tuple[str, ...] = (
-    "apps/web/app.config.ts",
     "apps/web/vite.config.ts",
     "apps/web/tsconfig.json",
-    "apps/web/index.html",
     "apps/web/src/",
-    "apps/web/src/main.tsx",
+    "apps/web/src/client.tsx",
     "apps/web/src/router.tsx",
     "apps/web/src/routeTree.gen.ts",
     "apps/web/src/styles.css",
@@ -384,15 +382,13 @@ WEB_AUTH_PROVIDER_CLERK_TEMPLATE = load_template_text(
 WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE = load_template_text(
     "wiring/web_auth_client_better_auth.ts"
 )
-WEB_MAIN_TEMPLATE = load_template_text("fullstack/web_main.tsx")
+WEB_CLIENT_TEMPLATE = load_template_text("fullstack/web_client.tsx")
 WEB_ROUTER_TEMPLATE = load_template_text("fullstack/web_router.tsx")
 WEB_ROOT_ROUTE_TEMPLATE = load_template_text("fullstack/web_root_route.tsx")
 WEB_INDEX_ROUTE_TEMPLATE = load_template_text("fullstack/web_index_route.tsx")
 WEB_ROUTE_TREE_TEMPLATE = load_template_text("fullstack/web_route_tree.gen.ts")
-WEB_APP_CONFIG_TEMPLATE = load_template_text("fullstack/web_app.config.ts")
 WEB_VITE_CONFIG_TEMPLATE = load_template_text("fullstack/web_vite.config.ts")
 WEB_TSCONFIG_TEMPLATE = load_template_text("fullstack/web_tsconfig.json")
-WEB_INDEX_HTML_TEMPLATE = load_template_text("fullstack/web_index.html")
 WEB_STYLES_TEMPLATE = load_template_text("fullstack/web_styles.css")
 BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
 BACKEND_SCHEMA_TEMPLATE = load_template_text("fullstack/backend_schema.ts")
@@ -1712,11 +1708,9 @@ def scaffold_web_project(*, output_root: Path, project: ProjectSpec) -> None:
         ),
         encoding="utf-8",
     )
-    (web_root / "app.config.ts").write_text(WEB_APP_CONFIG_TEMPLATE, encoding="utf-8")
     (web_root / "vite.config.ts").write_text(WEB_VITE_CONFIG_TEMPLATE, encoding="utf-8")
     (web_root / "tsconfig.json").write_text(WEB_TSCONFIG_TEMPLATE, encoding="utf-8")
-    (web_root / "index.html").write_text(WEB_INDEX_HTML_TEMPLATE, encoding="utf-8")
-    (web_src / "main.tsx").write_text(WEB_MAIN_TEMPLATE, encoding="utf-8")
+    (web_src / "client.tsx").write_text(WEB_CLIENT_TEMPLATE, encoding="utf-8")
     (web_src / "router.tsx").write_text(WEB_ROUTER_TEMPLATE, encoding="utf-8")
     (web_src / "routeTree.gen.ts").write_text(WEB_ROUTE_TREE_TEMPLATE, encoding="utf-8")
     (web_src / "styles.css").write_text(WEB_STYLES_TEMPLATE, encoding="utf-8")
