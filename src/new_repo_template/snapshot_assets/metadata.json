@@ -39,7 +39,7 @@
     },
     {
       "destination": "templates/foundation/.opencode/command/project-save-discussion-as-plan.md",
-      "sha256": "88c192aa63a07cfb6f72a61da266418d14fbb133c17ada018151337e385157de"
+      "sha256": "387a153457b11eb9233ea2ef0d2149e54b27c2989cadcece6560ed8da2ec5da2"
     },
     {
       "destination": "templates/foundation/.opencode/command/project-save-progress-to-checkpoint.md",
@@ -79,7 +79,7 @@
     },
     {
       "destination": "templates/foundation/AGENTS.md",
-      "sha256": "fb1762272057e1447f22c337b3dd0fd1d9d2747a324cc06d631a8ae35e15f108"
+      "sha256": "4fe8218eddb12787a8e4c89b68ea66a4e05c2ced56a00cd82f8d64469d2a28a4"
     },
     {
       "destination": "templates/foundation/PLAN.md",
@@ -166,7 +166,7 @@
       "sha256": "a71afc9ccfe36685a38024b269752ea80e6d81b4c831b884c1e2d1a1cb8bb374"
     }
   ],
-  "generated_at": "2026-03-27T00:53:38.160115+00:00",
+  "generated_at": "2026-03-30T00:18:13.185234+00:00",
   "nurt_version": "0.1.0",
-  "source_commit": "7f296263cb2377a6b926f23c1739a9ecf5c37e90"
+  "source_commit": "ba37b58d7df0a8518fca61f040368a29fa7ca9b8"
 }
