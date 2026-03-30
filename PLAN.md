@@ -116,73 +116,67 @@ This planning session already completed the required YELLOW pass before any docu
 
 ### YELLOW
 
-- Re-read the restart file set listed below.
-- Re-read the current implementation surfaces:
-  - `src/new_repo_template/scaffold.py`
-  - `src/new_repo_template/nurt_cli.py`
-  - `src/new_repo_template/interactive_ui.py`
-  - `src/new_repo_template/interactive_tui.py`
-  - `src/new_repo_template/add_mode.py`
-  - `src/new_repo_template/btca_config_manager.py`
-  - `src/new_repo_template/snapshot_assets/templates/fullstack/backend_readme.md`
-  - `src/new_repo_template/snapshot_assets/templates/wiring/backend_auth_config.ts`
-  - `src/new_repo_template/snapshot_assets/templates/wiring/web_auth_provider_clerk.ts`
-  - `src/new_repo_template/snapshot_assets/templates/wiring/web_auth_client_better_auth.ts`
-  - `src/new_repo_template/snapshot_assets/templates/workspace_packages/backend_package.json`
-- Re-read the current contract surfaces most likely to change:
-  - `tests/contracts/test_fullstack_auth_wiring_contract.py`
-  - `tests/contracts/test_convex_backend_smoke_contract.py`
-  - `tests/contracts/test_nurt_cli_contract.py`
-  - `tests/contracts/test_interactive_tui_contract.py`
-  - `tests/contracts/test_target_matrix_and_auth_contract.py`
-  - `tests/contracts/test_required_preset_matrix_contract.py`
-- Run `btca status` again.
-- Re-run the Clerk separation query if needed:
-  - `btca ask -r clerk-docs -q "Do Clerk development and production instances keep users separate" --sub-agent`
-- Obtain authoritative self-hosted Convex guidance before coding the local Clerk path. If the current BTCA resource is still insufficient, either:
-  - use official docs via direct fetch for the implementation session, or
-  - propose updating/adding the Convex docs BTCA resource with explicit user confirmation.
+- [ ] Re-read the restart file set listed below.
+- [ ] Re-read `src/new_repo_template/scaffold.py`.
+- [ ] Re-read `src/new_repo_template/nurt_cli.py`.
+- [ ] Re-read `src/new_repo_template/interactive_ui.py`.
+- [ ] Re-read `src/new_repo_template/interactive_tui.py`.
+- [ ] Re-read `src/new_repo_template/add_mode.py`.
+- [ ] Re-read `src/new_repo_template/btca_config_manager.py`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/backend_readme.md`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/wiring/backend_auth_config.ts`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/wiring/web_auth_provider_clerk.ts`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/wiring/web_auth_client_better_auth.ts`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/workspace_packages/backend_package.json`.
+- [ ] Re-read `tests/contracts/test_fullstack_auth_wiring_contract.py`.
+- [ ] Re-read `tests/contracts/test_convex_backend_smoke_contract.py`.
+- [ ] Re-read `tests/contracts/test_nurt_cli_contract.py`.
+- [ ] Re-read `tests/contracts/test_interactive_tui_contract.py`.
+- [ ] Re-read `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- [ ] Re-read `tests/contracts/test_required_preset_matrix_contract.py`.
+- [ ] Run `btca status` again.
+- [ ] Re-run `btca ask -r clerk-docs -q "Do Clerk development and production instances keep users separate" --sub-agent` if needed.
+- [ ] Obtain authoritative self-hosted Convex guidance before coding the local Clerk path.
+- [ ] If the current BTCA resource is still insufficient, use official docs via direct fetch for the implementation session or propose updating/adding the Convex docs BTCA resource with explicit user confirmation.
 
 ### RED
 
-- Add or expand contract tests for:
-  - explicit local auth provider selection
-  - explicit prod auth provider selection
-  - supported/unsupported auth-matrix validation
-  - default `local=better-auth`, `prod=clerk` behavior where appropriate
-  - compose baseline generation
-  - local override compose generation
-  - provider-neutral auth boundary files
-  - updated backend/web local-dev docs and env templates
-- Decide whether to introduce new contract files or expand existing fullstack/auth/CLI suites.
+- [ ] Add or expand contract tests for explicit local auth provider selection.
+- [ ] Add or expand contract tests for explicit prod auth provider selection.
+- [ ] Add or expand contract tests for supported/unsupported auth-matrix validation.
+- [ ] Add or expand contract tests for default `local=better-auth`, `prod=clerk` behavior where appropriate.
+- [ ] Add or expand contract tests for compose baseline generation.
+- [ ] Add or expand contract tests for local override compose generation.
+- [ ] Add or expand contract tests for provider-neutral auth boundary files.
+- [ ] Add or expand contract tests for updated backend/web local-dev docs and env templates.
+- [ ] Decide whether to introduce new contract files or expand existing fullstack/auth/CLI suites.
 
 ### GREEN
 
-- Update CLI/TUI flows to collect local/prod auth provider choices for backend-capable setups.
-- Generate the deployment-baseline `compose.yaml`.
-- Generate the local override file that adds self-hosted Convex and any other required local services.
-- Update scaffolded backend/web env examples and docs to match the new local/prod auth/runtime model.
-- Replace placeholder auth wiring with a provider-neutral app boundary appropriate for the supported RC1 matrix.
+- [ ] Update CLI/TUI flows to collect local/prod auth provider choices for backend-capable setups.
+- [ ] Generate the deployment-baseline `compose.yaml`.
+- [ ] Generate the local override file that adds self-hosted Convex and any other required local services.
+- [ ] Update scaffolded backend/web env examples and docs to match the new local/prod auth/runtime model.
+- [ ] Replace placeholder auth wiring with a provider-neutral app boundary appropriate for the supported RC1 matrix.
 
 ### BLUE
 
-- Refactor any awkward generator branching introduced by the new auth matrix.
-- Re-check docs sync across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `TODO-FEATURES.md`.
-- Add a new session summary for the implementation slice.
-- Re-run targeted tests and then the full suite.
+- [ ] Refactor any awkward generator branching introduced by the new auth matrix.
+- [ ] Re-check docs sync across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, and `TODO-FEATURES.md`.
+- [ ] Add a new session summary for the implementation slice.
+- [ ] Re-run targeted tests and then the full suite.
 
 ---
 
 ## Expected Validation Path After Implementation Starts
 
-- Targeted contracts for the touched CLI/TUI/fullstack surfaces.
-- Full repository test suite: `uv run pytest`
-- Targeted scaffold smoke on the generated web/backend combinations.
-- Manual/runtime validation order after the first slice lands:
-  1. `local=better-auth`, `prod=clerk`
-  2. `local=better-auth`, `prod=better-auth`
-  3. `local=clerk`, `prod=clerk`
-- Only after the web/backend local-dev/auth foundation is credible should the RC1 pass move on to desktop, mobile, and TV runtime testing.
+- [ ] Run targeted contracts for the touched CLI/TUI/fullstack surfaces.
+- [ ] Run the full repository test suite with `uv run pytest`.
+- [ ] Run targeted scaffold smoke on the generated web/backend combinations.
+- [ ] Manually validate `local=better-auth`, `prod=clerk` after the first slice lands.
+- [ ] Manually validate `local=better-auth`, `prod=better-auth` after the first slice lands.
+- [ ] Manually validate `local=clerk`, `prod=clerk` after the first slice lands.
+- [ ] Move on to desktop, mobile, and TV runtime testing only after the web/backend local-dev/auth foundation is credible.
 
 ---
 
@@ -190,42 +184,37 @@ This planning session already completed the required YELLOW pass before any docu
 
 If the context window is cleared, do this before making changes:
 
-1. Read these files in order:
-   - `PLAN.md`
-   - `PROGRESS.md`
-   - `docs/LIVING_DOCS.md`
-   - `docs/ARCHITECTURE.md`
-   - `TODO-FEATURES.md`
-   - `docs/session-summaries/SESSION_127_SUMMARY.md`
-2. Re-read the implementation files most relevant to the next slice:
-   - `src/new_repo_template/scaffold.py`
-   - `src/new_repo_template/nurt_cli.py`
-   - `src/new_repo_template/interactive_ui.py`
-   - `src/new_repo_template/interactive_tui.py`
-   - `src/new_repo_template/add_mode.py`
-   - `src/new_repo_template/snapshot_assets/templates/fullstack/backend_readme.md`
-   - `src/new_repo_template/snapshot_assets/templates/wiring/backend_auth_config.ts`
-   - `src/new_repo_template/snapshot_assets/templates/wiring/web_auth_provider_clerk.ts`
-   - `src/new_repo_template/snapshot_assets/templates/wiring/web_auth_client_better_auth.ts`
-   - `src/new_repo_template/snapshot_assets/templates/workspace_packages/backend_package.json`
-3. Re-read the likely contract surfaces:
-   - `tests/contracts/test_fullstack_auth_wiring_contract.py`
-   - `tests/contracts/test_convex_backend_smoke_contract.py`
-   - `tests/contracts/test_nurt_cli_contract.py`
-   - `tests/contracts/test_interactive_tui_contract.py`
-   - `tests/contracts/test_target_matrix_and_auth_contract.py`
-4. Run the mandatory YELLOW commands:
-   - `date "+%Y-%m-%d %I:%M:%S %p"`
-   - `btca status`
-5. Re-run BTCA/library guidance before finalizing implementation details:
-   - `btca ask -r clerk-docs -q "Do Clerk development and production instances keep users separate" --sub-agent`
-   - Re-check authoritative self-hosted Convex guidance for the local Convex path before treating `local=clerk` as verified.
-6. Start RED only after the above is complete.
+- [ ] Read `PLAN.md`.
+- [ ] Read `PROGRESS.md`.
+- [ ] Read `docs/LIVING_DOCS.md`.
+- [ ] Read `docs/ARCHITECTURE.md`.
+- [ ] Read `TODO-FEATURES.md`.
+- [ ] Read `docs/session-summaries/SESSION_127_SUMMARY.md`.
+- [ ] Re-read `src/new_repo_template/scaffold.py`.
+- [ ] Re-read `src/new_repo_template/nurt_cli.py`.
+- [ ] Re-read `src/new_repo_template/interactive_ui.py`.
+- [ ] Re-read `src/new_repo_template/interactive_tui.py`.
+- [ ] Re-read `src/new_repo_template/add_mode.py`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/fullstack/backend_readme.md`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/wiring/backend_auth_config.ts`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/wiring/web_auth_provider_clerk.ts`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/wiring/web_auth_client_better_auth.ts`.
+- [ ] Re-read `src/new_repo_template/snapshot_assets/templates/workspace_packages/backend_package.json`.
+- [ ] Re-read `tests/contracts/test_fullstack_auth_wiring_contract.py`.
+- [ ] Re-read `tests/contracts/test_convex_backend_smoke_contract.py`.
+- [ ] Re-read `tests/contracts/test_nurt_cli_contract.py`.
+- [ ] Re-read `tests/contracts/test_interactive_tui_contract.py`.
+- [ ] Re-read `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- [ ] Run `date "+%Y-%m-%d %I:%M:%S %p"`.
+- [ ] Run `btca status`.
+- [ ] Re-run `btca ask -r clerk-docs -q "Do Clerk development and production instances keep users separate" --sub-agent`.
+- [ ] Re-check authoritative self-hosted Convex guidance for the local Convex path before treating `local=clerk` as verified.
+- [ ] Start RED only after the above is complete.
 
 ---
 
 ## Notes For The Next Session
 
-- Mention explicitly that the YELLOW pass included file reads, `btca status`, and `btca ask` usage.
-- Keep documentation in sync as implementation advances.
-- Do not overwrite `docs/session-summaries/SESSION_127_SUMMARY.md`; create a newer session summary when coding begins.
+- [ ] Mention explicitly that the YELLOW pass included file reads, `btca status`, and `btca ask` usage.
+- [ ] Keep documentation in sync as implementation advances.
+- [ ] Do not overwrite `docs/session-summaries/SESSION_127_SUMMARY.md`; create a newer session summary when coding begins.
