@@ -26,6 +26,6 @@ IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the c
    - the PLAN file must have a fresh-context restart section that tells us exactly which files to read and study before resuming work, including `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md` (if applicable), and the new most recent file in `docs/session-summaries/`, and
    - the PLAN file must include the locked decisions, explicit non-goals, the exact next execution steps, and any commands or validations needed to restart safely from a blank context window.
    - the PLAN must be saved in Markdown task list format, meaning that each actionable step of the plan has a [ ] checkbox that can be updated.
-   - **CRITICAL**: Do NOT pre-check the items in the YELLOW section because we did them in this session. Add the appropriate items but do NOT check them as this plan is intended to be read from a blank slate.
+   - **CRITICAL**: Do NOT pre-check the items in the YELLOW section because we did them in this session. Add the appropriate items but do NOT check them as this plan is intended to be read from a blank slate. Do NOT pre-check any item any other section that we have not actually implemented or accomplished.
 7. Give a detailed report when complete.
 </steps>

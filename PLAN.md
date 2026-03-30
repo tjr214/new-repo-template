@@ -23,29 +23,29 @@ This plan exists so a fresh-context restart can resume directly into implementat
 
 ---
 
-## YELLOW Pass Completed In This Session
+## YELLOW
 
-- [x] Read `PLAN.md`.
-- [x] Read `PROGRESS.md`.
-- [x] Read `docs/LIVING_DOCS.md`.
-- [x] Read `docs/ARCHITECTURE.md`.
-- [x] Read `TODO-FEATURES.md`.
-- [x] Read `docs/session-summaries/SESSION_129_SUMMARY.md`.
-- [x] Read `src/new_repo_template/scaffold.py`.
-- [x] Read `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`.
-- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_main.tsx`.
-- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx`.
-- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx`.
-- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx`.
-- [x] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_app.config.ts`.
-- [x] Read `tests/contracts/test_fullstack_auth_wiring_contract.py`.
-- [x] Read `tests/contracts/test_target_matrix_and_auth_contract.py`.
-- [x] Run `date "+%Y-%m-%d %I:%M:%S %p"`.
-- [x] Run `btca status`.
-- [x] Use `btca ask -r tanstack-router-start -q "What Vite config and plugins does TanStack Start require in a React app" --sub-agent`.
-- [x] Use `btca ask -r tanstack-router-start -q "What files does a minimal TanStack Start app use for root document router and index route" --sub-agent`.
-- [x] Use `btca ask -r tanstack-router-start -q "What is the minimal TanStack Start entrypoint and how is the router exported in a React app" --sub-agent`.
-- [x] Use `btca ask -r tanstack-router-start -q "Should a custom monorepo scaffold shell out to the official TanStack Start creator at runtime or mirror the required Start files directly" --sub-agent`.
+- [ ] Read `PLAN.md`.
+- [ ] Read `PROGRESS.md`.
+- [ ] Read `docs/LIVING_DOCS.md`.
+- [ ] Read `docs/ARCHITECTURE.md`.
+- [ ] Read `TODO-FEATURES.md`.
+- [ ] Read `docs/session-summaries/SESSION_129_SUMMARY.md`.
+- [ ] Read `src/new_repo_template/scaffold.py`.
+- [ ] Read `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`.
+- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_main.tsx`.
+- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx`.
+- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx`.
+- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx`.
+- [ ] Read `src/new_repo_template/snapshot_assets/templates/fullstack/web_app.config.ts`.
+- [ ] Read `tests/contracts/test_fullstack_auth_wiring_contract.py`.
+- [ ] Read `tests/contracts/test_target_matrix_and_auth_contract.py`.
+- [ ] Run `date "+%Y-%m-%d %I:%M:%S %p"`.
+- [ ] Run `btca status`.
+- [ ] Use `btca ask -r tanstack-router-start -q "What Vite config and plugins does TanStack Start require in a React app" --sub-agent`.
+- [ ] Use `btca ask -r tanstack-router-start -q "What files does a minimal TanStack Start app use for root document router and index route" --sub-agent`.
+- [ ] Use `btca ask -r tanstack-router-start -q "What is the minimal TanStack Start entrypoint and how is the router exported in a React app" --sub-agent`.
+- [ ] Use `btca ask -r tanstack-router-start -q "Should a custom monorepo scaffold shell out to the official TanStack Start creator at runtime or mirror the required Start files directly" --sub-agent`.
 
 ---
 
@@ -85,14 +85,14 @@ This plan exists so a fresh-context restart can resume directly into implementat
 
 ## Replacement Target
 
-- [x] Add `@tanstack/react-start` to the web package dependencies.
-- [x] Add the Start Vite plugin to the web Vite config.
-- [x] Replace the current client-only entry with a Start client entrypoint.
-- [x] Replace singleton router export with `getRouter()`.
-- [x] Replace the root route with a real Start document shell.
-- [x] Replace the current route/file assumptions with a real minimal file-based Start route baseline.
-- [x] Update web scripts/package wiring to match the real Start stack.
-- [x] Update the contract suite so it asserts real Start signals instead of the current placeholder signals.
+- [ ] Add `@tanstack/react-start` to the web package dependencies.
+- [ ] Add the Start Vite plugin to the web Vite config.
+- [ ] Replace the current client-only entry with a Start client entrypoint.
+- [ ] Replace singleton router export with `getRouter()`.
+- [ ] Replace the root route with a real Start document shell.
+- [ ] Replace the current route/file assumptions with a real minimal file-based Start route baseline.
+- [ ] Update web scripts/package wiring to match the real Start stack.
+- [ ] Update the contract suite so it asserts real Start signals instead of the current placeholder signals.
 
 ---
 
