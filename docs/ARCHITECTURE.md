@@ -75,6 +75,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Manual/runtime validation of the first generated auth case (`local=better-auth`, `prod=clerk`) exposed and then fixed a compose-architecture bug: local-only source bind mounts and Linux-native Bun dependency installation now live in `compose.override.yaml`, while the base `compose.yaml` remains the deployment-oriented baseline and local self-hosted Convex data persists in a named Docker volume.
 - The same runtime pass exposed and then fixed a generated-router bug: the old web route template produced duplicate `__root__` routes and a blank page. The web route baseline now attaches the index route explicitly under the root route instead of relying on the broken earlier helper combination.
 - The runtime pass also confirmed a larger architectural gap: the current generated web app is still plain Vite + TanStack Router rather than a true TanStack Start application, so the remaining feature `10.0` web-stack work is not just validation but a real implementation replacement.
+- The TanStack Start replacement strategy is now locked: `nurt` should own and mirror the required TanStack Start files directly instead of shelling out to the official creator during runtime scaffold generation. The official creator and example apps remain maintainer references for upstream alignment, not user-runtime dependencies.
+- The next web architecture target is now concrete from BTCA-backed YELLOW research: a real Start scaffold must include `@tanstack/react-start`, the Start Vite plugin, a Start client entrypoint, a `getRouter()` export pattern, and a root document route that renders `HeadContent`, `Outlet`, and `Scripts`.
 - Feature `6.0` closeout also corrected the sync-governance implementation so `src/new_repo_template/snapshot_assets/source_manifest.json` is again the sole source of truth for foundation sync scope; the helper layer no longer rejects user-approved `management.sync = true` entries via a second hardcoded allowlist.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.
@@ -237,7 +239,7 @@ Implementation follows a strict YELLOW-RED-GREEN-BLUE loop:
 
 DoD is enforced by contract tests under `tests/` plus CI matrix checks across Linux/macOS/Windows.
 
-Baseline CI remains credentialless for the generated Convex wiring checks, and the scaffold/runtime contracts now also validate the auth-matrix files, corrected compose baseline/override split, local Docker volume wiring, and updated local-dev docs while keeping true credential-dependent runtime verification separately gated for manual RC1 work.
+Baseline CI remains credentialless for the generated Convex wiring checks, and the scaffold/runtime contracts currently validate the auth-matrix files, corrected compose baseline/override split, local Docker volume wiring, and updated local-dev docs while keeping true credential-dependent runtime verification separately gated for manual RC1 work; the next RED slice needs to upgrade those contracts from fake web-lane signals to real TanStack Start signals.
 
 Current contract coverage:
 

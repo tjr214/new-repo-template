@@ -79,6 +79,7 @@
   - [ ] Thoroughly test all project types (manual step)
   - [ ] Test to see if the web app package type correctly inits TanStack start and is setup to use it correctly (and that the frontend can RUN!)
     - [ ] Current finding: the generated web lane is still plain Vite + TanStack Router, not a real TanStack Start app, so this roadmap item remains a live implementation gap.
+    - [ ] Locked implementation direction: `nurt` should mirror the required TanStack Start scaffold files directly instead of shelling out to the official TanStack creator at runtime.
   - [ ] Test to see that Convex is properly setup for the backend, and that both the clerk and better-auth plugins are working correctly
   - [ ] Test to see if the desktop app package is correctly initializing Electron. Once again, test that Electron can RUN
   - [ ] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)

@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-29 10:13:28 PM
-**Current Phase:** Feature `10.0` runtime validation is in progress: the first generated `web + backend` case (`local=better-auth`, `prod=clerk`) now boots and renders after fixing two RC1 blockers in the scaffolded output, while the remaining auth combinations and the larger TanStack Start gap are still open for the next slice.
+**Last Updated:** 2026-03-29 10:28:47 PM
+**Current Phase:** Feature `10.0` planning is now focused on replacing the current fake web lane with a real TanStack Start scaffold: the runtime pass proved the current Vite + TanStack Router baseline is insufficient, and the next implementation slice is now locked as an owned TanStack Start template replacement rather than a runtime shell-out to the official creator.
 
 ## Previous Cycle Archives
 
@@ -224,10 +224,14 @@
 - [x] Found and fixed the second real RC1 runtime blocker in the generated web scaffold: the route setup produced duplicate `__root__` routes and a blank page at runtime. The fix switched the index route template from the broken `createFileRoute("/")` combination to an explicit child route attached to `__root__`, and the first manual runtime case now renders `nurt.ai fullstack scaffold baseline` successfully in the browser.
 - [x] Cleaned up the temporary runtime-validation repos and Docker resources after the first manual case, including clearing the Docker-created ACL issue left on the generated `node_modules` directory before removing the final temp repo.
 - [x] Recorded the larger feature `10.0` product finding from manual validation: the current web scaffold is still plain Vite + TanStack Router rather than a real TanStack Start app, so the roadmap item for proper TanStack Start initialization remains open and now has concrete runtime evidence behind it.
+- [x] Completed the TanStack Start replacement planning YELLOW pass by rereading `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, `docs/session-summaries/SESSION_129_SUMMARY.md`, the current web template files, and the relevant scaffold/auth contracts before changing any docs.
+- [x] Revalidated project context for the replacement slice with `btca status` and `btca ask`, confirming the real TanStack Start baseline requires `@tanstack/react-start`, the Start Vite plugin, a `getRouter()` export, a root document route with `HeadContent`/`Scripts`, and a Start client entrypoint, while the official guidance still supports cloning/building from known-good examples rather than requiring a runtime creator shell-out.
+- [x] Locked the TanStack Start replacement strategy with the user: `nurt` should continue to own deterministic scaffold templates and should mirror the required TanStack Start files directly; the official TanStack creator/CLI should be treated as maintainer reference material, not as a runtime dependency of `nurt new`.
+- [x] Synced the new planning direction across `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, a new session summary, and a comprehensive restart-safe root `PLAN.md`.
 
 ## Next Up
 
-- [ ] Re-run runtime/manual validation for the remaining supported auth combinations using the corrected compose and router templates: `better-auth/better-auth` and `clerk/clerk`.
-- [ ] Explicitly validate the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical runtime checks before calling that combination RC1-ready.
-- [ ] Replace the current web scaffold with a real TanStack Start implementation; the current Vite + TanStack Router placeholder is now a confirmed roadmap gap, not just a planning concern.
-- [ ] Continue feature `10.0` with the remaining RC1 runtime matrix after the web-stack gap is addressed: backend plugin behavior, Electron runtime, iOS mobile flow, and TV launch/runtime validation.
+- [ ] Start RED for the TanStack Start replacement slice: expand the fullstack web contracts so they assert real Start package/config/file signals instead of the current Vite + TanStack Router placeholders.
+- [ ] Implement the owned TanStack Start scaffold replacement in the web package templates, Vite config, routing files, and script/package wiring.
+- [ ] Re-run targeted and full validation, then regenerate and manually re-test the first runtime case before continuing to the remaining auth combinations.
+- [ ] Continue feature `10.0` with the remaining RC1 runtime matrix only after the real TanStack Start replacement is in place.

@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `9.0` are complete, and feature `10.0` runtime validation is now underway: the first generated `web + backend` case has been manually booted and repaired, but the larger web-stack gap uncovered during that validation means RC1 still needs additional implementation work before the full runtime matrix can close.
+The template implementation remains intact, features `5.0` through `9.0` are complete, and feature `10.0` planning is now centered on a real TanStack Start replacement: the runtime pass proved that the current Vite + TanStack Router web lane is only a placeholder, so the next meaningful implementation slice is to replace that owned template correctly before the remaining RC1 runtime matrix continues.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
 - Root `PLAN.md` has already been reset to the next-cycle stub, while root `PROGRESS.md` remains the active cumulative tracker and the session summaries now carry the most recent runtime-validation closeout context.
@@ -74,6 +74,9 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - Local Docker behavior is now cleaner too: the web service uses a Docker-managed `bun-install` volume for Linux-native Bun dependencies, and self-hosted Convex persists local data in a named `convex-data` volume.
 - The same first manual browser pass uncovered a second runtime issue in the generated web scaffold: the route setup produced duplicate `__root__` routes and a blank page. That route bug is now fixed, and the first manual case renders the baseline welcome content successfully.
 - The runtime pass also produced an important roadmap finding: despite the project language in docs and prompts, the current generated web app is still plain Vite + TanStack Router and not a real TanStack Start app. The feature `10.0` TanStack Start validation item therefore remains open as a confirmed implementation gap.
+- The TanStack Start planning discussion is now resolved on strategy too: `nurt` should keep owning deterministic scaffold templates for the web lane rather than shelling out to the official TanStack creator at user runtime.
+- The official TanStack Start creator/CLI remains useful, but only as maintainer reference material for deriving and refreshing the scaffold templates; it is not the right runtime dependency for `nurt new` because this repo needs deterministic monorepo-aware output.
+- The next web-lane replacement target is now concrete from the YELLOW research: real Start scaffolds need `@tanstack/react-start`, the Start Vite plugin, a `getRouter()` export, a root document route with `HeadContent`/`Scripts`, and a Start client entrypoint rather than the current hand-rolled `main.tsx` + plain Vite pattern.
 
 ## Active Implementation Rules
 
@@ -131,6 +134,7 @@ The template implementation remains intact, features `5.0` through `9.0` are com
 - Offline local development is only guaranteed when the local auth provider is Better Auth; local Clerk mode remains internet-connected even when Convex itself is self-hosted.
 - The `local=clerk` plus self-hosted Convex path is a supported RC1 target, but it still requires explicit technical verification because the current BTCA Convex docs resource cannot yet confirm the self-hosted auth behavior.
 - The current generated web lane is not yet a true TanStack Start implementation; it remains a Vite + TanStack Router baseline until the next slice replaces it.
+- `nurt` should not shell out to the official TanStack Start creator during end-user scaffold runs; the web lane must remain an owned, testable, package-version-pinned template.
 - Generator failures must not leave partially scaffolded repos behind.
 - Foundation and JS-only outputs stay free of Python-only metadata files, while Python-enabled outputs scaffold a root uv workspace (`pyproject.toml`, `uv.lock`) plus app-local interpreter pinning at `apps/python/.python-version`.
 - Root JS workspaces now cover both support packages and nested generated projects with `apps/*`, `packages/*`, `apps/*/*`, and `packages/*/*`.
