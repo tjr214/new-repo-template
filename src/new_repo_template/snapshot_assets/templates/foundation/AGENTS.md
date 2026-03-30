@@ -27,7 +27,7 @@
 
 - All of our unit and integration tests are to be stored in the `tests/` directory in the project root.
 
-- Use the `btca` tool to get the necessary context and/or documentation for any dependencies or libraries we are working with.
+- Use the `btca` tool to get the necessary context and/or documentation for any dependencies or libraries we are working with. You can run `btca ask` tool requests in parallel ONLY IF there are no overlapping resources being used. For example, if you run a `btca ask` request with 2 resources `RES_1` and `RES_2` and, in parallel, also run a request with the resources `RES_3` and `RES_1`, the second request will fail with the message: `Error: Failed to load resource "RES_1": git fetch failed`.
 
 - **DOUBLE CRITICAL**: You have to READ files before the system will allow you to edit, update or write to them.
 
@@ -79,7 +79,7 @@
   - `btca status`
   - `btca resources`
 - Asking questions:
-  - `btca ask -r <resource> -q "<question>"`
+  - `btca ask -r <resource> -q "<question>"` (keeping in mind the above warning about when and when not to run requests in parallel)
   - Multi-resource query: `btca ask -r <res1> -r <res2> -q "<question>"`
   - Cleaner output for agent pipelines: add `--sub-agent` (optionally `--no-thinking --no-tools`) to strip the additional output from the CLI
 - Resource management:
