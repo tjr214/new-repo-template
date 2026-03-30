@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `10.0` are now complete, the first feature `11.0` shared-react slice is implemented, and the follow-up runtime-testing pass has now turned several of the remaining roadmap unknowns into either concrete green evidence or explicit host-tooling blockers.
+The template implementation remains intact, features `5.0` through `10.0` are now complete, the first feature `11.0` shared-react slice is implemented, and the follow-up runtime-testing pass has now turned most of the remaining roadmap unknowns into either concrete green evidence or narrower target-specific follow-up items.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
 - Root `PLAN.md` is now a comprehensive restart-safe implementation plan for the next React-foundation/component-ownership cycle, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries capture the most recent planning closeout context.
@@ -86,8 +86,8 @@ The template implementation remains intact, features `5.0` through `10.0` are no
 - The explicit `local=clerk` plus self-hosted Convex follow-up is now closed for RC1 tracker purposes: docs-backed research indicates the Clerk issuer/domain style does not change with Convex hosting mode, and the generated `clerk/clerk` stack boots successfully against self-hosted Convex in practice.
 - The testing pass also surfaced and fixed two real follow-up runtime regressions in the new shared frontend work: web `build:app` now succeeds because the shared UI CSS import uses a filesystem-relative path that Vite/PostCSS can resolve, and desktop Forge packaging now succeeds because the standalone desktop workspace carries the real package/config shape required by Forge and the current Bun install behavior.
 - Desktop runtime validation now includes real evidence beyond the earlier smoke/help path: a fresh generated desktop repo now completes `desktop:package`, and a bounded `desktop:start` run reaches `Launched Electron app` successfully.
-- Mobile iOS validation is partially green and currently blocked by host tooling rather than by the generated app shape: Expo prebuild and CocoaPods install succeed, app smoke commands pass, and the remaining failure is the missing `iOS 26.2` platform component for the current Xcode simulator destination.
-- Android TV validation is also partially green and currently blocked by host tooling rather than by the generated app shape: Expo prebuild, native Android project generation, Gradle-wrapper patching, emulator launch, and app smoke commands all succeed, while the actual Gradle build is currently blocked by a missing Java runtime in the shell environment.
+- Mobile iOS validation is now fully green on this machine: after installing the newer iOS simulator runtime via `xcodebuild -downloadPlatform iOS`, a fresh generated repo now completes Expo prebuild, CocoaPods install, native iOS build, app installation into Simulator, and app open on the simulator successfully.
+- Android TV validation has advanced past the old host blocker too: Java 17 is now available through Homebrew and was used explicitly via `JAVA_HOME`/`PATH` overrides instead of changing the system-wide Java default, the generated TV repo reaches the emulator-launch checkpoint successfully again, and the remaining validation gap is now deeper Android app-run confirmation plus the still-outstanding physical NVIDIA Shield pass rather than a missing Java runtime.
 
 ## Active Implementation Rules
 

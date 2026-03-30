@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-30 06:20:42 PM
-**Current Phase:** Follow-up runtime testing is now substantially advanced: the three supported `web+backend` auth combinations are empirically validated on the corrected Start-based scaffold, the desktop React renderer now has real package/start evidence, and the remaining mobile/TV gaps are currently host-tooling blockers rather than first-order scaffold parse/install failures.
+**Last Updated:** 2026-03-30 07:54:25 PM
+**Current Phase:** The host-tooling remediation follow-up is now mostly complete: iOS is fully validated on this machine after installing the newer simulator runtime, Java 17 is now available for Android builds without taking over the global system Java path, and Android TV has advanced past the old missing-Java blocker to an emulator-launch checkpoint with only deeper app-run/device validation left.
 
 ## Previous Cycle Archives
 
@@ -257,6 +257,12 @@
 - [x] Captured best-effort iOS validation evidence on a fresh generated mobile repo: root `bun install --frozen-lockfile` plus app smoke commands pass, `expo run:ios` succeeds through prebuild and CocoaPods installation, and the remaining failure is host-side Xcode platform availability (`iOS 26.2` component missing for the selected simulator destination).
 - [x] Captured best-effort Android TV validation evidence on a fresh generated TV repo: root install plus app smoke commands pass, `tv:android` succeeds through Expo prebuild, Android project generation, Gradle-wrapper patching, and emulator launch, and the remaining failure is host-side Java availability for the Gradle build step.
 - [x] Synced the testing follow-up across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
+- [x] Investigated the host-tooling blockers directly instead of guessing: `xcodebuild -showsdks` showed the iOS 26.2 SDKs were present, `xcrun simctl list runtimes` showed only an older iOS simulator runtime initially, `java -version` and `/usr/libexec/java_home -V` confirmed there was no usable system Java runtime, and `xcodebuild -downloadPlatform iOS` plus Homebrew JDK installs were selected as the least-destructive fix path.
+- [x] Installed the missing newer iOS simulator runtime via `xcodebuild -downloadPlatform iOS`, which brought the machine to an available `iOS 26.3.1` simulator runtime and removed the earlier Xcode-side platform blocker.
+- [x] Installed Homebrew OpenJDKs for targeted Android validation, then intentionally used explicit `JAVA_HOME` plus `PATH` overrides rather than changing the machine's default Java symlink state; JDK 25 proved too new for the Expo/Gradle Android path, while JDK 17 matched the safer Expo recommendation.
+- [x] Re-ran the generated mobile iOS validation after the runtime install and reached full local success: `expo run:ios` now builds successfully, installs the app into Simulator, opens it on the `iPhone 16 Pro` simulator, and continues into Metro/dev-client serving until the command times out because it stays attached to the running dev session.
+- [x] Re-ran the generated TV Android validation after Java remediation: the old missing-Java blocker is gone, the build flow advances again into emulator launch with Java 17 available, and the current validation pass ended at the user-accepted emulator-launch checkpoint rather than at a stronger recorded full app-run assertion.
+- [x] Synced the final host-tooling follow-up across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
 
 ## Next Up
 

@@ -142,12 +142,13 @@
   - [x] Test to see if the desktop app package is correctly initializing Electron. Once again, test that Electron can RUN
     - [x] A fresh generated desktop repo now completes `desktop:package` successfully.
     - [x] A bounded `desktop:start` run reaches `Launched Electron app` in the log.
-  - [ ] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)
+  - [x] Test to see if the mobile app package is working with iOS (I cannot test Android phone apps from here)
     - [x] Expo prebuild and CocoaPods installation succeed on a fresh generated repo.
-    - [ ] The simulator build is currently blocked by the host missing the `iOS 26.2` platform component required by `xcodebuild`.
+    - [x] After installing the newer iOS simulator runtime, `expo run:ios` builds, installs the app into Simulator, and opens it successfully.
   - [ ] Test to see if the TV app package is working (and can load the app onto an nVidia Shield Pro)
     - [x] Expo prebuild, Android project generation, wrapper patching, and emulator launch succeed on a fresh generated repo.
-    - [ ] The actual Gradle build is currently blocked by the host shell missing a Java runtime.
+    - [x] The previous missing-Java blocker is resolved by using Java 17 explicitly for Android validation.
+    - [ ] The latest rerun ended at the user-accepted emulator-launch checkpoint rather than a stronger recorded full app-run assertion.
     - [ ] Physical NVIDIA Shield validation still remains outstanding.
   - [x] We also need to be able to run local dev versions of the backend and web frontend packages. Since we use Convex, we probably need to use a docker compose file to bring up local services for the local dev mode.
   - [x] Explicitly verify the `local=clerk` plus self-hosted Convex path with authoritative docs and/or empirical validation before calling that combination RC1-ready.

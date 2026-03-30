@@ -1,8 +1,8 @@
 # React Foundations And Component Ownership Plan
 
-**Last Updated:** 2026-03-30 06:20:42 PM
+**Last Updated:** 2026-03-30 07:54:25 PM
 **Status:** Completed
-**Most Recent Session Summary:** `docs/session-summaries/SESSION_138_SUMMARY.md`
+**Most Recent Session Summary:** `docs/session-summaries/SESSION_139_SUMMARY.md`
 
 ## Goal
 
@@ -19,7 +19,8 @@ This plan is intentionally restart-safe and assumes the next agent may begin fro
 
 - The supported `web+backend` auth matrix now has real runtime evidence for `better-auth/better-auth`, `better-auth/clerk`, and `clerk/clerk`.
 - The desktop lane now has real package/start evidence after the follow-up Forge/TanStack dependency fixes.
-- Mobile iOS and Android TV validation both advanced past scaffold/install sanity and into native toolchain execution, but each still has one host-environment blocker left on this machine (`iOS 26.2` platform component for Xcode and a missing Java runtime for Gradle, respectively).
+- Mobile iOS validation is now fully green locally after installing the newer iOS simulator runtime.
+- Android TV validation no longer has the missing-Java blocker after installing Java 17 and using it explicitly for Android runs; the remaining gap is stronger app-run/device confirmation, not basic tool availability.
 
 ## Locked Decisions
 
