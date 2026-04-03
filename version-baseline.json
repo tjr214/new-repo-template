@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-31T21:21:20+00:00",
+  "generated_at": "2026-04-03T23:00:26+00:00",
   "managed_tools": {
     "bun": {
       "source": "npm:bun",
@@ -11,7 +11,7 @@
     },
     "turbo": {
       "source": "npm:turbo",
-      "version": "2.9.2"
+      "version": "2.9.3"
     },
     "typescript": {
       "source": "npm:typescript",
