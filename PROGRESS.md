@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-03-30 07:54:25 PM
-**Current Phase:** The host-tooling remediation follow-up is now mostly complete: iOS is fully validated on this machine after installing the newer simulator runtime, Java 17 is now available for Android builds without taking over the global system Java path, and Android TV has advanced past the old missing-Java blocker to an emulator-launch checkpoint with only deeper app-run/device validation left.
+**Last Updated:** 2026-04-06 02:16:54 PM
+**Current Phase:** Feature `11.0` planning is now refreshed and locked for the next execution slice: shared React validation must cover `web`, `desktop`, `mobile`, and `tv`, with the immediate work centered on boundary contracts and cross-target shared-package safety rather than on new demo UI.
 
 ## Previous Cycle Archives
 
@@ -17,6 +17,11 @@
 
 ## Completed
 
+- [x] Ran the required YELLOW pass for the next feature `11.0` planning slice by rereading `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and `docs/session-summaries/SESSION_139_SUMMARY.md`, then running `btca status` plus five `btca ask` lookups for React, TanStack Start, Electron, Expo/React Native, and React Native TV boundary guidance.
+- [x] Locked the next feature `11.0` execution scope: validation now explicitly covers `web`, `desktop`, `mobile`, and `tv` rather than treating `mobile` and `tv` as future-only consumers of the shared React foundation.
+- [x] Locked the shared-package boundary model for the next slice: `packages/shared` and any cross-target `packages/design-tokens` exports must stay renderer-agnostic and React Native-safe, while route definitions, rendered components, runtime integrations, and TV focus/remote behavior stay target-owned.
+- [x] Confirmed the architecture-specific boundary rules from BTCA-backed YELLOW research: TanStack Start route files should remain in the web app, Electron-specific lifecycle/preload/IPC work should stay desktop-local, Expo-safe shared modules should remain pure JS/TS or React-core only, and TV focus/navigation should remain TV-specific.
+- [x] Synced the refreshed feature `11.0` discussion outcome across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
 - [x] Archived the previous root `PLAN.md` and `PROGRESS.md` trackers.
 - [x] Reset the root trackers as stubs for the next endeavour.
 - [x] Synced scaffolded root `.gitignore` output back to the full template-root baseline instead of the stale bundled subset.

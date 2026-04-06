@@ -1,188 +1,154 @@
-# React Foundations And Component Ownership Plan
+# Feature 11 Shared React Validation Plan
 
-**Last Updated:** 2026-03-30 07:54:25 PM
-**Status:** Completed
-**Most Recent Session Summary:** `docs/session-summaries/SESSION_139_SUMMARY.md`
+**Last Updated:** 2026-04-06 02:16:54 PM
+**Status:** Ready For Execution
+**Most Recent Session Summary:** `docs/session-summaries/SESSION_140_SUMMARY.md`
 
 ## Goal
 
-Build the next implementation cycle around feature `10.0` and feature `11.0` so the repo can move from planning into concrete work without reopening already-settled product and architecture decisions.
-
-The immediate execution target is:
-
-- feature `10.0`: lock and implement the `shadcn/ui` ownership/tooling model for web
-- feature `11.0`: implement the first shared React-foundation slice plus the first desktop React hello-world renderer
-
-This plan is intentionally restart-safe and assumes the next agent may begin from a blank context window.
-
-## Post-Completion Testing Notes
-
-- The supported `web+backend` auth matrix now has real runtime evidence for `better-auth/better-auth`, `better-auth/clerk`, and `clerk/clerk`.
-- The desktop lane now has real package/start evidence after the follow-up Forge/TanStack dependency fixes.
-- Mobile iOS validation is now fully green locally after installing the newer iOS simulator runtime.
-- Android TV validation no longer has the missing-Java blocker after installing Java 17 and using it explicitly for Android runs; the remaining gap is stronger app-run/device confirmation, not basic tool availability.
+Validate and harden feature `11.0` across `web`, `desktop`, `mobile`, and `tv` so the shared React foundation is real, boundary-safe, and ready to support later `Welcome To Nurt` work without over-coupling the targets.
 
 ## Locked Decisions
 
-- `shadcn/ui` is the default web component foundation.
-- Shared design tokens are the real cross-target visual foundation.
-- Mobile and TV keep native presentation layers.
-- Desktop must participate in the shared React model.
-- Desktop should use `Electron Forge + Vite + React`.
-- Desktop should use `@tanstack/react-router` with `createHashHistory()`.
-- Desktop should not use `TanStack Start` as the default renderer framework.
-- The first desktop React renderer only needs a simple hello-world baseline.
-- Shared foundations should preserve the same core style-and-feel identity across frontend targets.
-- Shared foundations should remain flexible enough for platform-specific capabilities.
-- Shared foundations should include design tokens, theme contracts, branding assets, shared copy/demo content, route intent, domain types/schemas, API/auth contracts, and shared hooks/utilities.
-- Platform-specific layers should include rendered component implementations, layout mechanics, platform input/navigation behavior, motion details, storage/notification integrations, and native bridge/device APIs.
-- `Welcome To Nurt` is a later cross-frontend demo item, not part of the first desktop React hello-world slice.
-- `nurt` should keep deterministic ownership of scaffolded web component files instead of invoking the `shadcn` CLI during normal `nurt new` runs.
-- The `shadcn` CLI should still be supported as a maintainer tool and integrated into `nurt sync tools`.
-- `Effect` is intentionally not part of the default RC1 baseline for the generated React/shared stack.
+- [ ] Treat feature `11.0` as a four-target validation item covering `web`, `desktop`, `mobile`, and `tv`.
+- [ ] Keep `packages/shared` renderer-agnostic and safe for React Native/TV import.
+- [ ] Keep `packages/design-tokens` cross-target only if it remains plain data/contracts and React Native-safe.
+- [ ] Keep `packages/ui` web-owned for now.
+- [ ] Keep TanStack Start route files, route-tree generation, and router ownership inside `apps/web`.
+- [ ] Keep desktop router wiring inside the desktop app, using `@tanstack/react-router` plus `createHashHistory()`.
+- [ ] Keep mobile and TV app entry/navigation local to those targets even if route intent data is shared.
+- [ ] Keep rendered components, layout mechanics, storage/notification integrations, native bridges/device APIs, and runtime provider wiring target-specific.
+- [ ] Keep TV focus handling and remote navigation TV-specific.
+- [ ] Preserve the shared import rule: shared packages must not import `react-dom`, browser globals, `electron`, or Expo/React Native native runtime APIs.
+- [ ] Require contract proof and workspace proof for all four targets, with the strongest practical runtime proof captured per target.
+- [ ] Defer feature `12.0` until feature `11.0` validation and boundary enforcement are complete.
 
 ## Explicit Non-Goals
 
-- Do not adopt `Effect` as a default library for the next implementation slice.
-- Do not make `nurt new` shell out to the live `shadcn` CLI at user runtime.
-- Do not attempt to create one universal rendered component library that spans web, desktop, mobile, and TV.
-- Do not move desktop onto `TanStack Start`.
-- Do not build the full `Welcome To Nurt` cross-frontend demo during the first desktop React migration slice.
-- Do not overbuild shared packages before the first concrete shared-foundation slice is working.
-
-## Preferred Minimal Implementation Shape
-
-- Keep the first shared foundation as small as possible.
-- Introduce a new `packages/design-tokens` package for cross-target tokens and theme primitives.
-- Reuse `packages/shared` for the first shared copy, route intent, types/schemas, auth/runtime abstractions, and generic hooks/utilities instead of creating multiple new support packages immediately.
-- Keep web UI implementation web-specific.
-- Keep native and desktop rendered UI layers target-specific.
+- [ ] Do not build the `Welcome To Nurt` demo in this slice.
+- [ ] Do not create a universal rendered component layer spanning web, desktop, mobile, and TV.
+- [ ] Do not move TanStack Start route files or generated route trees into shared packages.
+- [ ] Do not move Electron main/preload/IPC concerns into shared packages.
+- [ ] Do not move TV focus or remote interaction into broad cross-platform shared packages.
+- [ ] Do not widen `packages/design-tokens` with renderer-specific styling/runtime behavior.
+- [ ] Do not add new BTCA resources unless a later YELLOW pass proves they are missing and the user explicitly confirms them.
 
 ## Fresh-Context Restart
 
-- [x] Run `date "+%Y-%m-%d %I:%M:%S %p"` and record the current timestamp before making new edits.
-- [x] Read `PLAN.md` fully.
-- [x] Read `PROGRESS.md` fully.
-- [x] Read `docs/LIVING_DOCS.md` fully.
-- [x] Read `docs/ARCHITECTURE.md` fully.
-- [x] Read `TODO-FEATURES.md` fully.
-- [x] Read the latest session summary: `docs/session-summaries/SESSION_136_SUMMARY.md`.
-- [x] Read `btca.config.jsonc` and `docs/BTCA_RESOURCES.md` so BTCA state and docs are understood before any new changes.
-- [x] Re-read the current implementation files that are most likely to change:
-  - `src/new_repo_template/scaffold.py`
-  - `src/new_repo_template/nurt_cli.py`
-  - `src/new_repo_template/tool_sync_runner.py`
-  - `src/new_repo_template/sync_ops.py`
-  - `src/new_repo_template/tool_sync_tui.py`
-- [x] Re-read the current template files that define the existing web, desktop, and shared baselines:
-  - `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`
-  - `src/new_repo_template/snapshot_assets/templates/workspace_packages/desktop_package.json`
-  - `src/new_repo_template/snapshot_assets/templates/workspace_packages/shared_package.json`
-  - `src/new_repo_template/snapshot_assets/templates/fullstack/web_client.tsx`
-  - `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx`
-  - `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx`
-  - `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx`
-  - `src/new_repo_template/snapshot_assets/templates/desktop/desktop_index.html`
-  - `src/new_repo_template/snapshot_assets/templates/desktop/desktop_main.ts`
-  - `src/new_repo_template/snapshot_assets/templates/desktop/desktop_renderer.ts`
-  - `src/new_repo_template/snapshot_assets/templates/shared/shared_index.ts`
-- [x] Re-read the most relevant contract suites before changing implementation:
-  - `tests/contracts/test_nurt_cli_contract.py`
-  - `tests/contracts/test_tool_sync_runner_contract.py`
-  - `tests/contracts/test_root_workspace_contract.py`
-  - `tests/contracts/test_desktop_runtime_smoke_contract.py`
-  - `tests/contracts/test_bun_workspace_install_contract.py`
-  - `tests/contracts/test_turbo_command_smoke_contract.py`
-  - `tests/contracts/test_fullstack_auth_wiring_contract.py`
-- [x] Run `btca status`.
-- [x] Re-run the planning-critical BTCA lookups with plain/simple query strings before final implementation choices:
-  - `btca ask -r shadcn-ui -q "For a start monorepo, what is the normal shadcn CLI setup flow and where do generated components typically live" --sub-agent`
-  - `btca ask -r electron-forge -r tanstack-router-start -q "For an Electron desktop app with a React renderer, is the normal architecture Electron Forge plus Vite plus React plus TanStack Router without TanStack Start" --sub-agent`
-- [x] Confirm that no new user-authored changes conflict with the planned implementation before editing the touched files.
+- [ ] Run `date "+%Y-%m-%d %I:%M:%S %p"` and record the timestamp before making new edits.
+- [ ] Read `PLAN.md` fully.
+- [ ] Read `PROGRESS.md` fully.
+- [ ] Read `docs/LIVING_DOCS.md` fully.
+- [ ] Read `docs/ARCHITECTURE.md` fully.
+- [ ] Read `TODO-FEATURES.md` fully.
+- [ ] Read the latest session summary: `docs/session-summaries/SESSION_140_SUMMARY.md`.
+- [ ] Run `btca status`.
+- [ ] Re-run the planning-critical BTCA lookups with plain/simple queries before final implementation choices:
+  - [ ] `btca ask -r react-docs -q "For code shared between web React and React Native, what assumptions should be avoided so shared modules stay renderer agnostic" --sub-agent`
+  - [ ] `btca ask -r tanstack-router-start -q "For TanStack Start on web, should route definitions stay in the web app rather than in a shared package" --sub-agent`
+  - [ ] `btca ask -r electron-forge -r electron -q "For an Electron Forge app with a React renderer, what should stay in Electron specific code rather than shared frontend packages" --sub-agent`
+  - [ ] `btca ask -r react-native-docs -r expo-docs -q "For Expo React Native apps, what kinds of shared modules are safe to reuse across web desktop mobile and tv without DOM or native runtime assumptions" --sub-agent`
+  - [ ] `btca ask -r react-native-tvos -r expo-tv-config -q "For React Native TV apps, should focus handling and remote navigation stay platform specific rather than in shared cross platform packages" --sub-agent`
+- [ ] Re-read the most relevant implementation files before editing:
+  - [ ] `src/new_repo_template/scaffold.py`
+  - [ ] `src/new_repo_template/add_mode.py`
+- [ ] Re-read the relevant scaffold templates before editing:
+  - [ ] `src/new_repo_template/snapshot_assets/templates/workspace_packages/shared_package.json`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/workspace_packages/design_tokens_package.json`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/workspace_packages/ui_package.json`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/workspace_packages/web_package.json`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/workspace_packages/desktop_package.json`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/workspace_packages/desktop_package_with_shared.json`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/workspace_packages/mobile_package.json`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/workspace_packages/tv_package.json`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/shared/shared_index.ts`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/design_tokens/design_tokens_index.ts`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/ui/ui_index.ts`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/ui/ui_button.tsx`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/fullstack/web_client.tsx`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/fullstack/web_router.tsx`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/fullstack/web_root_route.tsx`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/fullstack/web_index_route.tsx`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/fullstack/web_route_tree.gen.ts`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/desktop/desktop_app.ts`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/desktop/desktop_router.ts`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/desktop/desktop_renderer_with_shared.ts`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/mobile/mobile_app.tsx`
+  - [ ] `src/new_repo_template/snapshot_assets/templates/tv/tv_app.tsx`
+- [ ] Re-read the most relevant contract suites before editing:
+  - [ ] `tests/contracts/test_fullstack_auth_wiring_contract.py`
+  - [ ] `tests/contracts/test_desktop_scaffold_contract.py`
+  - [ ] `tests/contracts/test_desktop_runtime_smoke_contract.py`
+  - [ ] `tests/contracts/test_mobile_tv_scaffold_contract.py`
+  - [ ] `tests/contracts/test_mobile_tv_runtime_smoke_contract.py`
+  - [ ] `tests/contracts/test_mobile_tv_setup_docs_contract.py`
+  - [ ] `tests/contracts/test_tv_input_hid_contract.py`
+  - [ ] `tests/contracts/test_shared_infra_packages_contract.py`
+  - [ ] `tests/contracts/test_bun_workspace_install_contract.py`
 
-## Execution Order
+## Validation Matrix
 
-- [x] Execute feature `10.0` first: finalize and implement the `shadcn/ui` ownership/tooling model.
-- [x] Execute the first feature `11.0` slice second: shared foundations plus desktop React hello world.
-- [x] Defer feature `12.0` `Welcome To Nurt` implementation until feature `10.0` and the first feature `11.0` slice are real and validated.
+- [ ] `web` must consume the shared non-visual foundation while keeping TanStack Start route ownership, route-tree generation, and browser/runtime wiring inside the web app.
+- [ ] `desktop` must consume the shared non-visual foundation while keeping Electron main/preload/IPC/window/runtime wiring inside the desktop app.
+- [ ] `mobile` must be a safe consumer of `@generated/shared`, and may consume `@generated/design-tokens` only if the token package remains plain data and React Native-safe.
+- [ ] `tv` must be a safe consumer of `@generated/shared`, and may consume `@generated/design-tokens` only if the token package remains plain data and React Native-safe.
+- [ ] `packages/ui` must remain a web-only dependency until a truly renderer-neutral UI case exists.
+- [ ] Shared packages must remain free of DOM globals, `react-dom`, Electron imports, and native module assumptions.
+- [ ] TV focus and remote navigation behavior must remain target-local and must not move into broad shared packages.
 
 ## YELLOW
 
-- [x] Confirm the exact owned web component layout for the first implementation slice.
-  - Recommended default: follow the upstream `shadcn` Start-monorepo model conceptually by keeping app config in the web lane and routing generated/owned UI files into a shared workspace UI location, but keep `nurt`'s scaffold deterministic rather than invoking the CLI during `nurt new`.
-- [x] Confirm the minimal package boundary for the first shared-foundation implementation.
-  - Recommended default: add `packages/design-tokens` and keep first-wave shared copy/contracts/utilities in `packages/shared`.
-- [x] Confirm how `nurt sync tools` should install/update the `shadcn` CLI on supported maintainer machines.
-- [x] Confirm the exact desktop React baseline file structure and whether the renderer should use a single root route or a tiny two-route baseline.
-  - Recommended default: one simple hello-world route first, with router wiring already in place.
-- [x] Confirm the validation surface for the slice before RED work begins.
+- [ ] Confirm the current shared-package export surface and identify every existing host/runtime assumption in `packages/shared` and `packages/design-tokens`.
+- [ ] Confirm whether `mobile` and `tv` can consume `@generated/design-tokens` immediately without forcing renderer-specific styling/runtime logic into that package.
+- [ ] Confirm that the current scaffold/add-mode paths will create or update shared package dependencies consistently for `nurt new` and `nurt add` if `mobile` and `tv` begin consuming the shared non-visual foundation now.
+- [ ] Confirm the exact target-owned boundaries before RED work begins:
+  - [ ] web-owned route files and router generation
+  - [ ] desktop-owned Electron lifecycle/preload/IPC and renderer routing
+  - [ ] mobile-owned app entry/navigation/runtime integrations
+  - [ ] TV-owned focus and remote navigation behavior
 
-## RED: Feature 10.0
+## RED
 
-- [x] Add or update contract coverage for `nurt sync tools` so the `shadcn` CLI appears in dry-run planning and non-dry-run tool execution behavior.
-- [x] Add or update contract coverage for deterministic web component ownership so the scaffolded web lane has the expected owned component/config layout without runtime CLI shell-outs.
-- [x] Add or update contract coverage for any new shared web UI package or config files introduced by the chosen `shadcn` ownership model.
+- [ ] Add a new contract suite for shared React boundaries, likely `tests/contracts/test_shared_react_boundaries_contract.py`.
+- [ ] In that suite, add explicit assertions that shared packages do not import DOM globals, `react-dom`, `electron`, or Expo/React Native native runtime APIs.
+- [ ] Add contract assertions that TanStack Start route definitions and generated route trees remain in the web app package rather than shared packages.
+- [ ] Add contract assertions that `packages/ui` remains web-only and is not wired into desktop/mobile/tv manifests.
+- [ ] Expand scaffold/runtime contracts to assert the intended shared dependency wiring for `web`, `desktop`, `mobile`, and `tv`.
+- [ ] Add contract coverage that `tv` keeps focus/remote behavior target-local and does not depend on a broad shared focus abstraction.
 
-## GREEN: Feature 10.0
+## GREEN
 
-- [x] Implement maintainer-side `shadcn` CLI support in the native tool-sync path.
-  - Update `src/new_repo_template/tool_sync_runner.py`.
-  - Update any sync orchestration or TUI layers that surface tool status/output.
-- [x] Implement the deterministic `shadcn/ui` ownership model for generated web projects.
-  - Add the required scaffold files/config for the owned web UI foundation.
-  - Keep `nurt new` free of live `shadcn` CLI runtime dependencies.
-- [x] Document how `nurt` owns, updates, and extends the web component foundation.
+- [ ] Refactor `packages/shared` exports only as needed so they stay pure JS/TS or React-core only and remain safe for React Native/TV import.
+- [ ] Refactor `packages/design-tokens` only as needed so any cross-target exports remain plain data/contracts and avoid renderer-specific behavior.
+- [ ] Wire `mobile` and `tv` manifests/templates to consume `@generated/shared` for non-visual shared foundations.
+- [ ] Wire `mobile` and `tv` to consume `@generated/design-tokens` only if the YELLOW/RED pass confirms the package stays React Native-safe.
+- [ ] Keep `packages/ui` limited to web templates and manifests.
+- [ ] Keep TanStack Start routes, route-tree generation, and router creation in `apps/web`.
+- [ ] Keep desktop router wiring and all Electron-specific runtime code local to the desktop target.
+- [ ] Keep mobile runtime integrations local to the mobile target.
+- [ ] Keep TV focus and remote navigation logic local to the TV target.
+- [ ] Update `src/new_repo_template/add_mode.py` if the shared dependency/package bootstrapping rules change for `mobile` and `tv`.
 
-## BLUE: Feature 10.0
+## BLUE
 
-- [x] Re-run the targeted contract suites for tool sync, CLI behavior, and scaffold layout.
-- [x] Re-run `uv run ruff check src/new_repo_template tests/contracts`.
-- [x] Re-run `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."` if template assets/manifests changed.
-- [x] Re-run the full repository suite with `uv run pytest` after the slice is stable.
-
-## RED: Feature 11.0 First Slice
-
-- [x] Add or update contract coverage for the new shared-foundation package boundary.
-- [x] Add or update contract coverage for the desktop React renderer migration.
-- [x] Add or update runtime smoke expectations so the desktop target proves React-renderer viability instead of the old plain-DOM baseline.
-
-## GREEN: Feature 11.0 First Slice
-
-- [x] Add `packages/design-tokens` as the first concrete shared-foundation package.
-  - Export the first minimal token/theme contract in a target-agnostic TypeScript shape.
-- [x] Extend `packages/shared` only as needed for the first wave of shared copy/contracts/utilities.
-- [x] Upgrade the desktop scaffold from plain DOM scripting to `Electron Forge + Vite + React`.
-- [x] Wire `@tanstack/react-router` into the desktop renderer with `createHashHistory()`.
-- [x] Keep the first desktop React UI intentionally minimal: simple hello-world content only.
-- [x] Ensure the desktop slice is compatible with the later cross-frontend `Welcome To Nurt` work rather than baking in throwaway structure.
-
-## BLUE: Feature 11.0 First Slice
-
-- [x] Re-run the targeted desktop/shared-foundation contracts and smoke suites.
-- [x] Re-run `uv run ruff check src/new_repo_template tests/contracts`.
-- [x] Re-run `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."` if template assets/manifests changed.
-- [x] Re-run the full repository suite with `uv run pytest` after the slice is stable.
+- [ ] Run the targeted shared-react validation slice:
+  - [ ] `uv run pytest tests/contracts/test_shared_react_boundaries_contract.py tests/contracts/test_fullstack_auth_wiring_contract.py tests/contracts/test_desktop_scaffold_contract.py tests/contracts/test_desktop_runtime_smoke_contract.py tests/contracts/test_mobile_tv_scaffold_contract.py tests/contracts/test_mobile_tv_runtime_smoke_contract.py tests/contracts/test_tv_input_hid_contract.py tests/contracts/test_shared_infra_packages_contract.py tests/contracts/test_bun_workspace_install_contract.py`
+- [ ] Run `uv run ruff check src/new_repo_template tests/contracts`.
+- [ ] Run `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."` if templates or snapshot metadata change.
+- [ ] Run `uv run pytest` after the targeted slice is stable.
 
 ## Documentation Sync
 
-- [x] Update `PROGRESS.md` as each slice moves through YELLOW, RED, GREEN, and BLUE.
-- [x] Update `docs/LIVING_DOCS.md` to reflect the final component-foundation and desktop React implementation state.
-- [x] Update `docs/ARCHITECTURE.md` to reflect the final package boundaries and renderer architecture that were actually implemented.
-- [x] Update `TODO-FEATURES.md` to check off any completed planning or implementation items.
-- [x] Create a new session summary in `docs/session-summaries/` for each completed implementation cycle; never overwrite an existing summary.
+- [ ] Update `PROGRESS.md` as the feature `11.0` slice moves through YELLOW, RED, GREEN, and BLUE.
+- [ ] Update `docs/LIVING_DOCS.md` to reflect the final shared-boundary enforcement and all-target validation state.
+- [ ] Update `docs/ARCHITECTURE.md` to reflect the final shared-vs-target-owned package boundaries that were actually implemented.
+- [ ] Update `TODO-FEATURES.md` to check off any newly completed feature `11.0` discussion or implementation items.
+- [ ] Create a new session summary in `docs/session-summaries/` when the implementation slice closes; never overwrite an existing summary.
 
-## Validation Commands
+## Exact Next Execution Steps
 
-- [x] Use `btca status` during YELLOW.
-- [x] Use the two planning-critical `btca ask` commands from the restart section during YELLOW before final implementation choices.
-- [x] Run targeted `pytest` suites for the touched contracts before full-suite validation.
-- [x] Run `uv run ruff check src/new_repo_template tests/contracts`.
-- [x] Run `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."` whenever scaffold templates or snapshot manifests change.
-- [x] Run `uv run pytest` before closing the slice.
-
-## Ready-To-Resume Summary
-
-- [x] Resume with feature `10.0`, not feature `12.0`.
-- [x] Treat deterministic `shadcn` ownership plus maintainer CLI support as the first concrete implementation target.
-- [x] After that, move immediately into the first feature `11.0` slice: `packages/design-tokens`, minimal shared exports, and desktop React hello world.
-- [x] Do not reopen already-locked decisions unless the new YELLOW pass reveals a direct upstream/tooling contradiction.
+- [ ] Start with RED, not new UI work.
+- [ ] Create the shared-boundary contract suite first.
+- [ ] Make the smallest template and scaffold changes needed to satisfy the new boundary assertions.
+- [ ] Re-run the targeted contract slice before touching broader validation.
+- [ ] Only after the contracts are green should the work expand into any additional runtime-smoke confirmation.

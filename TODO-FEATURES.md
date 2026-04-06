@@ -85,6 +85,11 @@
   - [x] Upgrade the desktop scaffold to a React renderer so it can participate in the shared React foundations.
     - [x] The first desktop React scaffold only needs to be a simple hello-world baseline.
   - [x] Implement the first appropriate shared foundations for the currently wired React targets (`web` and `desktop`) while keeping the package boundaries ready for later mobile/TV adoption.
+  - [x] Discussed and locked the all-target validation scope and boundary model for the next slice.
+    - [x] Feature `11.0` validation now explicitly covers `web`, `desktop`, `mobile`, and `tv`, not just the first implemented `web` + `desktop` shared slice.
+    - [x] Shared packages should stay renderer-agnostic and safe for React Native/TV import; route definitions, rendered components, and runtime integrations remain target-owned.
+    - [x] `packages/ui` remains web-owned for now; `mobile` and `tv` should consume only non-visual shared foundations and any data-only design-token contracts that remain React Native-safe.
+    - [x] TV focus handling and remote navigation remain TV-specific rather than broad shared-package behavior.
   - [ ] Test that the shared pieces actually work correctly across the supported React-based project types.
   - [ ] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
 - [ ] 12.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" DEMO APP ACROSS FRONTEND TYPES
