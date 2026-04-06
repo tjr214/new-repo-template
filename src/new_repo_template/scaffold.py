@@ -1086,7 +1086,8 @@ def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
             paths.append(f"{project_relative_root(project)}/.env.example")
 
     has_shared_workspace = any(
-        project.kind in {"web", "backend", "desktop"} for project in projects
+        project.kind in {"web", "backend", "desktop", "mobile", "tv"}
+        for project in projects
     )
     if has_shared_workspace:
         paths.extend(SHARED_WORKSPACE_PATHS)
@@ -1867,7 +1868,10 @@ def scaffold_desktop_project(
 def scaffold_shared_workspace_package(
     *, output_root: Path, projects: tuple[ProjectSpec, ...]
 ) -> None:
-    if not any(project.kind in {"web", "backend", "desktop"} for project in projects):
+    if not any(
+        project.kind in {"web", "backend", "desktop", "mobile", "tv"}
+        for project in projects
+    ):
         return
     shared_src_dir = output_root / "packages" / "shared" / "src"
     shared_src_dir.mkdir(parents=True, exist_ok=True)

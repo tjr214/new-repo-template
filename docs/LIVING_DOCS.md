@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `10.0` are now complete, the first feature `11.0` shared-react slice is implemented, and the next `11.0` execution pass is now locked as a cross-target validation/hardening slice rather than a new demo-UI build.
+The template implementation remains intact, features `5.0` through `11.0` are now complete, and the next natural frontend item is feature `12.0`, which can now build on a validated shared-foundation boundary instead of on a partially proven React target mix.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
 - Root `PLAN.md` is now a comprehensive restart-safe implementation plan for the next React-foundation/component-ownership cycle, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries capture the most recent planning closeout context.
@@ -88,10 +88,10 @@ The template implementation remains intact, features `5.0` through `10.0` are no
 - Desktop runtime validation now includes real evidence beyond the earlier smoke/help path: a fresh generated desktop repo now completes `desktop:package`, and a bounded `desktop:start` run reaches `Launched Electron app` successfully.
 - Mobile iOS validation is now fully green on this machine: after installing the newer iOS simulator runtime via `xcodebuild -downloadPlatform iOS`, a fresh generated repo now completes Expo prebuild, CocoaPods install, native iOS build, app installation into Simulator, and app open on the simulator successfully.
 - Android TV validation has advanced past the old host blocker too: Java 17 is now available through Homebrew and was used explicitly via `JAVA_HOME`/`PATH` overrides instead of changing the system-wide Java default, the generated TV repo reaches the emulator-launch checkpoint successfully again, and the remaining validation gap is now deeper Android app-run confirmation plus the still-outstanding physical NVIDIA Shield pass rather than a missing Java runtime.
-- The latest YELLOW planning pass for feature `11.0` is now complete too: it reread the active trackers, roadmap, and latest session summary, ran `btca status`, and used `btca ask` to confirm React renderer-agnostic constraints, TanStack Start route ownership, Electron process boundaries, Expo/React Native shared-module safety, and React Native TV focus-boundary guidance before resetting the implementation plan.
-- Feature `11.0` scope is now explicitly broader than the first implemented `web + desktop` slice: the validation pass must cover `web`, `desktop`, `mobile`, and `tv`, even though only `web` and `desktop` currently consume the shared foundation directly.
-- The shared-package boundary is now explicit for the next slice: `packages/shared` and any cross-target `packages/design-tokens` exports must stay renderer-agnostic and safe for React Native/TV import, `packages/ui` remains web-owned, and actual route files, rendered components, storage/notification integrations, native bridge/device APIs, and input behavior stay target-specific.
-- The most important remaining feature `11.0` proof gaps are now clear: the repo still lacks explicit contract coverage that shared packages avoid DOM, `react-dom`, Electron, and native-platform imports, and it does not yet prove that `mobile` and `tv` can consume the agreed shared non-visual layer without inheriting web or desktop assumptions.
+- The latest YELLOW-to-BLUE execution pass for feature `11.0` is now complete: the repo reread the trackers and roadmap, ran `btca status`, used `btca ask` to confirm framework/runtime boundaries, added explicit shared-react boundary contracts, patched the scaffold/add-mode behavior, refreshed bundled snapshot metadata, and revalidated the full suite at 248 passing tests.
+- Feature `11.0` is now fully closed rather than partially implemented: `web`, `desktop`, `mobile`, and `tv` are all covered by the shared-foundation validation model, with route/runtime ownership and import-boundary rules enforced in contract tests.
+- Generated `mobile` and `tv` apps now participate in the shared non-visual foundation directly through `@generated/shared`, while `packages/ui` remains web-owned and TV focus/remote behavior remains target-specific.
+- The new contract suite `tests/contracts/test_shared_react_boundaries_contract.py` now guards the most important shared-foundation invariants: shared packages must stay free of DOM, `react-dom`, Electron, and native-runtime imports; TanStack Start route ownership stays in the web app; non-web targets do not consume `@generated/ui`; and `mobile`/`tv` bootstrap the shared package even without `web` or `desktop`.
 
 ## Active Implementation Rules
 
@@ -142,6 +142,7 @@ The template implementation remains intact, features `5.0` through `10.0` are no
 - Shared route rule: shared packages may describe route intent, but route definitions and router generation remain target-owned; TanStack Start route files stay in `apps/web`
 - Shared UI ownership rule: `packages/ui` remains web-owned for now, while desktop/mobile/tv rendered UI stays target-specific
 - TV interaction rule: focus handling and remote navigation remain TV-specific behavior rather than broad shared-package behavior
+- Feature `11.0` validation status: complete
 
 ## Known Constraints
 
@@ -164,7 +165,7 @@ The template implementation remains intact, features `5.0` through `10.0` are no
 - Feature `9.0` additive patching must preserve user-added BTCA resources and avoid automatic deletion of either user-managed entries or drifted `nurt`-managed entries.
 - Any missing project BTCA resources needed to satisfy the new coverage rule must still be proposed explicitly and confirmed before they are added to this template repository's project BTCA config.
 - The static foundation BTCA snapshot file is retired; BTCA scaffold output is now generated code/data rather than manifest-mirrored content.
-- The first implemented shared-react slice (`web` + `desktop`) is not enough to close feature `11.0`; the next validation pass must explicitly account for `mobile` and `tv` as safe consumers of the shared non-visual foundation.
+- The feature `11.0` closeout now proves that `mobile` and `tv` can consume the shared non-visual foundation without inheriting web or desktop-specific imports.
 - `packages/design-tokens` can only widen to additional targets if it remains plain data/contracts and does not pick up renderer-specific styling or runtime assumptions.
 
 ## Implementation Notes (M0-M1)
@@ -176,8 +177,8 @@ The template implementation remains intact, features `5.0` through `10.0` are no
 - The first desktop React renderer target remains intentionally minimal in implementation too: one hello-world route now, with the richer cross-frontend `Welcome To Nurt` demo still deferred to the later roadmap item dedicated to that shared experience.
 - The `Welcome To Nurt` roadmap item is now explicitly cross-frontend rather than web-only; once the desktop React renderer exists, desktop should adopt that shared welcome/demo baseline too.
 - Shared React boundaries are now more concrete for the next implementation slice: the common layer should carry design tokens, theme contracts, branding assets, shared copy/demo content, route intent, domain types/schemas, API/auth contracts, and shared hooks/utilities, while rendered components, layout mechanics, platform input/navigation behavior, motion details, storage/notification integrations, and native bridge/device APIs remain platform-specific.
-- The next feature `11.0` plan sharpens those boundaries further: the common layer must also stay import-safe for React Native and TV consumers, which means no DOM globals, no `react-dom`, no `electron`, and no native module assumptions in shared packages.
-- BTCA-backed YELLOW guidance now also fixes route/runtime ownership more tightly for the upcoming implementation slice: TanStack Start route files and generated route trees stay in the web app, Electron lifecycle/preload/IPC stays desktop-local, and TV focus/remote logic stays in TV-specific code paths rather than in broad shared packages.
+- The completed feature `11.0` implementation now carries those rules into scaffolded output: mobile and TV starter apps import shared copy from `@generated/shared`, but route files remain app-owned, `packages/ui` stays web-only, and TV focus/remote behavior remains target-local.
+- The feature `11.0` validation slice is fully revalidated too: shared-react targeted validation is green, `uv run ruff check src/new_repo_template tests/contracts` is green, bundled snapshot metadata is refreshed, and the full repository suite now passes at 248 tests.
 - `shadcn/ui` is locked as the default web component foundation, but `nurt` should still own deterministic scaffold output for that layer rather than invoking the `shadcn` CLI during normal end-user `nurt new` runs; the CLI is currently a maintainer tool concern, not a runtime scaffold dependency.
 - `Effect` has been evaluated at the planning level and is intentionally not part of the default RC1 baseline for shared/frontend work; if it is revisited later, the most plausible first adoption points are complex backend, CLI, or device-link orchestration rather than the default generated app surface.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.

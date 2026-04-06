@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-04-06 02:16:54 PM
-**Current Phase:** Feature `11.0` planning is now refreshed and locked for the next execution slice: shared React validation must cover `web`, `desktop`, `mobile`, and `tv`, with the immediate work centered on boundary contracts and cross-target shared-package safety rather than on new demo UI.
+**Last Updated:** 2026-04-06 03:23:56 PM
+**Current Phase:** Feature `11.0` is now complete: the shared React foundation is contract-validated across `web`, `desktop`, `mobile`, and `tv`, and the next natural item is the feature `12.0` `Welcome To Nurt` discussion/build planning slice.
 
 ## Previous Cycle Archives
 
@@ -17,6 +17,11 @@
 
 ## Completed
 
+- [x] Completed RED for the feature `11.0` validation slice by adding `tests/contracts/test_shared_react_boundaries_contract.py` plus a new add-mode regression in `tests/contracts/test_nurt_add_contract.py`, locking shared-package import boundaries, web-owned route ownership, non-web `packages/ui` exclusion, mobile/TV shared-package wiring, and mobile/TV-only shared-package bootstrap.
+- [x] Completed GREEN for the feature `11.0` validation slice in `src/new_repo_template/scaffold.py`, `src/new_repo_template/add_mode.py`, and the mobile/TV snapshot templates: `packages/shared` now bootstraps for `mobile` and `tv`, generated mobile/TV manifests now depend on `@generated/shared`, and the generated mobile/TV starter apps now consume shared frontend copy while leaving rendering/input behavior target-specific.
+- [x] Completed BLUE for the feature `11.0` validation slice with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, targeted shared-react validation (35 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (248 passed).
+- [x] Closed feature `11.0` in the roadmap by validating that the shared pieces work across the supported React-based project types and by enforcing contract boundaries so the shared approach does not over-couple legitimate runtime differences.
+- [x] Synced the completed feature `11.0` closeout across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
 - [x] Ran the required YELLOW pass for the next feature `11.0` planning slice by rereading `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and `docs/session-summaries/SESSION_139_SUMMARY.md`, then running `btca status` plus five `btca ask` lookups for React, TanStack Start, Electron, Expo/React Native, and React Native TV boundary guidance.
 - [x] Locked the next feature `11.0` execution scope: validation now explicitly covers `web`, `desktop`, `mobile`, and `tv` rather than treating `mobile` and `tv` as future-only consumers of the shared React foundation.
 - [x] Locked the shared-package boundary model for the next slice: `packages/shared` and any cross-target `packages/design-tokens` exports must stay renderer-agnostic and React Native-safe, while route definitions, rendered components, runtime integrations, and TV focus/remote behavior stay target-owned.

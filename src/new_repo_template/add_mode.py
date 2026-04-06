@@ -449,7 +449,7 @@ def build_add_plan(
     create_shared_package = False
     if (
         any(
-            project.kind in {"web", "backend", "desktop"}
+            project.kind in {"web", "backend", "desktop", "mobile", "tv"}
             for project in combined_projects
         )
         and not existing_state.has_shared_package

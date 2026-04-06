@@ -372,6 +372,35 @@ def test_nurt_add_backend_creates_shared_workspace_package_when_missing(
     assert (repo_dir / "packages" / "shared" / "package.json").exists()
 
 
+def test_nurt_add_mobile_creates_shared_workspace_package_when_missing(
+    tmp_path: Path,
+) -> None:
+    """Adding mobile should bootstrap the shared non-visual package when missing."""
+
+    repo_dir = scaffold_generated_repo(
+        tmp_path=tmp_path, args=["--target", "foundation"]
+    )
+
+    result = run_nurt_command(
+        cwd=repo_dir,
+        args=["add", "--target", "mobile", "--no-interactive"],
+    )
+
+    assert result.returncode == 0, (
+        "Expected mobile add to succeed with shared package bootstrap.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    assert (repo_dir / "packages" / "shared" / "package.json").exists()
+
+    mobile_manifest = json.loads(
+        (repo_dir / "apps" / "mobile" / "mobile" / "package.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert mobile_manifest["dependencies"]["@generated/shared"] == "workspace:*"
+
+
 def test_nurt_add_web_retrofits_existing_desktop_for_shared_wiring(
     tmp_path: Path,
 ) -> None:

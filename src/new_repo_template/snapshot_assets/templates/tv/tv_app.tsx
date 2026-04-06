@@ -2,6 +2,8 @@ import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { NURT_FRONTEND_COPY } from "@generated/shared";
+
 const RAIL_ITEMS = ["Home", "Library", "Settings"] as const;
 
 export default function App() {
@@ -10,7 +12,8 @@ export default function App() {
 
   return (
     <View style={styles.screen}>
-      <Text style={styles.title}>Expo TV baseline</Text>
+      <Text style={styles.title}>{NURT_FRONTEND_COPY.title}</Text>
+      <Text style={styles.copy}>{NURT_FRONTEND_COPY.body}</Text>
       <Text style={styles.subtitle}>{message}</Text>
       <View style={styles.rail}>
         {RAIL_ITEMS.map((item, index) => {
@@ -49,6 +52,12 @@ const styles = StyleSheet.create({
   subtitle: {
     color: "#8bc2e6",
     fontSize: 18,
+  },
+  copy: {
+    color: "#d8f0ff",
+    fontSize: 16,
+    maxWidth: 760,
+    textAlign: "center",
   },
   rail: {
     width: 360,

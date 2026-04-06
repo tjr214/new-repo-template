@@ -68,7 +68,7 @@
     - [x] Update `nurt sync tools` so it can install or upgrade the `shadcn` CLI.
   - [x] Define how brand-new nurt-specific components should be created on top of the `shadcn/ui` web foundation and shared token system.
   - [x] Define the long-term component expansion and maintenance model across supported React-based project types.
-- [ ] 11.0 PROPERLY SET UP AND TEST SHARED REACT PROJECT CAPABILITIES
+- [x] 11.0 PROPERLY SET UP AND TEST SHARED REACT PROJECT CAPABILITIES
   - [x] Discussed and locked the desktop React architecture direction.
     - [x] Desktop should use `Electron Forge + Vite + React` for the renderer architecture.
     - [x] Desktop should use `@tanstack/react-router` for default client-side routing.
@@ -90,8 +90,8 @@
     - [x] Shared packages should stay renderer-agnostic and safe for React Native/TV import; route definitions, rendered components, and runtime integrations remain target-owned.
     - [x] `packages/ui` remains web-owned for now; `mobile` and `tv` should consume only non-visual shared foundations and any data-only design-token contracts that remain React Native-safe.
     - [x] TV focus handling and remote navigation remain TV-specific rather than broad shared-package behavior.
-  - [ ] Test that the shared pieces actually work correctly across the supported React-based project types.
-  - [ ] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
+  - [x] Test that the shared pieces actually work correctly across the supported React-based project types.
+  - [x] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
 - [ ] 12.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" DEMO APP ACROSS FRONTEND TYPES
   - [x] Discussed and locked the initial outcome for this item.
     - [x] The `Welcome To Nurt` work should become a cross-frontend demo app, not just a web-only landing page.
@@ -104,6 +104,7 @@
   - [ ] Apply the component-library decision from `10.0` and the shared-foundation decisions from `11.0` to the `Welcome To Nurt` implementation.
   - [ ] Update the demo so it uses the real nurt component strategy rather than ad hoc markup.
   - [ ] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt frontend experience.
+  - [ ] Re-test ALL package types to make sure everything is still working: web app pulls up locally, python and typescript CLI apps are working, python/typescript library projects are working, Desktop is working, mobile is working, and TV is working.
 - [ ] 14.0 TV AUTH DEVICE-LINKING FLOW FOR ANDROID TV
   - [ ] Discuss and lock the full TV auth experience before building.
   - [ ] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
@@ -113,7 +114,7 @@
 - [ ] 15.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
   - [ ] RC1 is blocked on the planning, implementation, and validation work captured in `10.0` through `14.0`.
     - [x] `10.0` must lock the component-library ownership and expansion model.
-    - [ ] `11.0` must establish and validate the correct shared React foundations.
+    - [x] `11.0` must establish and validate the correct shared React foundations.
     - [ ] `12.0` must establish the baseline `Welcome To Nurt` experience across frontend targets.
     - [ ] `13.0` must align the `Welcome To Nurt` experience with the chosen component approach.
     - [ ] `14.0` must deliver a working Android TV device-link auth flow.
