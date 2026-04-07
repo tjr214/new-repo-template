@@ -138,10 +138,16 @@ def test_shared_react_boundaries_keep_routes_local_and_non_web_ui_unwired(
 
     mobile_app_text = mobile_app.read_text(encoding="utf-8")
     tv_app_text = tv_app.read_text(encoding="utf-8")
+    shared_index_text = shared_index.read_text(encoding="utf-8")
+    assert "NURT_WELCOME_HIGHLIGHTS" in shared_index_text
+    assert "NURT_GETTING_STARTED_STEPS" in shared_index_text
+    assert "NURT_TV_WELCOME_CARDS" in shared_index_text
     assert "@generated/shared" in mobile_app_text
     assert "NURT_FRONTEND_COPY" in mobile_app_text
+    assert "NURT_WELCOME_HIGHLIGHTS.map" in mobile_app_text
     assert "@generated/shared" in tv_app_text
     assert "NURT_FRONTEND_COPY" in tv_app_text
+    assert "NURT_TV_WELCOME_CARDS.map" in tv_app_text
 
 
 def test_mobile_tv_only_scaffold_bootstraps_shared_non_visual_foundation(

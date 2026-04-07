@@ -92,14 +92,18 @@
     - [x] TV focus handling and remote navigation remain TV-specific rather than broad shared-package behavior.
   - [x] Test that the shared pieces actually work correctly across the supported React-based project types.
   - [x] Ensure the shared approach does not over-couple targets that have legitimately different runtime needs.
-- [ ] 12.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" DEMO APP ACROSS FRONTEND TYPES
+- [x] 12.0 BUILD A BARE-MINIMUM "WELCOME TO NURT" DEMO APP ACROSS FRONTEND TYPES
   - [x] Discussed and locked the initial outcome for this item.
     - [x] The `Welcome To Nurt` work should become a cross-frontend demo app, not just a web-only landing page.
     - [x] Once the desktop React renderer exists, the desktop package should adopt this `Welcome To Nurt` baseline.
-  - [ ] Discuss and lock the purpose, scope, tone, and baseline user journey before building.
-  - [ ] Design a minimal but distinct nurt-specific welcome experience instead of a generic starter page.
-  - [ ] Implement the baseline `Welcome To Nurt` demo across the generated frontend experiences.
-  - [ ] Ensure the demo feels analogous in purpose to default framework welcome pages while still being clearly branded as nurt.
+  - [x] Discuss and lock the purpose, scope, tone, and baseline user journey before building.
+    - [x] Lock feature `12.0` as a balanced starter-guide welcome experience rather than a long tutorial or a generic framework landing page.
+    - [x] Keep the welcome content mostly conceptual: explain what the generated repo gives the user and how to start building without turning the UI into a command cheat sheet.
+    - [x] Keep the core welcome content shared while letting `web`, `desktop`, `mobile`, and `tv` render and interact with it in target-local ways.
+    - [x] TV should participate through focusable instructional cards: `Start Building`, `How This Repo Works`, and `Shared Foundations`.
+  - [x] Design a minimal but distinct nurt-specific welcome experience instead of a generic starter page.
+  - [x] Implement the baseline `Welcome To Nurt` demo across the generated frontend experiences.
+  - [x] Ensure the demo feels analogous in purpose to default framework welcome pages while still being clearly branded as nurt.
 - [ ] 13.0 UPDATE THE "WELCOME TO NURT" APP TO USE THE CHOSEN COMPONENT APPROACH
   - [ ] Apply the component-library decision from `10.0` and the shared-foundation decisions from `11.0` to the `Welcome To Nurt` implementation.
   - [ ] Update the demo so it uses the real nurt component strategy rather than ad hoc markup.
@@ -115,7 +119,7 @@
   - [ ] RC1 is blocked on the planning, implementation, and validation work captured in `10.0` through `14.0`.
     - [x] `10.0` must lock the component-library ownership and expansion model.
     - [x] `11.0` must establish and validate the correct shared React foundations.
-    - [ ] `12.0` must establish the baseline `Welcome To Nurt` experience across frontend targets.
+    - [x] `12.0` must establish the baseline `Welcome To Nurt` experience across frontend targets.
     - [ ] `13.0` must align the `Welcome To Nurt` experience with the chosen component approach.
     - [ ] `14.0` must deliver a working Android TV device-link auth flow.
   - [x] Discussed and locked the first RC1 execution slice before building.

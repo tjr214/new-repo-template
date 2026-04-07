@@ -118,6 +118,13 @@ def test_desktop_only_scaffolds_electron_forge_baseline(tmp_path: Path) -> None:
     router_text = (desktop_root / "src" / "router.ts").read_text(encoding="utf-8")
     assert "createHashHistory" in router_text
     assert "createRouter" in router_text
+    assert "DesktopWelcomePage" in router_text
+
+    app_text = (desktop_root / "src" / "app.ts").read_text(encoding="utf-8")
+    assert "DesktopWelcomePage" in app_text
+    assert "NURT_WELCOME_HIGHLIGHTS.map" in app_text
+    assert "NURT_GETTING_STARTED_STEPS.map" in app_text
+    assert "highlightsHeading" in app_text
 
     readme_text = (desktop_root / "README.md").read_text(encoding="utf-8").lower()
     assert "unsigned" in readme_text

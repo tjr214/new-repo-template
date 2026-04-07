@@ -83,8 +83,10 @@ def test_tv_app_baseline_includes_remote_primary_focus_wiring(tmp_path: Path) ->
         encoding="utf-8"
     )
     assert "Pressable" in app_tsx
+    assert "NURT_TV_WELCOME_CARDS" in app_tsx
     assert "hasTVPreferredFocus" in app_tsx
     assert "onFocus" in app_tsx
+    assert "focusedCard" in app_tsx
     assert "remote-primary" in app_tsx
     assert "keyboard/mouse/gamepad fallback" in app_tsx
     assert "useTVEventHandler" not in app_tsx

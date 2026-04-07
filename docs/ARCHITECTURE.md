@@ -42,6 +42,8 @@ The target architecture is an always-on monorepo template that can scaffold:
 - BTCA coverage policy: every materially used scaffolded framework/library/tool should be represented in the generated repo's BTCA resource set for the relevant target composition
 - Feature `11.0` validation scope: shared React validation must cover `web`, `desktop`, `mobile`, and `tv`, not just the first implemented `web + desktop` slice
 - Shared React boundary policy: `packages/shared` and any cross-target `packages/design-tokens` exports must remain renderer-agnostic and safe for React Native/TV import, while route definitions, rendered components, runtime integrations, and TV focus/input behavior remain target-owned
+- Feature `12.0` welcome-demo policy: shared structured welcome content and repo-orientation guidance should live in the shared foundation, while `web`, `desktop`, `mobile`, and `tv` each keep target-local rendering and interaction models; TV expresses the baseline through focusable instructional cards rather than generic app navigation
+- Feature `12.0` content-density policy: the starter should teach repo readiness conceptually rather than embedding a dense command/tutorial surface directly in the UI
 
 ## Planned Topology
 
@@ -94,6 +96,10 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Route ownership remains app-local by framework: TanStack Start route files and route-tree generation stay in the web app, the desktop app keeps its own router wiring, and mobile/TV keep their own app entry/navigation surfaces even when route intent data is shared.
 - `packages/ui` remains a web-owned package in this architecture, while desktop/mobile/tv keep rendered components, layout behavior, and input semantics in their target-local layers.
 - Generated mobile and TV packages now depend on `@generated/shared`, which gives them the first real shared non-visual foundation without moving renderer-specific or input-specific behavior into shared packages.
+- Feature `12.0` planning is now locked on top of that boundary model: the next welcome/demo slice should replace the current placeholder copy with a balanced starter-guide that teaches repo readiness and structure while keeping rendering local to each target and preserving TV-specific focus/remote behavior.
+- Feature `12.0` is now complete: `packages/shared` exports the structured welcome content for highlights, starter guidance, and TV instructional cards, while the `web`, `desktop`, `mobile`, and `tv` templates now render that same nurt-branded baseline through target-local layout and interaction models.
+- The TV welcome implementation now uses a focusable instructional-card/detail-panel baseline rather than generic placeholder rail items, preserving the remote-primary contract while aligning the content to the same product story as the other frontend targets.
+- The completed feature `12.0` slice reserves deeper component-library polish for feature `13.0`: the baseline now exists across all frontend targets, but the richer component-strategy follow-through still remains separate work.
 - Feature `6.0` closeout also corrected the sync-governance implementation so `src/new_repo_template/snapshot_assets/source_manifest.json` is again the sole source of truth for foundation sync scope; the helper layer no longer rejects user-approved `management.sync = true` entries via a second hardcoded allowlist.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.

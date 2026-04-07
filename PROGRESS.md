@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-04-06 03:23:56 PM
-**Current Phase:** Feature `11.0` is now complete: the shared React foundation is contract-validated across `web`, `desktop`, `mobile`, and `tv`, and the next natural item is the feature `12.0` `Welcome To Nurt` discussion/build planning slice.
+**Last Updated:** 2026-04-07 03:03:34 PM
+**Current Phase:** Feature `12.0` is now complete: the cross-frontend `Welcome To Nurt` baseline ships across `web`, `desktop`, `mobile`, and `tv`, and the next natural item is feature `13.0` to apply the fuller chosen component approach.
 
 ## Previous Cycle Archives
 
@@ -17,6 +17,15 @@
 
 ## Completed
 
+- [x] Completed RED for feature `12.0` by updating the frontend scaffold contracts to lock the new welcome baseline semantically across `web`, `desktop`, `mobile`, and `tv` without overfitting exact prose.
+- [x] Completed GREEN for feature `12.0` in the shared and target template files: `packages/shared` now exports structured welcome content (`NURT_WELCOME_HIGHLIGHTS`, `NURT_GETTING_STARTED_STEPS`, `NURT_TV_WELCOME_CARDS`), the web and desktop surfaces now render the same nurt-branded starter-guide concept, mobile now presents the same content in a touch-friendly stacked layout, and TV now uses focusable instructional cards instead of generic placeholder rail items.
+- [x] Completed BLUE for feature `12.0` with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, targeted frontend contract validation (22 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (248 passed).
+- [x] Closed feature `12.0` in the roadmap by replacing the old placeholder frontend copy with a clearly branded `Welcome To Nurt` baseline that teaches repo readiness and starter workflow across all four frontend targets while preserving the feature `11.0` ownership boundaries.
+- [x] Synced the completed feature `12.0` implementation across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
+- [x] Ran the required feature `12.0` YELLOW planning pass by rereading `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, the latest session summaries (`SESSION_140_SUMMARY.md` and `SESSION_141_SUMMARY.md`), the current shared/web/desktop/mobile/TV welcome templates, and the most relevant frontend scaffold contracts before editing any trackers.
+- [x] Revalidated the feature `12.0` planning boundaries with `btca status` plus plain `btca ask` lookups for React shared-module constraints, TanStack Start route ownership, Electron desktop-only responsibilities, Expo/React Native safe shared code, and React Native TV focus/remote specificity.
+- [x] Locked the feature `12.0` discussion outcome: the `Welcome To Nurt` baseline should be a balanced starter-guide, mostly conceptual rather than command-heavy, shared in content through `@generated/shared`, rendered target-locally on each frontend, and TV-specific through focusable instructional cards (`Start Building`, `How This Repo Works`, `Shared Foundations`) while leaving fuller component-system polish for feature `13.0`.
+- [x] Synced the feature `12.0` planning outcome across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
 - [x] Completed RED for the feature `11.0` validation slice by adding `tests/contracts/test_shared_react_boundaries_contract.py` plus a new add-mode regression in `tests/contracts/test_nurt_add_contract.py`, locking shared-package import boundaries, web-owned route ownership, non-web `packages/ui` exclusion, mobile/TV shared-package wiring, and mobile/TV-only shared-package bootstrap.
 - [x] Completed GREEN for the feature `11.0` validation slice in `src/new_repo_template/scaffold.py`, `src/new_repo_template/add_mode.py`, and the mobile/TV snapshot templates: `packages/shared` now bootstraps for `mobile` and `tv`, generated mobile/TV manifests now depend on `@generated/shared`, and the generated mobile/TV starter apps now consume shared frontend copy while leaving rendering/input behavior target-specific.
 - [x] Completed BLUE for the feature `11.0` validation slice with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, targeted shared-react validation (35 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (248 passed).

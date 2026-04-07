@@ -2,7 +2,12 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `11.0` are now complete, and the next natural frontend item is feature `12.0`, which can now build on a validated shared-foundation boundary instead of on a partially proven React target mix.
+The template implementation remains intact, features `5.0` through `12.0` are now complete, and the next natural frontend item is feature `13.0`, which can now refine a real shared `Welcome To Nurt` baseline instead of replacing placeholder starter content.
+
+- Feature `12.0` is now implemented: the generated frontend starter is a balanced nurt-branded starter-guide rather than a generic framework placeholder.
+- The welcome content remains mostly conceptual instead of command-heavy: the baseline now teaches what the generated monorepo gives the user, how the shared-vs-target-local structure works, and where to begin building without turning the UI into a terminal cheat sheet.
+- Shared structured welcome content now lives in `@generated/shared`, while `web`, `desktop`, `mobile`, and `tv` each render that content in target-local ways.
+- TV now participates through the locked focusable instructional-card model (`Start Building`, `How This Repo Works`, `Shared Foundations`) rather than through generic placeholder navigation items.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
 - Root `PLAN.md` is now a comprehensive restart-safe implementation plan for the next React-foundation/component-ownership cycle, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries capture the most recent planning closeout context.
@@ -143,6 +148,9 @@ The template implementation remains intact, features `5.0` through `11.0` are no
 - Shared UI ownership rule: `packages/ui` remains web-owned for now, while desktop/mobile/tv rendered UI stays target-specific
 - TV interaction rule: focus handling and remote navigation remain TV-specific behavior rather than broad shared-package behavior
 - Feature `11.0` validation status: complete
+- Feature `12.0` welcome-demo direction: balanced starter-guide, shared structured content, target-local rendering, and TV-specific focusable instructional cards
+- Feature `12.0` command-density rule: mostly conceptual repo guidance, not an embedded terminal cheat sheet
+- Feature `12.0` validation status: complete
 
 ## Known Constraints
 
@@ -167,6 +175,8 @@ The template implementation remains intact, features `5.0` through `11.0` are no
 - The static foundation BTCA snapshot file is retired; BTCA scaffold output is now generated code/data rather than manifest-mirrored content.
 - The feature `11.0` closeout now proves that `mobile` and `tv` can consume the shared non-visual foundation without inheriting web or desktop-specific imports.
 - `packages/design-tokens` can only widen to additional targets if it remains plain data/contracts and does not pick up renderer-specific styling or runtime assumptions.
+- Feature `12.0` must preserve the feature `11.0` ownership boundaries: web route files stay in the web app, Electron runtime concerns stay desktop-local, Expo/React Native shared code stays free of DOM/native-only assumptions, and TV focus/remote behavior stays TV-specific.
+- Feature `13.0` should continue to respect those same ownership boundaries while upgrading the `Welcome To Nurt` baseline to the fuller chosen component approach.
 
 ## Implementation Notes (M0-M1)
 
@@ -176,6 +186,8 @@ The template implementation remains intact, features `5.0` through `11.0` are no
 - Shared React-foundation scope is now partially realized in code: the first package boundary is `packages/design-tokens` for shared theme primitives plus `packages/shared` for shared copy/route intent, while actual rendered UI remains target-specific (`packages/ui` for web, desktop-renderer code for desktop).
 - The first desktop React renderer target remains intentionally minimal in implementation too: one hello-world route now, with the richer cross-frontend `Welcome To Nurt` demo still deferred to the later roadmap item dedicated to that shared experience.
 - The `Welcome To Nurt` roadmap item is now explicitly cross-frontend rather than web-only; once the desktop React renderer exists, desktop should adopt that shared welcome/demo baseline too.
+- The latest feature `12.0` planning pass used the required YELLOW inputs before tracker updates: file rereads, `btca status`, and `btca ask` guidance for React shared-module purity, TanStack Start app-local route ownership, Electron desktop-only responsibilities, Expo-safe shared code, and React Native TV focus specificity.
+- That planning pass is now carried through in code: shared welcome data includes branded repo-readiness messaging plus concise highlight/guidance sections, while the four frontend targets each render the same concept with target-local layouts and TV-specific focus interactions.
 - Shared React boundaries are now more concrete for the next implementation slice: the common layer should carry design tokens, theme contracts, branding assets, shared copy/demo content, route intent, domain types/schemas, API/auth contracts, and shared hooks/utilities, while rendered components, layout mechanics, platform input/navigation behavior, motion details, storage/notification integrations, and native bridge/device APIs remain platform-specific.
 - The completed feature `11.0` implementation now carries those rules into scaffolded output: mobile and TV starter apps import shared copy from `@generated/shared`, but route files remain app-owned, `packages/ui` stays web-only, and TV focus/remote behavior remains target-local.
 - The feature `11.0` validation slice is fully revalidated too: shared-react targeted validation is green, `uv run ruff check src/new_repo_template tests/contracts` is green, bundled snapshot metadata is refreshed, and the full repository suite now passes at 248 tests.

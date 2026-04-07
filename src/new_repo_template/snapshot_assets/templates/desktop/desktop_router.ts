@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router"
 import { createElement } from "react"
 
-import { DesktopHelloWorldPage } from "./app"
+import { DesktopWelcomePage } from "./app"
 
 const rootRoute = createRootRoute({
   component: RootLayout,
@@ -20,7 +20,7 @@ function RootLayout() {
 const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: DesktopHelloWorldPage,
+  component: DesktopWelcomePage,
 })
 
 const routeTree = rootRoute.addChildren([homeRoute])

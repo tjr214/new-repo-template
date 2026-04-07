@@ -1,5 +1,9 @@
 import { nurtDesignTokens } from "@generated/design-tokens"
-import { NURT_FRONTEND_COPY } from "@generated/shared"
+import {
+  NURT_FRONTEND_COPY,
+  NURT_GETTING_STARTED_STEPS,
+  NURT_WELCOME_HIGHLIGHTS,
+} from "@generated/shared"
 import { createElement } from "react"
 
 const shellStyle = {
@@ -14,7 +18,7 @@ const shellStyle = {
 }
 
 const panelStyle = {
-  width: "min(36rem, 100%)",
+  width: "min(42rem, 100%)",
   display: "grid",
   gap: nurtDesignTokens.spacing.md,
   padding: nurtDesignTokens.spacing.xl,
@@ -33,10 +37,58 @@ const eyebrowStyle = {
   color: nurtDesignTokens.colors.accent,
 }
 
-const captionStyle = {
+const copyStyle = {
   margin: 0,
   color: nurtDesignTokens.colors.mutedForeground,
   lineHeight: 1.6,
+}
+
+const sectionStyle = {
+  display: "grid",
+  gap: nurtDesignTokens.spacing.sm,
+}
+
+const sectionHeadingStyle = {
+  margin: 0,
+  fontFamily: nurtDesignTokens.typography.display,
+  fontSize: "1.05rem",
+}
+
+const cardListStyle = {
+  display: "grid",
+  gap: nurtDesignTokens.spacing.sm,
+}
+
+const cardStyle = {
+  display: "grid",
+  gap: nurtDesignTokens.spacing.xs,
+  padding: nurtDesignTokens.spacing.md,
+  borderRadius: nurtDesignTokens.radius.md,
+  border: `1px solid ${nurtDesignTokens.colors.border}`,
+  backgroundColor: nurtDesignTokens.colors.surfaceRaised,
+}
+
+const cardTitleStyle = {
+  margin: 0,
+  fontWeight: 600,
+}
+
+const stepRowStyle = {
+  display: "grid",
+  gridTemplateColumns: "1.75rem 1fr",
+  gap: nurtDesignTokens.spacing.sm,
+  alignItems: "start",
+}
+
+const stepIndexStyle = {
+  width: "1.75rem",
+  height: "1.75rem",
+  display: "grid",
+  placeItems: "center",
+  borderRadius: nurtDesignTokens.radius.pill,
+  backgroundColor: nurtDesignTokens.colors.accent,
+  color: nurtDesignTokens.colors.background,
+  fontWeight: 700,
 }
 
 const buttonRowStyle = {
@@ -61,7 +113,7 @@ const secondaryButtonStyle = {
   color: nurtDesignTokens.colors.foreground,
 }
 
-export function DesktopHelloWorldPage() {
+export function DesktopWelcomePage() {
   return createElement(
     "main",
     { style: shellStyle },
@@ -70,7 +122,49 @@ export function DesktopHelloWorldPage() {
       { style: panelStyle },
       createElement("p", { style: eyebrowStyle }, NURT_FRONTEND_COPY.eyebrow),
       createElement("h1", null, NURT_FRONTEND_COPY.title),
-      createElement("p", { style: captionStyle }, NURT_FRONTEND_COPY.body),
+      createElement("p", { style: copyStyle }, NURT_FRONTEND_COPY.body),
+      createElement(
+        "section",
+        { style: sectionStyle },
+        createElement(
+          "h2",
+          { style: sectionHeadingStyle },
+          NURT_FRONTEND_COPY.highlightsHeading,
+        ),
+        createElement(
+          "div",
+          { style: cardListStyle },
+          ...NURT_WELCOME_HIGHLIGHTS.map((highlight) =>
+            createElement(
+              "div",
+              { key: highlight.title, style: cardStyle },
+              createElement("p", { style: cardTitleStyle }, highlight.title),
+              createElement("p", { style: copyStyle }, highlight.body),
+            ),
+          ),
+        ),
+      ),
+      createElement(
+        "section",
+        { style: sectionStyle },
+        createElement(
+          "h2",
+          { style: sectionHeadingStyle },
+          NURT_FRONTEND_COPY.gettingStartedHeading,
+        ),
+        createElement(
+          "div",
+          { style: cardListStyle },
+          ...NURT_GETTING_STARTED_STEPS.map((step, index) =>
+            createElement(
+              "div",
+              { key: step, style: stepRowStyle },
+              createElement("div", { style: stepIndexStyle }, index + 1),
+              createElement("p", { style: copyStyle }, step),
+            ),
+          ),
+        ),
+      ),
       createElement(
         "div",
         { style: buttonRowStyle },
@@ -85,7 +179,7 @@ export function DesktopHelloWorldPage() {
           NURT_FRONTEND_COPY.secondaryAction,
         ),
       ),
-      createElement("p", { style: captionStyle }, NURT_FRONTEND_COPY.caption),
+      createElement("p", { style: copyStyle }, NURT_FRONTEND_COPY.caption),
     ),
   )
 }

@@ -116,11 +116,19 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
     assert "createRootRoute" in web_root_route.read_text(encoding="utf-8")
     assert "HeadContent" in web_root_route.read_text(encoding="utf-8")
     assert "Scripts" in web_root_route.read_text(encoding="utf-8")
-    assert 'createFileRoute("/")' in web_index_route.read_text(encoding="utf-8")
-    assert "@generated/ui/components/button" in web_index_route.read_text(
-        encoding="utf-8"
-    )
-    assert "nurtDesignTokens" in web_index_route.read_text(encoding="utf-8")
+    web_index_text = web_index_route.read_text(encoding="utf-8")
+    shared_index_text = shared_index.read_text(encoding="utf-8")
+    assert 'createFileRoute("/")' in web_index_text
+    assert "@generated/ui/components/button" in web_index_text
+    assert "nurtDesignTokens" in web_index_text
+    assert "NURT_WELCOME_HIGHLIGHTS.map" in web_index_text
+    assert "NURT_GETTING_STARTED_STEPS.map" in web_index_text
+    assert "highlightsHeading" in web_index_text
+    assert "Welcome To Nurt" in shared_index_text
+    assert "NURT_WELCOME_HIGHLIGHTS" in shared_index_text
+    assert "NURT_GETTING_STARTED_STEPS" in shared_index_text
+    assert "NURT_TV_WELCOME_CARDS" in shared_index_text
+    assert "repo root" in shared_index_text
     assert "@generated/ui/components" in web_components.read_text(encoding="utf-8")
     assert 'local: "clerk"' in backend_auth.read_text(encoding="utf-8")
     assert 'prod: "clerk"' in backend_auth.read_text(encoding="utf-8")
@@ -211,6 +219,8 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
     assert 'createFileRoute("/")' in web_index_text
     assert "@generated/shared" in web_index_text
     assert "@generated/ui/components/button" in web_index_text
+    assert "NURT_WELCOME_HIGHLIGHTS.map" in web_index_text
+    assert "NURT_GETTING_STARTED_STEPS.map" in web_index_text
     assert "StartClient" in web_client.read_text(encoding="utf-8")
     assert "export function getRouter()" in web_router.read_text(encoding="utf-8")
     assert "HeadContent" in web_root_route.read_text(encoding="utf-8")

@@ -112,6 +112,16 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
     assert '"slug": "mobile"' in app_json_text
     assert "@react-native-tvos/config-tv" not in app_json_text
 
+    shared_index_text = (
+        output_dir / "packages" / "shared" / "src" / "index.ts"
+    ).read_text(encoding="utf-8")
+    mobile_app_text = (mobile_root / "App.tsx").read_text(encoding="utf-8")
+    assert "Welcome To Nurt" in shared_index_text
+    assert "NURT_WELCOME_HIGHLIGHTS" in shared_index_text
+    assert "NURT_GETTING_STARTED_STEPS" in shared_index_text
+    assert "NURT_WELCOME_HIGHLIGHTS.map" in mobile_app_text
+    assert "NURT_GETTING_STARTED_STEPS.map" in mobile_app_text
+
     eas_json_text = (mobile_root / "eas.json").read_text(encoding="utf-8")
     assert '"preview"' in eas_json_text
     assert '"development"' in eas_json_text
@@ -205,6 +215,17 @@ def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
     app_json_text = (tv_root / "app.json").read_text(encoding="utf-8")
     assert '"slug": "tv"' in app_json_text
     assert '"@react-native-tvos/config-tv"' in app_json_text
+
+    shared_index_text = (
+        output_dir / "packages" / "shared" / "src" / "index.ts"
+    ).read_text(encoding="utf-8")
+    tv_app_text = (tv_root / "App.tsx").read_text(encoding="utf-8")
+    assert "NURT_TV_WELCOME_CARDS" in shared_index_text
+    assert "Start Building" in shared_index_text
+    assert "How This Repo Works" in shared_index_text
+    assert "Shared Foundations" in shared_index_text
+    assert "NURT_TV_WELCOME_CARDS.map" in tv_app_text
+    assert "focusedCard" in tv_app_text
 
 
 def test_mobile_tv_dry_run_reports_separate_mobile_and_tv_paths(tmp_path: Path) -> None:
