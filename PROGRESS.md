@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-04-07 09:18:58 PM
-**Current Phase:** Feature `13.0` planning is now locked: the next execution slice is a web-first but all-target `Operator Console` redesign of `Welcome To Nurt` across `web`, `desktop`, `mobile`, and `tv`, with implementation work not yet started.
+**Last Updated:** 2026-04-07 10:26:06 PM
+**Current Phase:** Feature `13.0` is now complete: the `Welcome To Nurt` baseline has been upgraded into the cross-frontend `Operator Console`, and the next natural item is feature `14.0` for the TV auth device-linking flow.
 
 ## Previous Cycle Archives
 
@@ -17,6 +17,11 @@
 
 ## Completed
 
+- [x] Completed RED for feature `13.0` by updating the frontend scaffold contracts to lock the `Operator Console` structure semantically across `web`, `desktop`, `mobile`, and `tv` while preserving the feature `11.0` boundary model.
+- [x] Completed GREEN for feature `13.0` in the shared, token, UI, and target template files: `packages/shared` now exports the richer operator-console content model (`NURT_WELCOME_HERO`, `NURT_WELCOME_ACTIONS`, `NURT_WELCOME_SECTIONS` plus updated highlights/steps/TV cards), `packages/ui` now owns reusable web components (`HeroPanel`, `SectionFrame`, `FeatureCard`, `StepList`, `ActionCluster`, `Eyebrow`), the web route now renders through those owned UI components, desktop now renders target-local `DesktopHeroPanel`/`DesktopFeatureCard`/`DesktopStepList`/`DesktopActionCluster`, mobile now renders target-local `MobileHeroPanel`/`MobileHighlightCard`/`MobileStepCard`/`MobileActionRow`, and TV now renders richer target-local `TVFocusRail`/`TVFocusCard`/`TVDetailPanel`/`TVActionHint` components while keeping remote/focus logic local.
+- [x] Completed BLUE for feature `13.0` with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, targeted frontend contract validation (22 passed), broader package-matrix validation (29 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (248 passed).
+- [x] Closed feature `13.0` in the roadmap by applying the chosen component strategy to `Welcome To Nurt` across all frontend targets without turning `packages/ui` into a cross-platform runtime UI layer.
+- [x] Synced the completed feature `13.0` implementation across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary.
 - [x] Completed the required YELLOW pass for feature `13.0` before any edits by rereading `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, `docs/session-summaries/SESSION_143_SUMMARY.md`, the current shared/web/desktop/mobile/TV welcome templates, the owned web `packages/ui` button template, and the most relevant frontend scaffold/boundary contracts.
 - [x] Revalidated the feature `13.0` planning context with `btca status` plus a plain `btca ask -r shadcn-ui -q "Should shadcn stay web only while shared tokens and content support web desktop mobile and tv?" --sub-agent`, confirming that `shadcn/ui` should remain the web-owned implementation layer while shared tokens/content/contracts stay cross-target.
 - [x] Locked the feature `13.0` discussion outcome: redesign the `Welcome To Nurt` baseline as an `Operator Console` across `web`, `desktop`, `mobile`, and `tv`; execute `web` first; keep `packages/ui` web-owned; keep desktop on `Electron + React`; and keep `mobile`/`tv` on Expo/React Native with target-local rendered components over shared tokens/content.

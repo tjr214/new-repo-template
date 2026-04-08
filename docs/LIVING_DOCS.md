@@ -2,18 +2,23 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `12.0` are now complete, and feature `13.0` planning is now locked as a web-first but all-target `Operator Console` redesign of the shared `Welcome To Nurt` baseline.
+The template implementation remains intact, features `5.0` through `13.0` are now complete, and the next natural frontend/runtime item is feature `14.0` for the TV auth device-linking flow.
 
 - Feature `12.0` is now implemented: the generated frontend starter is a balanced nurt-branded starter-guide rather than a generic framework placeholder.
 - The welcome content remains mostly conceptual instead of command-heavy: the baseline now teaches what the generated monorepo gives the user, how the shared-vs-target-local structure works, and where to begin building without turning the UI into a terminal cheat sheet.
 - Shared structured welcome content now lives in `@generated/shared`, while `web`, `desktop`, `mobile`, and `tv` each render that content in target-local ways.
 - TV now participates through the locked focusable instructional-card model (`Start Building`, `How This Repo Works`, `Shared Foundations`) rather than through generic placeholder navigation items.
-- Feature `13.0` is now discussion-locked but not yet implemented: the next slice should redesign the welcome baseline into an `Operator Console` experience, build `web` first, and still carry the same system language through `desktop`, `mobile`, and `tv` before closeout.
+- Feature `13.0` is now implemented: `Welcome To Nurt` has been upgraded into the `Operator Console` across `web`, `desktop`, `mobile`, and `tv`.
+- `packages/shared` now carries the richer operator-console content model: `NURT_WELCOME_HERO`, `NURT_WELCOME_ACTIONS`, `NURT_WELCOME_SECTIONS`, and refreshed highlight/step/TV-card structures.
+- `packages/ui` now owns the real web component set for the welcome surface: `HeroPanel`, `SectionFrame`, `FeatureCard`, `StepList`, `ActionCluster`, `Eyebrow`, and the existing `Button`.
+- Desktop now renders the same system language through target-local `DesktopHeroPanel`, `DesktopFeatureCard`, `DesktopStepList`, and `DesktopActionCluster` helpers instead of importing the web UI package.
+- Mobile now renders the same system language through target-local React Native components (`MobileHeroPanel`, `MobileHighlightCard`, `MobileStepCard`, `MobileActionRow`) instead of through ad hoc stacked markup.
+- TV now renders the same system language through richer focus-first target-local components (`TVFocusRail`, `TVFocusCard`, `TVDetailPanel`, `TVActionHint`) while keeping remote/focus behavior fully TV-local.
 - `shadcn/ui` remains the default web component foundation only; the shared layer continues to own tokens/content/semantic structure, while desktop/mobile/TV keep target-local rendered components instead of importing `@generated/ui`.
 - Desktop remains `Electron Forge + Vite + React`, not React Native, while `mobile` and `tv` remain Expo/React Native apps that can use normal platform capabilities through Expo/RN integrations, config plugins, or explicit native modules.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
-- Root `PLAN.md` is now a comprehensive restart-safe implementation plan for the next React-foundation/component-ownership cycle, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries capture the most recent planning closeout context.
+- Root `PLAN.md` is now reset as the next-cycle stub for feature `14.0` planning, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries capture the most recent implementation closeout context.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -159,6 +164,7 @@ The template implementation remains intact, features `5.0` through `12.0` are no
 - Feature `13.0` ownership rule: `packages/ui` remains web-owned, shared packages carry only renderer-safe tokens/content/semantic structure, and desktop/mobile/tv render target-local component equivalents
 - Desktop runtime clarification: desktop remains `Electron + React`, not React Native
 - Mobile/TV native capability rule: Expo/React Native targets remain real native app surfaces, with native capability access flowing through Expo/RN APIs or explicit native modules when needed
+- Feature `13.0` validation status: complete
 
 ## Known Constraints
 
@@ -184,8 +190,7 @@ The template implementation remains intact, features `5.0` through `12.0` are no
 - The feature `11.0` closeout now proves that `mobile` and `tv` can consume the shared non-visual foundation without inheriting web or desktop-specific imports.
 - `packages/design-tokens` can only widen to additional targets if it remains plain data/contracts and does not pick up renderer-specific styling or runtime assumptions.
 - Feature `12.0` must preserve the feature `11.0` ownership boundaries: web route files stay in the web app, Electron runtime concerns stay desktop-local, Expo/React Native shared code stays free of DOM/native-only assumptions, and TV focus/remote behavior stays TV-specific.
-- Feature `13.0` should continue to respect those same ownership boundaries while upgrading the `Welcome To Nurt` baseline to the fuller chosen component approach.
-- Feature `13.0` must land across `web`, `desktop`, `mobile`, and `tv` in the same slice even though execution should proceed `web` first.
+- Feature `14.0` should build on the now-real `Operator Console` baseline rather than on the older placeholder or starter-guide phases.
 
 ## Implementation Notes (M0-M1)
 
@@ -201,9 +206,9 @@ The template implementation remains intact, features `5.0` through `12.0` are no
 - The completed feature `11.0` implementation now carries those rules into scaffolded output: mobile and TV starter apps import shared copy from `@generated/shared`, but route files remain app-owned, `packages/ui` stays web-only, and TV focus/remote behavior remains target-local.
 - The feature `11.0` validation slice is fully revalidated too: shared-react targeted validation is green, `uv run ruff check src/new_repo_template tests/contracts` is green, bundled snapshot metadata is refreshed, and the full repository suite now passes at 248 tests.
 - `shadcn/ui` is locked as the default web component foundation, but `nurt` should still own deterministic scaffold output for that layer rather than invoking the `shadcn` CLI during normal end-user `nurt new` runs; the CLI is currently a maintainer tool concern, not a runtime scaffold dependency.
-- The latest required YELLOW planning pass for feature `13.0` is now complete too: the repo reread the active trackers, roadmap, latest session summary, current welcome templates, owned web UI starter, and relevant contracts; ran `btca status`; and used a plain `btca ask` lookup against `shadcn-ui` before syncing the docs and restart plan.
-- That planning pass locked the next slice in concrete terms: feature `13.0` should redesign the welcome baseline into an `Operator Console`, keep `packages/ui` web-owned, build `web` first, and then carry the same system language through desktop/mobile/TV with target-local renderers instead of a shared cross-platform runtime component package.
-- The same discussion also confirmed the platform model that should guide implementation: desktop remains an Electron-hosted React renderer rather than a React Native target, while mobile and TV remain real Expo/React Native apps with access to native capabilities through the normal React Native / Expo integration layer.
+- The required YELLOW planning pass for feature `13.0` is now carried through in implementation too: the repo reread the active trackers, roadmap, latest session summary, current welcome templates, owned web UI starter, and relevant contracts; ran `btca status`; and used a plain `btca ask` lookup against `shadcn-ui` before RED/GREEN execution.
+- The implementation preserved the locked architecture exactly: `packages/ui` remains web-only, the shared layer now owns a richer operator-console content model, desktop remains an Electron-hosted React renderer, and mobile/TV remain real Expo/React Native app surfaces with target-local rendered components.
+- Validation is now complete for the slice: `template-assets validate` is green, the targeted frontend contract set is green at 22 passed, the broader package-matrix set is green at 29 passed, `ruff` is green, and the full repository suite remains green at 248 passed.
 - `Effect` has been evaluated at the planning level and is intentionally not part of the default RC1 baseline for shared/frontend work; if it is revisited later, the most plausible first adoption points are complex backend, CLI, or device-link orchestration rather than the default generated app surface.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.

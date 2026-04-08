@@ -9,21 +9,22 @@
 
 body {
   margin: 0;
+  background: #071521;
+  color: #eff8fb;
 }
 
 .nurt-shell {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   padding: 2rem;
 }
 
 .nurt-panel {
-  width: min(40rem, 100%);
+  width: min(78rem, 100%);
   display: grid;
-  gap: 1rem;
-  padding: 2rem;
+  gap: 1.25rem;
+  padding: 0;
 }
 
 .nurt-eyebrow {
@@ -37,6 +38,11 @@ body {
 .nurt-copy {
   margin: 0;
   line-height: 1.6;
+}
+
+.nurt-panel-grid {
+  display: grid;
+  gap: 1rem;
 }
 
 .nurt-actions {
@@ -55,4 +61,11 @@ body {
 
 .nurt-button:active {
   transform: translateY(0);
+}
+
+@media (min-width: 960px) {
+  .nurt-panel-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(21rem, 0.9fr);
+    align-items: start;
+  }
 }

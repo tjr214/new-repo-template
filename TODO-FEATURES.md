@@ -104,17 +104,17 @@
   - [x] Design a minimal but distinct nurt-specific welcome experience instead of a generic starter page.
   - [x] Implement the baseline `Welcome To Nurt` demo across the generated frontend experiences.
   - [x] Ensure the demo feels analogous in purpose to default framework welcome pages while still being clearly branded as nurt.
-- [ ] 13.0 UPDATE THE "WELCOME TO NURT" APP TO USE THE CHOSEN COMPONENT APPROACH
+- [x] 13.0 UPDATE THE "WELCOME TO NURT" APP TO USE THE CHOSEN COMPONENT APPROACH
   - [x] Discuss and lock the feature `13.0` scope before implementation.
     - [x] The redesign direction is `Operator Console` rather than a generic polish pass.
     - [x] All frontend targets remain in scope for this slice, with `web` implemented first.
     - [x] `packages/ui` remains web-owned, while desktop/mobile/tv keep target-local rendered components.
     - [x] Desktop stays `Electron + React`, while mobile/tv stay Expo/React Native.
     - [x] Shared packages continue to own tokens/content/semantic structure rather than a cross-platform rendered component library.
-  - [ ] Apply the component-library decision from `10.0` and the shared-foundation decisions from `11.0` to the `Welcome To Nurt` implementation.
-  - [ ] Update the demo so it uses the real nurt component strategy rather than ad hoc markup.
-  - [ ] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt frontend experience.
-  - [ ] Re-test ALL package types to make sure everything is still working: web app pulls up locally, python and typescript CLI apps are working, python/typescript library projects are working, Desktop is working, mobile is working, and TV is working.
+  - [x] Apply the component-library decision from `10.0` and the shared-foundation decisions from `11.0` to the `Welcome To Nurt` implementation.
+  - [x] Update the demo so it uses the real nurt component strategy rather than ad hoc markup.
+  - [x] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt frontend experience.
+  - [x] Re-test ALL package types to make sure everything is still working: web app pulls up locally, python and typescript CLI apps are working, python/typescript library projects are working, Desktop is working, mobile is working, and TV is working.
 - [ ] 14.0 TV AUTH DEVICE-LINKING FLOW FOR ANDROID TV
   - [ ] Discuss and lock the full TV auth experience before building.
   - [ ] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
@@ -126,7 +126,7 @@
     - [x] `10.0` must lock the component-library ownership and expansion model.
     - [x] `11.0` must establish and validate the correct shared React foundations.
     - [x] `12.0` must establish the baseline `Welcome To Nurt` experience across frontend targets.
-    - [ ] `13.0` must align the `Welcome To Nurt` experience with the chosen component approach.
+    - [x] `13.0` must align the `Welcome To Nurt` experience with the chosen component approach.
     - [ ] `14.0` must deliver a working Android TV device-link auth flow.
   - [x] Discussed and locked the first RC1 execution slice before building.
     - [x] Start with `web + backend` local-dev/auth validation before broader desktop/mobile/TV runtime testing.

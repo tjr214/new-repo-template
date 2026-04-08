@@ -72,7 +72,22 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
     design_tokens_package = output_dir / "packages" / "design-tokens" / "package.json"
     design_tokens_index = output_dir / "packages" / "design-tokens" / "src" / "index.ts"
     ui_package = output_dir / "packages" / "ui" / "package.json"
+    ui_action_cluster = (
+        output_dir / "packages" / "ui" / "src" / "components" / "action-cluster.tsx"
+    )
     ui_button = output_dir / "packages" / "ui" / "src" / "components" / "button.tsx"
+    ui_feature_card = (
+        output_dir / "packages" / "ui" / "src" / "components" / "feature-card.tsx"
+    )
+    ui_hero_panel = (
+        output_dir / "packages" / "ui" / "src" / "components" / "hero-panel.tsx"
+    )
+    ui_section_frame = (
+        output_dir / "packages" / "ui" / "src" / "components" / "section-frame.tsx"
+    )
+    ui_step_list = (
+        output_dir / "packages" / "ui" / "src" / "components" / "step-list.tsx"
+    )
 
     for path in (
         web_client,
@@ -94,7 +109,12 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
         design_tokens_package,
         design_tokens_index,
         ui_package,
+        ui_action_cluster,
         ui_button,
+        ui_feature_card,
+        ui_hero_panel,
+        ui_section_frame,
+        ui_step_list,
     ):
         assert path.exists(), f"Expected scaffolded file: {path}"
 
@@ -119,16 +139,25 @@ def test_web_backend_clerk_scaffolds_real_tanstack_start_and_convex_wiring(
     web_index_text = web_index_route.read_text(encoding="utf-8")
     shared_index_text = shared_index.read_text(encoding="utf-8")
     assert 'createFileRoute("/")' in web_index_text
+    assert "@generated/ui/components/action-cluster" in web_index_text
     assert "@generated/ui/components/button" in web_index_text
-    assert "nurtDesignTokens" in web_index_text
-    assert "NURT_WELCOME_HIGHLIGHTS.map" in web_index_text
-    assert "NURT_GETTING_STARTED_STEPS.map" in web_index_text
-    assert "highlightsHeading" in web_index_text
+    assert "@generated/ui/components/feature-card" in web_index_text
+    assert "@generated/ui/components/hero-panel" in web_index_text
+    assert "@generated/ui/components/section-frame" in web_index_text
+    assert "@generated/ui/components/step-list" in web_index_text
+    assert "HeroPanel" in web_index_text
+    assert "FeatureCard" in web_index_text
+    assert "StepList" in web_index_text
+    assert "ActionCluster" in web_index_text
     assert "Welcome To Nurt" in shared_index_text
+    assert "Operator Console" in shared_index_text
+    assert "NURT_WELCOME_HERO" in shared_index_text
+    assert "NURT_WELCOME_ACTIONS" in shared_index_text
+    assert "NURT_WELCOME_SECTIONS" in shared_index_text
     assert "NURT_WELCOME_HIGHLIGHTS" in shared_index_text
     assert "NURT_GETTING_STARTED_STEPS" in shared_index_text
     assert "NURT_TV_WELCOME_CARDS" in shared_index_text
-    assert "repo root" in shared_index_text
+    assert "repo root" in shared_index_text.lower()
     assert "@generated/ui/components" in web_components.read_text(encoding="utf-8")
     assert 'local: "clerk"' in backend_auth.read_text(encoding="utf-8")
     assert 'prod: "clerk"' in backend_auth.read_text(encoding="utf-8")
@@ -218,9 +247,12 @@ def test_web_backend_better_auth_scaffolds_concrete_tanstack_and_convex_wiring(
     web_index_text = web_index_route.read_text(encoding="utf-8")
     assert 'createFileRoute("/")' in web_index_text
     assert "@generated/shared" in web_index_text
-    assert "@generated/ui/components/button" in web_index_text
-    assert "NURT_WELCOME_HIGHLIGHTS.map" in web_index_text
-    assert "NURT_GETTING_STARTED_STEPS.map" in web_index_text
+    assert "@generated/ui/components/hero-panel" in web_index_text
+    assert "@generated/ui/components/feature-card" in web_index_text
+    assert "@generated/ui/components/step-list" in web_index_text
+    assert "@generated/ui/components/action-cluster" in web_index_text
+    assert "HeroPanel" in web_index_text
+    assert "ActionCluster" in web_index_text
     assert "StartClient" in web_client.read_text(encoding="utf-8")
     assert "export function getRouter()" in web_router.read_text(encoding="utf-8")
     assert "HeadContent" in web_root_route.read_text(encoding="utf-8")

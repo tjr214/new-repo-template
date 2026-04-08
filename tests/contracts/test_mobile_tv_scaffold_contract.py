@@ -117,8 +117,17 @@ def test_mobile_only_scaffolds_expo_baseline_files_and_scripts(tmp_path: Path) -
     ).read_text(encoding="utf-8")
     mobile_app_text = (mobile_root / "App.tsx").read_text(encoding="utf-8")
     assert "Welcome To Nurt" in shared_index_text
+    assert "Operator Console" in shared_index_text
+    assert "NURT_WELCOME_HERO" in shared_index_text
+    assert "NURT_WELCOME_ACTIONS" in shared_index_text
+    assert "NURT_WELCOME_SECTIONS" in shared_index_text
     assert "NURT_WELCOME_HIGHLIGHTS" in shared_index_text
     assert "NURT_GETTING_STARTED_STEPS" in shared_index_text
+    assert "MobileHeroPanel" in mobile_app_text
+    assert "MobileHighlightCard" in mobile_app_text
+    assert "MobileStepCard" in mobile_app_text
+    assert "MobileActionRow" in mobile_app_text
+    assert "NURT_WELCOME_HERO" in mobile_app_text
     assert "NURT_WELCOME_HIGHLIGHTS.map" in mobile_app_text
     assert "NURT_GETTING_STARTED_STEPS.map" in mobile_app_text
 
@@ -221,9 +230,14 @@ def test_tv_only_scaffolds_expo_tv_baseline_with_isolated_plugin(
     ).read_text(encoding="utf-8")
     tv_app_text = (tv_root / "App.tsx").read_text(encoding="utf-8")
     assert "NURT_TV_WELCOME_CARDS" in shared_index_text
-    assert "Start Building" in shared_index_text
-    assert "How This Repo Works" in shared_index_text
-    assert "Shared Foundations" in shared_index_text
+    assert "Repo Ready" in shared_index_text
+    assert "Pick A Lane" in shared_index_text
+    assert "Ship The Product" in shared_index_text
+    assert "Operator Console" in shared_index_text
+    assert "TVFocusRail" in tv_app_text
+    assert "TVFocusCard" in tv_app_text
+    assert "TVDetailPanel" in tv_app_text
+    assert "TVActionHint" in tv_app_text
     assert "NURT_TV_WELCOME_CARDS.map" in tv_app_text
     assert "focusedCard" in tv_app_text
 

@@ -275,7 +275,13 @@ UI_WORKSPACE_PATHS: tuple[str, ...] = (
     "packages/ui/src/",
     "packages/ui/src/index.ts",
     "packages/ui/src/components/",
+    "packages/ui/src/components/action-cluster.tsx",
     "packages/ui/src/components/button.tsx",
+    "packages/ui/src/components/eyebrow.tsx",
+    "packages/ui/src/components/feature-card.tsx",
+    "packages/ui/src/components/hero-panel.tsx",
+    "packages/ui/src/components/section-frame.tsx",
+    "packages/ui/src/components/step-list.tsx",
     "packages/ui/src/lib/",
     "packages/ui/src/lib/utils.ts",
     "packages/ui/src/styles/",
@@ -502,7 +508,13 @@ DESIGN_TOKENS_INDEX_TEMPLATE = load_template_text(
 )
 SHARED_INDEX_TEMPLATE = load_template_text("shared/shared_index.ts")
 UI_INDEX_TEMPLATE = load_template_text("ui/ui_index.ts")
+UI_ACTION_CLUSTER_TEMPLATE = load_template_text("ui/ui_action_cluster.tsx")
 UI_BUTTON_TEMPLATE = load_template_text("ui/ui_button.tsx")
+UI_EYEBROW_TEMPLATE = load_template_text("ui/ui_eyebrow.tsx")
+UI_FEATURE_CARD_TEMPLATE = load_template_text("ui/ui_feature_card.tsx")
+UI_HERO_PANEL_TEMPLATE = load_template_text("ui/ui_hero_panel.tsx")
+UI_SECTION_FRAME_TEMPLATE = load_template_text("ui/ui_section_frame.tsx")
+UI_STEP_LIST_TEMPLATE = load_template_text("ui/ui_step_list.tsx")
 UI_UTILS_TEMPLATE = load_template_text("ui/ui_utils.ts")
 UI_GLOBALS_TEMPLATE = load_template_text("ui/ui_globals.css")
 ROOT_GITIGNORE = load_template_text("root_gitignore.txt")
@@ -1913,7 +1925,31 @@ def scaffold_ui_workspace_package(
     ui_styles_dir.mkdir(parents=True, exist_ok=True)
     (ui_root / "package.json").write_text(UI_PACKAGE_TEMPLATE, encoding="utf-8")
     (ui_root / "src" / "index.ts").write_text(UI_INDEX_TEMPLATE, encoding="utf-8")
+    (ui_components_dir / "action-cluster.tsx").write_text(
+        UI_ACTION_CLUSTER_TEMPLATE,
+        encoding="utf-8",
+    )
     (ui_components_dir / "button.tsx").write_text(UI_BUTTON_TEMPLATE, encoding="utf-8")
+    (ui_components_dir / "eyebrow.tsx").write_text(
+        UI_EYEBROW_TEMPLATE,
+        encoding="utf-8",
+    )
+    (ui_components_dir / "feature-card.tsx").write_text(
+        UI_FEATURE_CARD_TEMPLATE,
+        encoding="utf-8",
+    )
+    (ui_components_dir / "hero-panel.tsx").write_text(
+        UI_HERO_PANEL_TEMPLATE,
+        encoding="utf-8",
+    )
+    (ui_components_dir / "section-frame.tsx").write_text(
+        UI_SECTION_FRAME_TEMPLATE,
+        encoding="utf-8",
+    )
+    (ui_components_dir / "step-list.tsx").write_text(
+        UI_STEP_LIST_TEMPLATE,
+        encoding="utf-8",
+    )
     (ui_lib_dir / "utils.ts").write_text(UI_UTILS_TEMPLATE, encoding="utf-8")
     (ui_styles_dir / "globals.css").write_text(UI_GLOBALS_TEMPLATE, encoding="utf-8")
 

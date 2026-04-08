@@ -122,9 +122,15 @@ def test_desktop_only_scaffolds_electron_forge_baseline(tmp_path: Path) -> None:
 
     app_text = (desktop_root / "src" / "app.ts").read_text(encoding="utf-8")
     assert "DesktopWelcomePage" in app_text
+    assert "DesktopHeroPanel" in app_text
+    assert "DesktopFeatureCard" in app_text
+    assert "DesktopStepList" in app_text
+    assert "DesktopActionCluster" in app_text
+    assert "NURT_WELCOME_HERO" in app_text
+    assert "NURT_WELCOME_HERO.label" in app_text
+    assert "NURT_WELCOME_SECTIONS" in app_text
     assert "NURT_WELCOME_HIGHLIGHTS.map" in app_text
     assert "NURT_GETTING_STARTED_STEPS.map" in app_text
-    assert "highlightsHeading" in app_text
 
     readme_text = (desktop_root / "README.md").read_text(encoding="utf-8").lower()
     assert "unsigned" in readme_text

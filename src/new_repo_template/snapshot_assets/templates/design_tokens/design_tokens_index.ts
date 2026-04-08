@@ -1,10 +1,12 @@
 export interface NurtColorTokens {
   background: string
   surface: string
+  surfaceChrome: string
   surfaceRaised: string
   border: string
   accent: string
   accentMuted: string
+  focusRing: string
   foreground: string
   mutedForeground: string
 }
@@ -38,6 +40,7 @@ export interface NurtDesignTokens {
   shadow: {
     soft: string
     strong: string
+    glow: string
   }
 }
 
@@ -45,10 +48,12 @@ export const nurtDesignTokens: NurtDesignTokens = {
   colors: {
     background: "#071521",
     surface: "#102538",
+    surfaceChrome: "#0c2031",
     surfaceRaised: "#17314a",
     border: "#2e516e",
     accent: "#78e7d5",
     accentMuted: "#c6fff6",
+    focusRing: "#d7fff8",
     foreground: "#eff8fb",
     mutedForeground: "#a5c0d1",
   },
@@ -73,5 +78,6 @@ export const nurtDesignTokens: NurtDesignTokens = {
   shadow: {
     soft: "0 18px 48px rgba(0, 0, 0, 0.18)",
     strong: "0 28px 70px rgba(0, 0, 0, 0.32)",
+    glow: "0 0 0 1px rgba(120, 231, 213, 0.24), 0 20px 50px rgba(6, 26, 43, 0.42)",
   },
 }
