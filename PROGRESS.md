@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-04-07 03:03:34 PM
-**Current Phase:** Feature `12.0` is now complete: the cross-frontend `Welcome To Nurt` baseline ships across `web`, `desktop`, `mobile`, and `tv`, and the next natural item is feature `13.0` to apply the fuller chosen component approach.
+**Last Updated:** 2026-04-07 09:18:58 PM
+**Current Phase:** Feature `13.0` planning is now locked: the next execution slice is a web-first but all-target `Operator Console` redesign of `Welcome To Nurt` across `web`, `desktop`, `mobile`, and `tv`, with implementation work not yet started.
 
 ## Previous Cycle Archives
 
@@ -17,6 +17,10 @@
 
 ## Completed
 
+- [x] Completed the required YELLOW pass for feature `13.0` before any edits by rereading `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, `docs/session-summaries/SESSION_143_SUMMARY.md`, the current shared/web/desktop/mobile/TV welcome templates, the owned web `packages/ui` button template, and the most relevant frontend scaffold/boundary contracts.
+- [x] Revalidated the feature `13.0` planning context with `btca status` plus a plain `btca ask -r shadcn-ui -q "Should shadcn stay web only while shared tokens and content support web desktop mobile and tv?" --sub-agent`, confirming that `shadcn/ui` should remain the web-owned implementation layer while shared tokens/content/contracts stay cross-target.
+- [x] Locked the feature `13.0` discussion outcome: redesign the `Welcome To Nurt` baseline as an `Operator Console` across `web`, `desktop`, `mobile`, and `tv`; execute `web` first; keep `packages/ui` web-owned; keep desktop on `Electron + React`; and keep `mobile`/`tv` on Expo/React Native with target-local rendered components over shared tokens/content.
+- [x] Synced the locked feature `13.0` planning outcome across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary so the next session can restart directly into RED/GREEN work.
 - [x] Completed RED for feature `12.0` by updating the frontend scaffold contracts to lock the new welcome baseline semantically across `web`, `desktop`, `mobile`, and `tv` without overfitting exact prose.
 - [x] Completed GREEN for feature `12.0` in the shared and target template files: `packages/shared` now exports structured welcome content (`NURT_WELCOME_HIGHLIGHTS`, `NURT_GETTING_STARTED_STEPS`, `NURT_TV_WELCOME_CARDS`), the web and desktop surfaces now render the same nurt-branded starter-guide concept, mobile now presents the same content in a touch-friendly stacked layout, and TV now uses focusable instructional cards instead of generic placeholder rail items.
 - [x] Completed BLUE for feature `12.0` with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, targeted frontend contract validation (22 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (248 passed).

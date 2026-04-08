@@ -105,6 +105,12 @@
   - [x] Implement the baseline `Welcome To Nurt` demo across the generated frontend experiences.
   - [x] Ensure the demo feels analogous in purpose to default framework welcome pages while still being clearly branded as nurt.
 - [ ] 13.0 UPDATE THE "WELCOME TO NURT" APP TO USE THE CHOSEN COMPONENT APPROACH
+  - [x] Discuss and lock the feature `13.0` scope before implementation.
+    - [x] The redesign direction is `Operator Console` rather than a generic polish pass.
+    - [x] All frontend targets remain in scope for this slice, with `web` implemented first.
+    - [x] `packages/ui` remains web-owned, while desktop/mobile/tv keep target-local rendered components.
+    - [x] Desktop stays `Electron + React`, while mobile/tv stay Expo/React Native.
+    - [x] Shared packages continue to own tokens/content/semantic structure rather than a cross-platform rendered component library.
   - [ ] Apply the component-library decision from `10.0` and the shared-foundation decisions from `11.0` to the `Welcome To Nurt` implementation.
   - [ ] Update the demo so it uses the real nurt component strategy rather than ad hoc markup.
   - [ ] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt frontend experience.
