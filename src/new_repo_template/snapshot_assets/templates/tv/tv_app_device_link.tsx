@@ -1,3 +1,4 @@
+import Storage from "expo-sqlite/kv-store";
 import { useEffect, useState } from "react";
 import QRCode from "react-native-qrcode-svg";
 import { StatusBar } from "expo-status-bar";
@@ -16,6 +17,7 @@ type DeviceLinkPollingState =
 
 interface DeviceLinkSessionResponse {
   device_code: string;
+  client_id: string;
   user_code: string;
   verification_uri: string;
   verification_uri_complete: string;
@@ -23,8 +25,28 @@ interface DeviceLinkSessionResponse {
   interval: number;
 }
 
+interface TvAppSession {
+  accessToken: string;
+  deviceCode: string;
+  userId: string;
+  expiresAtMs: number;
+}
+
+interface TvAppSessionResponse {
+  authenticated: boolean;
+  user_id: string;
+  expires_in: number;
+}
+
+interface DeviceLinkErrorResponse {
+  error: DeviceLinkPollingState;
+  error_description: string;
+}
+
 const DEFAULT_VERIFICATION_URI =
   process.env.EXPO_PUBLIC_DEVICE_LINK_BASE_URL ?? "http://localhost:3000/device";
+const DEFAULT_DEVICE_LINK_API_URL =
+  process.env.EXPO_PUBLIC_DEVICE_LINK_API_URL ?? "http://127.0.0.1:3210";
 const DEFAULT_EXPIRES_IN_SECONDS = Number(
   process.env.EXPO_PUBLIC_DEVICE_LINK_EXPIRES_IN_SECONDS ?? "600"
 );
@@ -32,6 +54,8 @@ const DEFAULT_POLL_INTERVAL_SECONDS = Number(
   process.env.EXPO_PUBLIC_DEVICE_LINK_POLL_INTERVAL_SECONDS ?? "5"
 );
 const AUTO_LINK_DEMO = process.env.EXPO_PUBLIC_DEVICE_LINK_DEMO_AUTO_LINK === "true";
+const DEVICE_LINK_CLIENT_ID = process.env.EXPO_PUBLIC_DEVICE_LINK_CLIENT_ID ?? "generated-tv";
+const TV_APP_SESSION_STORAGE_KEY = "nurt.tv.app-session";
 
 function createDeviceLinkSession(revision: number): DeviceLinkSessionResponse {
   const serial = String(1400 + revision).padStart(4, "0");
@@ -41,12 +65,88 @@ function createDeviceLinkSession(revision: number): DeviceLinkSessionResponse {
 
   return {
     device_code: `tv-device-${serial}`,
+    client_id: DEVICE_LINK_CLIENT_ID,
     user_code,
     verification_uri,
     verification_uri_complete,
     expires_in: DEFAULT_EXPIRES_IN_SECONDS,
     interval: DEFAULT_POLL_INTERVAL_SECONDS,
   };
+}
+
+async function issueLiveDeviceLinkSession(): Promise<DeviceLinkSessionResponse> {
+  if (AUTO_LINK_DEMO) {
+    return createDeviceLinkSession(0);
+  }
+
+  const response = await fetch(`${DEFAULT_DEVICE_LINK_API_URL}/device/code`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ client_id: DEVICE_LINK_CLIENT_ID }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create device-link session.");
+  }
+
+  const payload = (await response.json()) as DeviceLinkSessionResponse;
+  return {
+    ...payload,
+    client_id: payload.client_id ?? DEVICE_LINK_CLIENT_ID,
+  };
+}
+
+async function persistTvAppSession(session: TvAppSession | null) {
+  if (session === null) {
+    await Storage.removeItem(TV_APP_SESSION_STORAGE_KEY);
+    return;
+  }
+  await Storage.setItem(TV_APP_SESSION_STORAGE_KEY, JSON.stringify(session));
+}
+
+async function readPersistedTvAppSession(): Promise<TvAppSession | null> {
+  const rawSession = await Storage.getItem(TV_APP_SESSION_STORAGE_KEY);
+  if (!rawSession) {
+    return null;
+  }
+  return JSON.parse(rawSession) as TvAppSession;
+}
+
+async function validatePersistedTvSession(
+  session: TvAppSession
+): Promise<TvAppSessionResponse | null> {
+  const response = await fetch(`${DEFAULT_DEVICE_LINK_API_URL}/device/session`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ access_token: session.accessToken }),
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return (await response.json()) as TvAppSessionResponse;
+}
+
+async function revokePersistedTvSession(session: TvAppSession | null) {
+  if (!session || AUTO_LINK_DEMO) {
+    await persistTvAppSession(null);
+    return;
+  }
+
+  await fetch(`${DEFAULT_DEVICE_LINK_API_URL}/device/logout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ access_token: session.accessToken }),
+  });
+
+  await persistTvAppSession(null);
 }
 
 function statusCopyForState(state: DeviceLinkPollingState): string {
@@ -108,21 +208,60 @@ function SignedInPanel({ token }: { token: string }) {
 
 export default function App() {
   const [sessionRevision, setSessionRevision] = useState(0);
+  const [deviceSession, setDeviceSession] = useState<DeviceLinkSessionResponse | null>(null);
   const [pollState, setPollState] = useState<DeviceLinkPollingState>(
     "authorization_pending"
   );
   const [secondsRemaining, setSecondsRemaining] = useState(DEFAULT_EXPIRES_IN_SECONDS);
-  const [linkedToken, setLinkedToken] = useState<string | null>(null);
-  const session = createDeviceLinkSession(sessionRevision);
+  const [linkedSession, setLinkedSession] = useState<TvAppSession | null>(null);
+  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    setPollState("authorization_pending");
-    setLinkedToken(null);
-    setSecondsRemaining(session.expires_in);
-  }, [session.device_code, session.expires_in]);
+    let cancelled = false;
+
+    async function restoreOrIssueSession() {
+      const persistedSession = await readPersistedTvAppSession();
+      if (persistedSession) {
+        const validatedSession = await validatePersistedTvSession(persistedSession);
+        if (!cancelled && validatedSession?.authenticated) {
+          setLinkedSession(persistedSession);
+          setRestoreMessage("Restored TV app session from local storage.");
+          return;
+        }
+        await persistTvAppSession(null);
+      }
+
+      try {
+        const nextSession = AUTO_LINK_DEMO
+          ? createDeviceLinkSession(sessionRevision)
+          : await issueLiveDeviceLinkSession();
+        if (cancelled) {
+          return;
+        }
+        setDeviceSession(nextSession);
+        setPollState("authorization_pending");
+        setLinkedSession(null);
+        setSecondsRemaining(nextSession.expires_in);
+        setRestoreMessage(null);
+      } catch (error) {
+        if (!cancelled) {
+          setPollState("invalid_request");
+          setRestoreMessage(
+            error instanceof Error ? error.message : "Failed to issue a device-link session."
+          );
+        }
+      }
+    }
+
+    void restoreOrIssueSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionRevision]);
 
   useEffect(() => {
-    if (pollState === "expired_token" || pollState === "linked") {
+    if (!deviceSession || pollState === "expired_token" || linkedSession) {
       return;
     }
 
@@ -137,20 +276,78 @@ export default function App() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [pollState]);
+  }, [deviceSession, linkedSession, pollState]);
 
   useEffect(() => {
-    if (!AUTO_LINK_DEMO || pollState !== "authorization_pending") {
+    if (!deviceSession || pollState === "expired_token" || linkedSession) {
       return;
     }
 
     const timer = setTimeout(() => {
-      setPollState("linked");
-      setLinkedToken(`tv-session-${session.device_code}`);
-    }, session.interval * 3000);
+      void (async () => {
+        if (AUTO_LINK_DEMO) {
+          const demoSession = {
+            accessToken: `tv-session-${deviceSession.device_code}`,
+            deviceCode: deviceSession.device_code,
+            userId: "demo-user",
+            expiresAtMs: Date.now() + deviceSession.expires_in * 1000,
+          } satisfies TvAppSession;
+          setPollState("linked");
+          setLinkedSession(demoSession);
+          await persistTvAppSession(demoSession);
+          return;
+        }
+
+        const response = await fetch(`${DEFAULT_DEVICE_LINK_API_URL}/device/token`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            client_id: deviceSession.client_id,
+            device_code: deviceSession.device_code,
+            grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+          }),
+        });
+
+        if (response.ok) {
+          const payload = (await response.json()) as {
+            access_token: string;
+            expires_in: number;
+            user_id?: string;
+          };
+          const nextSession = {
+            accessToken: payload.access_token,
+            deviceCode: deviceSession.device_code,
+            userId: payload.user_id ?? "approved-user",
+            expiresAtMs: Date.now() + payload.expires_in * 1000,
+          } satisfies TvAppSession;
+          setPollState("linked");
+          setLinkedSession(nextSession);
+          await persistTvAppSession(nextSession);
+          return;
+        }
+
+        const error = (await response.json()) as DeviceLinkErrorResponse;
+        setPollState(error.error);
+      })();
+    }, deviceSession.interval * 1000);
 
     return () => clearTimeout(timer);
-  }, [pollState, session.device_code, session.interval]);
+  }, [AUTO_LINK_DEMO, deviceSession, linkedSession, pollState]);
+
+  async function handleRefreshCode() {
+    await revokePersistedTvSession(linkedSession);
+    setSessionRevision((current) => current + 1);
+  }
+
+  async function handleLogout() {
+    await revokePersistedTvSession(linkedSession);
+    setLinkedSession(null);
+    setSessionRevision((current) => current + 1);
+  }
+
+  const activeSession = deviceSession;
 
   return (
     <View style={styles.screen}>
@@ -164,38 +361,61 @@ export default function App() {
           Scan the QR code or visit the fallback URL, sign in on the web, and approve
           this TV against the backend-owned device-link record.
         </Text>
-        <View style={styles.qrPanel}>
-          <QRCode size={280} value={session.verification_uri_complete} />
-        </View>
-        <View style={styles.instructionsPanel}>
-          <Text style={styles.instructionsLabel}>verification_uri_complete</Text>
-          <Text style={styles.instructionsValue}>{session.verification_uri_complete}</Text>
-          <Text style={styles.instructionsLabel}>verification_uri</Text>
-          <Text style={styles.instructionsValue}>{session.verification_uri}</Text>
-          <Text style={styles.instructionsLabel}>user_code</Text>
-          <Text style={styles.codeValue}>{session.user_code}</Text>
-        </View>
+        {activeSession ? (
+          <>
+            <View style={styles.qrPanel}>
+              <QRCode size={280} value={activeSession.verification_uri_complete} />
+            </View>
+            <View style={styles.instructionsPanel}>
+              <Text style={styles.instructionsLabel}>verification_uri_complete</Text>
+              <Text style={styles.instructionsValue}>{activeSession.verification_uri_complete}</Text>
+              <Text style={styles.instructionsLabel}>verification_uri</Text>
+              <Text style={styles.instructionsValue}>{activeSession.verification_uri}</Text>
+              <Text style={styles.instructionsLabel}>user_code</Text>
+              <Text style={styles.codeValue}>{activeSession.user_code}</Text>
+            </View>
+          </>
+        ) : null}
         <View style={styles.footerRow}>
           <View style={styles.statusPanel}>
             <Text style={styles.statusHeading}>Polling State</Text>
             <Text style={styles.statusCopy}>{statusCopyForState(pollState)}</Text>
             <Text style={styles.statusMeta}>Expires in {secondsRemaining}s</Text>
-            <Text style={styles.statusMeta}>Poll interval {session.interval}s</Text>
+            <Text style={styles.statusMeta}>
+              Poll interval {activeSession?.interval ?? DEFAULT_POLL_INTERVAL_SECONDS}s
+            </Text>
+            {restoreMessage ? (
+              <Text style={styles.statusMeta}>{restoreMessage}</Text>
+            ) : null}
           </View>
-          <Pressable
-            hasTVPreferredFocus
-            onPress={() => setSessionRevision((current) => current + 1)}
-            style={({ focused, pressed }) => [
-              styles.refreshButton,
-              focused ? styles.refreshButtonFocused : undefined,
-              pressed ? styles.refreshButtonPressed : undefined,
-            ]}
-          >
-            <Text style={styles.refreshButtonText}>Refresh code</Text>
-          </Pressable>
+          {linkedSession ? (
+            <Pressable
+              hasTVPreferredFocus
+              onPress={() => void handleLogout()}
+              style={({ focused, pressed }) => [
+                styles.refreshButton,
+                focused ? styles.refreshButtonFocused : undefined,
+                pressed ? styles.refreshButtonPressed : undefined,
+              ]}
+            >
+              <Text style={styles.refreshButtonText}>Sign out TV</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              hasTVPreferredFocus
+              onPress={() => void handleRefreshCode()}
+              style={({ focused, pressed }) => [
+                styles.refreshButton,
+                focused ? styles.refreshButtonFocused : undefined,
+                pressed ? styles.refreshButtonPressed : undefined,
+              ]}
+            >
+              <Text style={styles.refreshButtonText}>Refresh code</Text>
+            </Pressable>
+          )}
         </View>
       </View>
-      {linkedToken ? <SignedInPanel token={linkedToken} /> : null}
+      {linkedSession ? <SignedInPanel token={linkedSession.accessToken} /> : null}
       <StatusBar style="auto" />
     </View>
   );

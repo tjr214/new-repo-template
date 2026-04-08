@@ -408,6 +408,9 @@ AUTH_ENV_TEMPLATE_FILES: dict[str, dict[str, str]] = {
 BACKEND_AUTH_CONFIG_TEMPLATE = load_template_text("wiring/backend_auth_config.ts")
 WEB_APP_AUTH_TEMPLATE = load_template_text("wiring/web_app_auth.ts")
 WEB_AUTH_RUNTIME_TEMPLATE = load_template_text("wiring/web_auth_runtime.ts")
+WEB_AUTH_PROVIDER_PASSTHROUGH_TEMPLATE = load_template_text(
+    "wiring/web_auth_provider_passthrough.ts"
+)
 WEB_AUTH_PROVIDER_CLERK_TEMPLATE = load_template_text(
     "wiring/web_auth_provider_clerk.ts"
 )
@@ -417,6 +420,7 @@ WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE = load_template_text(
 WEB_CLIENT_TEMPLATE = load_template_text("fullstack/web_client.tsx")
 WEB_ROUTER_TEMPLATE = load_template_text("fullstack/web_router.tsx")
 WEB_ROOT_ROUTE_TEMPLATE = load_template_text("fullstack/web_root_route.tsx")
+WEB_ROOT_ROUTE_AUTH_TEMPLATE = load_template_text("fullstack/web_root_route_auth.tsx")
 WEB_INDEX_ROUTE_TEMPLATE = load_template_text("fullstack/web_index_route.tsx")
 WEB_ROUTE_TREE_TEMPLATE = load_template_text("fullstack/web_route_tree.gen.ts")
 WEB_DEVICE_ROUTE_TREE_TEMPLATE = load_template_text(
@@ -426,7 +430,15 @@ WEB_VITE_CONFIG_TEMPLATE = load_template_text("fullstack/web_vite.config.ts")
 WEB_TSCONFIG_TEMPLATE = load_template_text("fullstack/web_tsconfig.json")
 WEB_COMPONENTS_JSON_TEMPLATE = load_template_text("fullstack/web_components.json")
 WEB_STYLES_TEMPLATE = load_template_text("fullstack/web_styles.css")
-WEB_DEVICE_ROUTE_TEMPLATE = load_template_text("fullstack/web_device_route.tsx")
+WEB_DEVICE_ROUTE_CLERK_TEMPLATE = load_template_text(
+    "fullstack/web_device_route_clerk.tsx"
+)
+WEB_DEVICE_ROUTE_BETTER_AUTH_TEMPLATE = load_template_text(
+    "fullstack/web_device_route_better_auth.tsx"
+)
+WEB_DEVICE_ROUTE_MIXED_TEMPLATE = load_template_text(
+    "fullstack/web_device_route_mixed.tsx"
+)
 BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
 BACKEND_HTTP_DEVICE_LINK_TEMPLATE = load_template_text(
     "fullstack/backend_http_device_link.ts"
@@ -436,6 +448,10 @@ BACKEND_SCHEMA_DEVICE_LINK_TEMPLATE = load_template_text(
     "fullstack/backend_schema_device_link.ts"
 )
 BACKEND_DEVICE_LINK_TEMPLATE = load_template_text("fullstack/backend_device_link.ts")
+BACKEND_AUTH_TEMPLATE = load_template_text("fullstack/backend_auth.ts")
+BACKEND_CONVEX_CONFIG_TEMPLATE = load_template_text(
+    "fullstack/backend_convex.config.ts"
+)
 BACKEND_README_TEMPLATE = load_template_text("fullstack/backend_readme.md")
 BACKEND_README_DEVICE_LINK_TEMPLATE = load_template_text(
     "fullstack/backend_readme_device_link.md"
@@ -557,6 +573,10 @@ BACKEND_TSCONFIG_TEMPLATE = load_template_text("fullstack/backend_tsconfig.json"
 TV_PACKAGE_DEVICE_LINK_TEMPLATE = load_template_text(
     "workspace_packages/tv_package_device_link.json"
 )
+
+CLERK_TANSTACK_START_VERSION = "^1.0.11"
+BETTER_AUTH_VERSION = "^1.6.0"
+CONVEX_BETTER_AUTH_VERSION = "^0.11.4"
 
 SIMULATE_FAILURE_ENV = "NEW_REPO_TEMPLATE_SIMULATE_FAILURE"
 
@@ -1151,6 +1171,8 @@ def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
             paths.append(f"{web_src_root}/auth-provider.ts")
         if backend.uses_better_auth:
             paths.append(f"{web_src_root}/auth-client.ts")
+            paths.append(f"{project_relative_root(backend)}/convex/auth.ts")
+            paths.append(f"{project_relative_root(backend)}/convex/convex.config.ts")
 
     if backend_by_name and any(project.kind == "web" for project in projects):
         paths.append("compose.yaml")
@@ -1159,6 +1181,7 @@ def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
     if fullstack_tv_device_link_enabled(projects):
         for web_project in _device_link_web_projects(projects):
             paths.append(f"{project_relative_root(web_project)}/src/routes/device.tsx")
+            paths.append(f"{project_relative_root(web_project)}/src/routes/__root.tsx")
         for backend in _device_link_backend_by_name(projects).values():
             paths.append(f"{project_relative_root(backend)}/convex/deviceLink.ts")
 
@@ -1620,6 +1643,7 @@ def render_web_env_example(*, backend_project: ProjectSpec) -> str:
             [
                 "VITE_CLERK_PUBLISHABLE_KEY_LOCAL=",
                 "VITE_CLERK_PUBLISHABLE_KEY_PROD=",
+                "VITE_CLERK_TOKEN_TEMPLATE=convex",
             ]
         )
     return "\n".join(lines) + "\n"
@@ -1638,7 +1662,12 @@ def render_backend_env_example(project: ProjectSpec) -> str:
         "CONVEX_DEPLOYMENT=",
     ]
     if project.uses_better_auth:
-        lines.append("SITE_URL=http://localhost:3000")
+        lines.extend(
+            [
+                "SITE_URL=http://localhost:3000",
+                "BETTER_AUTH_SECRET=",
+            ]
+        )
     if project.uses_clerk_auth:
         lines.extend(
             [
@@ -1655,6 +1684,7 @@ def render_device_link_web_env_example(*, backend_project: ProjectSpec) -> str:
         .rstrip("\n")
         .splitlines()
     )
+    base_lines.append("VITE_DEVICE_LINK_API_URL=http://127.0.0.1:3210")
     base_lines.append("VITE_DEVICE_LINK_VERIFICATION_PATH=/device")
     return "\n".join(base_lines) + "\n"
 
@@ -1663,8 +1693,11 @@ def render_device_link_backend_env_example(project: ProjectSpec) -> str:
     base_lines = render_backend_env_example(project).rstrip("\n").splitlines()
     base_lines.extend(
         [
+            "DEVICE_LINK_CLIENT_ID=generated-tv",
             "DEVICE_LINK_EXPIRES_IN_SECONDS=600",
             "DEVICE_LINK_POLL_INTERVAL_SECONDS=5",
+            "DEVICE_LINK_SESSION_TTL_SECONDS=2592000",
+            "DEVICE_LINK_VERIFICATION_URI=http://localhost:3000/device",
         ]
     )
     return "\n".join(base_lines) + "\n"
@@ -1676,6 +1709,8 @@ def render_tv_device_link_env_example() -> str:
             (
                 "# TV app environment",
                 "EXPO_PUBLIC_DEVICE_LINK_BASE_URL=http://localhost:3000/device",
+                "EXPO_PUBLIC_DEVICE_LINK_API_URL=http://127.0.0.1:3210",
+                "EXPO_PUBLIC_DEVICE_LINK_CLIENT_ID=generated-tv",
                 "EXPO_PUBLIC_DEVICE_LINK_EXPIRES_IN_SECONDS=600",
                 "EXPO_PUBLIC_DEVICE_LINK_POLL_INTERVAL_SECONDS=5",
                 "EXPO_PUBLIC_DEVICE_LINK_DEMO_AUTO_LINK=false",
@@ -1730,6 +1765,78 @@ def fullstack_tv_device_link_enabled(projects: tuple[ProjectSpec, ...]) -> bool:
     )
 
 
+def render_backend_package_manifest(project: ProjectSpec) -> str:
+    data = json.loads(load_template_text("workspace_packages/backend_package.json"))
+    assert isinstance(data, dict)
+    data["name"] = npm_package_name(project)
+    dependencies = data.setdefault("dependencies", {})
+    assert isinstance(dependencies, dict)
+    if project.uses_better_auth:
+        dependencies["@convex-dev/better-auth"] = CONVEX_BETTER_AUTH_VERSION
+        dependencies["better-auth"] = BETTER_AUTH_VERSION
+    return _dump_json(data)
+
+
+def render_web_package_manifest(
+    project: ProjectSpec, *, backend_project: ProjectSpec | None = None
+) -> str:
+    data = json.loads(load_template_text("workspace_packages/web_package.json"))
+    assert isinstance(data, dict)
+    data["name"] = npm_package_name(project)
+    dependencies = data.setdefault("dependencies", {})
+    assert isinstance(dependencies, dict)
+    if backend_project is not None and backend_project.auth_matrix_enabled:
+        if backend_project.uses_better_auth:
+            dependencies["@convex-dev/better-auth"] = CONVEX_BETTER_AUTH_VERSION
+            dependencies["better-auth"] = BETTER_AUTH_VERSION
+        if backend_project.uses_clerk_auth:
+            dependencies["@clerk/tanstack-react-start"] = CLERK_TANSTACK_START_VERSION
+    return _dump_json(data)
+
+
+def render_web_auth_provider(project: ProjectSpec) -> str:
+    if project.uses_clerk_auth:
+        return WEB_AUTH_PROVIDER_CLERK_TEMPLATE
+    return WEB_AUTH_PROVIDER_PASSTHROUGH_TEMPLATE
+
+
+def render_device_link_backend_http(project: ProjectSpec) -> str:
+    if project.uses_better_auth:
+        return BACKEND_HTTP_DEVICE_LINK_TEMPLATE.replace(
+            "{{BETTER_AUTH_IMPORTS}}",
+            'import { authComponent, createAuth } from "./auth"',
+        ).replace(
+            "{{BETTER_AUTH_ROUTE_REGISTRATION}}",
+            "authComponent.registerRoutes(http, createAuth, { cors: true })",
+        )
+    return BACKEND_HTTP_DEVICE_LINK_TEMPLATE.replace(
+        "{{BETTER_AUTH_IMPORTS}}", ""
+    ).replace("{{BETTER_AUTH_ROUTE_REGISTRATION}}", "")
+
+
+def render_device_link_backend_schema(project: ProjectSpec) -> str:
+    if project.uses_better_auth:
+        return BACKEND_SCHEMA_DEVICE_LINK_TEMPLATE.replace(
+            "{{BETTER_AUTH_IMPORTS}}",
+            'import { tables as authTables } from "@convex-dev/better-auth/component/schema"',
+        ).replace("{{BETTER_AUTH_TABLES}}", "...authTables,")
+    return BACKEND_SCHEMA_DEVICE_LINK_TEMPLATE.replace(
+        "{{BETTER_AUTH_IMPORTS}}", ""
+    ).replace("{{BETTER_AUTH_TABLES}}", "")
+
+
+def render_device_link_web_route(backend_project: ProjectSpec) -> str:
+    auth_pair = (
+        backend_project.local_auth_provider,
+        backend_project.prod_auth_provider,
+    )
+    if auth_pair == ("clerk", "clerk"):
+        return WEB_DEVICE_ROUTE_CLERK_TEMPLATE
+    if auth_pair == ("better-auth", "better-auth"):
+        return WEB_DEVICE_ROUTE_BETTER_AUTH_TEMPLATE
+    return WEB_DEVICE_ROUTE_MIXED_TEMPLATE
+
+
 def scaffold_fullstack_tv_device_link_assets(
     *, output_root: Path, projects: tuple[ProjectSpec, ...]
 ) -> None:
@@ -1744,18 +1851,28 @@ def scaffold_fullstack_tv_device_link_assets(
         backend_root = output_root / Path(project_relative_root(backend))
         convex_dir = backend_root / "convex"
         convex_dir.mkdir(parents=True, exist_ok=True)
+        (backend_root / "package.json").write_text(
+            render_backend_package_manifest(backend),
+            encoding="utf-8",
+        )
         (convex_dir / "deviceLink.ts").write_text(
             BACKEND_DEVICE_LINK_TEMPLATE,
             encoding="utf-8",
         )
         (convex_dir / "http.ts").write_text(
-            BACKEND_HTTP_DEVICE_LINK_TEMPLATE,
+            render_device_link_backend_http(backend),
             encoding="utf-8",
         )
         (convex_dir / "schema.ts").write_text(
-            BACKEND_SCHEMA_DEVICE_LINK_TEMPLATE,
+            render_device_link_backend_schema(backend),
             encoding="utf-8",
         )
+        if backend.uses_better_auth:
+            (convex_dir / "auth.ts").write_text(BACKEND_AUTH_TEMPLATE, encoding="utf-8")
+            (convex_dir / "convex.config.ts").write_text(
+                BACKEND_CONVEX_CONFIG_TEMPLATE,
+                encoding="utf-8",
+            )
         (backend_root / "README.md").write_text(
             render_device_link_backend_readme(backend),
             encoding="utf-8",
@@ -1770,15 +1887,32 @@ def scaffold_fullstack_tv_device_link_assets(
         web_src = web_root / "src"
         routes_dir = web_src / "routes"
         routes_dir.mkdir(parents=True, exist_ok=True)
+        backend = backend_by_name[web_project.backend_binding or ""]
+        (web_root / "package.json").write_text(
+            render_web_package_manifest(web_project, backend_project=backend),
+            encoding="utf-8",
+        )
+        (routes_dir / "__root.tsx").write_text(
+            WEB_ROOT_ROUTE_AUTH_TEMPLATE,
+            encoding="utf-8",
+        )
         (routes_dir / "device.tsx").write_text(
-            WEB_DEVICE_ROUTE_TEMPLATE,
+            render_device_link_web_route(backend),
             encoding="utf-8",
         )
         (web_src / "routeTree.gen.ts").write_text(
             WEB_DEVICE_ROUTE_TREE_TEMPLATE,
             encoding="utf-8",
         )
-        backend = backend_by_name[web_project.backend_binding or ""]
+        (web_src / "auth-provider.ts").write_text(
+            render_web_auth_provider(backend),
+            encoding="utf-8",
+        )
+        if backend.uses_better_auth:
+            (web_src / "auth-client.ts").write_text(
+                WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE,
+                encoding="utf-8",
+            )
         (web_root / ".env.example").write_text(
             render_device_link_web_env_example(backend_project=backend),
             encoding="utf-8",
@@ -1953,10 +2087,7 @@ def scaffold_web_project(*, output_root: Path, project: ProjectSpec) -> None:
     routes_dir.mkdir(parents=True, exist_ok=True)
 
     (web_root / "package.json").write_text(
-        render_workspace_package_manifest(
-            project,
-            template_text=load_template_text("workspace_packages/web_package.json"),
-        ),
+        render_web_package_manifest(project),
         encoding="utf-8",
     )
     (web_root / "vite.config.ts").write_text(WEB_VITE_CONFIG_TEMPLATE, encoding="utf-8")
@@ -1981,10 +2112,7 @@ def scaffold_backend_project(*, output_root: Path, project: ProjectSpec) -> None
     convex_dir.mkdir(parents=True, exist_ok=True)
 
     (backend_root / "package.json").write_text(
-        render_workspace_package_manifest(
-            project,
-            template_text=load_template_text("workspace_packages/backend_package.json"),
-        ),
+        render_backend_package_manifest(project),
         encoding="utf-8",
     )
     (convex_dir / "http.ts").write_text(BACKEND_HTTP_TEMPLATE, encoding="utf-8")
@@ -2233,6 +2361,11 @@ def scaffold_web_backend_auth_wiring(
             continue
         web_src_dir = output_root / Path(project_relative_root(web_project)) / "src"
         web_src_dir.mkdir(parents=True, exist_ok=True)
+        web_root = output_root / Path(project_relative_root(web_project))
+        (web_root / "package.json").write_text(
+            render_web_package_manifest(web_project, backend_project=backend),
+            encoding="utf-8",
+        )
         (web_src_dir / "app-auth.ts").write_text(
             render_web_app_auth(backend), encoding="utf-8"
         )
@@ -2241,7 +2374,7 @@ def scaffold_web_backend_auth_wiring(
         )
         if backend.uses_clerk_auth:
             (web_src_dir / "auth-provider.ts").write_text(
-                WEB_AUTH_PROVIDER_CLERK_TEMPLATE,
+                render_web_auth_provider(backend),
                 encoding="utf-8",
             )
         if backend.uses_better_auth:

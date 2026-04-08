@@ -845,6 +845,10 @@ def _write_requested_web_auth_assets(*, stage_root: Path, plan: AddPlan) -> None
         auth_templates = scaffold.AUTH_ENV_TEMPLATE_FILES[backend.auth]
         web_root = stage_root / scaffold.project_relative_root(web_project)
         web_root.mkdir(parents=True, exist_ok=True)
+        (web_root / "package.json").write_text(
+            scaffold.render_web_package_manifest(web_project, backend_project=backend),
+            encoding="utf-8",
+        )
         (web_root / ".env.example").write_text(
             load_template_text(auth_templates["web"]),
             encoding="utf-8",
@@ -859,10 +863,10 @@ def _write_requested_web_auth_assets(*, stage_root: Path, plan: AddPlan) -> None
         web_src.mkdir(parents=True, exist_ok=True)
         if backend.auth == "clerk":
             (web_src / "auth-provider.ts").write_text(
-                scaffold.WEB_AUTH_PROVIDER_CLERK_TEMPLATE,
+                scaffold.render_web_auth_provider(backend),
                 encoding="utf-8",
             )
-        else:
+        if backend.auth == "better-auth":
             (web_src / "auth-client.ts").write_text(
                 scaffold.WEB_AUTH_CLIENT_BETTER_AUTH_TEMPLATE,
                 encoding="utf-8",

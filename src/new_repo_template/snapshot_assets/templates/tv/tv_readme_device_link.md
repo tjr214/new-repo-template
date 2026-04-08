@@ -29,17 +29,20 @@ The starter TV app now shows:
 - a QR code for `verification_uri_complete`
 - visible `verification_uri` fallback text
 - visible `user_code` fallback text
-- polling/expiry status
-- one focusable `Refresh code` control
+- real backend polling and OAuth-style device-flow failure states
+- restart-safe TV app-session persistence through `expo-sqlite/kv-store`
+- one focusable control for refresh while signed out, then one focusable sign-out control after link completion
 
 Customize these values through `apps/tv/.env.example`:
 
 - `EXPO_PUBLIC_DEVICE_LINK_BASE_URL`
+- `EXPO_PUBLIC_DEVICE_LINK_API_URL`
 - `EXPO_PUBLIC_DEVICE_LINK_EXPIRES_IN_SECONDS`
 - `EXPO_PUBLIC_DEVICE_LINK_POLL_INTERVAL_SECONDS`
 - `EXPO_PUBLIC_DEVICE_LINK_DEMO_AUTO_LINK`
+- `EXPO_PUBLIC_DEVICE_LINK_CLIENT_ID`
 
-The generated screen is a starter baseline. Replace the local demo behavior with real backend polling and app-session persistence when you wire the live device-link flow.
+The generated screen now issues real device codes, polls the backend token endpoint, restores the TV app session after restart, and clears the stored session when the backend rejects it.
 
 ## Build Profiles
 

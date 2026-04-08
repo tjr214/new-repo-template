@@ -9,14 +9,18 @@ export type DeviceLinkStatus =
 
 export interface DeviceLinkRecord {
   deviceCode: string
+  clientId: string
   userCode: string
   verificationUri: string
   verificationUriComplete: string
   status: DeviceLinkStatus
-  expiresAt: string
+  expiresAtMs: number
   intervalSeconds: number
+  lastPolledAtMs?: number
   approvedUserId?: string
-  redeemedSessionToken?: string
+  approvedAtMs?: number
+  linkedSessionToken?: string
+  linkedAtMs?: number
 }
 
 export interface CreateDeviceLinkResponse {
@@ -37,10 +41,29 @@ export const SAMPLE_DEVICE_LINK_RESPONSE: CreateDeviceLinkResponse = {
   interval: 5,
 }
 
+export interface DeviceApproveResponse {
+  success: true
+}
+
+export interface DeviceTokenSuccessResponse {
+  access_token: string
+  token_type: "Bearer"
+  expires_in: number
+  scope: string
+}
+
+export interface TvAppSessionResponse {
+  authenticated: boolean
+  user_id: string
+  expires_in: number
+}
+
 export const DEVICE_LINK_ROUTE_INVENTORY = {
   createCode: "POST /device/code",
   approveCode: "POST /device/approve",
   redeemToken: "POST /device/token",
+  readSession: "POST /device/session",
+  logoutSession: "POST /device/logout",
 } as const
 
 export const DEVICE_LINK_STATUS_HINTS: Record<DeviceLinkStatus, string> = {

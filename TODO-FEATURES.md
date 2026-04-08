@@ -129,23 +129,24 @@
   - [x] Implement the backend, web, and TV app pieces required for the device-code linking flow.
     - [x] Generated `web + backend + tv` repos now scaffold the device-link starter files and QR-aware TV pairing surface.
     - [x] `nurt add` now retrofits the same baseline when an existing repo newly reaches the `web + backend + tv` composition.
-    - [ ] Replace the current starter flow with a real Convex-backed approval-and-redemption implementation owned by the template itself.
-      - [ ] Convex should own device-link record creation, expiry, approval state, redemption, and app-level TV session issuance.
-      - [ ] Only enable the live device-link flow when backend auth is enabled; repos with backend auth set to `none` must not pretend the flow is real.
-      - [ ] Wire the web `/device` route into the real signed-in approval path for the configured provider boundary.
-      - [ ] Wire the TV app into real backend polling and real app-session persistence.
-      - [ ] Keep the generated implementation provider-neutral at the app boundary so end users only plug their chosen Convex auth wiring into env/config.
-      - [ ] Treat the generated repo as ready-to-run once the end user supplies the required auth/env values; do not stop at a starter-only example baseline.
-    - [ ] Lock the operational defaults in the generated implementation.
-      - [ ] Define TV persistence behavior for startup, logout, expiry, and invalid-session recovery.
-      - [ ] Default TV persistence to normal Expo/React Native persistent app-state storage for non-sensitive session metadata, with separate handling only if a sensitive app-issued token must persist.
-      - [ ] Define failure-state UX for `expired_token`, `access_denied`, `invalid_grant`, `slow_down`, and backend-connectivity failures.
+    - [x] Replace the current starter flow with a real Convex-backed approval-and-redemption implementation owned by the template itself.
+      - [x] Convex should own device-link record creation, expiry, approval state, redemption, and app-level TV session issuance.
+      - [x] Only enable the live device-link flow when backend auth is enabled; repos with backend auth set to `none` must not pretend the flow is real.
+      - [x] Wire the web `/device` route into the real signed-in approval path for the configured provider boundary.
+      - [x] Wire the TV app into real backend polling and real app-session persistence.
+      - [x] Keep the generated implementation provider-neutral at the app boundary so end users only plug their chosen Convex auth wiring into env/config.
+      - [x] Treat the generated repo as ready-to-run once the end user supplies the required auth/env values at scaffold/build level rather than stopping at a starter-only example baseline.
+    - [x] Lock the operational defaults in the generated implementation.
+      - [x] Define TV persistence behavior for startup, logout, expiry, and invalid-session recovery.
+      - [x] Default TV persistence to normal Expo/React Native persistent app-state storage for non-sensitive session metadata, with separate handling only if a sensitive app-issued token must persist.
+      - [x] Define failure-state UX for `expired_token`, `access_denied`, `invalid_grant`, `slow_down`, and backend-connectivity failures.
       - [ ] Define security defaults for code expiry window, polling interval/backoff, one-time redemption, safe code storage, and rate limiting.
-    - [ ] Keep the generated docs/env contract explicit.
-      - [ ] Document exactly which auth/env values the end user must supply.
-      - [ ] Document what `docker compose` starts locally and what still depends on hosted auth configuration.
+    - [x] Keep the generated docs/env contract explicit.
+      - [x] Document exactly which auth/env values the end user must supply.
+      - [x] Document what `docker compose` starts locally and what still depends on hosted auth configuration.
   - [ ] Validate that the Android TV app can complete the full account-linking flow successfully.
     - [x] The starter baseline now survives real generated-repo install/build/export/runtime checks: web build succeeds, TV export succeeds, the `/device` route serves over live HTTP, and the generated Docker Compose stack still boots.
+    - [x] The live implementation now also survives a fresh generated-repo install/build/export pass: `bun install --frozen-lockfile`, web `build:app`, and TV `tv:export` all succeed on a generated `better-auth` local runtime repo.
     - [ ] Validate the real cross-device approval-and-redemption loop after the live Convex-backed flow is wired.
       - [ ] Prove the TV shows a live QR/code, the user signs in on web, approves the TV, and the TV receives a real persisted app session/token.
       - [ ] Validate at least one failure path such as expiry or denial on Android TV.

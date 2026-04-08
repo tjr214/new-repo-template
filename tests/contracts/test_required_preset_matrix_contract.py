@@ -262,6 +262,11 @@ def test_required_preset_matrix_scaffold_contract(
             assert web_auth_client.exists(), (
                 "better-auth variants require auth-client scaffold"
             )
-            assert not web_auth_provider.exists(), (
-                "better-auth variants should not scaffold clerk provider"
-            )
+            if "tv" in case.targets:
+                assert web_auth_provider.exists(), (
+                    "better-auth variants that reach web+backend+tv should scaffold the auth provider bridge for the live device-link flow"
+                )
+            else:
+                assert not web_auth_provider.exists(), (
+                    "better-auth variants without tv should not scaffold the auth provider bridge"
+                )

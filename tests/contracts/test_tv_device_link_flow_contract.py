@@ -37,7 +37,7 @@ def run_nurt_command(*, cwd: Path, args: list[str]) -> subprocess.CompletedProce
     )
 
 
-def test_web_backend_tv_scaffolds_device_link_baseline(tmp_path: Path) -> None:
+def test_web_backend_tv_scaffolds_live_device_link_runtime(tmp_path: Path) -> None:
     repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / "fullstack-tv-device-link"
 
@@ -72,6 +72,8 @@ def test_web_backend_tv_scaffolds_device_link_baseline(tmp_path: Path) -> None:
     device_backend = backend_root / "convex" / "deviceLink.ts"
     backend_http = backend_root / "convex" / "http.ts"
     backend_schema = backend_root / "convex" / "schema.ts"
+    web_root_route = web_root / "src" / "routes" / "__root.tsx"
+    web_auth_provider = web_root / "src" / "auth-provider.ts"
     tv_app = tv_root / "App.tsx"
     tv_readme = tv_root / "README.md"
 
@@ -80,6 +82,8 @@ def test_web_backend_tv_scaffolds_device_link_baseline(tmp_path: Path) -> None:
         device_backend,
         backend_http,
         backend_schema,
+        web_root_route,
+        web_auth_provider,
         tv_app,
         tv_readme,
     ):
@@ -87,8 +91,12 @@ def test_web_backend_tv_scaffolds_device_link_baseline(tmp_path: Path) -> None:
 
     tv_manifest = json.loads((tv_root / "package.json").read_text(encoding="utf-8"))
     tv_dependencies = tv_manifest.get("dependencies", {})
+    web_manifest = json.loads((web_root / "package.json").read_text(encoding="utf-8"))
+    web_dependencies = web_manifest.get("dependencies", {})
     assert tv_dependencies.get("react-native-qrcode-svg") == "^6.3.21"
     assert tv_dependencies.get("react-native-svg") == "^15.15.4"
+    assert tv_dependencies.get("expo-sqlite") == "^55.0.14"
+    assert web_dependencies.get("@clerk/tanstack-react-start") == "^1.0.11"
 
     btca_config = json.loads(
         (output_dir / "btca.config.jsonc").read_text(encoding="utf-8")
@@ -103,19 +111,33 @@ def test_web_backend_tv_scaffolds_device_link_baseline(tmp_path: Path) -> None:
 
     tv_app_text = tv_app.read_text(encoding="utf-8")
     assert "QRCode" in tv_app_text
+    assert "expo-sqlite/kv-store" in tv_app_text
+    assert "/device/code" in tv_app_text
+    assert "/device/token" in tv_app_text
+    assert "/device/session" in tv_app_text
     assert "verification_uri_complete" in tv_app_text
     assert "verification_uri" in tv_app_text
     assert "user_code" in tv_app_text
     assert "authorization_pending" in tv_app_text
     assert "slow_down" in tv_app_text
     assert "Refresh code" in tv_app_text
+    assert "Sign out TV" in tv_app_text
     assert "TVFocusRail" not in tv_app_text
 
     device_route_text = device_route.read_text(encoding="utf-8")
     assert 'createFileRoute("/device")' in device_route_text
     assert "activeAuthConfig.provider" in device_route_text
+    assert "SignInButton" in device_route_text
+    assert "useAuth" in device_route_text
+    assert "getToken" in device_route_text
+    assert "/device/approve" in device_route_text
     assert "user_code" in device_route_text
     assert "Approve This TV" in device_route_text
+
+    root_route_text = web_root_route.read_text(encoding="utf-8")
+    auth_provider_text = web_auth_provider.read_text(encoding="utf-8")
+    assert "AppAuthProvider" in root_route_text
+    assert "ClerkProvider" in auth_provider_text
 
     backend_http_text = backend_http.read_text(encoding="utf-8")
     backend_schema_text = backend_schema.read_text(encoding="utf-8")
@@ -123,10 +145,16 @@ def test_web_backend_tv_scaffolds_device_link_baseline(tmp_path: Path) -> None:
     assert "/device/code" in backend_http_text
     assert "/device/approve" in backend_http_text
     assert "/device/token" in backend_http_text
+    assert "/device/session" in backend_http_text
+    assert "/device/logout" in backend_http_text
     assert "deviceLinks" in backend_schema_text
+    assert "tvSessions" in backend_schema_text
+    assert "sessionToken" in backend_schema_text
     assert "verificationUriComplete" in backend_schema_text
+    assert "clientId" in backend_schema_text
     assert "userCode" in backend_schema_text
     assert "DeviceLinkStatus" in device_backend_text
+    assert "DeviceTokenSuccessResponse" in device_backend_text
     assert "verification_uri_complete" in device_backend_text
 
 
@@ -168,6 +196,50 @@ def test_web_backend_without_tv_omits_device_link_scaffold(tmp_path: Path) -> No
     btca_resource_names = [resource["name"] for resource in btca_config["resources"]]
     assert "react-native-qrcode-svg" not in btca_resource_names
     assert "react-native-svg" not in btca_resource_names
+
+
+def test_web_backend_tv_with_auth_none_omits_live_device_link_runtime(
+    tmp_path: Path,
+) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = tmp_path / "fullstack-tv-auth-none"
+
+    result = run_scaffold_command(
+        repo_root=repo_root,
+        args=[
+            "--target",
+            "web",
+            "--target",
+            "backend",
+            "--target",
+            "tv",
+            "--auth",
+            "none",
+            "--no-interactive",
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.returncode == 0, (
+        "Expected web+backend+tv scaffold with auth none to succeed.\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+    assert not (
+        output_dir / "apps" / "web" / "web" / "src" / "routes" / "device.tsx"
+    ).exists()
+    assert not (
+        output_dir / "apps" / "backend" / "backend" / "convex" / "deviceLink.ts"
+    ).exists()
+
+    tv_manifest = json.loads(
+        (output_dir / "apps" / "tv" / "tv" / "package.json").read_text(encoding="utf-8")
+    )
+    tv_dependencies = tv_manifest.get("dependencies", {})
+    assert "react-native-qrcode-svg" not in tv_dependencies
+    assert "expo-sqlite" not in tv_dependencies
 
 
 def test_nurt_add_tv_retrofits_existing_fullstack_repo_with_device_link_assets(
@@ -215,6 +287,12 @@ def test_nurt_add_tv_retrofits_existing_fullstack_repo_with_device_link_assets(
     assert (
         output_dir / "apps" / "backend" / "backend" / "convex" / "deviceLink.ts"
     ).exists()
+    assert (output_dir / "apps" / "backend" / "backend" / "convex" / "auth.ts").exists()
+    assert (
+        output_dir / "apps" / "backend" / "backend" / "convex" / "convex.config.ts"
+    ).exists()
+    assert (output_dir / "apps" / "web" / "web" / "src" / "auth-provider.ts").exists()
+    assert (output_dir / "apps" / "web" / "web" / "src" / "auth-client.ts").exists()
 
     tv_manifest = json.loads(
         (output_dir / "apps" / "tv" / "tv" / "package.json").read_text(encoding="utf-8")
@@ -222,6 +300,22 @@ def test_nurt_add_tv_retrofits_existing_fullstack_repo_with_device_link_assets(
     tv_dependencies = tv_manifest.get("dependencies", {})
     assert tv_dependencies.get("react-native-qrcode-svg") == "^6.3.21"
     assert tv_dependencies.get("react-native-svg") == "^15.15.4"
+    assert tv_dependencies.get("expo-sqlite") == "^55.0.14"
+
+    web_manifest = json.loads(
+        (output_dir / "apps" / "web" / "web" / "package.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    backend_manifest = json.loads(
+        (output_dir / "apps" / "backend" / "backend" / "package.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert web_manifest["dependencies"]["better-auth"] == "^1.6.0"
+    assert web_manifest["dependencies"]["@convex-dev/better-auth"] == "^0.11.4"
+    assert backend_manifest["dependencies"]["better-auth"] == "^1.6.0"
+    assert backend_manifest["dependencies"]["@convex-dev/better-auth"] == "^0.11.4"
 
     btca_config = json.loads(
         (output_dir / "btca.config.jsonc").read_text(encoding="utf-8")

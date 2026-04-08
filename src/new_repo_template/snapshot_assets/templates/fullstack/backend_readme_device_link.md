@@ -16,18 +16,25 @@ The supported provider set for this scaffold remains Convex + Clerk and Convex +
 
 Keep `apps/web/.env.example`, `apps/backend/.env.example`, and `apps/tv/.env.example` aligned to the same local pairing URL shape.
 
-## Device-Link Starter Contract
+## Device-Link Runtime Contract
 
-Feature `14.0` adds the starter files for a provider-neutral TV device-link flow:
+Feature `14.0` adds the template-owned files for the live TV device-link flow:
 
-- `convex/deviceLink.ts` defines the backend-owned device-link payload and status contract.
-- `convex/schema.ts` now reserves a `deviceLinks` table for short-lived linking records.
-- `convex/http.ts` records the intended route inventory:
+- `convex/deviceLink.ts` now owns the backend device-link lifecycle and TV app-session issuance.
+- `convex/schema.ts` reserves both `deviceLinks` and `tvSessions` for the live approval-and-redemption loop.
+- `convex/http.ts` exposes the live route inventory:
   - `POST /device/code`
   - `POST /device/approve`
   - `POST /device/token`
+  - `POST /device/session`
+  - `POST /device/logout`
 
-Replace the route inventory with real Convex handlers when you wire the live auth/session layer.
+If this backend uses Better Auth locally, the generated repo also includes:
+
+- `convex/convex.config.ts`
+- `convex/auth.ts`
+
+That local path lets the web app create a real local Better Auth session before approving a TV.
 
 ## Local Development
 
@@ -38,6 +45,8 @@ Replace the route inventory with real Convex handlers when you wire the live aut
    - `compose.override.yaml`
    - the base file is the deployment-oriented baseline; the override carries local source mounts, local dependency installation, and self-hosted Convex persistence
 3. Update `apps/backend/.env.example`, `apps/web/.env.example`, and `apps/tv/.env.example` with the generated local values you need.
+   - Better Auth local mode needs a real `BETTER_AUTH_SECRET`.
+   - Clerk mode needs the usual publishable key plus Convex JWT issuer domain values.
 4. Start the local stack from the repo root:
    - `docker compose up`
    - the web service installs Linux-native Bun dependencies into a Docker-managed volume on first startup
@@ -49,6 +58,7 @@ Replace the route inventory with real Convex handlers when you wire the live aut
 
 - Production continues to target Convex Cloud.
 - The generated `convex/auth.config.ts` switches between the local/prod auth providers using `NURT_RUNTIME_ENV`.
+- The TV app session issued by `/device/token` is an opaque app-scoped session identifier, not an upstream provider credential.
 
 ## CI-Safe Credentialless Smoke Commands
 
