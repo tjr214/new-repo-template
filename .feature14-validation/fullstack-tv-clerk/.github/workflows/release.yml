@@ -1,0 +1,362 @@
+name: Release (Optional Signing)
+
+on:
+  workflow_dispatch:
+    inputs:
+      enable_signing:
+        description: "Enable signing jobs (requires configured secrets)"
+        required: true
+        type: choice
+        default: "false"
+        options:
+          - "false"
+          - "true"
+      release_label:
+        description: "Human-readable release label"
+        required: true
+        default: "manual-release"
+      release_tag:
+        description: "Git tag to create or update for the template release"
+        required: true
+        default: "v0.1.0-template"
+      publish_release:
+        description: "Publish a draft GitHub release for template artifacts"
+        required: true
+        type: choice
+        default: "false"
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  unsigned-release-readiness:
+    name: Unsigned Release Readiness
+    runs-on: ubuntu-latest
+    env:
+      NURT_UPDATE_CHECK_SIMULATE: none
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        run: python -m pip install --upgrade uv
+
+      - name: Install project dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Build template distributables
+        run: uv build
+
+      - name: Record release mode
+        run: |
+          echo "Release label: ${{ inputs.release_label }}"
+          echo "Signing enabled: ${{ inputs.enable_signing }}"
+
+      - name: Write release summary artifact
+        run: |
+          mkdir -p release-output
+          cat <<'EOF' > release-output/template-release-summary.txt
+          release_label=${{ inputs.release_label }}
+          signing_enabled=${{ inputs.enable_signing }}
+          artifact_scope=template repo unsigned dist bundle
+          note=downstream generated app repos still need repo-specific signing/package execution
+          EOF
+
+      - name: Archive unsigned release bundle
+        run: |
+          tar -czf "release-output/template-dist-${{ inputs.release_label }}.tar.gz" dist release-output/template-release-summary.txt
+
+      - name: Upload unsigned release bundle
+        uses: actions/upload-artifact@v6
+        with:
+          name: template-dist-${{ inputs.release_label }}
+          path: |
+            release-output/template-dist-${{ inputs.release_label }}.tar.gz
+            release-output/template-release-summary.txt
+          retention-days: 7
+
+  optional-signing-secrets-check:
+    name: Optional Signing Secrets Check
+    if: ${{ inputs.enable_signing == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required signing secret presence
+        env:
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          APPLE_DEVELOPER_ID: ${{ secrets.APPLE_DEVELOPER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PROJECT_ID: ${{ secrets.EXPO_PROJECT_ID }}
+          EXPO_ASC_KEY_ID: ${{ secrets.EXPO_ASC_KEY_ID }}
+          EXPO_ASC_ISSUER_ID: ${{ secrets.EXPO_ASC_ISSUER_ID }}
+          EXPO_ASC_API_KEY_BASE64: ${{ secrets.EXPO_ASC_API_KEY_BASE64 }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=0
+          for name in \
+            MACOS_CERTIFICATE_P12_BASE64 \
+            MACOS_CERTIFICATE_PASSWORD \
+            APPLE_DEVELOPER_ID \
+            APPLE_TEAM_ID \
+            EXPO_TOKEN \
+            EXPO_PROJECT_ID \
+            EXPO_ASC_KEY_ID \
+            EXPO_ASC_ISSUER_ID \
+            EXPO_ASC_API_KEY_BASE64 \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD
+          do
+            if [ -z "${!name}" ]; then
+              echo "Missing required signing secret: ${name}" >&2
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+  desktop-signing-prep:
+    name: Desktop Signing Prep
+    if: ${{ inputs.enable_signing == 'true' }}
+    needs:
+      - unsigned-release-readiness
+      - optional-signing-secrets-check
+    runs-on: macos-latest
+    env:
+      MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+      MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+      APPLE_DEVELOPER_ID: ${{ secrets.APPLE_DEVELOPER_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
+      APPLE_NOTARY_APP_PASSWORD: ${{ secrets.APPLE_NOTARY_APP_PASSWORD }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Prepare macOS signing materials
+        shell: bash
+        run: |
+          export CERT_PATH="$RUNNER_TEMP/developer-id.p12"
+          export KEYCHAIN_PATH="$RUNNER_TEMP/release-signing.keychain-db"
+          export KEYCHAIN_PASSWORD="$(uuidgen)"
+          python - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+          cert_data = os.environ["MACOS_CERTIFICATE_P12_BASE64"]
+          Path(os.environ["CERT_PATH"]).write_bytes(base64.b64decode(cert_data))
+          PY
+          test -s "$CERT_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security find-identity -v "$KEYCHAIN_PATH" > "$RUNNER_TEMP/macos-signing-identities.txt"
+          {
+            echo "developer_id=$APPLE_DEVELOPER_ID"
+            echo "team_id=$APPLE_TEAM_ID"
+            if [ -n "$APPLE_NOTARY_APPLE_ID" ] && [ -n "$APPLE_NOTARY_APP_PASSWORD" ]; then
+              echo "notarization_credentials=present"
+            else
+              echo "notarization_credentials=absent"
+            fi
+          } > "$RUNNER_TEMP/macos-signing-summary.txt"
+
+      - name: Upload macOS signing prep artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: macos-signing-prep-${{ inputs.release_label }}
+          path: |
+            ${{ runner.temp }}/macos-signing-identities.txt
+            ${{ runner.temp }}/macos-signing-summary.txt
+          retention-days: 7
+
+  android-signing-prep:
+    name: Android Signing Prep
+    if: ${{ inputs.enable_signing == 'true' }}
+    needs:
+      - unsigned-release-readiness
+      - optional-signing-secrets-check
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare Android signing materials
+        shell: bash
+        run: |
+          export KEYSTORE_PATH="$RUNNER_TEMP/release-signing.keystore"
+          python - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+          keystore_data = os.environ["ANDROID_KEYSTORE_BASE64"]
+          Path(os.environ["KEYSTORE_PATH"]).write_bytes(base64.b64decode(keystore_data))
+          PY
+          test -s "$KEYSTORE_PATH"
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" > "$RUNNER_TEMP/android-keystore-summary.txt"
+          {
+            echo "alias=$ANDROID_KEY_ALIAS"
+            echo "keystore_path=$KEYSTORE_PATH"
+          } > "$RUNNER_TEMP/android-signing-summary.txt"
+
+      - name: Upload Android signing prep artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: android-signing-prep-${{ inputs.release_label }}
+          path: |
+            ${{ runner.temp }}/android-keystore-summary.txt
+            ${{ runner.temp }}/android-signing-summary.txt
+          retention-days: 7
+
+  ios-packaging-preview:
+    name: iOS Packaging Preview
+    if: ${{ inputs.enable_signing == 'true' }}
+    needs:
+      - unsigned-release-readiness
+      - optional-signing-secrets-check
+    runs-on: macos-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EXPO_PROJECT_ID: ${{ secrets.EXPO_PROJECT_ID }}
+      EXPO_ASC_KEY_ID: ${{ secrets.EXPO_ASC_KEY_ID }}
+      EXPO_ASC_ISSUER_ID: ${{ secrets.EXPO_ASC_ISSUER_ID }}
+      EXPO_ASC_API_KEY_BASE64: ${{ secrets.EXPO_ASC_API_KEY_BASE64 }}
+      IOS_OUTPUT_ROOT: ${{ runner.temp }}/generated-ios-template
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.10"
+
+      - name: Scaffold generated mobile workspace
+        shell: bash
+        run: |
+          PYTHONPATH="$GITHUB_WORKSPACE/src" python -m new_repo_template.scaffold \
+            --target mobile \
+            --no-interactive \
+            --output "$IOS_OUTPUT_ROOT"
+
+      - name: Inject Expo project id and App Store Connect key
+        shell: bash
+        run: |
+          export MOBILE_APP_JSON="$IOS_OUTPUT_ROOT/apps/mobile/app.json"
+          export ASC_KEY_PATH="$RUNNER_TEMP/expo-asc-api-key.p8"
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          from pathlib import Path
+          app_path = Path(os.environ["MOBILE_APP_JSON"])
+          app_data = json.loads(app_path.read_text(encoding="utf-8"))
+          expo = app_data.setdefault("expo", {})
+          extra = expo.setdefault("extra", {})
+          extra["eas"] = {"projectId": os.environ["EXPO_PROJECT_ID"]}
+          app_path.write_text(json.dumps(app_data, indent=2) + "\n", encoding="utf-8")
+          Path(os.environ["ASC_KEY_PATH"]).write_bytes(base64.b64decode(os.environ["EXPO_ASC_API_KEY_BASE64"]))
+          PY
+
+      - name: Install generated mobile workspace dependencies
+        shell: bash
+        run: |
+          bun install --cwd "$IOS_OUTPUT_ROOT" --save-text-lockfile --frozen-lockfile --lockfile-only
+          bun install --cwd "$IOS_OUTPUT_ROOT" --frozen-lockfile
+
+      - name: Submit iOS packaging preview build
+        shell: bash
+        env:
+          EXPO_ASC_API_KEY_PATH: ${{ runner.temp }}/expo-asc-api-key.p8
+        run: |
+          cd "$IOS_OUTPUT_ROOT/apps/mobile"
+          bunx eas-cli build --platform ios --profile preview --non-interactive --no-wait | tee "$RUNNER_TEMP/ios-packaging-preview.log"
+          {
+            echo "profile=preview"
+            echo "platform=ios"
+            echo "project_id=$EXPO_PROJECT_ID"
+            echo "command=bunx eas-cli build --platform ios --profile preview --non-interactive --no-wait"
+          } > "$RUNNER_TEMP/ios-packaging-summary.txt"
+
+      - name: Upload iOS packaging preview artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ios-packaging-preview-${{ inputs.release_label }}
+          path: |
+            ${{ runner.temp }}/ios-packaging-preview.log
+            ${{ runner.temp }}/ios-packaging-summary.txt
+          retention-days: 7
+
+  publish-template-release:
+    name: Publish Template Release
+    if: >-
+      ${{ always() && inputs.publish_release == 'true' && needs.unsigned-release-readiness.result == 'success' && (inputs.enable_signing != 'true' || (needs.optional-signing-secrets-check.result == 'success' && needs.desktop-signing-prep.result == 'success' && needs.android-signing-prep.result == 'success' && needs.ios-packaging-preview.result == 'success')) }}
+    needs:
+      - unsigned-release-readiness
+      - optional-signing-secrets-check
+      - desktop-signing-prep
+      - android-signing-prep
+      - ios-packaging-preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download unsigned release bundle
+        uses: actions/download-artifact@v7
+        with:
+          name: template-dist-${{ inputs.release_label }}
+          path: release-artifacts/template-dist
+
+      - name: Create release notes
+        run: |
+          cat <<'EOF' > release-artifacts/template-release-notes.md
+          Template release label: ${{ inputs.release_label }}
+          Signing enabled: ${{ inputs.enable_signing }}
+          This draft release publishes template distributable artifacts from the template repo.
+          Downstream generated app repos remain responsible for repo-specific desktop/mobile/TV installers.
+          EOF
+
+      - name: Create or update draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          asset_path="release-artifacts/template-dist/template-dist-${{ inputs.release_label }}.tar.gz"
+          notes_path="release-artifacts/template-release-notes.md"
+          if gh release view "${{ inputs.release_tag }}" >/dev/null 2>&1; then
+            gh release upload "${{ inputs.release_tag }}" "$asset_path" --clobber
+            gh release edit "${{ inputs.release_tag }}" --title "${{ inputs.release_tag }}" --notes-file "$notes_path"
+          else
+            gh release create "${{ inputs.release_tag }}" "$asset_path" --draft --title "${{ inputs.release_tag }}" --notes-file "$notes_path"
+          fi

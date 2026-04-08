@@ -123,8 +123,12 @@
   - [x] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
     - [x] TV should show a QR code for `verification_uri_complete` while also showing visible `verification_uri` and `user_code` fallback text.
     - [x] The unauthenticated TV state should become a simple mostly-passive pairing screen rather than the current multi-card `Operator Console` layout.
-  - [ ] Implement the backend, web, and TV app pieces required for the device-code linking flow.
+  - [x] Implement the backend, web, and TV app pieces required for the device-code linking flow.
+    - [x] Generated `web + backend + tv` repos now scaffold the device-link starter files and QR-aware TV pairing surface.
+    - [x] `nurt add` now retrofits the same baseline when an existing repo newly reaches the `web + backend + tv` composition.
   - [ ] Validate that the Android TV app can complete the full account-linking flow successfully.
+    - [x] The starter baseline now survives real generated-repo install/build/export/runtime checks: web build succeeds, TV export succeeds, the `/device` route serves over live HTTP, and the generated Docker Compose stack still boots.
+    - [ ] The current generated flow still needs a stronger real cross-device approval-and-redemption validation pass before this item can be called fully done.
   - [ ] Complete this work before RC1.
 - [ ] 15.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
   - [ ] RC1 is blocked on the planning, implementation, and validation work captured in `10.0` through `14.0`.

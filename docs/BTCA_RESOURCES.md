@@ -177,4 +177,16 @@
 <special_notes>Official shadcn/ui docs, CLI, and templates. Use apps/v4/content/docs for docs, packages/shadcn for CLI behavior, and templates/start-monorepo for TanStack Start examples.</special_notes>
 </configured_resource>
 
+<configured_resource>
+<name>react-native-qrcode-svg</name>
+<type>npm</type>
+<package>react-native-qrcode-svg</package>
+</configured_resource>
+
+<configured_resource>
+<name>react-native-svg</name>
+<type>npm</type>
+<package>react-native-svg</package>
+</configured_resource>
+
 </current_btca_resources>

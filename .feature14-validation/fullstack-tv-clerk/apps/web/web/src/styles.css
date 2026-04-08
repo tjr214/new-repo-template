@@ -1,0 +1,9 @@
+@import "../../../../packages/ui/src/styles/globals.css";
+
+body {
+  margin: 0;
+}
+
+main {
+  padding: 2rem;
+}

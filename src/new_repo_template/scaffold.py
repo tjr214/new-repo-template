@@ -419,13 +419,27 @@ WEB_ROUTER_TEMPLATE = load_template_text("fullstack/web_router.tsx")
 WEB_ROOT_ROUTE_TEMPLATE = load_template_text("fullstack/web_root_route.tsx")
 WEB_INDEX_ROUTE_TEMPLATE = load_template_text("fullstack/web_index_route.tsx")
 WEB_ROUTE_TREE_TEMPLATE = load_template_text("fullstack/web_route_tree.gen.ts")
+WEB_DEVICE_ROUTE_TREE_TEMPLATE = load_template_text(
+    "fullstack/web_route_tree_device_link.gen.ts"
+)
 WEB_VITE_CONFIG_TEMPLATE = load_template_text("fullstack/web_vite.config.ts")
 WEB_TSCONFIG_TEMPLATE = load_template_text("fullstack/web_tsconfig.json")
 WEB_COMPONENTS_JSON_TEMPLATE = load_template_text("fullstack/web_components.json")
 WEB_STYLES_TEMPLATE = load_template_text("fullstack/web_styles.css")
+WEB_DEVICE_ROUTE_TEMPLATE = load_template_text("fullstack/web_device_route.tsx")
 BACKEND_HTTP_TEMPLATE = load_template_text("fullstack/backend_http.ts")
+BACKEND_HTTP_DEVICE_LINK_TEMPLATE = load_template_text(
+    "fullstack/backend_http_device_link.ts"
+)
 BACKEND_SCHEMA_TEMPLATE = load_template_text("fullstack/backend_schema.ts")
+BACKEND_SCHEMA_DEVICE_LINK_TEMPLATE = load_template_text(
+    "fullstack/backend_schema_device_link.ts"
+)
+BACKEND_DEVICE_LINK_TEMPLATE = load_template_text("fullstack/backend_device_link.ts")
 BACKEND_README_TEMPLATE = load_template_text("fullstack/backend_readme.md")
+BACKEND_README_DEVICE_LINK_TEMPLATE = load_template_text(
+    "fullstack/backend_readme_device_link.md"
+)
 COMPOSE_TEMPLATE = load_template_text("fullstack/compose.yaml")
 COMPOSE_OVERRIDE_TEMPLATE = load_template_text("fullstack/compose.override.yaml")
 DESKTOP_APP_TEMPLATE = load_template_text("desktop/desktop_app.ts")
@@ -462,6 +476,7 @@ TV_EAS_JSON_TEMPLATE = load_template_text("tv/tv_eas.json")
 TV_BABEL_CONFIG_TEMPLATE = load_template_text("tv/tv_babel.config.js")
 TV_INDEX_TEMPLATE = load_template_text("tv/tv_index.js")
 TV_APP_TEMPLATE = load_template_text("tv/tv_app.tsx")
+TV_APP_DEVICE_LINK_TEMPLATE = load_template_text("tv/tv_app_device_link.tsx")
 TV_SMOKE_TEST_TEMPLATE = load_template_text("tv/tv_smoke.test.js")
 TV_TSCONFIG_TEMPLATE = load_template_text("tv/tv_tsconfig.json")
 TV_PATCH_ANDROID_WRAPPER_TEMPLATE = load_template_text(
@@ -470,6 +485,7 @@ TV_PATCH_ANDROID_WRAPPER_TEMPLATE = load_template_text(
 TV_INPUT_CHECKLIST_TEMPLATE = load_template_text("tv/tv_input_checklist.md")
 TV_VALIDATION_LOG_TEMPLATE = load_template_text("tv/tv_validation_log.md")
 TV_README_TEMPLATE = load_template_text("tv/tv_readme.md")
+TV_README_DEVICE_LINK_TEMPLATE = load_template_text("tv/tv_readme_device_link.md")
 TYPESCRIPT_CLI_TSCONFIG_TEMPLATE = load_template_text(
     "typescript_cli/typescript_cli_tsconfig.json"
 )
@@ -538,6 +554,9 @@ ESLINT_CONFIG_PACKAGE_TEMPLATE = load_template_text(
 )
 ESLINT_CONFIG_BASE_TEMPLATE = load_template_text("eslint/base.mjs")
 BACKEND_TSCONFIG_TEMPLATE = load_template_text("fullstack/backend_tsconfig.json")
+TV_PACKAGE_DEVICE_LINK_TEMPLATE = load_template_text(
+    "workspace_packages/tv_package_device_link.json"
+)
 
 SIMULATE_FAILURE_ENV = "NEW_REPO_TEMPLATE_SIMULATE_FAILURE"
 
@@ -1137,6 +1156,12 @@ def resolve_paths(*, projects: tuple[ProjectSpec, ...]) -> tuple[str, ...]:
         paths.append("compose.yaml")
         paths.append("compose.override.yaml")
 
+    if fullstack_tv_device_link_enabled(projects):
+        for web_project in _device_link_web_projects(projects):
+            paths.append(f"{project_relative_root(web_project)}/src/routes/device.tsx")
+        for backend in _device_link_backend_by_name(projects).values():
+            paths.append(f"{project_relative_root(backend)}/convex/deviceLink.ts")
+
     return _dedupe_preserve_order(paths)
 
 
@@ -1540,6 +1565,17 @@ def render_backend_readme(project: ProjectSpec) -> str:
     return readme.replace("apps/backend", project_relative_root(project))
 
 
+def render_device_link_backend_readme(project: ProjectSpec) -> str:
+    readme = BACKEND_README_DEVICE_LINK_TEMPLATE
+    readme = readme.replace(
+        "{{LOCAL_AUTH_PROVIDER}}", _format_auth_provider(project.local_auth_provider)
+    )
+    readme = readme.replace(
+        "{{PROD_AUTH_PROVIDER}}", _format_auth_provider(project.prod_auth_provider)
+    )
+    return readme.replace("apps/backend", project_relative_root(project))
+
+
 def render_backend_auth_config(project: ProjectSpec) -> str:
     return BACKEND_AUTH_CONFIG_TEMPLATE.replace(
         "{{LOCAL_AUTH_PROVIDER}}", _format_auth_provider(project.local_auth_provider)
@@ -1613,6 +1649,42 @@ def render_backend_env_example(project: ProjectSpec) -> str:
     return "\n".join(lines) + "\n"
 
 
+def render_device_link_web_env_example(*, backend_project: ProjectSpec) -> str:
+    base_lines = (
+        render_web_env_example(backend_project=backend_project)
+        .rstrip("\n")
+        .splitlines()
+    )
+    base_lines.append("VITE_DEVICE_LINK_VERIFICATION_PATH=/device")
+    return "\n".join(base_lines) + "\n"
+
+
+def render_device_link_backend_env_example(project: ProjectSpec) -> str:
+    base_lines = render_backend_env_example(project).rstrip("\n").splitlines()
+    base_lines.extend(
+        [
+            "DEVICE_LINK_EXPIRES_IN_SECONDS=600",
+            "DEVICE_LINK_POLL_INTERVAL_SECONDS=5",
+        ]
+    )
+    return "\n".join(base_lines) + "\n"
+
+
+def render_tv_device_link_env_example() -> str:
+    return (
+        "\n".join(
+            (
+                "# TV app environment",
+                "EXPO_PUBLIC_DEVICE_LINK_BASE_URL=http://localhost:3000/device",
+                "EXPO_PUBLIC_DEVICE_LINK_EXPIRES_IN_SECONDS=600",
+                "EXPO_PUBLIC_DEVICE_LINK_POLL_INTERVAL_SECONDS=5",
+                "EXPO_PUBLIC_DEVICE_LINK_DEMO_AUTO_LINK=false",
+            )
+        )
+        + "\n"
+    )
+
+
 def render_target_env_example(project: ProjectSpec) -> str:
     if project.kind == "backend":
         return render_backend_env_example(project)
@@ -1627,6 +1699,113 @@ def render_compose_override_yaml(*, web_project: ProjectSpec) -> str:
     return COMPOSE_OVERRIDE_TEMPLATE.replace(
         "{{WEB_ROOT}}", project_relative_root(web_project)
     )
+
+
+def _device_link_backend_by_name(
+    projects: tuple[ProjectSpec, ...],
+) -> dict[str, ProjectSpec]:
+    return {
+        project.name: project
+        for project in projects
+        if project.kind == "backend" and project.auth_matrix_enabled
+    }
+
+
+def _device_link_web_projects(
+    projects: tuple[ProjectSpec, ...],
+) -> tuple[ProjectSpec, ...]:
+    backend_by_name = _device_link_backend_by_name(projects)
+    return tuple(
+        project
+        for project in projects
+        if project.kind == "web" and (project.backend_binding or "") in backend_by_name
+    )
+
+
+def fullstack_tv_device_link_enabled(projects: tuple[ProjectSpec, ...]) -> bool:
+    return bool(
+        _device_link_web_projects(projects)
+        and _device_link_backend_by_name(projects)
+        and any(project.kind == "tv" for project in projects)
+    )
+
+
+def scaffold_fullstack_tv_device_link_assets(
+    *, output_root: Path, projects: tuple[ProjectSpec, ...]
+) -> None:
+    if not fullstack_tv_device_link_enabled(projects):
+        return
+
+    backend_by_name = _device_link_backend_by_name(projects)
+    web_projects = _device_link_web_projects(projects)
+    tv_projects = tuple(project for project in projects if project.kind == "tv")
+
+    for backend in backend_by_name.values():
+        backend_root = output_root / Path(project_relative_root(backend))
+        convex_dir = backend_root / "convex"
+        convex_dir.mkdir(parents=True, exist_ok=True)
+        (convex_dir / "deviceLink.ts").write_text(
+            BACKEND_DEVICE_LINK_TEMPLATE,
+            encoding="utf-8",
+        )
+        (convex_dir / "http.ts").write_text(
+            BACKEND_HTTP_DEVICE_LINK_TEMPLATE,
+            encoding="utf-8",
+        )
+        (convex_dir / "schema.ts").write_text(
+            BACKEND_SCHEMA_DEVICE_LINK_TEMPLATE,
+            encoding="utf-8",
+        )
+        (backend_root / "README.md").write_text(
+            render_device_link_backend_readme(backend),
+            encoding="utf-8",
+        )
+        (backend_root / ".env.example").write_text(
+            render_device_link_backend_env_example(backend),
+            encoding="utf-8",
+        )
+
+    for web_project in web_projects:
+        web_root = output_root / Path(project_relative_root(web_project))
+        web_src = web_root / "src"
+        routes_dir = web_src / "routes"
+        routes_dir.mkdir(parents=True, exist_ok=True)
+        (routes_dir / "device.tsx").write_text(
+            WEB_DEVICE_ROUTE_TEMPLATE,
+            encoding="utf-8",
+        )
+        (web_src / "routeTree.gen.ts").write_text(
+            WEB_DEVICE_ROUTE_TREE_TEMPLATE,
+            encoding="utf-8",
+        )
+        backend = backend_by_name[web_project.backend_binding or ""]
+        (web_root / ".env.example").write_text(
+            render_device_link_web_env_example(backend_project=backend),
+            encoding="utf-8",
+        )
+
+    for tv_project in tv_projects:
+        tv_root = output_root / Path(project_relative_root(tv_project))
+        tv_root.mkdir(parents=True, exist_ok=True)
+        (tv_root / "package.json").write_text(
+            render_workspace_package_manifest(
+                tv_project,
+                template_text=TV_PACKAGE_DEVICE_LINK_TEMPLATE,
+            ),
+            encoding="utf-8",
+        )
+        (tv_root / "App.tsx").write_text(
+            TV_APP_DEVICE_LINK_TEMPLATE,
+            encoding="utf-8",
+        )
+        (tv_root / "README.md").write_text(
+            TV_README_DEVICE_LINK_TEMPLATE,
+            encoding="utf-8",
+        )
+        (tv_root / ".env.example").write_text(
+            render_tv_device_link_env_example(),
+            encoding="utf-8",
+        )
 
 
 def scaffold_python_lane(
@@ -2137,6 +2316,10 @@ def execute_scaffold_direct(plan: ScaffoldPlan) -> None:
     scaffold_web_backend_env_examples(output_root=plan.output, projects=plan.projects)
     scaffold_web_backend_auth_wiring(output_root=plan.output, projects=plan.projects)
     scaffold_fullstack_compose_assets(output_root=plan.output, projects=plan.projects)
+    scaffold_fullstack_tv_device_link_assets(
+        output_root=plan.output,
+        projects=plan.projects,
+    )
 
 
 def execute_scaffold(plan: ScaffoldPlan) -> None:

@@ -1,0 +1,26 @@
+{
+  "name": "@generated/ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./lib/*": "./src/lib/*.ts",
+    "./styles/*": "./src/styles/*.css"
+  },
+  "dependencies": {
+    "@generated/design-tokens": "workspace:*",
+    "react": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14"
+  },
+  "scripts": {
+    "dev": "bun --version",
+    "build": "bun --version",
+    "test": "bun --version",
+    "lint": "bun --version",
+    "typecheck": "bun --version"
+  }
+}

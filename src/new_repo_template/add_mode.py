@@ -171,6 +171,25 @@ def inventory_existing_repo(*, repo_root: Path) -> ExistingRepoState:
         for project_root in _iter_existing_project_dirs(repo_root / relative_root):
             projects.append(scaffold.ProjectSpec(kind=kind, name=project_root.name))
 
+    backend_names = sorted(
+        project.name for project in projects if project.kind == "backend"
+    )
+    if len(backend_names) == 1:
+        inferred_backend = backend_names[0]
+        projects = [
+            scaffold.ProjectSpec(
+                kind=project.kind,
+                name=project.name,
+                auth=project.auth,
+                local_auth=project.local_auth,
+                prod_auth=project.prod_auth,
+                backend_binding=inferred_backend
+                if project.kind == "web"
+                else project.backend_binding,
+            )
+            for project in projects
+        ]
+
     ordering = {kind: index for index, kind in enumerate(scaffold.TARGET_CHOICES)}
     ordered_projects = tuple(
         sorted(projects, key=lambda item: (ordering[item.kind], item.name))
@@ -798,6 +817,10 @@ def _stage_scaffold_content(plan: AddPlan) -> Path:
             raise ValueError(f"unsupported add project kind: {project.kind}")
 
     _write_requested_web_auth_assets(stage_root=stage_root, plan=plan)
+    scaffold.scaffold_fullstack_tv_device_link_assets(
+        output_root=stage_root,
+        projects=plan.combined_projects,
+    )
     return stage_root
 
 

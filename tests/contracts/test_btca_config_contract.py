@@ -70,7 +70,19 @@ def test_generate_scaffold_btca_files_covers_direct_target_frameworks_and_tools(
         "pytest",
         "ruff",
         "mypy",
+        "react-native-qrcode-svg",
+        "react-native-svg",
     ]
+
+
+def test_generate_scaffold_btca_files_keeps_qr_resources_out_of_tv_only() -> None:
+    generated = btca_config_manager.generate_scaffold_btca_files(
+        (btca_config_manager.ProjectContext(kind="tv"),)
+    )
+
+    resource_names = _resource_names(generated.config_text)
+    assert "react-native-qrcode-svg" not in resource_names
+    assert "react-native-svg" not in resource_names
 
 
 def test_merge_add_mode_btca_files_preserves_user_resource_and_adds_new_managed_ones() -> (

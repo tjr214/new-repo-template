@@ -1,0 +1,6 @@
+{
+  "extends": "@generated/typescript-config/node.json",
+  "include": [
+    "convex/**/*.ts"
+  ]
+}

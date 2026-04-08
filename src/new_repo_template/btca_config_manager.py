@@ -17,6 +17,7 @@ BTCA_CONFIG_RELATIVE_PATH = "btca.config.jsonc"
 BTCA_SIDECAR_SCHEMA_VERSION = 1
 BETTER_AUTH_CORE_RESOURCE_NAME = "better-auth-core"
 CONVEX_BETTER_AUTH_RESOURCE_NAME = "convex-better-auth"
+TV_DEVICE_LINK_RESOURCE_NAMES = ("react-native-qrcode-svg", "react-native-svg")
 
 
 @dataclass(frozen=True)
@@ -30,9 +31,10 @@ class ProjectContext:
 @dataclass(frozen=True)
 class ResourceDefinition:
     name: str
-    url: str
-    branch: str
     type: str = "git"
+    url: str | None = None
+    branch: str | None = None
+    package: str | None = None
     search_path: str | None = None
     special_notes: str | None = None
 
@@ -40,9 +42,18 @@ class ResourceDefinition:
         payload: dict[str, object] = {
             "type": self.type,
             "name": self.name,
-            "url": self.url,
-            "branch": self.branch,
         }
+        if self.type == "npm":
+            if self.package is None:
+                raise ValueError(f"npm resource {self.name} requires a package name")
+            payload["package"] = self.package
+        else:
+            if self.url is None or self.branch is None:
+                raise ValueError(
+                    f"git resource {self.name} requires url and branch values"
+                )
+            payload["url"] = self.url
+            payload["branch"] = self.branch
         if self.search_path is not None:
             payload["searchPath"] = self.search_path
         if self.special_notes is not None:
@@ -209,6 +220,16 @@ RESOURCE_DEFINITIONS: tuple[ResourceDefinition, ...] = (
         url="https://github.com/python/mypy",
         branch="master",
     ),
+    ResourceDefinition(
+        name="react-native-qrcode-svg",
+        type="npm",
+        package="react-native-qrcode-svg",
+    ),
+    ResourceDefinition(
+        name="react-native-svg",
+        type="npm",
+        package="react-native-svg",
+    ),
 )
 
 RESOURCE_BY_NAME = {resource.name: resource for resource in RESOURCE_DEFINITIONS}
@@ -289,6 +310,9 @@ def resolve_managed_resource_names(
     projects: tuple[ProjectContext, ...],
 ) -> tuple[tuple[str, ...], dict[str, tuple[str, ...]]]:
     reasons_by_name: OrderedDict[str, list[str]] = OrderedDict()
+    has_tv = False
+    has_web = False
+    has_auth_enabled_backend = False
 
     for resource_name in FOUNDATION_RESOURCE_NAMES:
         _append_reason(
@@ -298,6 +322,15 @@ def resolve_managed_resource_names(
     for project in projects:
         if project.kind == "foundation":
             continue
+        if project.kind == "tv":
+            has_tv = True
+        if project.kind == "web":
+            has_web = True
+        if project.kind == "backend" and any(
+            value is not None
+            for value in (project.auth, project.local_auth, project.prod_auth)
+        ):
+            has_auth_enabled_backend = True
         for resource_name in TARGET_RESOURCE_NAMES.get(project.kind, ()):
             _append_reason(
                 reasons_by_name,
@@ -319,6 +352,14 @@ def resolve_managed_resource_names(
                         resource_name=resource_name,
                         reason=f"backend:{auth_key}",
                     )
+
+    if has_tv and has_web and has_auth_enabled_backend:
+        for resource_name in TV_DEVICE_LINK_RESOURCE_NAMES:
+            _append_reason(
+                reasons_by_name,
+                resource_name=resource_name,
+                reason="tv-device-link",
+            )
 
     ordered_names = tuple(
         resource.name

@@ -2,7 +2,7 @@
 
 ## Current State
 
-The template implementation remains intact, features `5.0` through `13.0` are now complete, and feature `14.0` is now planning-locked as the next frontend/runtime implementation slice: a provider-neutral TV auth device-linking flow for repos that include `web + backend + tv`.
+The template implementation remains intact, features `5.0` through `13.0` are now complete, and feature `14.0` now has its starter implementation in place for repos that include `web + backend + tv`, with the remaining open work concentrated in the deeper end-to-end runtime closeout before RC1.
 
 - Feature `12.0` is now implemented: the generated frontend starter is a balanced nurt-branded starter-guide rather than a generic framework placeholder.
 - The welcome content remains mostly conceptual instead of command-heavy: the baseline now teaches what the generated monorepo gives the user, how the shared-vs-target-local structure works, and where to begin building without turning the UI into a terminal cheat sheet.
@@ -17,13 +17,17 @@ The template implementation remains intact, features `5.0` through `13.0` are no
 - `shadcn/ui` remains the default web component foundation only; the shared layer continues to own tokens/content/semantic structure, while desktop/mobile/TV keep target-local rendered components instead of importing `@generated/ui`.
 - Desktop remains `Electron Forge + Vite + React`, not React Native, while `mobile` and `tv` remain Expo/React Native apps that can use normal platform capabilities through Expo/RN integrations, config plugins, or explicit native modules.
 - The feature `13.0` retest item is now backed by real generated-repo execution too, not just by contract coverage: a fresh all-target generated repo installed successfully, the Python and TypeScript app/library lanes ran real commands, desktop packaged and reached a bounded launch checkpoint, mobile and TV exported real bundles, and the web app served HTML containing the new `Operator Console` content over HTTP.
-- Feature `14.0` planning is now locked even though implementation has not started yet: the slice is scoped to repos that include `web + backend + tv`, keeps the app boundary provider-neutral, and uses backend-owned short-lived device-link records instead of putting upstream auth-provider credentials on the TV.
-- The locked TV pairing contract shows three parallel paths at once: QR via `verification_uri_complete`, manual fallback via `verification_uri`, and manual fallback via visible `user_code`.
-- The locked TV UX intentionally simplifies the unauthenticated state relative to the current `Operator Console`: the auth-needed TV surface should become a mostly-passive pairing screen with a large QR code, short instructions, polling/expiry status, and at most one focusable control such as `Refresh code`.
-- The locked success path ends with the backend redeeming the approved link into an app-level TV session/token; the TV stores that app session and does not receive raw Clerk or Better Auth provider tokens.
+- Feature `14.0` starter implementation is now in the scaffold: repos that include `web + backend + tv` receive the new provider-neutral device-link baseline instead of only the earlier unauthenticated TV operator-console layout.
+- The generated TV app now uses a QR-first pairing screen in that composition, with `verification_uri_complete` rendered as a QR code, visible `verification_uri` and `user_code` fallback text, polling/expiry copy, and one remote-friendly `Refresh code` action.
+- The generated web app now includes a dedicated `/device` verification route that stays provider-neutral at the app boundary while surfacing the active auth provider label, manual-code entry UI, and an approval CTA.
+- The generated backend now includes the starter device-link contract files: a reserved `deviceLinks` schema table, a route inventory for `POST /device/code`, `POST /device/approve`, and `POST /device/token`, and a dedicated `convex/deviceLink.ts` contract module.
+- The generated BTCA output is now composition-aware for the QR slice too: `react-native-qrcode-svg` and `react-native-svg` are added only when the generated repo actually reaches the `web + backend + tv` device-link surface.
+- `nurt add` now retrofits the same feature `14.0` baseline when an existing repo newly reaches the `web + backend + tv` composition, rather than leaving existing web/backend lanes on the pre-device-link baseline.
+- Real generated-repo validation now confirms the new starter baseline survives install/build/export/runtime checks: a fresh generated `web + backend + tv` repo installs cleanly, the web lane builds, the TV lane exports with the QR dependency stack, the `/device` route serves over both local app-dev and root Docker Compose flows, and the compose stack still boots cleanly.
+- The remaining open feature `14.0` gap is now narrower and explicit: the scaffolded device-link baseline is real, but the route/backend/TV flow still uses starter approval/polling behavior rather than a fully wired cross-device approval-and-redemption loop backed by the real auth/session implementation.
 
 - Planning archives live under `docs/archive/plans/`, with the newest record at `docs/archive/plans/PLAN_2026-03-25_06-30-37_PM.md`.
-- Root `PLAN.md` is now a comprehensive restart-safe execution plan for feature `14.0`, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries capture both the feature `13.0` validation closeout and the new feature `14.0` planning lock.
+- Root `PLAN.md` is now updated for the post-implementation state of feature `14.0`, while root `PROGRESS.md` remains the active cumulative tracker and the latest session summaries now capture both the planning lock and the starter-implementation closeout context.
 - The architecture and implementation notes in this file still describe the current repository baseline.
 - The previous delivery cycle completed M0-M5, including the closed M4 hardware-validation tracker state.
 - The root README is now `nurt`-first, with BMAD and RALPH workflow instructions split into `README.BMAD-GUIDE.md` and `README.RALPH.md`.
@@ -175,7 +179,7 @@ The template implementation remains intact, features `5.0` through `13.0` are no
 - Feature `14.0` QR rule: TV QR should encode `verification_uri_complete`, while the screen also shows `verification_uri` and `user_code` as fallback entry paths
 - Feature `14.0` TV UX rule: the unauthenticated TV experience should be a simple pairing screen rather than the existing multi-card operator-console layout
 - Feature `14.0` token rule: the TV receives an app session/token after approval, not raw upstream provider credentials
-- Feature `14.0` validation status: planning locked, implementation pending
+- Feature `14.0` validation status: starter implementation validated, end-to-end runtime closeout still pending
 
 ## Known Constraints
 
@@ -203,6 +207,7 @@ The template implementation remains intact, features `5.0` through `13.0` are no
 - Feature `12.0` must preserve the feature `11.0` ownership boundaries: web route files stay in the web app, Electron runtime concerns stay desktop-local, Expo/React Native shared code stays free of DOM/native-only assumptions, and TV focus/remote behavior stays TV-specific.
 - Feature `14.0` should build on the now-real `Operator Console` baseline rather than on the older placeholder or starter-guide phases.
 - Any new QR-rendering dependency needed for feature `14.0` must follow the BTCA governance rule first: propose the missing project BTCA resource explicitly, get user confirmation, add it, and sync `docs/BTCA_RESOURCES.md` before relying on that library as part of the maintained project resource set.
+- The new feature `14.0` TV/web/backend flow is still a starter contract layer rather than a fully wired production auth loop; closing that remaining gap requires a real backend approval/redeem implementation and a stronger cross-device completion validation pass before the roadmap item can be called fully done.
 
 ## Implementation Notes (M0-M1)
 
@@ -224,6 +229,9 @@ The template implementation remains intact, features `5.0` through `13.0` are no
 - Manual runtime/package validation is now complete as well: a fresh generated repo under a local workspace-only validation directory completed `bun install --frozen-lockfile`, `uv sync --all-packages --group dev`, real Python/TypeScript app and library execution, `desktop:package`, bounded `desktop:start`, `mobile:export`, `tv:export`, and a live web HTTP fetch containing `Welcome To Nurt` plus `Operator Console`.
 - The required YELLOW planning pass for feature `14.0` is now complete too: the repo reread `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and `docs/session-summaries/SESSION_146_SUMMARY.md`; ran `date`; ran `btca status`; and used plain `btca ask` lookups for Better Auth device-flow semantics plus Expo/React Native Android TV QR UX guidance.
 - That planning pass locked the execution shape before any RED/GREEN work: the backend should issue and redeem short-lived device-link records, web should handle verification and approval behind the configured provider sign-in, TV should present QR plus fallback URL/code and poll passively, and the eventual TV app session/token should remain app-level rather than provider-level.
+- The feature `14.0` implementation pass is now in place too: `src/new_repo_template/scaffold.py` writes composition-aware device-link assets for `web + backend + tv`, `src/new_repo_template/btca_config_manager.py` adds QR BTCA resources only for that composition, and `src/new_repo_template/add_mode.py` now retrofits existing repos into the same baseline when they newly add the missing target.
+- The same pass also added the missing QR dependency context to the template repo itself through approved project BTCA resources `react-native-qrcode-svg` and `react-native-svg`, with `docs/BTCA_RESOURCES.md` synced back to the new live project-level resource set.
+- Validation is stronger now for feature `14.0` too: new contracts cover scaffold output, add-mode retrofit behavior, and composition-aware BTCA generation; a fresh generated `web + backend + tv` repo passed `bun install --frozen-lockfile`, web `build:app`, TV `tv:export`, live `/device` fetches from both the app-dev server and the root compose stack; and the full repository suite is green at 252 tests.
 - `Effect` has been evaluated at the planning level and is intentionally not part of the default RC1 baseline for shared/frontend work; if it is revisited later, the most plausible first adoption points are complex backend, CLI, or device-link orchestration rather than the default generated app surface.
 - YELLOW lookup results collected for Turborepo/Bun task modeling, TanStack Start monorepo defaults, Convex cloud-first workflow, auth integration constraints, Expo/TV configuration, and Electron Forge packaging.
 - Initial contract test scaffolding created at `tests/README.md` and `tests/contracts/test_monorepo_foundation_contract.py`.

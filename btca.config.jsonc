@@ -154,6 +154,16 @@
       "url": "https://github.com/shadcn-ui/ui",
       "branch": "main",
       "specialNotes": "Official shadcn/ui docs, CLI, and templates. Use apps/v4/content/docs for docs, packages/shadcn for CLI behavior, and templates/start-monorepo for TanStack Start examples."
+    },
+    {
+      "type": "npm",
+      "name": "react-native-qrcode-svg",
+      "package": "react-native-qrcode-svg"
+    },
+    {
+      "type": "npm",
+      "name": "react-native-svg",
+      "package": "react-native-svg"
     }
   ],
   "model": "gpt-5.4",

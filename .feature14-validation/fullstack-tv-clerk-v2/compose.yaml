@@ -1,0 +1,9 @@
+services:
+  web:
+    image: oven/bun:1.3.10
+    working_dir: /workspace
+    command: ["sh", "-lc", "bun run --cwd apps/web/web dev:app -- --host 0.0.0.0 --port 3000"]
+    environment:
+      NURT_RUNTIME_ENV: prod
+    ports:
+      - "3000:3000"

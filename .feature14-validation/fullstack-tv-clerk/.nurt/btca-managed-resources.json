@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "managed_resources": [
+    {
+      "name": "turborepo",
+      "reasons": [
+        "foundation"
+      ],
+      "fingerprint": "sha256:3ce995ffeec8679ef9f3d533ed24f9f1982608f1afb225acf075af58a7c18709"
+    },
+    {
+      "name": "bun",
+      "reasons": [
+        "foundation"
+      ],
+      "fingerprint": "sha256:bf9e12d36163a54ad652e45bbc6baece704a1e92a896a57b3e8c522d48d9ab39"
+    },
+    {
+      "name": "tanstack-router-start",
+      "reasons": [
+        "web"
+      ],
+      "fingerprint": "sha256:0b39ce1db1a95c3c197f792d663890b220654143c1543c51e232500faa5bc12e"
+    },
+    {
+      "name": "clerk-docs",
+      "reasons": [
+        "backend:clerk"
+      ],
+      "fingerprint": "sha256:1a808059febe70dbf442429108049afb537df7292fe72c1c971fdf9439f2c185"
+    },
+    {
+      "name": "expo-docs",
+      "reasons": [
+        "tv"
+      ],
+      "fingerprint": "sha256:47ad70550e1440e3c9db63b479a9211df524d225e1cbc1470f59450aa4bcc987"
+    },
+    {
+      "name": "react-native-tvos",
+      "reasons": [
+        "tv"
+      ],
+      "fingerprint": "sha256:cf995f6be771ba9807fe6688438d35028414a1b295bc978d4a652d1820fbd18f"
+    },
+    {
+      "name": "expo-tv-config",
+      "reasons": [
+        "tv"
+      ],
+      "fingerprint": "sha256:c22011d244503746fb3a72c47ba8c9e647472c2c2d5661fb9058a6278d094613"
+    },
+    {
+      "name": "convex-docs",
+      "reasons": [
+        "backend"
+      ],
+      "fingerprint": "sha256:b14d3b015368bdd118f2ec1cb5f8babf221fc24cb386106a98626ed1fd895924"
+    },
+    {
+      "name": "react-docs",
+      "reasons": [
+        "web",
+        "tv"
+      ],
+      "fingerprint": "sha256:7e392016768218319ce7b3cf5a551365d2a6f04c31d11988832a04aed527a37e"
+    },
+    {
+      "name": "react-native-docs",
+      "reasons": [
+        "tv"
+      ],
+      "fingerprint": "sha256:bfe9419e1a66f649583ebd3dc56fd13629956967842fc7e2d1f227ff153ace13"
+    },
+    {
+      "name": "vite",
+      "reasons": [
+        "web"
+      ],
+      "fingerprint": "sha256:f37c5b0ef461ff8646d43200fcb82900afe6aa4674700dddea4ea5b8c193b81c"
+    },
+    {
+      "name": "typescript-docs",
+      "reasons": [
+        "web",
+        "backend",
+        "tv"
+      ],
+      "fingerprint": "sha256:54999e73928534237180649b2695349565b0e3cea5dbededdfda7bfe831c1560"
+    },
+    {
+      "name": "react-native-qrcode-svg",
+      "reasons": [
+        "tv-device-link"
+      ],
+      "fingerprint": "sha256:a34ee64d6a63a9b937947e7836400d6b26393cd54ba2736fecb815b95e6483ce"
+    },
+    {
+      "name": "react-native-svg",
+      "reasons": [
+        "tv-device-link"
+      ],
+      "fingerprint": "sha256:0e810d01b5db2686a05b55b3c709ddb1dd519228c8608bd12898150db9aeeba9"
+    }
+  ]
+}
