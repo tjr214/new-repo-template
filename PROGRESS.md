@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-04-07 10:40:28 PM
-**Current Phase:** Feature `13.0` is now complete: the `Welcome To Nurt` baseline has been upgraded into the cross-frontend `Operator Console`, and the next natural item is feature `14.0` for the TV auth device-linking flow.
+**Last Updated:** 2026-04-07 11:53:54 PM
+**Current Phase:** Feature `14.0` planning is now locked: the next execution step is RED/GREEN work for a provider-neutral `web + backend + tv` device-linking flow with QR support on the TV pairing screen.
 
 ## Previous Cycle Archives
 
@@ -17,6 +17,10 @@
 
 ## Completed
 
+- [x] Ran the required feature `14.0` YELLOW pass before updating any trackers: reread `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and `docs/session-summaries/SESSION_146_SUMMARY.md`; ran `date "+%Y-%m-%d %I:%M:%S %p"`; ran `btca status`; and used plain `btca ask` queries against `better-auth-core`, `expo-docs`, and `react-native-docs` for device-flow semantics plus Android TV QR/pairing UX guidance.
+- [x] Locked the feature `14.0` discussion outcome: scope the slice to repos that include `web + backend + tv`, keep the app boundary provider-neutral, have the backend own short-lived device-link records plus final TV app-session redemption, and keep Clerk/Better Auth details confined to the web sign-in and backend validation layers.
+- [x] Locked the TV pairing UX for feature `14.0`: the TV should show a QR code for `verification_uri_complete`, also show visible `verification_uri` and `user_code` fallback text, handle the standard polling/error states (`authorization_pending`, `slow_down`, `access_denied`, `expired_token`, `invalid_grant`, `invalid_request`), and replace the current unauthenticated multi-card `Operator Console` state with a simple mostly-passive pairing screen that has zero or one focusable control.
+- [x] Synced the feature `14.0` planning outcome across `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, and a new session summary so a fresh session can restart directly into RED/GREEN implementation work.
 - [x] Completed the previously-missing manual package-by-package validation follow-up for feature `13.0` on a fresh generated all-target repo: installed Bun and uv workspace dependencies, ran the generated Python CLI app, imported the generated Python library, ran the generated TypeScript CLI app, built and imported the generated TypeScript library, packaged the desktop app, exported the mobile app, exported the TV app, launched desktop to the `Launched Electron app` checkpoint, and served/fetched the web app over HTTP with `Welcome To Nurt` and `Operator Console` confirmed in the returned HTML.
 - [x] Confirmed that the feature `13.0` roadmap retest item is now satisfied by real generated-repo execution rather than only by contract coverage.
 - [x] Completed RED for feature `13.0` by updating the frontend scaffold contracts to lock the `Operator Console` structure semantically across `web`, `desktop`, `mobile`, and `tv` while preserving the feature `11.0` boundary model.

@@ -116,8 +116,13 @@
   - [x] Confirm the resulting baseline is coherent, reusable, and worth shipping as the default nurt frontend experience.
   - [x] Re-test ALL package types to make sure everything is still working: web app pulls up locally, python and typescript CLI apps are working, python/typescript library projects are working, Desktop is working, mobile is working, and TV is working.
 - [ ] 14.0 TV AUTH DEVICE-LINKING FLOW FOR ANDROID TV
-  - [ ] Discuss and lock the full TV auth experience before building.
-  - [ ] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
+  - [x] Discuss and lock the full TV auth experience before building.
+    - [x] Scope the slice to repos that include `web + backend + tv`.
+    - [x] Keep the app boundary provider-neutral: web owns provider sign-in, backend owns device-link records plus approval/redemption, and TV stays a thin polling client.
+    - [x] Keep raw provider credentials off the TV; the backend should redeem approved links into an app-level TV session/token instead.
+  - [x] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
+    - [x] TV should show a QR code for `verification_uri_complete` while also showing visible `verification_uri` and `user_code` fallback text.
+    - [x] The unauthenticated TV state should become a simple mostly-passive pairing screen rather than the current multi-card `Operator Console` layout.
   - [ ] Implement the backend, web, and TV app pieces required for the device-code linking flow.
   - [ ] Validate that the Android TV app can complete the full account-linking flow successfully.
   - [ ] Complete this work before RC1.
