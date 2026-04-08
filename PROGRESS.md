@@ -1,7 +1,7 @@
 # Development Progress
 
-**Last Updated:** 2026-04-08 12:53:21 AM
-**Current Phase:** Feature `14.0` now has its starter implementation in place for `web + backend + tv`, and the remaining open work is the deeper end-to-end runtime closeout for a truly completed TV account-linking flow before RC1.
+**Last Updated:** 2026-04-08 08:50:58 AM
+**Current Phase:** Feature `14.0` starter implementation remains in place, and the next execution step is now more tightly locked: ship the real template-owned Convex-backed live device-link loop for `web + backend + tv`, keep the generated repo compose-ready for the parts it owns, and leave end users responsible only for auth/env setup plus project-specific customization.
 
 ## Previous Cycle Archives
 
@@ -17,6 +17,12 @@
 
 ## Completed
 
+- [x] Ran the required planning-only YELLOW pass after the latest feature `14.0` discussion: reread `PLAN.md`, `PROGRESS.md`, `docs/LIVING_DOCS.md`, `docs/ARCHITECTURE.md`, `TODO-FEATURES.md`, `docs/session-summaries/SESSION_148_SUMMARY.md`, and `docs/BTCA_RESOURCES.md`; ran `date "+%Y-%m-%d %I:%M:%S %p"`; ran `btca status`; and used plain `btca ask` lookups for Convex/Better Auth device-link ownership plus Expo/React Native TV session-persistence guidance.
+- [x] Locked the product-ownership decision for the remaining feature `14.0` work: the real live device-link flow belongs in the template itself for the `web + backend + tv` composition rather than being left to each end user to implement independently.
+- [x] Locked the generated-repo readiness target for the remaining feature `14.0` work: generated repos should be compose-ready for the parts they own (`web` plus local backend/Convex), and the intended out-of-the-box behavior is “fully functional once the end user supplies the required auth/env values,” not “starter baseline only.”
+- [x] Locked the remaining backend ownership boundary from fresh BTCA-backed research: the trusted backend should own device-link records, approval state, single-use redemption, and final TV app-session issuance, while end users should only supply auth env/config and secrets rather than hand-building TV session minting themselves.
+- [x] Locked the TV persistence direction for the remaining feature `14.0` work: the template should own TV app-session persistence, default to normal Expo/RN persistent app-state storage for non-sensitive session metadata, and keep upstream provider credentials off-device; if a sensitive app-issued token must persist, it should be treated separately from non-sensitive session metadata.
+- [x] Reaffirmed the add-mode product rule for composition-owned features: `nurt add` retrofit behavior for feature `14.0` is not incidental and should remain a permanent requirement whenever a repo newly reaches the `web + backend + tv` composition later.
 - [x] Continued the feature `14.0` YELLOW pass from the restart-safe `PLAN.md`: reread the tracked planning/docs/session-summary files, reread the current scaffold/auth/TV/fullstack/add-mode/test files relevant to the slice, reran dependency-context lookups, and confirmed the composition-specific implementation surfaces before RED.
 - [x] Resolved the QR dependency governance step correctly: got explicit user confirmation to add project BTCA resources for `react-native-qrcode-svg` and `react-native-svg`, added both resources to `btca.config.jsonc`, used `btca ask` against those resources for the minimal Expo/RN TV QR import pattern, and synced `docs/BTCA_RESOURCES.md` back to the live project resource set.
 - [x] Completed RED for feature `14.0` with new and updated contract coverage: `tests/contracts/test_tv_device_link_flow_contract.py` now locks the `web + backend + tv` device-link baseline plus the add-mode retrofit path, and `tests/contracts/test_btca_config_contract.py` now guards composition-aware QR BTCA resource inclusion while keeping those resources out of `tv`-only repos.

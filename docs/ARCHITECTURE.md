@@ -55,6 +55,9 @@ The target architecture is an always-on monorepo template that can scaffold:
 - Feature `14.0` unauthenticated-TV policy: replace the current operator-console auth-needed state with a simple pairing screen that is mostly passive and has zero or one focusable control
 - Feature `14.0` token policy: after approval, the backend should issue an app-level TV session/token rather than exposing upstream provider credentials to the TV client
 - Feature `14.0` add-mode policy: if an existing repo newly reaches the `web + backend + tv` composition through `nurt add`, add-mode should retrofit the same device-link baseline into the pre-existing web/backend/tv lanes rather than leaving composition-specific drift behind
+- Feature `14.0` product-ownership policy: the real live device-link flow is template-owned functionality for the `web + backend + tv` composition, not optional example code left for each end user to build themselves
+- Feature `14.0` readiness policy: the generated repo should be compose-ready for the parts it owns and should be intended to work once the end user supplies the required auth/env values
+- Feature `14.0` TV persistence policy: the template should own restart-safe TV app-session persistence while keeping upstream provider credentials off-device
 
 ## Planned Topology
 
@@ -126,6 +129,7 @@ The target architecture is an always-on monorepo template that can scaffold:
 - The QR dependency governance step is now complete in the template repo: project BTCA resources now include `react-native-qrcode-svg` and `react-native-svg`, and the live docs are synchronized to that project-level inventory.
 - Runtime evidence now exists for the starter slice as well: a fresh generated `web + backend + tv` repo installed successfully, the web app built successfully, the TV app exported successfully with the QR dependency stack, the `/device` route served successfully via both the app-local dev server and the generated root Docker Compose path, and the full repository suite is green at 252 tests.
 - The remaining architecture gap for fully closing feature `14.0` is no longer the scaffold boundary but the live auth loop: the generated files currently express the provider-neutral device-link contract and starter UI flow, but a true cross-device approval-and-redemption implementation still has to replace the starter review/polling behavior before RC1 can call the feature fully done.
+- Fresh BTCA-backed planning also tightened the implementation shape for that remaining gap: the trusted backend should own device-link records and final TV session issuance, generated repos should be considered ready once auth/env values are supplied, and TV app-session persistence should be part of the template-owned runtime contract rather than an end-user afterthought.
 - Feature `6.0` closeout also corrected the sync-governance implementation so `src/new_repo_template/snapshot_assets/source_manifest.json` is again the sole source of truth for foundation sync scope; the helper layer no longer rejects user-approved `management.sync = true` entries via a second hardcoded allowlist.
 - Initial contract-test harness now exists under `tests/` with a first RED test for monorepo foundation dry-run behavior.
 - The initial RED test is now GREEN via a bootstrap CLI implementation at `src/new_repo_template/scaffold.py`.

@@ -135,8 +135,10 @@
       - [ ] Wire the web `/device` route into the real signed-in approval path for the configured provider boundary.
       - [ ] Wire the TV app into real backend polling and real app-session persistence.
       - [ ] Keep the generated implementation provider-neutral at the app boundary so end users only plug their chosen Convex auth wiring into env/config.
+      - [ ] Treat the generated repo as ready-to-run once the end user supplies the required auth/env values; do not stop at a starter-only example baseline.
     - [ ] Lock the operational defaults in the generated implementation.
       - [ ] Define TV persistence behavior for startup, logout, expiry, and invalid-session recovery.
+      - [ ] Default TV persistence to normal Expo/React Native persistent app-state storage for non-sensitive session metadata, with separate handling only if a sensitive app-issued token must persist.
       - [ ] Define failure-state UX for `expired_token`, `access_denied`, `invalid_grant`, `slow_down`, and backend-connectivity failures.
       - [ ] Define security defaults for code expiry window, polling interval/backoff, one-time redemption, safe code storage, and rate limiting.
     - [ ] Keep the generated docs/env contract explicit.
