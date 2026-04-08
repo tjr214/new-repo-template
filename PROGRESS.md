@@ -1,6 +1,6 @@
 # Development Progress
 
-**Last Updated:** 2026-04-07 10:26:06 PM
+**Last Updated:** 2026-04-07 10:40:28 PM
 **Current Phase:** Feature `13.0` is now complete: the `Welcome To Nurt` baseline has been upgraded into the cross-frontend `Operator Console`, and the next natural item is feature `14.0` for the TV auth device-linking flow.
 
 ## Previous Cycle Archives
@@ -17,6 +17,8 @@
 
 ## Completed
 
+- [x] Completed the previously-missing manual package-by-package validation follow-up for feature `13.0` on a fresh generated all-target repo: installed Bun and uv workspace dependencies, ran the generated Python CLI app, imported the generated Python library, ran the generated TypeScript CLI app, built and imported the generated TypeScript library, packaged the desktop app, exported the mobile app, exported the TV app, launched desktop to the `Launched Electron app` checkpoint, and served/fetched the web app over HTTP with `Welcome To Nurt` and `Operator Console` confirmed in the returned HTML.
+- [x] Confirmed that the feature `13.0` roadmap retest item is now satisfied by real generated-repo execution rather than only by contract coverage.
 - [x] Completed RED for feature `13.0` by updating the frontend scaffold contracts to lock the `Operator Console` structure semantically across `web`, `desktop`, `mobile`, and `tv` while preserving the feature `11.0` boundary model.
 - [x] Completed GREEN for feature `13.0` in the shared, token, UI, and target template files: `packages/shared` now exports the richer operator-console content model (`NURT_WELCOME_HERO`, `NURT_WELCOME_ACTIONS`, `NURT_WELCOME_SECTIONS` plus updated highlights/steps/TV cards), `packages/ui` now owns reusable web components (`HeroPanel`, `SectionFrame`, `FeatureCard`, `StepList`, `ActionCluster`, `Eyebrow`), the web route now renders through those owned UI components, desktop now renders target-local `DesktopHeroPanel`/`DesktopFeatureCard`/`DesktopStepList`/`DesktopActionCluster`, mobile now renders target-local `MobileHeroPanel`/`MobileHighlightCard`/`MobileStepCard`/`MobileActionRow`, and TV now renders richer target-local `TVFocusRail`/`TVFocusCard`/`TVDetailPanel`/`TVActionHint` components while keeping remote/focus logic local.
 - [x] Completed BLUE for feature `13.0` with `uv run python -m new_repo_template.nurt_cli template-assets validate --source-root "."`, targeted frontend contract validation (22 passed), broader package-matrix validation (29 passed), `uv run ruff check src/new_repo_template tests/contracts`, and `uv run pytest` (248 passed).
