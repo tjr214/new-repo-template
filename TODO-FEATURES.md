@@ -120,15 +120,35 @@
     - [x] Scope the slice to repos that include `web + backend + tv`.
     - [x] Keep the app boundary provider-neutral: web owns provider sign-in, backend owns device-link records plus approval/redemption, and TV stays a thin polling client.
     - [x] Keep raw provider credentials off the TV; the backend should redeem approved links into an app-level TV session/token instead.
+    - [x] Treat this as a template-owned capability for the `web + backend + tv` composition, not as optional per-project custom work for end users.
+    - [x] The generated repo should be compose-ready for the parts it owns: local web plus local backend/Convex should boot from the generated repo, while end users only need to plug in auth/env values.
   - [x] Plan the device-linking flow where the TV app shows a code and a web address, the user signs in on the web, enters the code, and links the TV app to their account.
     - [x] TV should show a QR code for `verification_uri_complete` while also showing visible `verification_uri` and `user_code` fallback text.
     - [x] The unauthenticated TV state should become a simple mostly-passive pairing screen rather than the current multi-card `Operator Console` layout.
+    - [x] TV app-session persistence is part of the template-owned flow so linked TVs remain signed in across restarts.
   - [x] Implement the backend, web, and TV app pieces required for the device-code linking flow.
     - [x] Generated `web + backend + tv` repos now scaffold the device-link starter files and QR-aware TV pairing surface.
     - [x] `nurt add` now retrofits the same baseline when an existing repo newly reaches the `web + backend + tv` composition.
+    - [ ] Replace the current starter flow with a real Convex-backed approval-and-redemption implementation owned by the template itself.
+      - [ ] Convex should own device-link record creation, expiry, approval state, redemption, and app-level TV session issuance.
+      - [ ] Only enable the live device-link flow when backend auth is enabled; repos with backend auth set to `none` must not pretend the flow is real.
+      - [ ] Wire the web `/device` route into the real signed-in approval path for the configured provider boundary.
+      - [ ] Wire the TV app into real backend polling and real app-session persistence.
+      - [ ] Keep the generated implementation provider-neutral at the app boundary so end users only plug their chosen Convex auth wiring into env/config.
+    - [ ] Lock the operational defaults in the generated implementation.
+      - [ ] Define TV persistence behavior for startup, logout, expiry, and invalid-session recovery.
+      - [ ] Define failure-state UX for `expired_token`, `access_denied`, `invalid_grant`, `slow_down`, and backend-connectivity failures.
+      - [ ] Define security defaults for code expiry window, polling interval/backoff, one-time redemption, safe code storage, and rate limiting.
+    - [ ] Keep the generated docs/env contract explicit.
+      - [ ] Document exactly which auth/env values the end user must supply.
+      - [ ] Document what `docker compose` starts locally and what still depends on hosted auth configuration.
   - [ ] Validate that the Android TV app can complete the full account-linking flow successfully.
     - [x] The starter baseline now survives real generated-repo install/build/export/runtime checks: web build succeeds, TV export succeeds, the `/device` route serves over live HTTP, and the generated Docker Compose stack still boots.
-    - [ ] The current generated flow still needs a stronger real cross-device approval-and-redemption validation pass before this item can be called fully done.
+    - [ ] Validate the real cross-device approval-and-redemption loop after the live Convex-backed flow is wired.
+      - [ ] Prove the TV shows a live QR/code, the user signs in on web, approves the TV, and the TV receives a real persisted app session/token.
+      - [ ] Validate at least one failure path such as expiry or denial on Android TV.
+      - [ ] Use Android TV emulator as the minimum required real validation target.
+      - [ ] Treat physical NVIDIA Shield validation as a useful follow-up, not the minimum blocker for this roadmap item.
   - [ ] Complete this work before RC1.
 - [ ] 15.0 FINAL TESTS BEFORE RELEASE CANDIDATE 1
   - [ ] RC1 is blocked on the planning, implementation, and validation work captured in `10.0` through `14.0`.
